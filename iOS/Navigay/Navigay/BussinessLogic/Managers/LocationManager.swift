@@ -15,8 +15,8 @@ enum LocationStatus {
 final class LocationManager: NSObject, ObservableObject {
     
     //MARK: - Properties
-    @Published var userLocation: CLLocation = CLLocation(latitude: 48.24608899975663, longitude: 16.43973750035735)
-   // @Published var userLocation: CLLocation? = nil
+    
+    @Published var userLocation: CLLocation? = nil
     @Published var authorizationStatus: LocationStatus = .loading
     @Published var isAlertIfLocationDeniedDisplayed: Bool = false
     
@@ -32,8 +32,7 @@ final class LocationManager: NSObject, ObservableObject {
     
     override init() {
         super.init()
-        locationManager.distanceFilter = 100 //TODO?
-        locationManager.pausesLocationUpdatesAutomatically = true
+        locationManager.distanceFilter = 1000 //TODO?
         locationManager.desiredAccuracy = kCLLocationAccuracyHundredMeters //TODO?
         locationManager.delegate = self
         locationManager.requestWhenInUseAuthorization()
@@ -54,7 +53,6 @@ extension LocationManager: CLLocationManagerDelegate {
             manager.requestLocation()
         case .denied:
             authorizationStatus = .denied
-            
         case .notDetermined:
             manager.requestWhenInUseAuthorization()
         default: ()
@@ -66,6 +64,7 @@ extension LocationManager: CLLocationManagerDelegate {
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        debugPrint("LocationManager didUpdateLocations")
         manager.stopUpdatingLocation()
         guard let currentLocation = locations.last, currentLocation != userLocation else { return }
         userLocation = currentLocation

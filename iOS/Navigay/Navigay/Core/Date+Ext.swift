@@ -21,6 +21,11 @@ extension Date {
         return Calendar.current.isDateInToday(self)
     }
     
+    /// Checking if the date is Tomorrow
+    var isTomorrow: Bool {
+            return Calendar.current.isDateInTomorrow(self)
+        }
+    
     /// Checking if the date is Today Same Day
     var isSameDay: Bool {
         return Calendar.current.compare(self, to: .init(), toGranularity: .day) == .orderedSame

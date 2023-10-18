@@ -46,6 +46,9 @@ final class Event {
     @Transient
     lazy var coordinate: CLLocationCoordinate2D = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
     
+    @Transient
+    var tag: UUID = UUID()
+    
     init(decodedEvent: DecodedEvent) {
         self.id = decodedEvent.id
         updateEventIncomplete(decodedEvent: decodedEvent)
