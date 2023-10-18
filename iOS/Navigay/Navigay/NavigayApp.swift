@@ -10,9 +10,10 @@ import SwiftData
 
 @main
 struct NavigayApp: App {
+    
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
-            User.self,
+            AppUser.self
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 

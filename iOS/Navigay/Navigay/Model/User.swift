@@ -10,30 +10,51 @@ import SwiftData
 
 
 @Model
-final class User {
+final class AppUser {
     let id: Int
+    var email: String
     var name: String
     var status: UserAccessRights
-    var email: String?
     var bio: String?
     var photo: String?
-    var photoData: Data?
     var instagram: String?
-    var likedPlacesId: [Int]
+    var likedPlacesId: [Place] = []
+    var isUserLoggedIn: Bool = false
     
-    init(id: Int,
-         name: String,
-         status: UserAccessRights,RegistrationView
-         email: String? = nil, bio: String? = nil, photo: String? = nil, photoData: Data? = nil, instagram: String? = nil, likedPlacesId: [Int]) {
-        self.id = id
-        self.name = name
-        self.status = status
-        self.email = email
-        self.bio = bio
-        self.photo = photo
-        self.photoData = photoData
-        self.instagram = instagram
-        self.likedPlacesId = likedPlacesId
+    init(decodedUser: DecodedAppUser) {
+        self.id = decodedUser.id
+        self.email = decodedUser.email
+        self.name = decodedUser.name
+        self.status = decodedUser.status
+        self.email = decodedUser.email
+        self.bio = decodedUser.bio
+        self.photo = decodedUser.photo
+        self.instagram = decodedUser.instagram
+    }
+    
+    func updateUser(decodedUser: DecodedAppUser) {
+        name = decodedUser.name
+        email = decodedUser.email
+        status = decodedUser.status
+        bio = decodedUser.bio
+        photo = decodedUser.photo
+        instagram = decodedUser.instagram
+    }
+}
+
+@Model
+final class User {
+    let id: Int
+    var name: String = ""
+    var bio: String? = nil
+    var photo: String? = nil
+    var photoData: Data? = nil
+    var instagram: String? = nil
+    var likedPlacesId: [Place] = []
+    
+    init(decodedUser: DecodedUser) {
+        self.id = decodedUser.id
+        updateUserIncomplete(decodedUser: decodedUser)
     }
     
     func updateUserIncomplete(decodedUser: DecodedUser) {
@@ -42,11 +63,9 @@ final class User {
     }
     
     func updateUser(decodedUser: DecodedUser) {
-        email = decodedUser.email
         name = decodedUser.name
         bio = decodedUser.bio
-        instagram = decodedUser.instagram
         photo = decodedUser.photo
-        status = decodedUser.status ?? .user
+        instagram = decodedUser.instagram
     }
 }

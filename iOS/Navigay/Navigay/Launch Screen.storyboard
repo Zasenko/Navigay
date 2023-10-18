@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="22154" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22130"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="EHf-IW-A2E">
+            <objects>
+                <viewController id="01J-lp-oVM" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="Ze5-6b-2t3">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="OaD-GJ-t67">
+                                <rect key="frame" x="0.0" y="59" width="393" height="759"/>
+                                <subviews>
+                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" image="full-logo" translatesAutoresizingMaskIntoConstraints="NO" id="7ke-T3-Cya">
+                                        <rect key="frame" x="-937.66666666666663" y="354.66666666666669" width="2268.3333333333335" height="50"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="50" id="ia6-5n-QOO"/>
+                                        </constraints>
+                                    </imageView>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Loading..." textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="RNg-hW-mHG">
+                                        <rect key="frame" x="170.66666666666666" y="424.66666666666669" width="51.666666666666657" height="13.333333333333314"/>
+                                        <fontDescription key="fontDescription" style="UICTFontTextStyleCaption2"/>
+                                        <color key="textColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                                <constraints>
+                                    <constraint firstItem="RNg-hW-mHG" firstAttribute="centerX" secondItem="7ke-T3-Cya" secondAttribute="centerX" id="1hx-0D-NTG"/>
+                                    <constraint firstItem="RNg-hW-mHG" firstAttribute="top" secondItem="7ke-T3-Cya" secondAttribute="bottom" constant="20" id="HDZ-kg-FGl"/>
+                                    <constraint firstItem="7ke-T3-Cya" firstAttribute="centerY" secondItem="OaD-GJ-t67" secondAttribute="centerY" id="VQY-j7-xko"/>
+                                    <constraint firstItem="7ke-T3-Cya" firstAttribute="centerX" secondItem="OaD-GJ-t67" secondAttribute="centerX" id="ehS-n5-1AS"/>
+                                </constraints>
+                            </view>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="Bcu-3y-fUS"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="Bcu-3y-fUS" firstAttribute="bottom" secondItem="OaD-GJ-t67" secondAttribute="bottom" id="Oyk-do-LWA"/>
+                            <constraint firstItem="OaD-GJ-t67" firstAttribute="trailing" secondItem="Bcu-3y-fUS" secondAttribute="trailing" id="Pmu-rf-QkB"/>
+                            <constraint firstItem="OaD-GJ-t67" firstAttribute="leading" secondItem="Bcu-3y-fUS" secondAttribute="leading" id="uHk-PR-PaN"/>
+                            <constraint firstItem="OaD-GJ-t67" firstAttribute="top" secondItem="Ze5-6b-2t3" secondAttribute="topMargin" id="vwh-T4-Ucb"/>
+                        </constraints>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="iYj-Kq-Ea1" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="52.671755725190835" y="374.64788732394368"/>
+        </scene>
+    </scenes>
+    <resources>
+        <image name="full-logo" width="2268" height="567"/>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
+</document>
