@@ -31,7 +31,7 @@ struct TabBarView: View {
         VStack(spacing: 0) {
             switch selectedPage {
             case .home:
-                Color.orange
+               HomeView(networkManager: CatalogNetworkManager(appSettingsManager: appSettingsManager), locationManager: locationManager)
             case .map:
                 MapView(locationManager: locationManager)
             case .search:

@@ -16,7 +16,7 @@ struct EventCell: View {
     var formattedDate: AttributedString {
         var formattedDate: AttributedString = event.startDate.formatted(Date.FormatStyle().day().month(.wide).weekday(.wide).attributed)
         let weekday = AttributeContainer.dateField(.weekday)
-        let color = AttributeContainer.foregroundColor(.red)
+        let color = AttributeContainer.foregroundColor(event.startDate.isWeekend ? .red : .blue)
         formattedDate.replaceAttributes(weekday, with: color)
         return formattedDate
     }
@@ -31,7 +31,7 @@ struct EventCell: View {
                 image
                     .resizable()
                     .scaledToFill()
-                    .frame(width: 200, height: 300)
+                    .frame(width: 170, height: 220)
                     .mask(
                         RoundedRectangle(cornerRadius: 10, style: .continuous)
                     )
@@ -39,7 +39,7 @@ struct EventCell: View {
                     .shadow(color: Color.gray.opacity(0.3), radius: 30, x: 0, y: 30)
             } else {
                 Color.black
-                    .frame(width: 200, height: 300)
+                    .frame(width: 170, height: 220)
                     .mask(RoundedRectangle(cornerRadius: 20))
             }
             Text(event.name)
@@ -58,6 +58,7 @@ struct EventCell: View {
                 .opacity(event.isFree ? 1 : 0)
                 .padding(.bottom)
         }
+        .frame(width: 170)
         .onAppear() {
             if let url = event.cover {
                 Task {
