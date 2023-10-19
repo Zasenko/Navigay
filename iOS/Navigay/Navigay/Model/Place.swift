@@ -31,6 +31,9 @@ final class Place {
     @Transient
     lazy var coordinate: CLLocationCoordinate2D = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
     
+    @Transient
+    var tag: UUID = UUID()
+    
     init(decodedPlace: DecodedPlace) {
         self.id = decodedPlace.id
         updatePlaceIncomplete(decodedPlace: decodedPlace)
