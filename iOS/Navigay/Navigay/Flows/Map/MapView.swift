@@ -26,7 +26,8 @@ struct MapEventPin: View {
             image
                 .resizable()
                 .scaledToFill()
-                .frame(width: event.tag == selectedTag ? 100 : 30, height: event.tag == selectedTag ? 150 : 50)
+                .frame(width: 100, height: 100)
+                .scaleEffect(event.tag == selectedTag ? 1 : 0.3, anchor: .bottom)
                 .clipShape(RoundedRectangle(cornerRadius: 10))
                 .animation(.default, value: selectedTag)
                 .overlay(alignment: .bottom) {

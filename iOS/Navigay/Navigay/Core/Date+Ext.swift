@@ -23,8 +23,17 @@ extension Date {
     
     /// Checking if the date is Tomorrow
     var isTomorrow: Bool {
-            return Calendar.current.isDateInTomorrow(self)
-        }
+        return Calendar.current.isDateInTomorrow(self)
+    }
+    
+    /// Checking if the date is Yesterday
+    var isYesterday: Bool {
+        return Calendar.current.isDateInYesterday(self)
+    }
+    
+    var isWeekend: Bool {
+        return Calendar.current.isDateInWeekend(self)
+    }
     
     /// Checking if the date is Today Same Day
     var isSameDay: Bool {
