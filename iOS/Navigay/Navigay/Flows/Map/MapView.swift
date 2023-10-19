@@ -9,13 +9,55 @@ import SwiftUI
 import SwiftData
 import MapKit
 
+struct MapEventPin: View {
+    
+    //MARK: - Properties
+    
+    let event: Event
+    @Binding var selectedTag: UUID?
+    
+    //MARK: - Private Properties
+    
+    @State private var image: Image = AppImages.iconAdmin
+    
+    //MARK: - Body
+    
+    var body: some View {
+            image
+                .resizable()
+                .scaledToFill()
+                .frame(width: event.tag == selectedTag ? 100 : 30, height: event.tag == selectedTag ? 150 : 50)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+                .animation(.default, value: selectedTag)
+                .overlay(alignment: .bottom) {
+                    Image(systemName: "arrowtriangle.left.fill")
+                        .rotationEffect (Angle(degrees: 270))
+                        .foregroundColor(.white)
+                        .offset(y: 10)
+                }
+        
+        .onAppear() {
+            if let url = event.cover {
+                Task {
+                    if let image = await ImageLoader.shared.loadImage(urlString: url) {
+                        await MainActor.run {
+                            self.image = image
+                        }
+                    }
+                }
+            }
+        }
+        
+    }
+}
+
 struct MapView: View {
     
     @ObservedObject var locationManager: LocationManager
     
     @Query(filter: #Predicate<Place>{ $0.isActive == true }, animation: .snappy)
     private var allPlaces: [Place]
-
+    
     @Query(filter: #Predicate<Event>{ $0.isActive == true }, animation: .snappy)
     private var allEvents: [Event]
     
@@ -29,69 +71,65 @@ struct MapView: View {
     
     @State private var selectedTag: UUID?
     
-    @State private var position: MapCameraPosition = .userLocation(followsHeading: false, fallback: .automatic)
+    @State private var position: MapCameraPosition = .automatic
     
     @State private var route: MKRoute?
     
     var body: some View {
-        
-        Map(position: $position, selection: $selectedTag) {
-            ForEach(filteredPlaces) {
-                Marker($0.name, monogram: Text($0.type.getImage()), coordinate: $0.coordinate)
-                    .tint($0.type.getColor())
-                    .tag($0.tag)
-            }
-            .annotationTitles(.hidden)
-            
-            ForEach(filteredEvents) {
-                Annotation($0.name, coordinate: $0.coordinate, anchor: .bottom) {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 5)
-                            .fill(.orange)
-                        RoundedRectangle(cornerRadius: 5)
-                            .stroke(.black, lineWidth: 3)
-                        Image("7x5")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 30, height: 30)
-                            .padding(4)
-                    }
+        NavigationStack {
+            Map(position: $position, selection: $selectedTag) {
+                ForEach(filteredPlaces) {
+                    Marker($0.name, monogram: Text($0.type.getImage()), coordinate: $0.coordinate)
+                        .tint($0.type.getColor())
+                        .tag($0.tag)
                 }
                 .annotationTitles(.hidden)
-                .tag($0.tag)
+                
+                ForEach(filteredEvents) { event in
+                    Annotation(event.name, coordinate: event.coordinate, anchor: .bottom) {
+                        MapEventPin(event: event, selectedTag: $selectedTag)
+                        //                    VStack(spacing: 0) {
+                        //                        Image("7x5")
+                        //                            .resizable()
+                        //                            .scaledToFit()
+                        //                            .frame(width: event.tag == selectedTag ? 50 : 30, height: event.tag == selectedTag ? 50 : 30)
+                        //                            .clipped()
+                        //                        Image(systemName: "triangle.fill")
+                        //                    }
+                    }
+                    .annotationTitles(.hidden)
+                    .tag(event.tag)
+                }
+                .annotationTitles(.hidden)
+                
+                //     UserAnnotation()
+                
+                if let route {
+                    MapPolyline(route)
+                        .stroke(.blue, lineWidth: 5)
+                }
             }
-            .annotationTitles(.hidden)
-
-           UserAnnotation()
-            
-            if let route {
-                MapPolyline(route)
-                    .stroke(.blue, lineWidth: 5)
-            }
-        }
-        .mapStyle(.standard(elevation: .flat, pointsOfInterest: .including([.publicTransport])))
-        .mapControlVisibility(.hidden)
-        .onChange(of: locationManager.userLocation, initial: true) { oldValue, newValue in
-            guard let userLocation = newValue else { return }
-            let radius: Double = 20000 // Радиус в метрах
+            .mapStyle(.standard(elevation: .flat, pointsOfInterest: .including([.publicTransport])))
+            .mapControlVisibility(.hidden)
+            .onChange(of: locationManager.userLocation, initial: true) { oldValue, newValue in
+                guard let userLocation = newValue else { return }
+                let radius: Double = 20000 // Радиус в метрах
                 filteredPlaces = allPlaces.filter { place in
                     let distance = userLocation.distance(from: CLLocation(latitude: place.latitude, longitude: place.longitude))
-                    print("name: \(place.name), distance: \(distance), hashValue: \(place.hashValue)")
                     return distance <= radius
                 }
                 
                 filteredEvents = allEvents.filter { event in
                     let distance = userLocation.distance(from: CLLocation(latitude: event.latitude, longitude: event.longitude))
-                    print("name: \(event.name), distance: \(distance), hashValue: \(event.hashValue)")
                     return distance <= radius && event.isActive == true && (event.startDate.isToday || event.startDate.isTomorrow )
                 }
-            if selectedTag == nil {
-                withAnimation {
-                    position = .automatic
+                if selectedTag == nil {
+                    withAnimation {
+                        position = .automatic
+                    }
                 }
             }
-        }
-        .onChange(of: selectedTag) { oldValue, newValue in
+            .onChange(of: selectedTag) { oldValue, newValue in
                 if newValue == nil {
                     selectedEvent = nil
                     selectedPlace = nil
@@ -111,29 +149,44 @@ struct MapView: View {
                         position = .camera(MapCamera(centerCoordinate: e.coordinate, distance: 500))
                     }
                 }
-        }
-        .safeAreaInset(edge: .top) {
-            HStack {
-                Text("All places")
-                Spacer()
-            }.padding(.leading)
-        }
-        .safeAreaInset(edge: .bottom) {
-            HStack {
-//                if let selectedResult {
-//                    ItemInfoView(selectedResult: $selectedResult, route: $route)
-//                        .frame(height: 128)
-//                        .clipShape(RoundedRectangle(cornerRadius: 10))
-//                        .padding([.top, .horizontal])
-//                }
+            }
+            .safeAreaInset(edge: .top) {
+                HStack {
+                    Text("All places")
+                    Spacer()
+                }.padding(.leading)
+            }
+            .safeAreaInset(edge: .bottom) {
                 
-                if let selectedEvent {
-                    Text(selectedEvent.name)
+                HStack {
+                    //                if let selectedResult {
+                    //                    ItemInfoView(selectedResult: $selectedResult, route: $route)
+                    //                        .frame(height: 128)
+                    //                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                    //                        .padding([.top, .horizontal])
+                    //                }
+                    
+                    if let selectedEvent {
+                        Text(selectedEvent.name)
+                    }
+                    
+                    if let selectedPlace {
+                        NavigationLink {
+                            PlaceView(place: selectedPlace, networkManager: EventNetworkManager(appSettingsManager: AppSettingsManager()))
+                        } label: {
+                            PlaceCell(place: selectedPlace)
+                                .padding()
+                                .background(selectedPlace.type.getColor())
+                            
+                                .clipShape(RoundedRectangle(cornerRadius: 20))
+                                .padding([.horizontal, .bottom])
+                                .transition(.move(edge: .bottom).combined(with: .opacity))
+                        }
+                        
+                        
+                    }
                 }
                 
-                if let selectedPlace {
-                    Text(selectedPlace.name)
-                }
             }
         }
     }
@@ -167,7 +220,7 @@ struct ItemInfoView: View {
         formatter.allowedUnits = [.hour, .minute]
         return formatter.string(from: route.expectedTravelTime)
     }
-        
+    
     var body: some View {
         LookAroundPreview(initialScene: lookAroundScene)
             .overlay(alignment: .bottomTrailing) {

@@ -28,7 +28,7 @@ final class LocationManager: NSObject, ObservableObject {
     
     //private let networkManager: LocationNetworkManagerProtocol
         
-    // MARK: - Inits
+    //MARK: - Inits
     
     override init() {
         super.init()
