@@ -15,7 +15,7 @@ enum PlaceType: Int, Codable, CaseIterable, Comparable {
          club = 4,
          hotel = 5,
          sauna = 6,
-         cruise = 7,
+         cruiseBar = 7,
          beach = 8,
          shop = 9,
          gym = 10,
@@ -38,10 +38,10 @@ enum PlaceType: Int, Codable, CaseIterable, Comparable {
             return "Hotel"
         case .sauna:
             return "Sauna"
-        case .cruise:
-            return "Cruise"
+        case .cruiseBar:
+            return "Cruise bar"
         case .beach:
-            return "Beache"
+            return "Beach"
         case .shop:
             return "Shop"
         case .gym:
@@ -73,8 +73,8 @@ enum PlaceType: Int, Codable, CaseIterable, Comparable {
             return "Hotels"
         case .sauna:
             return "Saunas"
-        case .cruise:
-            return "Cruises"
+        case .cruiseBar:
+            return "Cruise bars"
         case .beach:
             return "Beaches"
         case .shop:
@@ -108,7 +108,7 @@ enum PlaceType: Int, Codable, CaseIterable, Comparable {
             return Color.gray
         case .sauna:
             return Color.blue
-        case .cruise:
+        case .cruiseBar:
             return Color.red
         case .beach:
             return Color.yellow
@@ -143,7 +143,7 @@ enum PlaceType: Int, Codable, CaseIterable, Comparable {
             return "🛏️"
         case .sauna:
             return "🧖‍♂️"
-        case .cruise:
+        case .cruiseBar:
             return "😈"
         case .beach:
             return "⛱️"

@@ -23,7 +23,7 @@ struct TabBarButtonView : View {
             button.img
                 .resizable()
                 .scaledToFit()
-                .frame(width: 30, height: 30)
+                .frame(width: 25, height: 25)
                 .foregroundColor(selectedPage == button.page ? .red : AppColors.lightGray5)
                 .bold()
         }

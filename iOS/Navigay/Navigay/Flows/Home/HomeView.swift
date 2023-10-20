@@ -35,7 +35,6 @@ struct HomeView: View {
     var body: some View {
         NavigationStack {
             List {
-                
                 if aroundEvents.count > 0 {
                     Section {
                         Text("Upcoming events".uppercased())

@@ -31,7 +31,7 @@ struct TabBarView: View {
         VStack(spacing: 0) {
             switch selectedPage {
             case .home:
-               HomeView(networkManager: CatalogNetworkManager(appSettingsManager: appSettingsManager), locationManager: locationManager)
+                HomeView(networkManager: CatalogNetworkManager(appSettingsManager: appSettingsManager), locationManager: locationManager)
             case .map:
                 MapView(locationManager: locationManager)
             case .search:
@@ -39,10 +39,11 @@ struct TabBarView: View {
             case .user:
                 AppUserView(authenticationManager: authenticationManager)
             case .admin:
-                Color.pink
+                AdminView()
             }
             tabBar
         }
+        .ignoresSafeArea(.keyboard, edges: .bottom)
         .onAppear() {
             Task {
                 if let url = authenticationManager.appUser?.photo {
@@ -95,6 +96,8 @@ struct TabBarView: View {
     
     
     private var tabBar: some View {
+        VStack(spacing: 0) {
+            Divider()
             HStack(spacing: 40) {
                 if locationManager.authorizationStatus != .denied {
                     TabBarButtonView(selectedPage: $selectedPage,
@@ -104,7 +107,7 @@ struct TabBarView: View {
                 }
                 TabBarButtonView(selectedPage: $selectedPage,
                                  button: searchButton)
-
+                
                 if let img = userImage {
                     Button {
                         selectedPage = .user
@@ -112,27 +115,26 @@ struct TabBarView: View {
                         img
                             .resizable()
                             .scaledToFit()
-                            .frame(width: 30, height: 30)
+                            .frame(width: 25, height: 25)
                             .clipShape(Circle())
                             .padding(3)
-                                .overlay(
-                                    Circle()
-                                        .stroke(AppColors.lightGray5, lineWidth: 3)
-                                )
+                            .overlay(
+                                Circle()
+                                    .stroke(AppColors.lightGray5, lineWidth: 3)
+                            )
                     }
                 } else {
                     TabBarButtonView(selectedPage: $selectedPage,
                                      button: userButton)
                 }
-
-                if let user = authenticationManager.appUser,
-                   user.status == .admin {
-                    TabBarButtonView(selectedPage: $selectedPage,
-                                     button: adminButton)
-                }
+                
+                // if let user = authenticationManager.appUser, user.status == .admin {
+                TabBarButtonView(selectedPage: $selectedPage,
+                                 button: adminButton)
+                // }
             }
-            .padding(.top)
-        
+            .padding(8)
+        }
     }
 }
 

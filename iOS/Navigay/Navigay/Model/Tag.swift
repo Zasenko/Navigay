@@ -32,7 +32,12 @@ enum Tag: Int, Codable, CaseIterable {
          liveMusic = 22,
          freeWiFi = 23,
          drag = 24,
-         garden = 25
+         garden = 25,
+         beach = 26,
+         cabins = 27,
+         gay = 28,
+         allGenders = 29,
+         cinema = 30
     
     func getString() -> String {
         switch self {
@@ -69,7 +74,7 @@ enum Tag: Int, Codable, CaseIterable {
         case .cruise:
             return "cruise"
         case .goGoShow:
-            return "goGoShow"
+            return "go-go dancing"
         case .music:
             return "music"
         case .massage:
@@ -86,6 +91,16 @@ enum Tag: Int, Codable, CaseIterable {
             return "drag"
         case .garden:
             return "garden"
+        case .beach:
+            return "beach"
+        case .cabins:
+            return "cabins"
+        case .gay:
+            return "gay"
+        case .allGenders:
+            return "all genders"
+        case .cinema:
+            return "cinema"
         }
     }
 }
