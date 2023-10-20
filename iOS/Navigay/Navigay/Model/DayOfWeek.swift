@@ -17,43 +17,47 @@ enum DayOfWeek: Int, Codable, CaseIterable {
          sunday = 7
     
     func getString() -> String {
+        
+        var calendar = Calendar.current
+        calendar.locale = Locale(identifier: "ru")
+        
         switch self {
         case .monday:
-            return "Monday"
+            return calendar.standaloneWeekdaySymbols[1]
         case .tuesday:
-            return "Tuesday"
+            return calendar.standaloneWeekdaySymbols[2]
         case .wednesday:
-            return "Wednesday"
+            return calendar.standaloneWeekdaySymbols[3]
         case .thursday:
-            return "Thursday"
+            return calendar.standaloneWeekdaySymbols[4]
         case .friday:
-            return "Friday"
+            return calendar.standaloneWeekdaySymbols[5]
         case .saturday:
-            return "Saturday"
+            return calendar.standaloneWeekdaySymbols[6]
         case .sunday:
-            return "Sunday"
+            return calendar.standaloneWeekdaySymbols[0]
         }
     }
-}
-
-struct NewWorkDay: Codable, Identifiable {
     
-    let id: Int
-    let day: DayOfWeek
-    var opening: Date = .now
-    var closing: Date = .now
-    var isChecked: Bool = false
-    
-    init(id: Int, day: DayOfWeek, opening: Date? = nil, closing: Date? = nil) {
-        self.id = id
-        self.day = day
-        let calendar = Calendar.current
-        var components = calendar.dateComponents([.day, .hour, .minute], from: Date())
-        components.hour = 0
-        components.minute = 0
-        let minimumDate = calendar.date(from: components)!
-        let maximumDate = calendar.date(byAdding: .day, value: 1, to: minimumDate)!
-        self.opening = opening ?? minimumDate
-        self.closing = closing ?? maximumDate
+    func getShortString() -> String {
+        var calendar = Calendar.current
+        calendar.locale = Locale(identifier: "ru")
+        
+        switch self {
+        case .monday:
+            return calendar.shortWeekdaySymbols[1]
+        case .tuesday:
+            return calendar.shortWeekdaySymbols[2]
+        case .wednesday:
+            return calendar.shortWeekdaySymbols[3]
+        case .thursday:
+            return calendar.shortWeekdaySymbols[4]
+        case .friday:
+            return calendar.shortWeekdaySymbols[5]
+        case .saturday:
+            return calendar.shortWeekdaySymbols[6]
+        case .sunday:
+            return calendar.shortWeekdaySymbols[0]
+        }
     }
 }

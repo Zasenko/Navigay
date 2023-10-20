@@ -21,6 +21,7 @@ struct AppImages {
     
     static let iconEnvelope = Image(systemName: "envelope")
     static let iconLock = Image(systemName: "lock")
+    static let iconTrash = Image(systemName: "trash.fill")
     
     static let iconCamera = Image(systemName: "camera.fill")
     

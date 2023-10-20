@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		0F6500C62ACEB3C800A58E77 /* AppUserView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F6500C52ACEB3C800A58E77 /* AppUserView.swift */; };
+		0F6E66202AE25C7100477075 /* AddWorkDaysView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F6E661F2AE25C7100477075 /* AddWorkDaysView.swift */; };
 		0F741A292ACD4D4200A7759E /* ErrorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F741A272ACD4D4200A7759E /* ErrorViewModel.swift */; };
 		0F741A2A2ACD4D4200A7759E /* ErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F741A282ACD4D4200A7759E /* ErrorView.swift */; };
 		0F741A2C2ACD4D8000A7759E /* ErrorModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F741A2B2ACD4D8000A7759E /* ErrorModel.swift */; };
@@ -79,6 +80,7 @@
 
 /* Begin PBXFileReference section */
 		0F6500C52ACEB3C800A58E77 /* AppUserView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppUserView.swift; sourceTree = "<group>"; };
+		0F6E661F2AE25C7100477075 /* AddWorkDaysView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddWorkDaysView.swift; sourceTree = "<group>"; };
 		0F71DE772AD68C2D005B137A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		0F741A272ACD4D4200A7759E /* ErrorViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ErrorViewModel.swift; sourceTree = "<group>"; };
 		0F741A282ACD4D4200A7759E /* ErrorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ErrorView.swift; sourceTree = "<group>"; };
@@ -291,6 +293,7 @@
 				0F7E57EA2AE15B550091A0F8 /* AdminView.swift */,
 				0F7E57EC2AE15BB50091A0F8 /* AddNewPlaceView.swift */,
 				0F7E57EE2AE162E50091A0F8 /* AddTagsViews.swift */,
+				0F6E661F2AE25C7100477075 /* AddWorkDaysView.swift */,
 			);
 			path = Admin;
 			sourceTree = "<group>";
@@ -409,11 +412,11 @@
 				0FD617A12ACC3A3300877C70 /* User.swift */,
 				0F741A5A2ACD641400A7759E /* DayOfWeek.swift */,
 				0F741A5B2ACD641400A7759E /* Tag.swift */,
+				0F741A642ACD642200A7759E /* EventType.swift */,
+				0F741A622ACD642200A7759E /* PlaceType.swift */,
 				0F741A612ACD642200A7759E /* Country.swift */,
 				0F741A632ACD642200A7759E /* Region.swift */,
 				0F741A602ACD642200A7759E /* City.swift */,
-				0F741A642ACD642200A7759E /* EventType.swift */,
-				0F741A622ACD642200A7759E /* PlaceType.swift */,
 				0F741A5E2ACD641800A7759E /* Event.swift */,
 				0F741A582ACD640900A7759E /* Place.swift */,
 			);
@@ -523,6 +526,7 @@
 				0F741A742ACD644D00A7759E /* DecodedCity.swift in Sources */,
 				0F7E57EF2AE162E50091A0F8 /* AddTagsViews.swift in Sources */,
 				0F741A7A2ACD644D00A7759E /* DecodedEvent.swift in Sources */,
+				0F6E66202AE25C7100477075 /* AddWorkDaysView.swift in Sources */,
 				0FD617B12ACC443F00877C70 /* RegistrationViewModel.swift in Sources */,
 				0FD6179F2ACC3A1900877C70 /* EntryView.swift in Sources */,
 				0F741A2F2ACD4DB600A7759E /* ErrorManager.swift in Sources */,
@@ -703,6 +707,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Navigay/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Это необходимо, чтобы вы могли увидеть локации и мероприятия рядом с вами.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -715,7 +720,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = Zasenko.Navigay;
+				PRODUCT_BUNDLE_IDENTIFIER = Zasenko.NaviGay;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -736,6 +741,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Navigay/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Это необходимо, чтобы вы могли увидеть локации и мероприятия рядом с вами.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -748,7 +754,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = Zasenko.Navigay;
+				PRODUCT_BUNDLE_IDENTIFIER = Zasenko.NaviGay;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;

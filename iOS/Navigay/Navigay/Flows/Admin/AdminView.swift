@@ -8,8 +8,7 @@
 import SwiftUI
 
 struct AdminView: View {
-    
-    
+
     //MARK: - Body
     
     var body: some View {
