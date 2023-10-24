@@ -25,6 +25,13 @@ struct PlaceView: View {
     var body: some View {
         ZStack(alignment: .top) {
             List {
+                
+                Section("Сообщить о проблеме") {
+                    Text("Не корректные данные")
+                    Text("место закрыто")
+                    Text("other")
+                }
+                
                 Section {
                     image
                 }
@@ -42,16 +49,16 @@ struct PlaceView: View {
                 }
                 
                 
-                    Button {
-                        if let user = authenticationManager.appUser {
-                            place.isLiked.toggle()
-                        } else {
-                            //TODO!
-                        }
-                    } label: {
-                        Image(systemName: place.isLiked ? "heart.fill" : "heart")
-                            .foregroundStyle(.red)
+                Button {
+                    if let user = authenticationManager.appUser {
+                        place.isLiked.toggle()
+                    } else {
+                        //TODO!
                     }
+                } label: {
+                    Image(systemName: place.isLiked ? "heart.fill" : "heart")
+                        .foregroundStyle(.red)
+                }
                 
                 
                 Section {
@@ -72,6 +79,11 @@ struct PlaceView: View {
                     ForEach(place.tags, id: \.self) { tag in
                         Text(tag.getString())
                     }
+                }
+                
+                
+                Section() {
+                    Text("Я владелец")
                 }
             }
             .toolbar(.hidden, for: .navigationBar)

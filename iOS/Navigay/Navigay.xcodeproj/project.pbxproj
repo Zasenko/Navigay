@@ -747,7 +747,9 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Navigay/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Это необходимо, чтобы вы могли увидеть локации и мероприятия рядом с вами.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "This app requires access to the camera.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "This app requires access to your location.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "This app requires access to the photo library.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -781,7 +783,9 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Navigay/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Это необходимо, чтобы вы могли увидеть локации и мероприятия рядом с вами.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "This app requires access to the camera.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "This app requires access to your location.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "This app requires access to the photo library.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

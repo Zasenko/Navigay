@@ -10,18 +10,42 @@ import MapKit
 
 struct Test: View {
     
-    @State private var a: CLLocationCoordinate2D? = nil
+    @State private var text: String = ""
     
     var body: some View {
-        VStack {
-            MapReader { reader in
-                Map()
-                    .onTapGesture(perform: { screenCoord in
-                        let pinLocation = reader.convert(screenCoord, from: .local)
-                        a = pinLocation
-                        print(pinLocation as Any)
-                    })
+        NavigationStack {
+            List {
+                
+                Image("5x7")
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: UIScreen.main.bounds.width)
+                    //.ignoresSafeArea()
+                
+                Section {
+                    Image("5x7")
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: UIScreen.main.bounds.width)
+                }
+                .listRowBackground(Color.white)
+                
+                
+                Section("ddd") {
+                    Text("ttt")
+                    Text("ttt")
+                    Text("ttt")
+                    Text("ttt")
+                    Text("ttt")
+                }
+                .listRowBackground(Color.secondary)
             }
+            .listStyle(.plain)
+            .navigationTitle("dddd")
+            .scrollContentBackground(.hidden)
+
+
+            
         }
 //            HStack {
 //                Image(systemName: "heart.fill")
