@@ -6,29 +6,40 @@
 //
 
 import SwiftUI
+import MapKit
 
 struct Test: View {
     
+    @State private var a: CLLocationCoordinate2D? = nil
+    
     var body: some View {
-
-
-            HStack {
-                Image(systemName: "heart.fill")
-                    .foregroundColor(.red)
-                Text("0.5")
-                
+        VStack {
+            MapReader { reader in
+                Map()
+                    .onTapGesture(perform: { screenCoord in
+                        let pinLocation = reader.convert(screenCoord, from: .local)
+                        a = pinLocation
+                        print(pinLocation as Any)
+                    })
             }
-            .padding (10)
-            .background(Color.white)
-            .clipShape(RoundedRectangle(cornerRadius: 25.0, style: .continuous))
-            .overlay(alignment: .bottom) {
-                Image(systemName: "arrowtriangle.left.fill")
-                    .rotationEffect (Angle(degrees: 270))
-                    .foregroundColor(.white)
-                    .offset(y: 10)
-                
-            }
-        .background(.black)
+        }
+//            HStack {
+//                Image(systemName: "heart.fill")
+//                    .foregroundColor(.red)
+//                Text("0.5")
+//                
+//            }
+//            .padding (10)
+//            .background(Color.white)
+//            .clipShape(RoundedRectangle(cornerRadius: 25.0, style: .continuous))
+//            .overlay(alignment: .bottom) {
+//                Image(systemName: "arrowtriangle.left.fill")
+//                    .rotationEffect (Angle(degrees: 270))
+//                    .foregroundColor(.white)
+//                    .offset(y: 10)
+//                
+//            }
+//        .background(.black)
     }
 }
 
