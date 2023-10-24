@@ -14,13 +14,13 @@ struct AdminView: View {
     var body: some View {
         NavigationStack {
             List {
-                Section {
+                Section("Adding") {
                     NavigationLink("Add new place") {
                         AddNewPlaceView()
                     }
                 }
             }
-            .navigationTitle("Admin")
+            .navigationTitle("Admin panel")
         }
     }
 }

@@ -14,6 +14,18 @@ struct AddNewPlaceView: View {
     @State private var name: String = ""
     @State private var type: PlaceType = .other
     
+    @State private var isoCountryCode: String = ""
+    @State private var countryOrigin: String = ""
+    @State private var countryEnglish: String = ""
+    @State private var regionOrigin: String = ""
+    @State private var regionEnglish: String = ""
+    @State private var cityOrigin: String = ""
+    @State private var cityEnglish: String = ""
+    @State private var addressOrigin: String = ""
+    @State private var latitude: Double = 0
+    @State private var longitude: Double = 0
+    @State private var showMap: Bool = false
+    
     @State private var selectedTags: [Tag] = []
     @State private var showTagsView: Bool = false
     
@@ -41,11 +53,28 @@ struct AddNewPlaceView: View {
                     }
                 }
                 .pickerStyle(.menu)
-                
-                TextField("Address", text: $name)
-                TextField("Latitude", text: $name)
-                TextField("Longitude", text: $name)
-            }.listRowBackground(Color.pink)
+            }.listRowBackground(Color.green)
+            
+            Section("Required fields") {
+                Button {
+                    showMap = true
+                } label: {
+                    Text("Search on map")
+                }
+                .fullScreenCover(isPresented: $showMap) {
+                    AddLocationView(isoCountryCode: $isoCountryCode, countryOrigin: $countryOrigin, countryEnglish: $countryEnglish, regionOrigin: $regionOrigin, regionEnglish: $regionEnglish, cityOrigin: $cityOrigin, cityEnglish: $cityEnglish, addressOrigin: $addressOrigin, latitude: $latitude, longitude: $longitude)
+                }
+                Text("isoCountryCode: ").foregroundStyle(.secondary) + Text(String(isoCountryCode))
+                Text("countryOrigin: ").foregroundStyle(.secondary) + Text(String(countryOrigin))
+                Text("countryEnglish: ").foregroundStyle(.secondary) + Text(String(countryEnglish))
+                Text("regionOrigin: ").foregroundStyle(.secondary) + Text(String(regionOrigin))
+                Text("regionEnglish: ").foregroundStyle(.secondary) + Text(String(regionEnglish))
+                Text("cityOrigin: ").foregroundStyle(.secondary) + Text(String(cityOrigin))
+                Text("cityEnglish: ").foregroundStyle(.secondary) + Text(String(cityEnglish))
+                Text("Address: ").foregroundStyle(.secondary) + Text(String(addressOrigin))
+                Text("Latitude: ").foregroundStyle(.secondary) + Text(String(latitude))
+                Text("Longitude: ").foregroundStyle(.secondary) + Text(String(longitude))
+            }.listRowBackground(Color.green)
             
             Section("Photo") {
                 TextField("Place name", text: $name)
@@ -68,13 +97,13 @@ struct AddNewPlaceView: View {
                 } label: {
                     Text("+ Add tags")
                 }
-            }
-            .sheet(isPresented: $showTagsView) {
-                AddTagsView(selectedTags: $selectedTags)
-                    .padding(.top)
-                    .presentationDetents([.medium])
-                    .presentationDragIndicator(.visible)
-                    .presentationCornerRadius(25)
+                .sheet(isPresented: $showTagsView) {
+                    AddTagsView(selectedTags: $selectedTags)
+                        .padding(.top)
+                        .presentationDetents([.medium])
+                        .presentationDragIndicator(.visible)
+                        .presentationCornerRadius(25)
+                }
             }
             
             Section("Working time") {
@@ -97,13 +126,13 @@ struct AddNewPlaceView: View {
                 } label: {
                     Text(workDays.count > 0 ? "Change" : "+ Add work days")
                 }
-            }
-            .sheet(isPresented: $showWorkDaysView) {
-                AddWorkDaysView(workDays: $workDays)
-                    .padding(.top)
-                    .presentationDetents([.medium])
-                    .presentationDragIndicator(.visible)
-                    .presentationCornerRadius(25)
+                .sheet(isPresented: $showWorkDaysView) {
+                    AddWorkDaysView(workDays: $workDays)
+                        .padding(.top)
+                        .presentationDetents([.medium])
+                        .presentationDragIndicator(.visible)
+                        .presentationCornerRadius(25)
+                }
             }
             
             Section("about") {

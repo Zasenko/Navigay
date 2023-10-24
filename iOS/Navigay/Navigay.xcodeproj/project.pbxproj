@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0F34DF7E2AE665BA005D29D0 /* AddLocationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F34DF7D2AE665BA005D29D0 /* AddLocationView.swift */; };
+		0F34DF832AE692BB005D29D0 /* SearchLocationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F34DF822AE692BB005D29D0 /* SearchLocationView.swift */; };
 		0F6500C62ACEB3C800A58E77 /* AppUserView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F6500C52ACEB3C800A58E77 /* AppUserView.swift */; };
 		0F6E66202AE25C7100477075 /* AddWorkDaysView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F6E661F2AE25C7100477075 /* AddWorkDaysView.swift */; };
 		0F741A292ACD4D4200A7759E /* ErrorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F741A272ACD4D4200A7759E /* ErrorViewModel.swift */; };
@@ -59,6 +61,8 @@
 		0F99152B2ACC6CE6008416D6 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0F99152A2ACC6CE6008416D6 /* Launch Screen.storyboard */; };
 		0FA6C8B52AD7E6CD00F30B4A /* Test.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FA6C8B42AD7E6CD00F30B4A /* Test.swift */; };
 		0FA6C8B82AD94C7500F30B4A /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FA6C8B72AD94C7500F30B4A /* MapView.swift */; };
+		0FAA79A82AE7D331003BB224 /* NewWorkingDay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FAA79A72AE7D331003BB224 /* NewWorkingDay.swift */; };
+		0FAA79AA2AE7D358003BB224 /* WorkingDayRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FAA79A92AE7D358003BB224 /* WorkingDayRow.swift */; };
 		0FC9652D2ADD2E2500108443 /* PlaceCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FC9652C2ADD2E2500108443 /* PlaceCell.swift */; };
 		0FC9652F2ADD329100108443 /* EventCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FC9652E2ADD329100108443 /* EventCell.swift */; };
 		0FC965312ADD4C2900108443 /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FC965302ADD4C2900108443 /* LocationManager.swift */; };
@@ -79,6 +83,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0F34DF7D2AE665BA005D29D0 /* AddLocationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddLocationView.swift; sourceTree = "<group>"; };
+		0F34DF822AE692BB005D29D0 /* SearchLocationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchLocationView.swift; sourceTree = "<group>"; };
 		0F6500C52ACEB3C800A58E77 /* AppUserView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppUserView.swift; sourceTree = "<group>"; };
 		0F6E661F2AE25C7100477075 /* AddWorkDaysView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddWorkDaysView.swift; sourceTree = "<group>"; };
 		0F71DE772AD68C2D005B137A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -132,6 +138,8 @@
 		0F99152A2ACC6CE6008416D6 /* Launch Screen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
 		0FA6C8B42AD7E6CD00F30B4A /* Test.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Test.swift; sourceTree = "<group>"; };
 		0FA6C8B72AD94C7500F30B4A /* MapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
+		0FAA79A72AE7D331003BB224 /* NewWorkingDay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewWorkingDay.swift; sourceTree = "<group>"; };
+		0FAA79A92AE7D358003BB224 /* WorkingDayRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkingDayRow.swift; sourceTree = "<group>"; };
 		0FC9652C2ADD2E2500108443 /* PlaceCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceCell.swift; sourceTree = "<group>"; };
 		0FC9652E2ADD329100108443 /* EventCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventCell.swift; sourceTree = "<group>"; };
 		0FC965302ADD4C2900108443 /* LocationManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
@@ -163,6 +171,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0F34DF812AE69187005D29D0 /* AddPlace */ = {
+			isa = PBXGroup;
+			children = (
+				0FAA79A62AE7D326003BB224 /* Model */,
+				0FAA79AB2AE7D3F1003BB224 /* View */,
+			);
+			path = AddPlace;
+			sourceTree = "<group>";
+		};
 		0F6500BF2ACE9A7900A58E77 /* Registration */ = {
 			isa = PBXGroup;
 			children = (
@@ -291,9 +308,7 @@
 			isa = PBXGroup;
 			children = (
 				0F7E57EA2AE15B550091A0F8 /* AdminView.swift */,
-				0F7E57EC2AE15BB50091A0F8 /* AddNewPlaceView.swift */,
-				0F7E57EE2AE162E50091A0F8 /* AddTagsViews.swift */,
-				0F6E661F2AE25C7100477075 /* AddWorkDaysView.swift */,
+				0F34DF812AE69187005D29D0 /* AddPlace */,
 			);
 			path = Admin;
 			sourceTree = "<group>";
@@ -326,6 +341,27 @@
 				0FA6C8B72AD94C7500F30B4A /* MapView.swift */,
 			);
 			path = Map;
+			sourceTree = "<group>";
+		};
+		0FAA79A62AE7D326003BB224 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				0FAA79A72AE7D331003BB224 /* NewWorkingDay.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		0FAA79AB2AE7D3F1003BB224 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				0F7E57EC2AE15BB50091A0F8 /* AddNewPlaceView.swift */,
+				0F6E661F2AE25C7100477075 /* AddWorkDaysView.swift */,
+				0FAA79A92AE7D358003BB224 /* WorkingDayRow.swift */,
+				0F7E57EE2AE162E50091A0F8 /* AddTagsViews.swift */,
+				0F34DF7D2AE665BA005D29D0 /* AddLocationView.swift */,
+				0F34DF822AE692BB005D29D0 /* SearchLocationView.swift */,
+			);
+			path = View;
 			sourceTree = "<group>";
 		};
 		0FC9652B2ADD2E1900108443 /* Cells */ = {
@@ -510,6 +546,7 @@
 				0F741A2C2ACD4D8000A7759E /* ErrorModel.swift in Sources */,
 				0FD617AF2ACC3D3A00877C70 /* AppColors.swift in Sources */,
 				0F741A8F2ACDB66900A7759E /* CountryView.swift in Sources */,
+				0F34DF832AE692BB005D29D0 /* SearchLocationView.swift in Sources */,
 				0FD6178E2ACC398200877C70 /* NavigayApp.swift in Sources */,
 				0F7E57EB2AE15B550091A0F8 /* AdminView.swift in Sources */,
 				0F741A3D2ACD502100A7759E /* AuthNetworkManager.swift in Sources */,
@@ -540,8 +577,10 @@
 				0F741A982ACDB7B300A7759E /* TabBarButton.swift in Sources */,
 				0FC9652F2ADD329100108443 /* EventCell.swift in Sources */,
 				0FC965312ADD4C2900108443 /* LocationManager.swift in Sources */,
+				0F34DF7E2AE665BA005D29D0 /* AddLocationView.swift in Sources */,
 				0F7E57ED2AE15BB50091A0F8 /* AddNewPlaceView.swift in Sources */,
 				0FC9652D2ADD2E2500108443 /* PlaceCell.swift in Sources */,
+				0FAA79AA2AE7D358003BB224 /* WorkingDayRow.swift in Sources */,
 				0FD617A42ACC3AF500877C70 /* DecodedUser.swift in Sources */,
 				0F741A7B2ACD644D00A7759E /* CityResult.swift in Sources */,
 				0F741A912ACDB66900A7759E /* PlaceView.swift in Sources */,
@@ -551,6 +590,7 @@
 				0F741A352ACD501800A7759E /* KeychainManager.swift in Sources */,
 				0F741A852ACDAACF00A7759E /* ImageLoader.swift in Sources */,
 				0F741A792ACD644D00A7759E /* DecodedCountry.swift in Sources */,
+				0FAA79A82AE7D331003BB224 /* NewWorkingDay.swift in Sources */,
 				0F741A312ACD4DCE00A7759E /* ApiError.swift in Sources */,
 				0F741A2A2ACD4D4200A7759E /* ErrorView.swift in Sources */,
 				0F741A5C2ACD641400A7759E /* DayOfWeek.swift in Sources */,
