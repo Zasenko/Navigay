@@ -33,7 +33,12 @@ struct PlaceView: View {
                 }
                 
                 Section {
-                    image
+                    if let image {
+                        image
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: UIScreen.main.bounds.width, height: (UIScreen.main.bounds.width / 4) * 5, alignment: .center)
+                    }
                 }
                 Section {
                     Text(place.id.formatted())
@@ -87,6 +92,7 @@ struct PlaceView: View {
                 }
             }
             .toolbar(.hidden, for: .navigationBar)
+            .listStyle(.plain)
             
             HStack(spacing: 10) {
                 Button {

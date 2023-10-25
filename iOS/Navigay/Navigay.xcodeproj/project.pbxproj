@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0F151F3E2AE8F9410049C60F /* AddPlacePhotoFromUrlView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F151F3D2AE8F9410049C60F /* AddPlacePhotoFromUrlView.swift */; };
 		0F34DF7E2AE665BA005D29D0 /* AddLocationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F34DF7D2AE665BA005D29D0 /* AddLocationView.swift */; };
 		0F34DF832AE692BB005D29D0 /* SearchLocationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F34DF822AE692BB005D29D0 /* SearchLocationView.swift */; };
 		0F6500C62ACEB3C800A58E77 /* AppUserView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F6500C52ACEB3C800A58E77 /* AppUserView.swift */; };
@@ -83,6 +84,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0F151F3D2AE8F9410049C60F /* AddPlacePhotoFromUrlView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddPlacePhotoFromUrlView.swift; sourceTree = "<group>"; };
 		0F34DF7D2AE665BA005D29D0 /* AddLocationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddLocationView.swift; sourceTree = "<group>"; };
 		0F34DF822AE692BB005D29D0 /* SearchLocationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchLocationView.swift; sourceTree = "<group>"; };
 		0F6500C52ACEB3C800A58E77 /* AppUserView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppUserView.swift; sourceTree = "<group>"; };
@@ -360,6 +362,7 @@
 				0F7E57EE2AE162E50091A0F8 /* AddTagsViews.swift */,
 				0F34DF7D2AE665BA005D29D0 /* AddLocationView.swift */,
 				0F34DF822AE692BB005D29D0 /* SearchLocationView.swift */,
+				0F151F3D2AE8F9410049C60F /* AddPlacePhotoFromUrlView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -584,6 +587,7 @@
 				0FD617A42ACC3AF500877C70 /* DecodedUser.swift in Sources */,
 				0F741A7B2ACD644D00A7759E /* CityResult.swift in Sources */,
 				0F741A912ACDB66900A7759E /* PlaceView.swift in Sources */,
+				0F151F3E2AE8F9410049C60F /* AddPlacePhotoFromUrlView.swift in Sources */,
 				0FA6C8B82AD94C7500F30B4A /* MapView.swift in Sources */,
 				0F741A9A2ACDB7CE00A7759E /* TabBarButtonView.swift in Sources */,
 				0F741A7F2ACD664D00A7759E /* String+Ext.swift in Sources */,

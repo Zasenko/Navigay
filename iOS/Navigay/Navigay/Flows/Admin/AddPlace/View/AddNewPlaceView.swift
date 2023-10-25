@@ -27,15 +27,13 @@ struct AddNewPlaceView: View {
     @State private var longitude: Double = 0
     @State private var showMap: Bool = false
     
-    @State private var avatarItem: PhotosPickerItem?
+    @State private var secectedPhotosPickerItem: PhotosPickerItem?
     @State private var croppedImageBig: Image?
     @State private var croppedImageSmall: Image?
     @State private var uiImageBig: UIImage?
     @State private var uiImageSmall: UIImage?
-    @State private var showPhotosPicker: Bool = false
-    @State private var showPhotosActionScheet: Bool = false
-    
-    
+    @State private var showPhotoFromUrlView: Bool = false
+        
     @State private var selectedTags: [Tag] = []
     @State private var showTagsView: Bool = false
     
@@ -85,57 +83,40 @@ struct AddNewPlaceView: View {
                 Text("Latitude: ").foregroundStyle(.secondary) + Text(String(latitude))
                 Text("Longitude: ").foregroundStyle(.secondary) + Text(String(longitude))
             }.listRowBackground(Color.green)
-            //                .actionSheet(isPresented: $shouldPresentActionScheet) { () -> ActionSheet in
-            //                    ActionSheet(title: Text("Choose mode"), message: Text("Please choose your preferred mode to set your profile image"), buttons: [ActionSheet.Button.default(Text("Camera"), action: {
-            //                        self.shouldPresentImagePicker = true
-            //                        self.shouldPresentCamera = true
-            //                    }), ActionSheet.Button.default(Text("Photo Library"), action: {
-            //                        self.shouldPresentImagePicker = true
-            //                        self.shouldPresentCamera = false
-            //                    }), ActionSheet.Button.cancel()])
-            //                }
 
             Section("Photo") {
-
                 if let croppedImageBig {
                     croppedImageBig
+                        .resizable()
+                        .scaledToFit()
+                        .frame(maxWidth: .infinity)
                 }
                 if let croppedImageSmall {
                     croppedImageSmall
+                    
                 }
-                PhotosPicker("Select from library", selection: $avatarItem, matching: .images)
-                    .onChange(of: avatarItem) { oldValue, newValue in
+                PhotosPicker("Select from library", selection: $secectedPhotosPickerItem, matching: .images)
+                    .onChange(of: secectedPhotosPickerItem) { oldValue, newValue in
                         Task {
-                            guard let data = try? await avatarItem?.loadTransferable(type: Data.self) else { return }
+                            guard let data = try? await secectedPhotosPickerItem?.loadTransferable(type: Data.self) else { return }
                             if let uiImage = UIImage(data: data) {
-                                
-                                
-                                let targetSizeSmall = CGSize(width: 100, height: 100)
-                                let targetSizeBig = CGSize(width: 900, height: 600)
-                                let scaledImageSmall = uiImage.scaleAndFill(
-                                    targetSize: targetSizeSmall
-                                )
-                                let scaledImageBig = uiImage.scaleAndFill(
-                                    targetSize: targetSizeBig
-                                )
-                                
-                                croppedImageSmall = Image(uiImage: scaledImageSmall)
-                                croppedImageBig = Image(uiImage: scaledImageBig)
-                                
-                                return
+                                await cropImage(uiImage: uiImage)
                             }
-                            
-                            
-                            print("Failed")
-                            
-//                            @State private var croppedImageBig: Image?
-//                            @State private var croppedImageSmall: Image?
-//                            @State private var uiImageBig: UIImage?
-//                            @State private var uiImageSmall: UIImage?
                         }
                     }
                 Button("Select from url") {
-                    
+                    showPhotoFromUrlView = true
+                }
+                .sheet(isPresented: $showPhotoFromUrlView) {
+                    AddPlacePhotoFromUrlView() { uiImage in
+                        Task {
+                            await cropImage(uiImage: uiImage)
+                        }
+                    }
+                    .padding(.top)
+                    .presentationDetents([.medium])
+                    .presentationDragIndicator(.visible)
+                    .presentationCornerRadius(25)
                 }
                 
             }
@@ -227,66 +208,24 @@ struct AddNewPlaceView: View {
         .listSectionSpacing(0)
     }
     
-//    private func loadImageFromUrl() {
-//        
-//        croppedImageLarge = nil
-//        croppedImageSmall = nil
-//        uiImageLarge = nil
-//        uiImageSmall = nil
-//        
-//        guard let url = URL(string: stringUrl) else {
-//            return
-//        }
-//        
-//        URLSession.shared.dataTask(with: url) { data, response, error in
-//            guard let data = data, error == nil else { return }
-//            if let uiImage = UIImage(data: data) {
-//                let uiImgLarge = self.cropImage(uiImage, to: CGSize(width: 430, height: 540))
-//                let uiImgSmall = self.cropImage(uiImage, to: CGSize(width: 100, height: 100))
-//                DispatchQueue.main.async {
-//                    self.croppedImageLarge = Image(uiImage: uiImgLarge)
-//                    self.croppedImageSmall = Image(uiImage: uiImgSmall)
-//                    self.uiImageLarge = uiImgLarge
-//                    self.uiImageSmall = uiImgSmall
-//                }
-//            }
-//        }.resume()
-//    }
+    private func cropImage(uiImage: UIImage) async {
+        let targetSizeSmall = CGSize(width: 100, height: 100)
+        let targetSizeBig = CGSize(width: 600, height: 750)
+        let scaledImageSmall = uiImage.scaleAndFill(targetSize: targetSizeSmall)
+        let scaledImageBig = uiImage.scaleAndFill(targetSize: targetSizeBig)
+        await MainActor.run {
+            croppedImageSmall = Image(uiImage: scaledImageSmall)
+            croppedImageBig = Image(uiImage: scaledImageBig)
+            uiImageSmall = scaledImageSmall
+            uiImageBig = scaledImageBig
+        }
+    }
 }
 
 #Preview {
     AddNewPlaceView()
 }
 
-extension UIImage {
-    func scalePreservingAspectRatio(targetSize: CGSize) -> UIImage {
-        // Determine the scale factor that preserves aspect ratio
-        let widthRatio = targetSize.width / size.width
-        let heightRatio = targetSize.height / size.height
-        
-        let scaleFactor = min(widthRatio, heightRatio)
-        
-        // Compute the new image size that preserves aspect ratio
-        let scaledImageSize = CGSize(
-            width: size.width * scaleFactor,
-            height: size.height * scaleFactor
-        )
-
-        // Draw and return the resized UIImage
-        let renderer = UIGraphicsImageRenderer(
-            size: scaledImageSize
-        )
-
-        let scaledImage = renderer.image { _ in
-            self.draw(in: CGRect(
-                origin: .zero,
-                size: scaledImageSize
-            ))
-        }
-        
-        return scaledImage
-    }
-}
 extension UIImage {
     func scaleAndFill(targetSize: CGSize) -> UIImage {
         // Determine the scale factor that fills the target size
