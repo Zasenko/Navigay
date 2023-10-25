@@ -16,7 +16,6 @@ struct AddPlacePhotoFromUrlView: View {
     @State private var uiImage: UIImage? = nil
     @Environment(\.dismiss) private var dismiss
     
-    
     var body: some View {
         ScrollView(showsIndicators: false) {
             VStack {
@@ -75,12 +74,5 @@ struct AddPlacePhotoFromUrlView: View {
 #Preview {
     AddPlacePhotoFromUrlView{ selectedImage in
         print("callback")
-    }
-}
-
-extension View {
-    func hideKeyboard() {
-        let resign = #selector(UIResponder.resignFirstResponder)
-        UIApplication.shared.sendAction(resign, to: nil, from: nil, for: nil)
     }
 }

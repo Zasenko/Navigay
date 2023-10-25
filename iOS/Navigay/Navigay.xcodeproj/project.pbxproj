@@ -8,6 +8,11 @@
 
 /* Begin PBXBuildFile section */
 		0F151F3E2AE8F9410049C60F /* AddPlacePhotoFromUrlView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F151F3D2AE8F9410049C60F /* AddPlacePhotoFromUrlView.swift */; };
+		0F151F402AE90DBC0049C60F /* Language.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F151F3F2AE90DBC0049C60F /* Language.swift */; };
+		0F151F422AE90E680049C60F /* UIImage+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F151F412AE90E680049C60F /* UIImage+Ext.swift */; };
+		0F151F442AE90E8B0049C60F /* View+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F151F432AE90E8B0049C60F /* View+Ext.swift */; };
+		0F151F462AE910290049C60F /* AddPlaceAboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F151F452AE910290049C60F /* AddPlaceAboutView.swift */; };
+		0F151F482AE92AC10049C60F /* PlaceAbout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F151F472AE92AC10049C60F /* PlaceAbout.swift */; };
 		0F34DF7E2AE665BA005D29D0 /* AddLocationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F34DF7D2AE665BA005D29D0 /* AddLocationView.swift */; };
 		0F34DF832AE692BB005D29D0 /* SearchLocationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F34DF822AE692BB005D29D0 /* SearchLocationView.swift */; };
 		0F6500C62ACEB3C800A58E77 /* AppUserView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F6500C52ACEB3C800A58E77 /* AppUserView.swift */; };
@@ -85,6 +90,11 @@
 
 /* Begin PBXFileReference section */
 		0F151F3D2AE8F9410049C60F /* AddPlacePhotoFromUrlView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddPlacePhotoFromUrlView.swift; sourceTree = "<group>"; };
+		0F151F3F2AE90DBC0049C60F /* Language.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Language.swift; sourceTree = "<group>"; };
+		0F151F412AE90E680049C60F /* UIImage+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Ext.swift"; sourceTree = "<group>"; };
+		0F151F432AE90E8B0049C60F /* View+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+Ext.swift"; sourceTree = "<group>"; };
+		0F151F452AE910290049C60F /* AddPlaceAboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddPlaceAboutView.swift; sourceTree = "<group>"; };
+		0F151F472AE92AC10049C60F /* PlaceAbout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceAbout.swift; sourceTree = "<group>"; };
 		0F34DF7D2AE665BA005D29D0 /* AddLocationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddLocationView.swift; sourceTree = "<group>"; };
 		0F34DF822AE692BB005D29D0 /* SearchLocationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchLocationView.swift; sourceTree = "<group>"; };
 		0F6500C52ACEB3C800A58E77 /* AppUserView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppUserView.swift; sourceTree = "<group>"; };
@@ -279,6 +289,8 @@
 			isa = PBXGroup;
 			children = (
 				0F741A7C2ACD664D00A7759E /* Date+Ext.swift */,
+				0F151F432AE90E8B0049C60F /* View+Ext.swift */,
+				0F151F412AE90E680049C60F /* UIImage+Ext.swift */,
 				0FC965332ADE882B00108443 /* Double+Ext.swift */,
 				0F741A7D2ACD664D00A7759E /* String+Ext.swift */,
 				0FD617AC2ACC3CA900877C70 /* AppImages.swift */,
@@ -349,6 +361,7 @@
 			isa = PBXGroup;
 			children = (
 				0FAA79A72AE7D331003BB224 /* NewWorkingDay.swift */,
+				0F151F472AE92AC10049C60F /* PlaceAbout.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -357,6 +370,7 @@
 			isa = PBXGroup;
 			children = (
 				0F7E57EC2AE15BB50091A0F8 /* AddNewPlaceView.swift */,
+				0F151F452AE910290049C60F /* AddPlaceAboutView.swift */,
 				0F6E661F2AE25C7100477075 /* AddWorkDaysView.swift */,
 				0FAA79A92AE7D358003BB224 /* WorkingDayRow.swift */,
 				0F7E57EE2AE162E50091A0F8 /* AddTagsViews.swift */,
@@ -451,6 +465,7 @@
 				0FD617A12ACC3A3300877C70 /* User.swift */,
 				0F741A5A2ACD641400A7759E /* DayOfWeek.swift */,
 				0F741A5B2ACD641400A7759E /* Tag.swift */,
+				0F151F3F2AE90DBC0049C60F /* Language.swift */,
 				0F741A642ACD642200A7759E /* EventType.swift */,
 				0F741A622ACD642200A7759E /* PlaceType.swift */,
 				0F741A612ACD642200A7759E /* Country.swift */,
@@ -542,11 +557,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0F151F442AE90E8B0049C60F /* View+Ext.swift in Sources */,
 				0F741A5D2ACD641400A7759E /* Tag.swift in Sources */,
 				0F741A8E2ACDB66900A7759E /* CityView.swift in Sources */,
 				0F741A672ACD642200A7759E /* PlaceType.swift in Sources */,
 				0F741A502ACD523200A7759E /* AuthResult.swift in Sources */,
 				0F741A2C2ACD4D8000A7759E /* ErrorModel.swift in Sources */,
+				0F151F422AE90E680049C60F /* UIImage+Ext.swift in Sources */,
 				0FD617AF2ACC3D3A00877C70 /* AppColors.swift in Sources */,
 				0F741A8F2ACDB66900A7759E /* CountryView.swift in Sources */,
 				0F34DF832AE692BB005D29D0 /* SearchLocationView.swift in Sources */,
@@ -563,6 +580,8 @@
 				0F741A662ACD642200A7759E /* Country.swift in Sources */,
 				0F741A592ACD640900A7759E /* Place.swift in Sources */,
 				0F741A932ACDB68500A7759E /* CatalogNetworkManager.swift in Sources */,
+				0F151F482AE92AC10049C60F /* PlaceAbout.swift in Sources */,
+				0F151F402AE90DBC0049C60F /* Language.swift in Sources */,
 				0F741A742ACD644D00A7759E /* DecodedCity.swift in Sources */,
 				0F7E57EF2AE162E50091A0F8 /* AddTagsViews.swift in Sources */,
 				0F741A7A2ACD644D00A7759E /* DecodedEvent.swift in Sources */,
@@ -577,6 +596,7 @@
 				0F741A692ACD642200A7759E /* EventType.swift in Sources */,
 				0FD617A82ACC3C1E00877C70 /* RegistrationView.swift in Sources */,
 				0FD617A22ACC3A3300877C70 /* User.swift in Sources */,
+				0F151F462AE910290049C60F /* AddPlaceAboutView.swift in Sources */,
 				0F741A982ACDB7B300A7759E /* TabBarButton.swift in Sources */,
 				0FC9652F2ADD329100108443 /* EventCell.swift in Sources */,
 				0FC965312ADD4C2900108443 /* LocationManager.swift in Sources */,
