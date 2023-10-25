@@ -13,6 +13,9 @@
 		0F151F442AE90E8B0049C60F /* View+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F151F432AE90E8B0049C60F /* View+Ext.swift */; };
 		0F151F462AE910290049C60F /* AddPlaceAboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F151F452AE910290049C60F /* AddPlaceAboutView.swift */; };
 		0F151F482AE92AC10049C60F /* PlaceAbout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F151F472AE92AC10049C60F /* PlaceAbout.swift */; };
+		0F151F4B2AE93B7A0049C60F /* AddNewPlaceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F151F4A2AE93B7A0049C60F /* AddNewPlaceViewModel.swift */; };
+		0F151F4D2AE948BD0049C60F /* CountryNumbers.json in Resources */ = {isa = PBXBuildFile; fileRef = 0F151F4C2AE948BD0049C60F /* CountryNumbers.json */; };
+		0F151F4F2AE94D2E0049C60F /* AddPhoneView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F151F4E2AE94D2E0049C60F /* AddPhoneView.swift */; };
 		0F34DF7E2AE665BA005D29D0 /* AddLocationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F34DF7D2AE665BA005D29D0 /* AddLocationView.swift */; };
 		0F34DF832AE692BB005D29D0 /* SearchLocationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F34DF822AE692BB005D29D0 /* SearchLocationView.swift */; };
 		0F6500C62ACEB3C800A58E77 /* AppUserView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F6500C52ACEB3C800A58E77 /* AppUserView.swift */; };
@@ -95,6 +98,9 @@
 		0F151F432AE90E8B0049C60F /* View+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+Ext.swift"; sourceTree = "<group>"; };
 		0F151F452AE910290049C60F /* AddPlaceAboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddPlaceAboutView.swift; sourceTree = "<group>"; };
 		0F151F472AE92AC10049C60F /* PlaceAbout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceAbout.swift; sourceTree = "<group>"; };
+		0F151F4A2AE93B7A0049C60F /* AddNewPlaceViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddNewPlaceViewModel.swift; sourceTree = "<group>"; };
+		0F151F4C2AE948BD0049C60F /* CountryNumbers.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = CountryNumbers.json; sourceTree = "<group>"; };
+		0F151F4E2AE94D2E0049C60F /* AddPhoneView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddPhoneView.swift; sourceTree = "<group>"; };
 		0F34DF7D2AE665BA005D29D0 /* AddLocationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddLocationView.swift; sourceTree = "<group>"; };
 		0F34DF822AE692BB005D29D0 /* SearchLocationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchLocationView.swift; sourceTree = "<group>"; };
 		0F6500C52ACEB3C800A58E77 /* AppUserView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppUserView.swift; sourceTree = "<group>"; };
@@ -183,10 +189,19 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0F151F492AE93B5D0049C60F /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				0F151F4A2AE93B7A0049C60F /* AddNewPlaceViewModel.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
 		0F34DF812AE69187005D29D0 /* AddPlace */ = {
 			isa = PBXGroup;
 			children = (
 				0FAA79A62AE7D326003BB224 /* Model */,
+				0F151F492AE93B5D0049C60F /* ViewModel */,
 				0FAA79AB2AE7D3F1003BB224 /* View */,
 			);
 			path = AddPlace;
@@ -360,6 +375,7 @@
 		0FAA79A62AE7D326003BB224 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				0F151F4C2AE948BD0049C60F /* CountryNumbers.json */,
 				0FAA79A72AE7D331003BB224 /* NewWorkingDay.swift */,
 				0F151F472AE92AC10049C60F /* PlaceAbout.swift */,
 			);
@@ -370,6 +386,7 @@
 			isa = PBXGroup;
 			children = (
 				0F7E57EC2AE15BB50091A0F8 /* AddNewPlaceView.swift */,
+				0F151F4E2AE94D2E0049C60F /* AddPhoneView.swift */,
 				0F151F452AE910290049C60F /* AddPlaceAboutView.swift */,
 				0F6E661F2AE25C7100477075 /* AddWorkDaysView.swift */,
 				0FAA79A92AE7D358003BB224 /* WorkingDayRow.swift */,
@@ -547,6 +564,7 @@
 				0F99152B2ACC6CE6008416D6 /* Launch Screen.storyboard in Resources */,
 				0FD617972ACC398300877C70 /* Preview Assets.xcassets in Resources */,
 				0FD617942ACC398300877C70 /* Assets.xcassets in Resources */,
+				0F151F4D2AE948BD0049C60F /* CountryNumbers.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -564,6 +582,7 @@
 				0F741A502ACD523200A7759E /* AuthResult.swift in Sources */,
 				0F741A2C2ACD4D8000A7759E /* ErrorModel.swift in Sources */,
 				0F151F422AE90E680049C60F /* UIImage+Ext.swift in Sources */,
+				0F151F4B2AE93B7A0049C60F /* AddNewPlaceViewModel.swift in Sources */,
 				0FD617AF2ACC3D3A00877C70 /* AppColors.swift in Sources */,
 				0F741A8F2ACDB66900A7759E /* CountryView.swift in Sources */,
 				0F34DF832AE692BB005D29D0 /* SearchLocationView.swift in Sources */,
@@ -623,6 +642,7 @@
 				0F741A3C2ACD502100A7759E /* NetworkErrors.swift in Sources */,
 				0F741A682ACD642200A7759E /* Region.swift in Sources */,
 				0FA6C8B52AD7E6CD00F30B4A /* Test.swift in Sources */,
+				0F151F4F2AE94D2E0049C60F /* AddPhoneView.swift in Sources */,
 				0F741A902ACDB66900A7759E /* EventView.swift in Sources */,
 				0F741A292ACD4D4200A7759E /* ErrorViewModel.swift in Sources */,
 				0F741A752ACD644D00A7759E /* CountriesResult.swift in Sources */,

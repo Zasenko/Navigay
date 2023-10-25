@@ -14,38 +14,21 @@ struct Test: View {
     
     var body: some View {
         NavigationStack {
-            List {
-                
-                Image("5x7")
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: UIScreen.main.bounds.width)
-                    //.ignoresSafeArea()
-                
-                Section {
-                    Image("5x7")
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: UIScreen.main.bounds.width)
+            VStack(spacing: 0) {
+                ScrollView {
+                    TextField("text", text: $text)
+                        .padding(10)
+                        .background(AppColors.lightGray6)
+                        .cornerRadius(8)
+                        .padding(.horizontal)
                 }
-                .listRowBackground(Color.white)
-                
-                
-                Section("ddd") {
-                    Text("ttt")
-                    Text("ttt")
-                    Text("ttt")
-                    Text("ttt")
-                    Text("ttt")
+                .background(AppColors.lightGray5)
+                List {
+                    Section("ddd") {
+                        TextField("text", text: $text)
+                    }
                 }
-                .listRowBackground(Color.secondary)
             }
-            .listStyle(.plain)
-            .navigationTitle("dddd")
-            .scrollContentBackground(.hidden)
-
-
-            
         }
 //            HStack {
 //                Image(systemName: "heart.fill")

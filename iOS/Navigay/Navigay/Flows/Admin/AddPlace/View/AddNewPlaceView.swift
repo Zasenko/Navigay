@@ -38,12 +38,14 @@ struct AddNewPlaceView: View {
     @State private var showTagsView: Bool = false
     
     @State private var workDays: [NewWorkingDay] = []
+    @State private var otherWorkInfo: String = ""
     @State private var showWorkDaysView: Bool = false
     
     @State private var languages: [Language] = Language.allCases
     @State private var about: [PlaceAbout] = []
     @State private var showAboutEditind: Bool = false
     
+    @State private var phone: String = ""
     @State private var email: String = ""
     @State private var www: String = ""
     @State private var facebook: String = ""
@@ -54,12 +56,24 @@ struct AddNewPlaceView: View {
     
     @Environment(\.dismiss) private var dismiss
     
+
     //MARK: - Body
     
     var body: some View {
         NavigationStack {
-            ScrollView(showsIndicators: false) {
-                LazyVStack {
+            List {
+                
+                Section("Phone") {
+                    Text(phone).bold()
+                    NavigationLink {
+                        AddPhoneView(isoCountryCode: isoCountryCode) { phone in
+                            self.phone = phone
+                        }
+                    } label: {
+                        Text("add")
+                    }
+
+                }
                     Section("Required fields") {
                         TextField("Place name", text: $name)
                         Picker("Place type", selection: $type) {
@@ -169,6 +183,7 @@ struct AddNewPlaceView: View {
                                 }
                             }
                         }
+                        TextField(otherWorkInfo, text: $otherWorkInfo)
                         Button {
                             showWorkDaysView = true
                         } label: {
@@ -191,7 +206,7 @@ struct AddNewPlaceView: View {
                                         AddPlaceAboutView(language: language, text: "") { placeAbout in
                                             about.append(placeAbout)
                                             languages.removeAll(where: { $0 == placeAbout.language})
-                                        } onDelete: { _ in }
+                                        }
                                     } label: {
                                         Text("\(language.getFlag()) \(language.getName())")
                                     }
@@ -206,15 +221,11 @@ struct AddNewPlaceView: View {
                                         if let existingIndex = about.firstIndex(where: { $0.id == info.id }) {
                                             about[existingIndex] = placeAbout
                                         }
-                                    } onDelete: { _ in
-                                        if let existingIndex = about.firstIndex(where: { $0.id == info.id }) {
-                                            let removedLanguage = about.remove(at: existingIndex).language
-                                            languages.append(removedLanguage)
-                                        }
                                     }
                                 } label: {
                                     Text("\(info.language.getFlag()) \(info.about)")
                                         .lineLimit(2)
+                                        .tint(.primary)
                                 }
                                 
                                 Button {
@@ -236,9 +247,7 @@ struct AddNewPlaceView: View {
                     Section("E-mail") {
                         TextField("E-mail", text: $email)
                     }
-                    Section("Phone") {
-                        TextField("Place name", text: $name)
-                    }
+
                     Section("Other information") {
                         TextField("www", text: $www)
                         TextField("Facebook", text: $facebook)
@@ -256,7 +265,6 @@ struct AddNewPlaceView: View {
                         }
                         .buttonStyle(.bordered)
                     }
-                }
                 
             }
             .navigationBarBackButtonHidden()
@@ -299,3 +307,34 @@ struct AddNewPlaceView: View {
     AddNewPlaceView()
 }
 
+struct CPData: Codable, Identifiable {
+    let id: String
+    let name: String
+    let flag: String
+    let code: String
+    let dial_code: String
+    let pattern: String
+    let limit: Int
+    
+    static let allCountry: [CPData] = Bundle.main.decode("CountryNumbers.json")
+    static let example = allCountry[0]
+}
+extension Bundle {
+    func decode<T: Decodable>(_ file: String) -> T {
+        guard let url = self.url(forResource: file, withExtension: nil) else {
+            fatalError("Failed to locate \(file) in bundle.")
+        }
+        
+        guard let data = try? Data(contentsOf: url) else {
+            fatalError("Failed to load \(file) from bundle.")
+        }
+        
+        let decoder = JSONDecoder()
+        
+        guard let loaded = try? decoder.decode(T.self, from: data) else {
+            fatalError("Failed to decode \(file) from bundle.")
+        }
+        
+        return loaded
+    }
+}
