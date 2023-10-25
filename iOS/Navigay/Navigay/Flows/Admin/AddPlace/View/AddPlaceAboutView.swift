@@ -16,23 +16,21 @@ struct AddPlaceAboutView: View {
     //MARK: - Properties
     
     var onSave: (PlaceAbout) -> Void
-    var onDelete: (Language) -> Void
     
     //MARK: - Private Properties
     
     private let language: Language
     @State private var text: String = ""
-    @State private var showAlert: Bool = false
+    private let characterLimit: Int = 3000
     @FocusState private var focusedField: FocusedField?
     @Environment(\.dismiss) private var dismiss
     
     //MARK: - Inits
     
-    init(language: Language, text: String, onSave: @escaping (PlaceAbout) -> Void, onDelete: @escaping (Language) -> Void) {
+    init(language: Language, text: String, onSave: @escaping (PlaceAbout) -> Void) {
         self.language = language
         self._text = State(initialValue: text)
         self.onSave = onSave
-        self.onDelete = onDelete
     }
     
     //MARK: - Body
@@ -45,7 +43,15 @@ struct AddPlaceAboutView: View {
                     .font(.body)
                     .lineSpacing(5)
                     .focused($focusedField, equals: .textEditor)
-                    .padding(.horizontal)
+                    .onChange(of: text, initial: true) { oldValue, newValue in
+                        text = String(newValue.prefix(characterLimit))
+                    }
+                HStack {
+                    Spacer()
+                    Text(String(characterLimit - text.count))
+                        .foregroundStyle(.secondary)
+                        
+                }.padding(.horizontal)
             }
             .navigationBarBackButtonHidden()
             .toolbarBackground(AppColors.background)
@@ -67,38 +73,23 @@ struct AddPlaceAboutView: View {
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Готово") {
-                        guard !text.isEmpty else {
-                            showAlert.toggle()
-                            return
-                        }
                         let about = PlaceAbout(language: language, about: text)
                         onSave(about)
                         dismiss()
                     }
                     .bold()
+                    .disabled(text.isEmpty)
                 }
             }
             .onAppear {
                 focusedField = .textEditor
-            }
-            .alert("Empty information", isPresented: $showAlert) {
-                Button(role: .destructive) {
-                    onDelete(language)
-                    dismiss()
-                } label: {
-                    Text("Delete")
-                }
-            } message: {
-                Text("Enter text or delete information in this language.")
             }
         }
     }
 }
 
 #Preview {
-    AddPlaceAboutView(language: .de, text: "") { placeAbout in
-        
-    } onDelete: { language in
+    AddPlaceAboutView(language: .de, text: "We and our partners store and/or access information on a device, such as cookies and process personal data, such as unique identifiers and standard information sent by a device for personalised ads and content, ad and content measurement, and audience insights, as well as to develop and improve products. With your permission we and our partners may use precise geolocation data and identification through device scanning.\n\n🔥🔥🔥 You may click to consent to our and our partners’ processing as described above. Alternatively you may access more detailed information and change your preferences before consenting or to refuse consenting. Please note that some processing of your personal data may not require your consent, but you have a right to object to such processing. Your preferences will apply to this website only. You can change your preferences at any time by returning to this site or visit our privacy policy.") { placeAbout in
         
     }
 }
