@@ -1,5 +1,5 @@
 //
-//  AddPlaceAboutView.swift
+//  AddAboutPlaceView.swift
 //  Navigay
 //
 //  Created by Dmitry Zasenko on 25.10.23.
@@ -7,11 +7,7 @@
 
 import SwiftUI
 
-struct AddPlaceAboutView: View {
-    
-    private enum FocusedField {
-        case textEditor
-    }
+struct AddAboutPlaceView: View {
     
     //MARK: - Properties
     
@@ -20,9 +16,10 @@ struct AddPlaceAboutView: View {
     //MARK: - Private Properties
     
     private let language: Language
-    @State private var text: String = ""
+    @State private var text: String
+    private let title: String
     private let characterLimit: Int = 3000
-    @FocusState private var focusedField: FocusedField?
+    @FocusState private var focused: Bool
     @Environment(\.dismiss) private var dismiss
     
     //MARK: - Inits
@@ -30,6 +27,7 @@ struct AddPlaceAboutView: View {
     init(language: Language, text: String, onSave: @escaping (PlaceAbout) -> Void) {
         self.language = language
         self._text = State(initialValue: text)
+        self.title = "\(language.getFlag()) \(language.getName())"
         self.onSave = onSave
     }
     
@@ -42,23 +40,23 @@ struct AddPlaceAboutView: View {
                 TextEditor(text: $text)
                     .font(.body)
                     .lineSpacing(5)
-                    .focused($focusedField, equals: .textEditor)
+                    .padding(.horizontal, 10)
+                    .focused($focused)
                     .onChange(of: text, initial: true) { oldValue, newValue in
                         text = String(newValue.prefix(characterLimit))
                     }
-                HStack {
-                    Spacer()
-                    Text(String(characterLimit - text.count))
-                        .foregroundStyle(.secondary)
-                        
-                }.padding(.horizontal)
+                Text(String(characterLimit - text.count))
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .trailing)
+                    .padding(.horizontal)
+                    .padding(.bottom)
             }
             .navigationBarBackButtonHidden()
             .toolbarBackground(AppColors.background)
             .toolbarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .principal) {
-                    Text("Information: \(language.getFlag()) \(language.getName())")
+                    Text(title)
                         .font(.headline.bold())
                 }
                 ToolbarItem(placement: .topBarLeading) {
@@ -78,18 +76,18 @@ struct AddPlaceAboutView: View {
                         dismiss()
                     }
                     .bold()
-                    .disabled(text.isEmpty)
+                    .disabled(text.isEmpty || text.count < 20)
                 }
             }
             .onAppear {
-                focusedField = .textEditor
+                focused = true
             }
         }
     }
 }
 
 #Preview {
-    AddPlaceAboutView(language: .de, text: "We and our partners store and/or access information on a device, such as cookies and process personal data, such as unique identifiers and standard information sent by a device for personalised ads and content, ad and content measurement, and audience insights, as well as to develop and improve products. With your permission we and our partners may use precise geolocation data and identification through device scanning.\n\n🔥🔥🔥 You may click to consent to our and our partners’ processing as described above. Alternatively you may access more detailed information and change your preferences before consenting or to refuse consenting. Please note that some processing of your personal data may not require your consent, but you have a right to object to such processing. Your preferences will apply to this website only. You can change your preferences at any time by returning to this site or visit our privacy policy.") { placeAbout in
+    AddAboutPlaceView(language: .de, text: "We and our partners store and/or access information on a device, such as cookies and process personal data, such as unique identifiers and standard information sent by a device for personalised ads and content, ad and content measurement, and audience insights, as well as to develop and improve products. With your permission we and our partners may use precise geolocation data and identification through device scanning.\n\n🔥🔥🔥 You may click to consent to our and our partners’ processing as described above. Alternatively you may access more detailed information and change your preferences before consenting or to refuse consenting. Please note that some processing of your personal data may not require your consent, but you have a right to object to such processing. Your preferences will apply to this website only. You can change your preferences at any time by returning to this site or visit our privacy policy.") { placeAbout in
         
     }
 }

@@ -46,10 +46,7 @@ struct CityView: View {
                     if city.events.count > 0 {
                         Section {
                             Text("Upcoming events".uppercased())
-                                .foregroundColor(.white)
-                                .font(.caption)
-                                .bold()
-                                .modifier(CapsuleSmall(background: .red))
+                                .modifier(CapsuleSmall(background: .red, foreground: .white))
                                 .frame(maxWidth: .infinity)
                                 .padding(.top)
                                 .padding()
@@ -75,7 +72,7 @@ struct CityView: View {
                                 .foregroundColor(.white)
                                 .font(.caption)
                                 .bold()
-                                .modifier(CapsuleSmall(background: key.getColor()))
+                                .modifier(CapsuleSmall(background: key.getColor(), foreground: .white))
                                 .frame(maxWidth: .infinity)
                                 .padding()
                             
@@ -162,20 +159,20 @@ struct CityView: View {
             for decodedPlace in decodedPlaces {
                 if let place = city.places.first(where: { $0.id == decodedPlace.id} ) {
                     place.updatePlaceIncomplete(decodedPlace: decodedPlace)
-                    place.workDays.removeAll()
-                    if let days = decodedPlace.workingTime?.days {
-                        for day in days {
+                    place.timetable.removeAll()
+                    if let timetable = decodedPlace.timetable{
+                        for day in timetable {
                             let workingDay = WorkDay(workDay: day)
-                            place.workDays.append(workingDay)
+                            place.timetable.append(workingDay)
                         }
                     }
                 } else if decodedPlace.isActive {
                     let place = Place(decodedPlace: decodedPlace)
                     city.places.append(place)
-                    if let days = decodedPlace.workingTime?.days {
-                        for day in days {
+                    if let timetable = decodedPlace.timetable {
+                        for day in timetable {
                             let workingDay = WorkDay(workDay: day)
-                            place.workDays.append(workingDay)
+                            place.timetable.append(workingDay)
                         }
                     }
                 }
@@ -255,12 +252,15 @@ struct CityView: View {
 struct CapsuleSmall: ViewModifier {
     
     let background: Color
+    let foreground: Color
     
     func body(content: Content) -> some View {
         content
+            .font(.caption)
+            .bold()
             .padding(5)
             .padding(.horizontal, 5)
-            .foregroundColor(.white)
+            .foregroundColor(foreground)
             .background(background)
             .clipShape(Capsule(style: .continuous))
     }

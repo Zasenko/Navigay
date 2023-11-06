@@ -1,19 +1,19 @@
 //
-//  AddTagsViews.swift
+//  EditTagsView.swift
 //  Navigay
 //
-//  Created by Dmitry Zasenko on 19.10.23.
+//  Created by Dmitry Zasenko on 01.11.23.
 //
 
 import SwiftUI
 
-struct AddTagsView: View {
+struct EditTagsView: View {
     
     //MARK: - Properties
+
+    //MARK: - Private Properties
     
     @Binding var selectedTags: [Tag]
-    
-    //MARK: - Private Properties
     
     private let allTags1: [Tag] = [.gay, .lesbian, .gayFriendly, .heteroFriendly, .drag, .allGenders]
     private let allTags2: [Tag] = [.menOnly, .adultsOnly, .darkroom, .cruise, .fetish, .naked, .cabins, .massage]
@@ -25,23 +25,33 @@ struct AddTagsView: View {
     @State private var totalHeight3: CGFloat = .zero
     @State private var totalHeight4: CGFloat = .zero
     
+    @Environment(\.dismiss) private var dismiss
+    
+    //MARK: - Inits
+    
+    init(tags: Binding<[Tag]>) {
+        _selectedTags = tags
+    }
+    
     //MARK: - Body
     
     var body: some View {
-        ScrollView(showsIndicators: false) {
+        VStack(spacing: 0) {
             VStack {
                 GeometryReader { geometry in
                     self.generateContent(for: allTags1, color: .red, in: geometry, totalHeight: $totalHeight1)
                 }
             }
             .frame(height: totalHeight1)
+            .padding(.vertical)
             Divider()
             VStack {
                 GeometryReader { geometry in
                     self.generateContent(for: allTags2, color: .blue, in: geometry, totalHeight: $totalHeight2)
                 }
             }
-            .frame(height: totalHeight1)
+            .frame(height: totalHeight2)
+            .padding(.vertical)
             Divider()
             VStack {
                 GeometryReader { geometry in
@@ -49,6 +59,7 @@ struct AddTagsView: View {
                 }
             }
             .frame(height: totalHeight3)
+            .padding(.vertical)
             Divider()
             VStack {
                 GeometryReader { geometry in
@@ -56,8 +67,8 @@ struct AddTagsView: View {
                 }
             }
             .frame(height: totalHeight4)
+            .padding(.vertical)
         }
-        .padding()
     }
     
     //MARK: - Private functions
@@ -106,9 +117,7 @@ struct AddTagsView: View {
             .font(.caption)
             .bold()
             .foregroundColor(selectedTags.contains(where: { $0 == tag } ) ? .white: .primary)
-            .padding(.all, 5)
-            .background(selectedTags.contains(where: { $0 == tag } ) ? color :  AppColors.lightGray5)
-            .cornerRadius(5)
+            .modifier(CapsuleSmall(background: selectedTags.contains(where: { $0 == tag } ) ? color :  AppColors.lightGray6, foreground: .white))
     }
 
     private func viewHeightReader(_ binding: Binding<CGFloat>) -> some View {
@@ -122,6 +131,6 @@ struct AddTagsView: View {
     }
 }
 
-//#Preview {
-//    AddTagsView()
-//}
+#Preview {
+    EditTagsView(tags: .constant([.adultsOnly]))
+}

@@ -20,8 +20,8 @@ struct AddLocationView: View {
     @Binding var cityOrigin: String
     @Binding var cityEnglish: String
     @Binding var addressOrigin: String
-    @Binding var latitude: Double
-    @Binding var longitude: Double
+    @Binding var latitude: Double?
+    @Binding var longitude: Double?
     
     //MARK: - Private Properties
     
@@ -34,7 +34,6 @@ struct AddLocationView: View {
     //MARK: - Body
     
     var body: some View {
-        NavigationView {
             MapReader { reader in
                 Map(position: $position) {
                     if let selectedPlacemark {
@@ -46,14 +45,23 @@ struct AddLocationView: View {
                 .safeAreaInset(edge: .top) {
                     HStack(alignment: .top, spacing: 10) {
                         Button {
+                            dismiss()
+                        } label: {
+                            AppImages.iconX
+                                .bold()
+                                .padding()
+                                .background(.thinMaterial)
+                                .clipShape(.circle)
+                        }
+                        Spacer()
+                        Button {
                             showSearch = true
                         } label: {
                             AppImages.iconSearch
                                 .bold()
                                 .padding()
-                                .background(.ultraThinMaterial)
+                                .background(.thinMaterial)
                                 .clipShape(.circle)
-                                .shadow(color: .black.opacity(0.3), radius: 10)
                         }
                         .sheet(isPresented: $showSearch){
                             SearchLocationView(selectedPlacemark: $selectedPlacemark, position: $position)
@@ -61,17 +69,6 @@ struct AddLocationView: View {
                                 .presentationDetents([.medium])
                                 .presentationCornerRadius(25)
                                 .presentationDragIndicator(.hidden)
-                        }
-                        Spacer()
-                        Button {
-                            dismiss()
-                        } label: {
-                            AppImages.iconX
-                                .bold()
-                                .padding()
-                                .background(.ultraThinMaterial)
-                                .clipShape(.circle)
-                                .shadow(color: .black.opacity(0.3), radius: 10)
                         }
                     }
                     .padding(.horizontal)
@@ -121,7 +118,8 @@ struct AddLocationView: View {
                     }
                 })
             }
-        }
+            .toolbar(.hidden, for: .navigationBar)
+        
     }
     
     //MARK: - Private functions

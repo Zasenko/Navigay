@@ -12,40 +12,38 @@ struct DecodedPlace: Identifiable, Codable {
     let id: Int
     let name: String
     let type: PlaceType
-
-    let photoSmall: String?
-    let photoLarge: String?
-
     let address: String
-
     let latitude: Double
     let longitude: Double
-    let tags: [Tag]?
-
-    let workingTime: PlaceWorkingTime?
-    
     let isActive: Bool
+    let lastUpdate: String
     
- //   let about: String?
-  //  let www: String?
-  //  let fb: String?
-   // let insta: String?
-  //  let phone: String?
+    let photoSmall: String?
+    let photoLarge: String?
+    let tags: [Tag]?
+    let timetable: [PlaceWorkDay]?
+    let otherInfo: String?
+    let about: [About]?
+    let email: String?
+    let www: String?
+    let fb: String?
+    let insta: String?
+    let phone: String?
 
- //   let countryId: Int
-//    let regionId: Int
-//    let cityId: Int?
+    let countryId: Int?
+    let regionId: Int?
+    let cityId: Int?
     
-
-}
-
-struct PlaceWorkingTime: Codable {
-    let days: [PlaceWorkDay]?
-    let other: String?
+    let ownerId: Int?
 }
 
 struct PlaceWorkDay: Codable {
     let day: DayOfWeek
     let opening: String
     let closing: String
+}
+
+struct About: Codable {
+    let language: Language
+    let about: String
 }

@@ -15,15 +15,21 @@ final class Place {
     var name: String = ""
     var type: PlaceType = PlaceType.other
     var photoSmall: String? = nil
-    var photoLarge: String? = nil
+    var photoBig: String? = nil
+    var photos: [String] = []
     var about: String? = nil
     var address: String = ""
     var latitude: Double = 0
     var longitude: Double = 0
     var tags: [Tag] = []
     var isLiked: Bool = false
-    var workingTimeInfo: String? = nil
-    @Relationship(deleteRule: .cascade, inverse: \WorkDay.place) var workDays: [WorkDay] = []
+    var otherInfo: String? = nil
+    var phone: String? = nil
+    var www: String? = nil
+    var facebook: String? = nil
+    var instagram: String? = nil
+    
+    @Relationship(deleteRule: .cascade, inverse: \WorkDay.place) var timetable: [WorkDay] = []
     @Relationship(deleteRule: .cascade, inverse: \Event.place) var events: [Event] = []
     var city: City? = nil
     var isActive: Bool = true
@@ -43,7 +49,7 @@ final class Place {
         name = decodedPlace.name
         type = decodedPlace.type
         photoSmall = decodedPlace.photoSmall
-        photoLarge = decodedPlace.photoLarge
+        photoBig = decodedPlace.photoLarge
         address = decodedPlace.address
         latitude = decodedPlace.latitude
         longitude = decodedPlace.longitude

@@ -7,6 +7,8 @@
 
 import SwiftUI
 
+
+
 struct AdminView: View {
 
     //MARK: - Body
@@ -14,9 +16,12 @@ struct AdminView: View {
     var body: some View {
         NavigationStack {
             List {
-                Section("Adding") {
+                Section {
                     NavigationLink("Add new place") {
                         AddNewPlaceView()
+                    }
+                    NavigationLink("Add new event") {
+                        Color.red
                     }
                 }
             }

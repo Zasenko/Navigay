@@ -1,5 +1,5 @@
 //
-//  AddPhoneView.swift
+//  EditPhoneView.swift
 //  Navigay
 //
 //  Created by Dmitry Zasenko on 25.10.23.
@@ -8,20 +8,23 @@
 import SwiftUI
 import Combine
 
-struct AddPhoneView: View {
+struct EditPhoneView: View {
     
     //MARK: - Properties
+    
     var onSave: (String) -> Void
     
     //MARK: - Private Properties
     
+    private let title: String = "Phone number"
+    private let info: String = "Confirm country code and enter phone number."
+    private let placeholder: String = "Phone number"
     private let counrties: [CPData] = Bundle.main.decode("CountryNumbers.json")
     @State private var countryCode: String
     @State private var countryFlag: String
     @State private var mobPhoneNumber: String = ""
     @State private var presentSheet: Bool = false
     @State private var searchCountry: String = ""
-    
     private var filteredResorts: [CPData] {
         if searchCountry.isEmpty {
             return counrties
@@ -53,7 +56,7 @@ struct AddPhoneView: View {
         NavigationStack {
             VStack(spacing: 0) {
                 Divider()
-                Text("Confirm country code and enter phone number")
+                Text(info)
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
@@ -68,8 +71,7 @@ struct AddPhoneView: View {
                             .padding(10)
                             .background(AppColors.lightGray6, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
                     }
-                    
-                    TextField(mobPhoneNumber.isEmpty ? "Phone number" : "", text: $mobPhoneNumber)
+                    TextField(placeholder, text: $mobPhoneNumber)
                         .focused($keyIsFocused)
                         .keyboardType(.numberPad)
                         .padding(10)
@@ -83,7 +85,7 @@ struct AddPhoneView: View {
             .toolbarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .principal) {
-                    Text("Add phone number")
+                    Text(title)
                         .font(.headline.bold())
                 }
                 ToolbarItem(placement: .topBarLeading) {
@@ -98,7 +100,7 @@ struct AddPhoneView: View {
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Готово") {
-                        onSave("\(countryCode)\(mobPhoneNumber)")
+                        onSave("\(countryCode) \(mobPhoneNumber)")
                         dismiss()
                     }
                     .bold()
@@ -138,7 +140,7 @@ struct AddPhoneView: View {
 }
 
 #Preview {
-    AddPhoneView(isoCountryCode: "ES") { string in
+    EditPhoneView(isoCountryCode: "ES") { string in
         
     }
 }

@@ -49,7 +49,7 @@ struct PlaceView: View {
                     Text(place.about ?? "")
                     Text(place.isLiked.description)
                     Text(place.photoSmall ?? "")
-                    Text(place.photoLarge ?? "")
+                    Text(place.photoBig ?? "")
                     Text(place.type.getName())
                 }
                 
@@ -67,7 +67,7 @@ struct PlaceView: View {
                 
                 
                 Section {
-                    ForEach(place.workDays.sorted(by: { $0.day.rawValue < $1.day.rawValue } )) { day in
+                    ForEach(place.timetable.sorted(by: { $0.day.rawValue < $1.day.rawValue } )) { day in
                         HStack {
                             Text(day.day.getString())
                                 .bold()
@@ -77,7 +77,7 @@ struct PlaceView: View {
                         .font(.callout)
                     }
                 } footer: {
-                    Text(place.workingTimeInfo ?? "")
+                    Text(place.otherInfo ?? "")
                 }
                 
                 Section {
@@ -110,7 +110,7 @@ struct PlaceView: View {
             }
         }
         .onAppear() {
-            if let url = place.photoLarge {
+            if let url = place.photoBig {
                 Task {
                     if let image = await ImageLoader.shared.loadImage(urlString: url) {
                         await MainActor.run {

@@ -14,20 +14,102 @@ struct Test: View {
     
     var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
-                ScrollView {
-                    TextField("text", text: $text)
-                        .padding(10)
-                        .background(AppColors.lightGray6)
-                        .cornerRadius(8)
-                        .padding(.horizontal)
+            LazyVStack(spacing: 0) {
+                HStack {
+                    Text("Name".uppercased()).foregroundStyle(.red).font(.footnote).bold()
+                    Spacer()
+                    NavigationLink("+ Add number") {
+                        EmptyView()
+                    }
+                }.padding(.horizontal)
+                .padding(.horizontal)
+                .padding(.bottom, 4)
+                TextField("Place name", text: $text)
+                    .padding(.vertical, 10)
+                    .padding(.horizontal)
+                    .background(AppColors.lightGray6)
+                    .cornerRadius(8)
+                    .padding(.horizontal)
+                    .padding(.bottom, 50)
+                HStack {
+                    Text("PHONE").foregroundStyle(.red).font(.footnote).bold()
+                    Spacer()
+                    NavigationLink("+ Add number") {
+                        EmptyView()
+                    }
+                }.padding(.horizontal)
+                .padding(.horizontal)
+                .padding(.bottom, 4)
+                TextField("Phone number", text: $text)
+                    .padding(.vertical, 10)
+                    .padding(.horizontal)
+                    .background(AppColors.lightGray6)
+                    .cornerRadius(8)
+                    .padding(.horizontal)
+                    .padding(.bottom, 50)
+                HStack {
+                    Text("type".uppercased()).foregroundStyle(.secondary).font(.footnote)
+                    Spacer()
+                    AppImages.iconSettings.bold()
+                        .padding(.trailing, 10)
+                        .foregroundStyle(.blue)
+                        .frame(width: 30, height: 30)
+                    NavigationLink("+ Add number") {
+                        EmptyView()
+                    }
+                }.padding(.horizontal)
+                .padding(.horizontal)
+                .padding(.bottom, 50)
+                HStack {
+                    Text("address".uppercased()).foregroundStyle(.secondary).font(.footnote)
+                    Spacer()
+                    NavigationLink("+ Add number") {
+                        EmptyView()
+                    }
+                }.padding(.horizontal)
+                .padding(.horizontal)
+                .padding(.bottom, 4)
+                VStack(alignment: .leading, spacing: 10) {
+                    HStack {
+                        AppImages.iconMap
+                        Text("Seyringer Strasse, 1")
+                        Spacer()
+                    }.frame(maxWidth: .infinity)
+                    
                 }
-                .background(AppColors.lightGray5)
-                List {
-                    Section("ddd") {
-                        TextField("text", text: $text)
+                .padding()
+                .background(AppColors.lightGray6, in: RoundedRectangle(cornerRadius: 8))
+                .padding(.horizontal)
+                .padding(.bottom, 50)
+                HStack {
+                    Text("PHONE").foregroundStyle(.secondary).font(.footnote)
+                    Spacer()
+                    NavigationLink("+ Add number") {
+                        EmptyView()
+                    }
+                }.padding(.horizontal)
+                .padding(.horizontal)
+                .padding(.bottom, 10)
+                VStack(alignment: .leading, spacing: 10) {
+                    HStack {
+                        AppImages.iconMap
+                        Text("Placeholder")
+                        Spacer()
+                    }.frame(maxWidth: .infinity)
+                    HStack {
+                        AppImages.iconCalendar
+                        Text("Placeholder")
+                        Spacer()
+                    }
+                    HStack {
+                        AppImages.iconCalendar
+                        Text("Placeholder")
+                        Spacer()
                     }
                 }
+                .padding()
+                .background(AppColors.lightGray6, in: RoundedRectangle(cornerRadius: 8))
+                .padding(.horizontal)
             }
         }
 //            HStack {
