@@ -9,6 +9,7 @@ import Foundation
 
 struct PlaceRequiredInfo: Codable {
     
+    //id
     let name: String
     let type: Int
     let isoCountryCode: String

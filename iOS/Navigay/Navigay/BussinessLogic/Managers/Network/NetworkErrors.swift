@@ -9,6 +9,7 @@ import Foundation
 
 enum NetworkErrors: Error {
     case noConnection
+    case bodyEncoderError
     case encoderError
     case decoderError
     case bedUrl

@@ -21,6 +21,7 @@ struct NewPlace: Codable {
     let address: String
     let latitude: Double
     let longitude: Double
+    
     let about: [PlaceAboutForSend]?
     let tags: [Int]?
     let timetable: [PlaceWorkDay]?
@@ -30,9 +31,14 @@ struct NewPlace: Codable {
     let www: String?
     let facebook: String?
     let instagram: String?
-    let ownerId: Int?
     
-    init(name: String, type: Int, isoCountryCode: String, countryOrigin: String?, countryEnglish: String?, regionOrigin: String?, regionEnglish: String?, cityOrigin: String?, cityEnglish: String?, address: String, latitude: Double, longitude: Double, about: [PlaceAboutForSend]?, tags: [Int]?, timetable: [PlaceWorkDay]?, otherInfo: String?, email: String?, phone: String?, www: String?, facebook: String?, instagram: String?, ownerId: Int?) {
+    let ownderId: Int?
+    let addedBy: Int?
+    
+    let isActive: Bool
+    let isChecked: Bool
+    
+    init(name: String, type: Int, isoCountryCode: String, countryOrigin: String?, countryEnglish: String?, regionOrigin: String?, regionEnglish: String?, cityOrigin: String?, cityEnglish: String?, address: String, latitude: Double, longitude: Double, about: [PlaceAboutForSend]?, tags: [Int]?, timetable: [PlaceWorkDay]?, otherInfo: String?, email: String?, phone: String?, www: String?, facebook: String?, instagram: String?, ownderId: Int?, addedBy: Int?, isActive: Bool, isChecked: Bool) {
         self.name = name
         self.type = type
         self.isoCountryCode = isoCountryCode
@@ -54,6 +60,9 @@ struct NewPlace: Codable {
         self.www = www
         self.facebook = facebook
         self.instagram = instagram
-        self.ownerId = ownerId
+        self.ownderId = ownderId
+        self.addedBy = addedBy
+        self.isActive = isActive
+        self.isChecked = isChecked
     }
 }

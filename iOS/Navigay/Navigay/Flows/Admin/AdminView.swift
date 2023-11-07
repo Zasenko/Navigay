@@ -7,10 +7,23 @@
 
 import SwiftUI
 
-
+final class AdminViewModel: ObservableObject {
+    
+    let user: AppUser
+    
+    init(user: AppUser) {
+        self.user = user
+    }
+}
 
 struct AdminView: View {
 
+    @StateObject var viewModel: AdminViewModel
+    
+    init(viewModel: AdminViewModel) {
+        _viewModel = StateObject(wrappedValue: viewModel)
+    }
+    
     //MARK: - Body
     
     var body: some View {
@@ -18,7 +31,7 @@ struct AdminView: View {
             List {
                 Section {
                     NavigationLink("Add new place") {
-                        AddNewPlaceView()
+                        AddNewPlaceView(viewModel: AddNewPlaceViewModel(user: viewModel.user, networkManager: PlaceNetworkManager()))
                     }
                     NavigationLink("Add new event") {
                         Color.red
@@ -30,6 +43,6 @@ struct AdminView: View {
     }
 }
 
-#Preview {
-    AdminView()
-}
+//#Preview {
+//    AdminView()
+//}

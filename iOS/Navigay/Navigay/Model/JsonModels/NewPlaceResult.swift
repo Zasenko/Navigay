@@ -10,5 +10,5 @@ import Foundation
 struct NewPlaceResult: Codable {
     let result: Bool
     let error: ApiError?
-    let place: DecodedPlace?
+    let placeId: Int?
 }

@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import PhotosUI
 
 struct Photo: Identifiable {
     let id: UUID = UUID()
@@ -17,68 +16,9 @@ struct Photo: Identifiable {
     }
 }
 
-final class EditPlacePhotosViewModel: ObservableObject {
-    
-    
-    @Published var showSmallPhotoPicker: Bool = false
-    @Published var showBigPhotoPicker: Bool = false
-    
-    @Published var bigPickerItem: PhotosPickerItem? = nil
-    @Published var smallPickerItem: PhotosPickerItem? = nil
-    
-    @Published var croppedImageBig: Image?
-    @Published var croppedImageSmall: Image?
-    @Published var photos: [Photo]
-    
-//        private var uiImageBig: UIImage?
-//        private var uiImageSmall: UIImage?
-    
-    private var placeId: Int
-    
-    init(bigImage: Image?, smallImage: Image?, images: [Image], placeId: Int) {
-        self.croppedImageBig = bigImage
-        self.croppedImageSmall = smallImage
-        self.photos = images.map( { Photo(image: $0) })
-        self.placeId = placeId
-    }
-}
-
-extension EditPlacePhotosViewModel {
-    
-    func cropSmallImage(uiImage: UIImage) {
-        Task {
-            let targetSizeSmall = CGSize(width: 100, height: 100)
-            let scaledImageSmall = uiImage.scaleAndFill(targetSize: targetSizeSmall)
-            await MainActor.run {
-                croppedImageSmall = Image(uiImage: scaledImageSmall)
-                //uiImageSmall = scaledImageSmall
-                //отправить в сеть
-            }
-        }
-    }
-    
-    func cropBigImage(uiImage: UIImage) {
-        Task {
-            let targetSizeBig = CGSize(width: 600, height: 750)
-            let scaledImageBig = uiImage.scaleAndFill(targetSize: targetSizeBig)
-            await MainActor.run {
-                croppedImageBig = Image(uiImage: scaledImageBig)
-                //uiImageBig = scaledImageBig
-                //отправить в сеть
-            }
-        }
-    }
-}
-
 struct EditPlacePhotosView: View {
     
     @ObservedObject var viewModel: EditPlacePhotosViewModel
-    
-    @State private var showSmallPhotoPicker: Bool = false
-    @State private var showBigPhotoPicker: Bool = false
-    
-    @State private var bigPickerItem: PhotosPickerItem?
-    @State private var smallPickerItem: PhotosPickerItem?
     
     var body: some View {
         NavigationStack {
@@ -111,7 +51,7 @@ struct EditPlacePhotosView: View {
     private var bigPhoto: some View {
         Menu {
             Button("Select from library") {
-                showBigPhotoPicker.toggle()
+                viewModel.showBigPhotoPicker.toggle()
             }
             Button("Add from camera") {
                 
@@ -138,10 +78,10 @@ struct EditPlacePhotosView: View {
                     .background(AppColors.lightGray6)
             }
         }
-        .photosPicker(isPresented: $showBigPhotoPicker, selection: $bigPickerItem, matching: .any(of: [.images, .screenshots, .livePhotos]))
-        .onChange(of: bigPickerItem) { oldValue, newValue in
+        .photosPicker(isPresented: $viewModel.showBigPhotoPicker, selection: $viewModel.bigPickerItem, matching: .any(of: [.images, .screenshots, .livePhotos]))
+        .onChange(of: viewModel.bigPickerItem) { oldValue, newValue in
             Task {
-                guard let data = try? await bigPickerItem?.loadTransferable(type: Data.self) else { return }
+                guard let data = try? await viewModel.bigPickerItem?.loadTransferable(type: Data.self) else { return }
                 if let uiImage = UIImage(data: data) {
                     viewModel.cropBigImage(uiImage: uiImage)
                 }
@@ -152,7 +92,7 @@ struct EditPlacePhotosView: View {
     private var smallPhoto: some View {
         Menu {
             Button("Select from library") {
-                showSmallPhotoPicker.toggle()
+                viewModel.showSmallPhotoPicker.toggle()
             }
             
             Button("Add from camera") {
@@ -185,10 +125,10 @@ struct EditPlacePhotosView: View {
                 }
             }
         }
-        .photosPicker(isPresented: $showSmallPhotoPicker, selection: $smallPickerItem, matching: .any(of: [.images, .screenshots, .livePhotos]))
-        .onChange(of: smallPickerItem) { oldValue, newValue in
+        .photosPicker(isPresented: $viewModel.showSmallPhotoPicker, selection: $viewModel.smallPickerItem, matching: .any(of: [.images, .screenshots, .livePhotos]))
+        .onChange(of: viewModel.smallPickerItem) { oldValue, newValue in
             Task {
-                guard let data = try? await smallPickerItem?.loadTransferable(type: Data.self) else { return }
+                guard let data = try? await viewModel.smallPickerItem?.loadTransferable(type: Data.self) else { return }
                 if let uiImage = UIImage(data: data) {
                     viewModel.cropSmallImage(uiImage: uiImage)
                 }
@@ -210,5 +150,5 @@ struct EditPlacePhotosView: View {
 }
 
 #Preview {
-    EditPlacePhotosView(viewModel: EditPlacePhotosViewModel(bigImage: nil, smallImage: nil, images: [Image("5x7"), Image("7x5"), Image("test200x200"), Image("test200x200"), Image("5x7")], placeId: 0))
+    EditPlacePhotosView(viewModel: EditPlacePhotosViewModel(bigImage: nil, smallImage: nil, images: [Image("5x7"), Image("7x5"), Image("test200x200"), Image("test200x200"), Image("5x7")], placeId: 0, networkManager: PlaceNetworkManager()))
 }

@@ -356,6 +356,6 @@ struct NewPlaceAdditionalFieldsView: View {
     }
 }
 
-#Preview {
-    NewPlaceAdditionalFieldsView(viewModel: AddNewPlaceViewModel(networkManager: AddNetworkManager()))
-}
+//#Preview {
+//    NewPlaceAdditionalFieldsView(viewModel: AddNewPlaceViewModel(networkManager: AddNetworkManager()))
+//}

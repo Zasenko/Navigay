@@ -11,10 +11,15 @@ struct AddNewPlaceView: View {
     
     //MARK: - Private Properties
     
-    @StateObject private var viewModel: AddNewPlaceViewModel = AddNewPlaceViewModel(networkManager: AddNetworkManager())
+    @StateObject private var viewModel: AddNewPlaceViewModel
     private var infoTitle: String = "New place"
     private var photoTitle: String = "Add photos"
     @Environment(\.dismiss) private var dismiss
+    
+    init(viewModel: AddNewPlaceViewModel) {
+        _viewModel = StateObject(wrappedValue: viewModel)
+    }
+    
     
     //MARK: - Body
     
@@ -26,7 +31,11 @@ struct AddNewPlaceView: View {
                 case .info:
                     NewPlaceInfoView(viewModel: viewModel)
                 case .photos:
-                    EditPlacePhotosView(viewModel: EditPlacePhotosViewModel(bigImage: nil, smallImage: nil, images: [], placeId: 0))
+                   // if let id = viewModel.placeId {
+                        EditPlacePhotosView(viewModel: EditPlacePhotosViewModel(bigImage: nil, smallImage: nil, images: [], placeId: 35, networkManager: viewModel.networkManager))
+//                    } else {
+//                       EmptyView()
+//                    }
                 }
             }
             .navigationBarBackButtonHidden()
@@ -67,11 +76,17 @@ struct AddNewPlaceView: View {
                     }
                 }
             }
+            .onChange(of: viewModel.placeId) { oldValue, newValue in
+                if newValue != nil {
+                    viewModel.router = .photos
+                }
+            }
+            
         }
     }
 }
 
-#Preview {
-    AddNewPlaceView()
-}
+//#Preview {
+//    AddNewPlaceView(viewModel: AddNewPlaceViewModel(user: <#T##AppUser#>, networkManager: <#T##AddNetworkManagerProtocol#>))
+//}
 

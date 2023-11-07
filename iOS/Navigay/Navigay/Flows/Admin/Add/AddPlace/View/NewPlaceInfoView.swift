@@ -29,7 +29,8 @@ struct NewPlaceInfoView: View {
                         .padding()
                         .padding(.top)
                     NewPlaceAdditionalFieldsView(viewModel: viewModel)
-                    
+                    activationField
+                    checkField
                     Button("Add new place") {
                         viewModel.addNewPlace()
                     }
@@ -43,8 +44,31 @@ struct NewPlaceInfoView: View {
             }
         }
     }
+    
+    private var activationField: some View {
+        HStack {
+            Text("Place is Active")
+                .font(.callout)
+                .foregroundStyle(Color.secondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            Toggle("", isOn: $viewModel.isActive)
+        }
+        .padding()
+    }
+    private var checkField: some View {
+        HStack {
+            Text("Place is checked")
+                .font(.callout)
+                .foregroundStyle(Color.secondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            Toggle("", isOn: $viewModel.isChecked)
+        }
+        .padding()
+    }
 }
 
 #Preview {
-    NewPlaceInfoView(viewModel: AddNewPlaceViewModel(networkManager: AddNetworkManager()))
+    let decodetUser = DecodedAppUser(id: 0, name: "Test", email: "test@test.com", status: .admin, bio: nil, photo: nil, instagram: nil, likedPlacesId: nil)
+    let user = AppUser(decodedUser: decodetUser)
+    return NewPlaceInfoView(viewModel: AddNewPlaceViewModel(user: user, networkManager: PlaceNetworkManager()))
 }

@@ -64,7 +64,7 @@
 		0F79B2532AF24C7800FCAED2 /* EditTimetableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F79B2522AF24C7800FCAED2 /* EditTimetableView.swift */; };
 		0F79B2562AF2608100FCAED2 /* EditTagsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F79B2552AF2608100FCAED2 /* EditTagsView.swift */; };
 		0F79B2582AF265A800FCAED2 /* ActivationFieldsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F79B2572AF265A800FCAED2 /* ActivationFieldsView.swift */; };
-		0F79B25E2AF26CB300FCAED2 /* AddNetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F79B25D2AF26CB300FCAED2 /* AddNetworkManager.swift */; };
+		0F79B25E2AF26CB300FCAED2 /* PlaceNetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F79B25D2AF26CB300FCAED2 /* PlaceNetworkManager.swift */; };
 		0F79B2602AF26D7A00FCAED2 /* PlaceRequiredInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F79B25F2AF26D7A00FCAED2 /* PlaceRequiredInfo.swift */; };
 		0F79B2632AF26DA900FCAED2 /* AppUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F79B2622AF26DA900FCAED2 /* AppUser.swift */; };
 		0F79B2662AF26E5800FCAED2 /* DayOfWeek.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F79B2652AF26E5800FCAED2 /* DayOfWeek.swift */; };
@@ -78,6 +78,8 @@
 		0F90B4DD2AF90D7E00547224 /* NewPlace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F90B4DC2AF90D7E00547224 /* NewPlace.swift */; };
 		0F9915282ACC6C5E008416D6 /* AuthenticationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F9915262ACC6C5E008416D6 /* AuthenticationManager.swift */; };
 		0F99152B2ACC6CE6008416D6 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0F99152A2ACC6CE6008416D6 /* Launch Screen.storyboard */; };
+		0FA010F22AFA8BA0003CF485 /* EditPlacePhotosViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FA010F12AFA8B9F003CF485 /* EditPlacePhotosViewModel.swift */; };
+		0FA010F42AFA8DED003CF485 /* ImageResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FA010F32AFA8DED003CF485 /* ImageResult.swift */; };
 		0FA6C8B52AD7E6CD00F30B4A /* Test.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FA6C8B42AD7E6CD00F30B4A /* Test.swift */; };
 		0FA6C8B82AD94C7500F30B4A /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FA6C8B72AD94C7500F30B4A /* MapView.swift */; };
 		0FAA79A82AE7D331003BB224 /* NewWorkingDay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FAA79A72AE7D331003BB224 /* NewWorkingDay.swift */; };
@@ -100,7 +102,6 @@
 		0FE13D9F2AD023D500ADB8F0 /* UserNetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FE13D9E2AD023D500ADB8F0 /* UserNetworkManager.swift */; };
 		0FFB3A352AF0FAC0001CF946 /* EditEmailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FFB3A342AF0FAC0001CF946 /* EditEmailView.swift */; };
 		0FFB3A372AF0FB56001CF946 /* EditTextFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FFB3A362AF0FB56001CF946 /* EditTextFieldView.swift */; };
-		0FFB3A3A2AF102A2001CF946 /* Test3.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FFB3A382AF102A2001CF946 /* Test3.swift */; };
 		0FFB3A3B2AF102A2001CF946 /* Test2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FFB3A392AF102A2001CF946 /* Test2.swift */; };
 		0FFB3A3D2AF12596001CF946 /* TagsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FFB3A3C2AF12596001CF946 /* TagsView.swift */; };
 		0FFB3A422AF14F66001CF946 /* NewPlaceRequiredFieldsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FFB3A412AF14F66001CF946 /* NewPlaceRequiredFieldsView.swift */; };
@@ -170,7 +171,7 @@
 		0F79B2522AF24C7800FCAED2 /* EditTimetableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditTimetableView.swift; sourceTree = "<group>"; };
 		0F79B2552AF2608100FCAED2 /* EditTagsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditTagsView.swift; sourceTree = "<group>"; };
 		0F79B2572AF265A800FCAED2 /* ActivationFieldsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivationFieldsView.swift; sourceTree = "<group>"; };
-		0F79B25D2AF26CB300FCAED2 /* AddNetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddNetworkManager.swift; sourceTree = "<group>"; };
+		0F79B25D2AF26CB300FCAED2 /* PlaceNetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceNetworkManager.swift; sourceTree = "<group>"; };
 		0F79B25F2AF26D7A00FCAED2 /* PlaceRequiredInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceRequiredInfo.swift; sourceTree = "<group>"; };
 		0F79B2622AF26DA900FCAED2 /* AppUser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppUser.swift; sourceTree = "<group>"; };
 		0F79B2652AF26E5800FCAED2 /* DayOfWeek.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayOfWeek.swift; sourceTree = "<group>"; };
@@ -184,6 +185,8 @@
 		0F90B4DC2AF90D7E00547224 /* NewPlace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewPlace.swift; sourceTree = "<group>"; };
 		0F9915262ACC6C5E008416D6 /* AuthenticationManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AuthenticationManager.swift; sourceTree = "<group>"; };
 		0F99152A2ACC6CE6008416D6 /* Launch Screen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
+		0FA010F12AFA8B9F003CF485 /* EditPlacePhotosViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditPlacePhotosViewModel.swift; sourceTree = "<group>"; };
+		0FA010F32AFA8DED003CF485 /* ImageResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageResult.swift; sourceTree = "<group>"; };
 		0FA6C8B42AD7E6CD00F30B4A /* Test.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Test.swift; sourceTree = "<group>"; };
 		0FA6C8B72AD94C7500F30B4A /* MapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
 		0FAA79A72AE7D331003BB224 /* NewWorkingDay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewWorkingDay.swift; sourceTree = "<group>"; };
@@ -207,7 +210,6 @@
 		0FE13D9E2AD023D500ADB8F0 /* UserNetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserNetworkManager.swift; sourceTree = "<group>"; };
 		0FFB3A342AF0FAC0001CF946 /* EditEmailView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditEmailView.swift; sourceTree = "<group>"; };
 		0FFB3A362AF0FB56001CF946 /* EditTextFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditTextFieldView.swift; sourceTree = "<group>"; };
-		0FFB3A382AF102A2001CF946 /* Test3.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Test3.swift; sourceTree = "<group>"; };
 		0FFB3A392AF102A2001CF946 /* Test2.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Test2.swift; sourceTree = "<group>"; };
 		0FFB3A3C2AF12596001CF946 /* TagsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagsView.swift; sourceTree = "<group>"; };
 		0FFB3A412AF14F66001CF946 /* NewPlaceRequiredFieldsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewPlaceRequiredFieldsView.swift; sourceTree = "<group>"; };
@@ -325,7 +327,7 @@
 				0FE13D9E2AD023D500ADB8F0 /* UserNetworkManager.swift */,
 				0F741A922ACDB68500A7759E /* CatalogNetworkManager.swift */,
 				0F741A942ACDB68E00A7759E /* EventNetworkManager.swift */,
-				0F79B25D2AF26CB300FCAED2 /* AddNetworkManager.swift */,
+				0F79B25D2AF26CB300FCAED2 /* PlaceNetworkManager.swift */,
 			);
 			path = Network;
 			sourceTree = "<group>";
@@ -334,6 +336,7 @@
 			isa = PBXGroup;
 			children = (
 				0F741A442ACD523200A7759E /* AuthResult.swift */,
+				0FA010F32AFA8DED003CF485 /* ImageResult.swift */,
 				0F79B2692AF273F000FCAED2 /* NewPlaceResult.swift */,
 				0F741A302ACD4DCE00A7759E /* ApiError.swift */,
 				0FD617A32ACC3AF500877C70 /* DecodedUser.swift */,
@@ -346,6 +349,7 @@
 				0F741A6A2ACD644D00A7759E /* DecodedPlace.swift */,
 				0F741A6F2ACD644D00A7759E /* DecodedRegion.swift */,
 				0F741A6D2ACD644D00A7759E /* EventResult.swift */,
+				0F90B4DC2AF90D7E00547224 /* NewPlace.swift */,
 			);
 			path = JsonModels;
 			sourceTree = "<group>";
@@ -421,6 +425,7 @@
 		0F79B25A2AF2690800FCAED2 /* Photo */ = {
 			isa = PBXGroup;
 			children = (
+				0FA010F12AFA8B9F003CF485 /* EditPlacePhotosViewModel.swift */,
 				0FFB3A452AF16190001CF946 /* EditPlacePhotosView.swift */,
 				0FFB3A472AF16310001CF946 /* AddPhotoFromUrlView.swift */,
 			);
@@ -520,7 +525,6 @@
 		0FAA79A62AE7D326003BB224 /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				0F90B4DC2AF90D7E00547224 /* NewPlace.swift */,
 				0F79B25F2AF26D7A00FCAED2 /* PlaceRequiredInfo.swift */,
 				0F89545C2AF420B900CE46EC /* PlaceAdditionalInfo.swift */,
 				0F89545E2AF4214000CE46EC /* PlaceActivationInfo.swift */,
@@ -592,7 +596,6 @@
 				0FD617932ACC398300877C70 /* Assets.xcassets */,
 				0FA6C8B42AD7E6CD00F30B4A /* Test.swift */,
 				0FFB3A392AF102A2001CF946 /* Test2.swift */,
-				0FFB3A382AF102A2001CF946 /* Test3.swift */,
 				0FD617952ACC398300877C70 /* Preview Content */,
 			);
 			path = Navigay;
@@ -740,6 +743,7 @@
 				0F741A2C2ACD4D8000A7759E /* ErrorModel.swift in Sources */,
 				0F79B2562AF2608100FCAED2 /* EditTagsView.swift in Sources */,
 				0F151F422AE90E680049C60F /* UIImage+Ext.swift in Sources */,
+				0FA010F22AFA8BA0003CF485 /* EditPlacePhotosViewModel.swift in Sources */,
 				0F151F4B2AE93B7A0049C60F /* AddNewPlaceViewModel.swift in Sources */,
 				0FD617AF2ACC3D3A00877C70 /* AppColors.swift in Sources */,
 				0F741A8F2ACDB66900A7759E /* CountryView.swift in Sources */,
@@ -791,6 +795,7 @@
 				0FD617A42ACC3AF500877C70 /* DecodedUser.swift in Sources */,
 				0F741A7B2ACD644D00A7759E /* CityResult.swift in Sources */,
 				0F741A912ACDB66900A7759E /* PlaceView.swift in Sources */,
+				0FA010F42AFA8DED003CF485 /* ImageResult.swift in Sources */,
 				0FA6C8B82AD94C7500F30B4A /* MapView.swift in Sources */,
 				0F741A9A2ACDB7CE00A7759E /* TabBarButtonView.swift in Sources */,
 				0F89545D2AF420B900CE46EC /* PlaceAdditionalInfo.swift in Sources */,
@@ -806,7 +811,6 @@
 				0F79B26A2AF273F000FCAED2 /* NewPlaceResult.swift in Sources */,
 				0F741A2A2ACD4D4200A7759E /* ErrorView.swift in Sources */,
 				0FFB3A352AF0FAC0001CF946 /* EditEmailView.swift in Sources */,
-				0FFB3A3A2AF102A2001CF946 /* Test3.swift in Sources */,
 				0F90B4DD2AF90D7E00547224 /* NewPlace.swift in Sources */,
 				0F7E57E82AE129A40091A0F8 /* HomeView.swift in Sources */,
 				0F741A952ACDB68E00A7759E /* EventNetworkManager.swift in Sources */,
@@ -817,7 +821,7 @@
 				0F151F4F2AE94D2E0049C60F /* EditPhoneView.swift in Sources */,
 				0F741A902ACDB66900A7759E /* EventView.swift in Sources */,
 				0F741A292ACD4D4200A7759E /* ErrorViewModel.swift in Sources */,
-				0F79B25E2AF26CB300FCAED2 /* AddNetworkManager.swift in Sources */,
+				0F79B25E2AF26CB300FCAED2 /* PlaceNetworkManager.swift in Sources */,
 				0F741A752ACD644D00A7759E /* CountriesResult.swift in Sources */,
 				0FFB3A372AF0FB56001CF946 /* EditTextFieldView.swift in Sources */,
 				0FFB3A422AF14F66001CF946 /* NewPlaceRequiredFieldsView.swift in Sources */,

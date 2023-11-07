@@ -84,7 +84,7 @@ struct NewPlaceRequiredFieldsView: View {
                     VStack(alignment: .leading) {
                         Text("Type")
                             .font(.callout)
-                            .foregroundStyle(viewModel.name.isEmpty ? .red : .green)
+                            .foregroundStyle(viewModel.type == nil ? .red : .green)
                         if let type = viewModel.type {
                             Text("\(type.getName())  \(type.getImage())")
                                 .tint(.primary)
@@ -159,6 +159,6 @@ struct NewPlaceRequiredFieldsView: View {
     }
 }
 
-#Preview {
-    NewPlaceRequiredFieldsView(viewModel: AddNewPlaceViewModel(networkManager: AddNetworkManager()))
-}
+//#Preview {
+//    NewPlaceRequiredFieldsView(viewModel: AddNewPlaceViewModel(networkManager: AddNetworkManager()))
+//}

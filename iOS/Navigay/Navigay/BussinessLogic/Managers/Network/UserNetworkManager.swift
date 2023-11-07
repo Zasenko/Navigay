@@ -21,13 +21,6 @@ final class UserNetworkManager {
 
 }
 
-struct ImageResult: Codable {
-    let result: Bool
-    let url: String?
-    let error: ApiError?
-}
-
-
 // MARK: - AuthNetworkManagerProtocol
 
 extension UserNetworkManager: UserNetworkManagerProtocol {
