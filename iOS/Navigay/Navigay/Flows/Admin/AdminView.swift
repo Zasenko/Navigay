@@ -10,9 +10,13 @@ import SwiftUI
 final class AdminViewModel: ObservableObject {
     
     let user: AppUser
+    let errorManager: ErrorManagerProtocol
     
-    init(user: AppUser) {
+    // MARK: - Inits
+    
+    init(user: AppUser, errorManager: ErrorManagerProtocol) {
         self.user = user
+        self.errorManager = errorManager
     }
 }
 
@@ -31,7 +35,7 @@ struct AdminView: View {
             List {
                 Section {
                     NavigationLink("Add new place") {
-                        AddNewPlaceView(viewModel: AddNewPlaceViewModel(user: viewModel.user, networkManager: PlaceNetworkManager()))
+                        AddNewPlaceView(viewModel: AddNewPlaceViewModel(user: viewModel.user, networkManager: PlaceNetworkManager(errorManager: viewModel.errorManager)))
                     }
                     NavigationLink("Add new event") {
                         Color.red

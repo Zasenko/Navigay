@@ -86,7 +86,9 @@ struct AddNewPlaceView: View {
     }
 }
 
-//#Preview {
-//    AddNewPlaceView(viewModel: AddNewPlaceViewModel(user: <#T##AppUser#>, networkManager: <#T##AddNetworkManagerProtocol#>))
-//}
+#Preview {
+    let decodetUser = DecodedAppUser(id: 0, name: "Test", email: "test@test.com", status: .admin, bio: nil, photo: nil, instagram: nil, likedPlacesId: nil)
+    let user = AppUser(decodedUser: decodetUser)
+    return AddNewPlaceView(viewModel: AddNewPlaceViewModel(user: user, networkManager: PlaceNetworkManager(errorManager: ErrorManager())))
+}
 

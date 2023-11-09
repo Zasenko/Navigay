@@ -12,15 +12,23 @@ final class EditPlacePhotosViewModel: ObservableObject {
     
     //MARK: - Properties
     
-    @Published var showSmallPhotoPicker: Bool = false
-    @Published var showBigPhotoPicker: Bool = false
+    @Published var showAvatarPhotoPicker: Bool = false
+    @Published var showMainPhotoPicker: Bool = false
+    @Published var showLibraryPhotoPicker: Bool = false
     
-    @Published var bigPickerItem: PhotosPickerItem? = nil
-    @Published var smallPickerItem: PhotosPickerItem? = nil
+    @Published var mainPhotoPickerItem: PhotosPickerItem? = nil
+    @Published var avatarPickerItem: PhotosPickerItem? = nil
+    @Published var libraryPickerItem: PhotosPickerItem? = nil
     
-    @Published var croppedImageBig: Image?
-    @Published var croppedImageSmall: Image?
+    @Published var mainPhoto: Image?
+    @Published var avatarPhoto: Image?
     @Published var photos: [Photo]
+    
+    @Published var avatarLoading: Bool = false
+    @Published var mainPhotoLoading: Bool = false
+    @Published var libraryPhotoLoading: Bool = false
+    
+    @Published var libraryPhotoId: UUID = UUID()
 
     //MARK: - Private Properties
     
@@ -30,9 +38,9 @@ final class EditPlacePhotosViewModel: ObservableObject {
     //MARK: - Inits
     
     init(bigImage: Image?, smallImage: Image?, images: [Image], placeId: Int, networkManager: PlaceNetworkManagerProtocol) {
-        self.croppedImageBig = bigImage
-        self.croppedImageSmall = smallImage
-        self.photos = images.map( { Photo(image: $0) })
+        self.mainPhoto = bigImage
+        self.avatarPhoto = smallImage
+        self.photos = [Photo(id: UUID(), image: Image("1"))]//images.map( { Photo(image: $0) })
         self.placeId = placeId
         self.networkManager = networkManager
     }
@@ -40,54 +48,111 @@ final class EditPlacePhotosViewModel: ObservableObject {
 
 extension EditPlacePhotosViewModel {
     
-    func cropSmallImage(uiImage: UIImage) {
-        Task {
-            let targetSizeSmall = CGSize(width: 100, height: 100)
-            let scaledImageSmall = uiImage.scaleAndFill(targetSize: targetSizeSmall)
-            
-            
-            print("Original image size: \(uiImage.size)")
-            print("Scaled image size: \(scaledImageSmall.size)")
-            
-            await MainActor.run {
-                croppedImageSmall = Image(uiImage: scaledImageSmall)
-                //uiImageSmall = scaledImageSmall
-                //отправить в сеть
-            }
-            await addAvatar(uiImage: scaledImageSmall)
-        }
+    //MARK: - Functions
+    
+    func loadAvatar(uiImage: UIImage) {
+        avatarLoading = true
+        let scaledImage = uiImage.cropImage(width: 150, height: 150)
+        let previousImage = avatarPhoto
+        avatarPhoto = Image(uiImage: scaledImage)
+        updateAvatar(uiImage: scaledImage, previousImage: previousImage)
     }
     
-    func cropBigImage(uiImage: UIImage) {
-        Task {
-            let targetSizeBig = CGSize(width: 600, height: 750)
-            let scaledImageBig = uiImage.scaleAndFill(targetSize: targetSizeBig)
-            await MainActor.run {
-                croppedImageBig = Image(uiImage: scaledImageBig)
-                //uiImageBig = scaledImageBig
-                //отправить в сеть
-            }
-        }
+    func loadMainPhoto(uiImage: UIImage) {
+        mainPhotoLoading = true
+        let scaledImage = uiImage.cropImage(width: 600, height: 750)
+        let previousImage = mainPhoto
+        mainPhoto = Image(uiImage: scaledImage)
+        updateMainPhoto(uiImage: scaledImage, previousImage: previousImage)
     }
     
-    private func addAvatar(uiImage: UIImage) async {
-        do {
-            let result = try await networkManager.updateAvatar(placeId: placeId, uiImage: uiImage)
-            guard result.result,
-                  let url = result.url
-            else {
-                if let massage = result.error?.message {
-                    debugPrint("ERROR addAvatar(): ", massage)
+    func loadLibraryPhoto(uiImage: UIImage) {
+        libraryPhotoLoading = true
+        let scaledImage = uiImage.cropImage(width: 600, height: 750)
+        var previousPhoto: Image? = nil
+        if let photoIndex = photos.firstIndex(where: { $0.id == libraryPhotoId }) {
+            previousPhoto = photos[photoIndex].image
+            photos[photoIndex].updateImage(image: Image(uiImage: scaledImage))
+        } else {
+            let photo = Photo(id: libraryPhotoId, image: Image(uiImage: scaledImage))
+            photos.append(photo)
+        }
+        updateLibraryPhoto(uiImage: scaledImage, previousImage: previousPhoto)
+    }
+    
+    func deleteLibraryPhoto() {
+        libraryPhotoLoading = true
+        Task {
+            do {
+                try await networkManager.deleteLibraryPhoto(placeId: placeId, photoId: libraryPhotoId)
+                await MainActor.run {
+                    self.libraryPhotoLoading = false
+                    if let photoIndex = photos.firstIndex(where: { $0.id == libraryPhotoId }) {
+                        photos.remove(at: photoIndex)
+                    }
                 }
-                return
+            } catch {
+                await MainActor.run {
+                    self.libraryPhotoLoading = false
+                }
             }
-            print("url: ", url)
-            
-        } catch {
-            //TODO
-            print("Что-то пошло не так... Место не добавилось.")
-            print(error)
         }
-        
+    }
+    
+    //MARK: - Private Functions
+    
+    private func updateAvatar(uiImage: UIImage, previousImage: Image?) {
+        Task {
+            do {
+                try await networkManager.updateAvatar(placeId: placeId, uiImage: uiImage)
+                await MainActor.run {
+                    self.avatarLoading = false
+                }
+            } catch {
+                await MainActor.run {
+                    self.avatarLoading = false
+                    self.avatarPhoto = previousImage
+                }
+            }
+        }
+    }
+    
+    private func updateMainPhoto(uiImage: UIImage, previousImage: Image?) {
+        Task {
+            do {
+                try await networkManager.updateMainPhoto(placeId: placeId, uiImage: uiImage)
+                await MainActor.run {
+                    self.avatarLoading = false
+                }
+            } catch {
+                await MainActor.run {
+                    self.avatarLoading = false
+                    self.avatarPhoto = previousImage
+                }
+            }
+        }
+    }
+    
+    private func updateLibraryPhoto(uiImage: UIImage, previousImage: Image?) {
+        Task {
+            do {
+                try await networkManager.updateLibraryPhoto(placeId: placeId, photoId: libraryPhotoId, uiImage: uiImage)
+                await MainActor.run {
+                    self.libraryPhotoLoading = false
+                }
+            } catch {
+                await MainActor.run {
+                    if let photoIndex = photos.firstIndex(where: { $0.id == libraryPhotoId }) {
+                        
+                        if let previousImage = previousImage {
+                            photos[photoIndex].updateImage(image: previousImage)
+                        } else {
+                            photos.remove(at: photoIndex)
+                        }
+                    }
+                    self.libraryPhotoLoading = false
+                }
+            }
+        }
     }
 }

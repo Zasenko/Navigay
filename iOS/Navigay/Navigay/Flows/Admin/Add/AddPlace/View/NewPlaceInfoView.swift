@@ -67,8 +67,8 @@ struct NewPlaceInfoView: View {
     }
 }
 
-#Preview {
-    let decodetUser = DecodedAppUser(id: 0, name: "Test", email: "test@test.com", status: .admin, bio: nil, photo: nil, instagram: nil, likedPlacesId: nil)
-    let user = AppUser(decodedUser: decodetUser)
-    return NewPlaceInfoView(viewModel: AddNewPlaceViewModel(user: user, networkManager: PlaceNetworkManager()))
-}
+//#Preview {
+//    let decodetUser = DecodedAppUser(id: 0, name: "Test", email: "test@test.com", status: .admin, bio: nil, photo: nil, instagram: nil, likedPlacesId: nil)
+//    let user = AppUser(decodedUser: decodetUser)
+//    return NewPlaceInfoView(viewModel: AddNewPlaceViewModel(user: user, networkManager: PlaceNetworkManager(errorManager: ErrorManager())))
+//}

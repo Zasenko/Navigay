@@ -12,8 +12,9 @@ protocol ErrorManagerProtocol {
     func showError()
     func showError(error: Error)
     func showError(text: String)
-    func showError(with model: ErrorModel)
+    func showError(model: ErrorModel)
     func showApiError(error: ApiError?)
+    func showApiErrorOrMessage(apiError: ApiError?, or error: ErrorModel)
 }
 
 final class ErrorManager: ErrorManagerProtocol {
@@ -33,11 +34,19 @@ final class ErrorManager: ErrorManagerProtocol {
         }
     }
     
+    func showApiErrorOrMessage(apiError: ApiError?, or error: ErrorModel) {
+        if let apiError = apiError, apiError.show {
+            getError?(ErrorModel.init(massage: apiError.message, img: Image(systemName: "exclamationmark.triangle"), color: .red))
+        } else {
+            showError(model: error)
+        }
+    }
+    
     func showError() {
         getError?(ErrorModel.init(massage: "Что-то пошло не так", img: Image(systemName: "exclamationmark.triangle"), color: .red))
     }
     
-    func showError(with model: ErrorModel) {
+    func showError(model: ErrorModel) {
         getError?(model)
     }
     

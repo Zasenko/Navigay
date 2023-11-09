@@ -18,7 +18,7 @@ struct AddPhotoFromUrlView: View {
     @State private var image: Image? = nil
     @State private var uiImage: UIImage? = nil
     
-    @State private var text: String = "https://vseoplanete.ru/wp-content/uploads/2023/06/imfgjhjhgfjgjhjgfhjfghage1.jpg"
+    @State private var text: String = ""
     private let title: String = "Add photo from url"
     private let placeholder: String = "Url"
     @FocusState private var focused: Bool
