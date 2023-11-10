@@ -1,5 +1,5 @@
 //
-//  NewPlaceRequiredFieldsView.swift
+//  PlaceRequiredFieldsView.swift
 //  Navigay
 //
 //  Created by Dmitry Zasenko on 31.10.23.
@@ -8,7 +8,7 @@
 import SwiftUI
 import MapKit
 
-struct NewPlaceRequiredFieldsView: View {
+struct PlaceRequiredFieldsView: View {
     
     //MARK: - Properties
     

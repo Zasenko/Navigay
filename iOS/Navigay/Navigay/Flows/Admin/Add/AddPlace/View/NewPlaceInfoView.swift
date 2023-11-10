@@ -23,12 +23,12 @@ struct NewPlaceInfoView: View {
                     Text("Add required information:")
                         .foregroundStyle(.secondary)
                         .padding()
-                    NewPlaceRequiredFieldsView(viewModel: viewModel)
+                    PlaceRequiredFieldsView(viewModel: viewModel)
                     Text("Add additional information:")
                         .foregroundStyle(.secondary)
                         .padding()
                         .padding(.top)
-                    NewPlaceAdditionalFieldsView(viewModel: viewModel)
+                    PlaceAdditionalFieldsView(viewModel: viewModel)
                     activationField
                     checkField
                     Button("Add new place") {

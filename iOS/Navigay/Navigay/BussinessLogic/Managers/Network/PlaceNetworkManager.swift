@@ -9,10 +9,10 @@ import SwiftUI
 
 protocol PlaceNetworkManagerProtocol {
     func addNewPlace(place: NewPlace) async throws -> NewPlaceResult
-    func updateAvatar(placeId: Int, uiImage: UIImage) async throws
-    func updateMainPhoto(placeId: Int, uiImage: UIImage) async throws
-    func updateLibraryPhoto(placeId: Int, photoId: UUID, uiImage: UIImage) async throws
-    func deleteLibraryPhoto(placeId: Int, photoId: UUID) async throws
+    func updateAvatar(placeId: Int, uiImage: UIImage) async throws -> ImageResult
+    func updateMainPhoto(placeId: Int, uiImage: UIImage) async throws -> ImageResult
+    func updateLibraryPhoto(placeId: Int, photoId: UUID, uiImage: UIImage) async throws -> ImageResult
+    func deleteLibraryPhoto(placeId: Int, photoId: UUID) async throws -> DeleteResult
    // func addAdditionalInfoToPlace(place: PlaceAdditionalInfo) async throws -> NewPlaceResult
     //func addNewPlace(place: NewPlace, uiImageSmall: UIImage?, uiImageBig: UIImage?) async throws -> DecodedPlace
 }
@@ -63,12 +63,11 @@ extension PlaceNetworkManager: PlaceNetworkManagerProtocol {
             }
             return decodedResult
         } catch {
-            debugPrint("ERROR - addNewPlace: ",error)
             throw error
         }
     }
     
-    func updateMainPhoto(placeId: Int, uiImage: UIImage) async throws {
+    func updateMainPhoto(placeId: Int, uiImage: UIImage) async throws -> ImageResult {
         let path = "/api/place/update-main-photo.php"
         var urlComponents: URLComponents {
             var components = URLComponents()
@@ -93,20 +92,13 @@ extension PlaceNetworkManager: PlaceNetworkManagerProtocol {
             guard let decodedResult = try? JSONDecoder().decode(ImageResult.self, from: data) else {
                 throw NetworkErrors.decoderError
             }
-            guard decodedResult.result else {
-                let errorModel = ErrorModel(massage: "Something went wrong. The photo didn't load. Please try again later.", img: Image(systemName: "photo.fill"), color: .red)
-                errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: errorModel)
-                throw NetworkErrors.apiError
-            }
+            return decodedResult
         } catch {
-            debugPrint("ERROR - updateMainPhoto: ",error)
-            let errorModel = ErrorModel(massage: "Something went wrong. The photo didn't load. Please try again later.", img: Image(systemName: "photo.fill"), color: .red)
-            errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
             throw error
         }
     }
     
-    func updateAvatar(placeId: Int, uiImage: UIImage) async throws {
+    func updateAvatar(placeId: Int, uiImage: UIImage) async throws -> ImageResult {
         let path = "/api/place/update-avatar.php"
         var urlComponents: URLComponents {
             var components = URLComponents()
@@ -131,20 +123,13 @@ extension PlaceNetworkManager: PlaceNetworkManagerProtocol {
             guard let decodedResult = try? JSONDecoder().decode(ImageResult.self, from: data) else {
                 throw NetworkErrors.decoderError
             }
-            guard decodedResult.result else {
-                let errorModel = ErrorModel(massage: "Something went wrong. The photo didn't load. Please try again later.", img: Image(systemName: "photo.fill"), color: .red)
-                errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: errorModel)
-                throw NetworkErrors.apiError
-            }
+            return decodedResult
         } catch {
-            debugPrint("ERROR - updateAvatar: ",error)
-            let errorModel = ErrorModel(massage: "Something went wrong. The photo didn't load. Please try again later.", img: Image(systemName: "photo.fill"), color: .red)
-            errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
             throw error
         }
     }
 
-    func updateLibraryPhoto(placeId: Int, photoId: UUID, uiImage: UIImage) async throws {
+    func updateLibraryPhoto(placeId: Int, photoId: UUID, uiImage: UIImage) async throws -> ImageResult {
         let path = "/api/place/update-library-photo.php"
         var urlComponents: URLComponents {
             var components = URLComponents()
@@ -169,20 +154,13 @@ extension PlaceNetworkManager: PlaceNetworkManagerProtocol {
             guard let decodedResult = try? JSONDecoder().decode(ImageResult.self, from: data) else {
                 throw NetworkErrors.decoderError
             }
-            guard decodedResult.result else {
-                let errorModel = ErrorModel(massage: "Something went wrong. The photo didn't load. Please try again later.", img: Image(systemName: "photo.fill"), color: .red)
-                errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: errorModel)
-                throw NetworkErrors.apiError
-            }
+            return decodedResult
         } catch {
-            debugPrint("ERROR - updateLibraryPhoto: ",error)
-            let errorModel = ErrorModel(massage: "Something went wrong. The photo didn't load. Please try again later.", img: Image(systemName: "photo.fill"), color: .red)
-            errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
             throw error
         }
     }
     
-    func deleteLibraryPhoto(placeId: Int, photoId: UUID) async throws {
+    func deleteLibraryPhoto(placeId: Int, photoId: UUID) async throws -> DeleteResult {
         let path = "/api/place/delete-library-photo.php"
         var urlComponents: URLComponents {
             var components = URLComponents()
@@ -212,16 +190,8 @@ extension PlaceNetworkManager: PlaceNetworkManagerProtocol {
             guard let decodedResult = try? JSONDecoder().decode(DeleteResult.self, from: data) else {
                 throw NetworkErrors.decoderError
             }
-            guard decodedResult.result else {
-                debugPrint(decodedResult.error?.message ?? "---ERROR----")
-                let errorModel = ErrorModel(massage: "Something went wrong. The photo didn't delete. Please try again later.", img: Image(systemName: "trash.slash.fill"), color: .red)
-                errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: errorModel)
-                throw NetworkErrors.apiError
-            }
+            return decodedResult
         } catch {
-            debugPrint("ERROR - deleteLibraryPhoto: ",error)
-            let errorModel = ErrorModel(massage: "Something went wrong. The photo didn't load. Please try again later.", img: Image(systemName: "photo.fill"), color: .red)
-            errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
             throw error
         }
     }

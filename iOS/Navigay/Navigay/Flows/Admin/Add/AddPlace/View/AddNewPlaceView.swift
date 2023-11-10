@@ -30,6 +30,7 @@ struct AddNewPlaceView: View {
                 switch viewModel.router {
                 case .info:
                     NewPlaceInfoView(viewModel: viewModel)
+                        .disabled(viewModel.isLoading)
                 case .photos:
                     if let id = viewModel.placeId {
                         EditPlacePhotosView(viewModel: EditPlacePhotosViewModel(bigImage: nil, smallImage: nil, photos: [], placeId: id, networkManager: viewModel.networkManager))
@@ -66,14 +67,19 @@ struct AddNewPlaceView: View {
                 
                 if viewModel.router == .info {
                     ToolbarItem(placement: .topBarTrailing) {
-                        Button("Add") {
-                            viewModel.addNewPlace()
+                        if viewModel.isLoading {
+                            ProgressView()
+                                .tint(.blue)
+                        } else {
+                            Button("Add") {
+                                viewModel.addNewPlace()
+                            }
+                            .disabled(viewModel.name.isEmpty)
+                            .disabled(viewModel.addressOrigin.isEmpty == true)
+                            .disabled(viewModel.type == nil)
+                            .disabled(viewModel.longitude == nil)
+                            .disabled(viewModel.latitude == nil)
                         }
-                        .disabled(viewModel.name.isEmpty)
-                        .disabled(viewModel.addressOrigin.isEmpty == true)
-                        .disabled(viewModel.type == nil)
-                        .disabled(viewModel.longitude == nil)
-                        .disabled(viewModel.latitude == nil)
                     }
                 }
             }

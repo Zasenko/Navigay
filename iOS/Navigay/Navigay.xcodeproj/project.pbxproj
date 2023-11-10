@@ -106,8 +106,8 @@
 		0FFB3A372AF0FB56001CF946 /* EditTextFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FFB3A362AF0FB56001CF946 /* EditTextFieldView.swift */; };
 		0FFB3A3B2AF102A2001CF946 /* Test2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FFB3A392AF102A2001CF946 /* Test2.swift */; };
 		0FFB3A3D2AF12596001CF946 /* TagsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FFB3A3C2AF12596001CF946 /* TagsView.swift */; };
-		0FFB3A422AF14F66001CF946 /* NewPlaceRequiredFieldsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FFB3A412AF14F66001CF946 /* NewPlaceRequiredFieldsView.swift */; };
-		0FFB3A442AF15193001CF946 /* NewPlaceAdditionalFieldsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FFB3A432AF15193001CF946 /* NewPlaceAdditionalFieldsView.swift */; };
+		0FFB3A422AF14F66001CF946 /* PlaceRequiredFieldsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FFB3A412AF14F66001CF946 /* PlaceRequiredFieldsView.swift */; };
+		0FFB3A442AF15193001CF946 /* PlaceAdditionalFieldsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FFB3A432AF15193001CF946 /* PlaceAdditionalFieldsView.swift */; };
 		0FFB3A462AF16190001CF946 /* EditPlacePhotosView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FFB3A452AF16190001CF946 /* EditPlacePhotosView.swift */; };
 		0FFB3A482AF16310001CF946 /* AddPhotoFromUrlView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FFB3A472AF16310001CF946 /* AddPhotoFromUrlView.swift */; };
 		0FFB3A4A2AF23DE0001CF946 /* Bundle+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FFB3A492AF23DE0001CF946 /* Bundle+Ext.swift */; };
@@ -216,8 +216,8 @@
 		0FFB3A362AF0FB56001CF946 /* EditTextFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditTextFieldView.swift; sourceTree = "<group>"; };
 		0FFB3A392AF102A2001CF946 /* Test2.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Test2.swift; sourceTree = "<group>"; };
 		0FFB3A3C2AF12596001CF946 /* TagsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagsView.swift; sourceTree = "<group>"; };
-		0FFB3A412AF14F66001CF946 /* NewPlaceRequiredFieldsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewPlaceRequiredFieldsView.swift; sourceTree = "<group>"; };
-		0FFB3A432AF15193001CF946 /* NewPlaceAdditionalFieldsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewPlaceAdditionalFieldsView.swift; sourceTree = "<group>"; };
+		0FFB3A412AF14F66001CF946 /* PlaceRequiredFieldsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceRequiredFieldsView.swift; sourceTree = "<group>"; };
+		0FFB3A432AF15193001CF946 /* PlaceAdditionalFieldsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceAdditionalFieldsView.swift; sourceTree = "<group>"; };
 		0FFB3A452AF16190001CF946 /* EditPlacePhotosView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditPlacePhotosView.swift; sourceTree = "<group>"; };
 		0FFB3A472AF16310001CF946 /* AddPhotoFromUrlView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddPhotoFromUrlView.swift; sourceTree = "<group>"; };
 		0FFB3A492AF23DE0001CF946 /* Bundle+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Bundle+Ext.swift"; sourceTree = "<group>"; };
@@ -549,8 +549,8 @@
 			children = (
 				0F7E57EC2AE15BB50091A0F8 /* AddNewPlaceView.swift */,
 				0F5DE7022AF581F30022BFEE /* NewPlaceInfoView.swift */,
-				0FFB3A412AF14F66001CF946 /* NewPlaceRequiredFieldsView.swift */,
-				0FFB3A432AF15193001CF946 /* NewPlaceAdditionalFieldsView.swift */,
+				0FFB3A412AF14F66001CF946 /* PlaceRequiredFieldsView.swift */,
+				0FFB3A432AF15193001CF946 /* PlaceAdditionalFieldsView.swift */,
 				0F79B2572AF265A800FCAED2 /* ActivationFieldsView.swift */,
 			);
 			path = View;
@@ -822,7 +822,7 @@
 				0F90B4DD2AF90D7E00547224 /* NewPlace.swift in Sources */,
 				0F7E57E82AE129A40091A0F8 /* HomeView.swift in Sources */,
 				0F741A952ACDB68E00A7759E /* EventNetworkManager.swift in Sources */,
-				0FFB3A442AF15193001CF946 /* NewPlaceAdditionalFieldsView.swift in Sources */,
+				0FFB3A442AF15193001CF946 /* PlaceAdditionalFieldsView.swift in Sources */,
 				0F741A3C2ACD502100A7759E /* NetworkErrors.swift in Sources */,
 				0F741A682ACD642200A7759E /* Region.swift in Sources */,
 				0FA6C8B52AD7E6CD00F30B4A /* Test.swift in Sources */,
@@ -832,7 +832,7 @@
 				0F79B25E2AF26CB300FCAED2 /* PlaceNetworkManager.swift in Sources */,
 				0F741A752ACD644D00A7759E /* CountriesResult.swift in Sources */,
 				0FFB3A372AF0FB56001CF946 /* EditTextFieldView.swift in Sources */,
-				0FFB3A422AF14F66001CF946 /* NewPlaceRequiredFieldsView.swift in Sources */,
+				0FFB3A422AF14F66001CF946 /* PlaceRequiredFieldsView.swift in Sources */,
 				0F741A782ACD644D00A7759E /* DecodedRegion.swift in Sources */,
 				0F741A332ACD500800A7759E /* AppSettingsManager.swift in Sources */,
 				0FFB3A462AF16190001CF946 /* EditPlacePhotosView.swift in Sources */,

@@ -48,6 +48,8 @@ final class AddNewPlaceViewModel: ObservableObject {
     
     @Published var showMap: Bool = false
     
+    @Published var isLoading: Bool = false
+    
     //MARK: - Private Properties
     
     private let errorManager: ErrorManagerProtocol
@@ -71,7 +73,9 @@ extension AddNewPlaceViewModel {
     }
     
     func addNewPlace() {
+        isLoading = true
         Task {
+            let errorModel = ErrorModel(massage: "Something went wrong. The place didn't load to database. Please try again later.", img: nil, color: nil)
             guard !name.isEmpty else { return }
             guard let type = type?.rawValue else { return }
             guard !isoCountryCode.isEmpty else { return }
@@ -110,18 +114,20 @@ extension AddNewPlaceViewModel {
                                               isChecked: isChecked)
             do {
                 let decodedResult = try await networkManager.addNewPlace(place: newPlace)
-                
                 guard let id = decodedResult.placeId, decodedResult.result else {
-                    let errorModel = ErrorModel(massage: "Something went wrong. The place didn't load to database. Please try again later.", img: nil, color: nil)
                     errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: errorModel)
                     return
                 }
                 await MainActor.run {
+                    self.isLoading = false
                     self.placeId = id
                 }
             } catch {
-                let errorModel = ErrorModel(massage: "Something went wrong. The place didn't load to database. Please try again later.", img: nil, color: nil)
+                debugPrint("ERROR - addNewPlace: ", error)
                 errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
+                await MainActor.run {
+                    self.isLoading = false
+                }
             }
         }
     }
