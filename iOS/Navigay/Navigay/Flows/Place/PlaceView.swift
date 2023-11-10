@@ -25,8 +25,20 @@ struct PlaceView: View {
     var body: some View {
         ZStack(alignment: .top) {
             List {
+                
+                Section("Сообщить о проблеме") {
+                    Text("Не корректные данные")
+                    Text("место закрыто")
+                    Text("other")
+                }
+                
                 Section {
-                    image
+                    if let image {
+                        image
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: UIScreen.main.bounds.width, height: (UIScreen.main.bounds.width / 4) * 5, alignment: .center)
+                    }
                 }
                 Section {
                     Text(place.id.formatted())
@@ -37,25 +49,25 @@ struct PlaceView: View {
                     Text(place.about ?? "")
                     Text(place.isLiked.description)
                     Text(place.photoSmall ?? "")
-                    Text(place.photoLarge ?? "")
+                    Text(place.photoBig ?? "")
                     Text(place.type.getName())
                 }
                 
                 
-                    Button {
-                        if let user = authenticationManager.appUser {
-                            place.isLiked.toggle()
-                        } else {
-                            //TODO!
-                        }
-                    } label: {
-                        Image(systemName: place.isLiked ? "heart.fill" : "heart")
-                            .foregroundStyle(.red)
+                Button {
+                    if let user = authenticationManager.appUser {
+                        place.isLiked.toggle()
+                    } else {
+                        //TODO!
                     }
+                } label: {
+                    Image(systemName: place.isLiked ? "heart.fill" : "heart")
+                        .foregroundStyle(.red)
+                }
                 
                 
                 Section {
-                    ForEach(place.workDays.sorted(by: { $0.day.rawValue < $1.day.rawValue } )) { day in
+                    ForEach(place.timetable.sorted(by: { $0.day.rawValue < $1.day.rawValue } )) { day in
                         HStack {
                             Text(day.day.getString())
                                 .bold()
@@ -65,7 +77,7 @@ struct PlaceView: View {
                         .font(.callout)
                     }
                 } footer: {
-                    Text(place.workingTimeInfo ?? "")
+                    Text(place.otherInfo ?? "")
                 }
                 
                 Section {
@@ -73,8 +85,14 @@ struct PlaceView: View {
                         Text(tag.getString())
                     }
                 }
+                
+                
+                Section() {
+                    Text("Я владелец")
+                }
             }
             .toolbar(.hidden, for: .navigationBar)
+            .listStyle(.plain)
             
             HStack(spacing: 10) {
                 Button {
@@ -92,7 +110,7 @@ struct PlaceView: View {
             }
         }
         .onAppear() {
-            if let url = place.photoLarge {
+            if let url = place.photoBig {
                 Task {
                     if let image = await ImageLoader.shared.loadImage(urlString: url) {
                         await MainActor.run {

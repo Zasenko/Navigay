@@ -41,7 +41,7 @@ struct HomeView: View {
                             .foregroundColor(.white)
                             .font(.caption)
                             .bold()
-                            .modifier(CapsuleSmall(background: .red))
+                            .modifier(CapsuleSmall(background: .red, foreground: .white))
                             .frame(maxWidth: .infinity)
                             .padding(.top)
                             .padding()
@@ -69,7 +69,7 @@ struct HomeView: View {
                             .foregroundColor(.white)
                             .font(.caption)
                             .bold()
-                            .modifier(CapsuleSmall(background: key.getColor()))
+                            .modifier(CapsuleSmall(background: key.getColor(), foreground: .white))
                             .frame(maxWidth: .infinity)
                             .padding(.top)
                         

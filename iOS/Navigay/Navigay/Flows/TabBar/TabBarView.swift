@@ -28,70 +28,79 @@ struct TabBarView: View {
     @State private var selectedPage: TabBarRouter = TabBarRouter.home
     
     var body: some View {
-        VStack(spacing: 0) {
-            switch selectedPage {
-            case .home:
-                HomeView(networkManager: CatalogNetworkManager(appSettingsManager: appSettingsManager), locationManager: locationManager)
-            case .map:
-                MapView(locationManager: locationManager)
-            case .search:
-                SearchView(networkManager: CatalogNetworkManager(appSettingsManager: appSettingsManager))
-            case .user:
-                AppUserView(authenticationManager: authenticationManager)
-            case .admin:
-                AdminView()
+        GeometryReader {
+            let safeArea = $0.safeAreaInsets //EdgeInsets
+            let windowSize = $0.size // CGSize
+            
+            VStack(spacing: 0) {
+                switch selectedPage {
+                case .home:
+                    HomeView(networkManager: CatalogNetworkManager(appSettingsManager: appSettingsManager), locationManager: locationManager)
+                case .map:
+                    MapView(locationManager: locationManager)
+                case .search:
+                    SearchView(networkManager: CatalogNetworkManager(appSettingsManager: appSettingsManager))
+                case .user:
+                    AppUserView(authenticationManager: authenticationManager)
+                case .admin:
+                    if let user = authenticationManager.appUser {
+                        AdminView(viewModel: AdminViewModel(user: user, errorManager: authenticationManager.errorManager))
+                    } else {
+                        EmptyView()
+                    }
+                }
+                tabBar
             }
-            tabBar
-        }
-        .ignoresSafeArea(.keyboard, edges: .bottom)
-        .onAppear() {
-            Task {
-                if let url = authenticationManager.appUser?.photo {
-                    if let image = await ImageLoader.shared.loadImage(urlString: url) {
-                        await MainActor.run {
-                            self.userImage = image
+            .ignoresSafeArea(.keyboard, edges: .bottom)
+            .onAppear() {
+                Task {
+                    if let url = authenticationManager.appUser?.photo {
+                        if let image = await ImageLoader.shared.loadImage(urlString: url) {
+                            await MainActor.run {
+                                self.userImage = image
+                            }
+                            
                         }
-                        
                     }
                 }
             }
-        }
-        .alert(isPresented: $locationManager.isAlertIfLocationDeniedDisplayed) {
-            //TODO!!!! текст
-            Alert(title: Text("Location access"),
-                  message: Text("Go to Settings?"),
-                  primaryButton: .default(Text("Settings"), action: {
-                selectedPage = .search
-                guard let url = URL(string: UIApplication.openSettingsURLString) else {
-                    return
-                }
-                UIApplication.shared.open(url)
-            }),
-                  secondaryButton: .default(Text("Cancel"), action: {
-                selectedPage = .search
-            }))
-        }
-        .onChange(of: locationManager.authorizationStatus) { oldValue, newValue in
-            switch newValue {
-            case .loading, .authorized:
-                selectedPage = .home
-            case .denied:
-                selectedPage = .search
+            .alert(isPresented: $locationManager.isAlertIfLocationDeniedDisplayed) {
+                //TODO!!!! текст
+                Alert(title: Text("Location access"),
+                      message: Text("Go to Settings?"),
+                      primaryButton: .default(Text("Settings"), action: {
+                    selectedPage = .search
+                    guard let url = URL(string: UIApplication.openSettingsURLString) else {
+                        return
+                    }
+                    UIApplication.shared.open(url)
+                }),
+                      secondaryButton: .default(Text("Cancel"), action: {
+                    selectedPage = .search
+                }))
             }
-        }
-        .onChange(of: authenticationManager.appUser?.photo) { oldValue, newValue in
-            Task {
-                if let url = newValue {
-                    if let image = await ImageLoader.shared.loadImage(urlString: url) {
-                        await MainActor.run {
-                            self.userImage = image
+            .onChange(of: locationManager.authorizationStatus) { oldValue, newValue in
+                switch newValue {
+                case .loading, .authorized:
+                    selectedPage = .home
+                case .denied:
+                    selectedPage = .search
+                }
+            }
+            .onChange(of: authenticationManager.appUser?.photo) { oldValue, newValue in
+                Task {
+                    if let url = newValue {
+                        if let image = await ImageLoader.shared.loadImage(urlString: url) {
+                            await MainActor.run {
+                                self.userImage = image
+                            }
+                            
                         }
-                        
                     }
                 }
             }
+            .environmentObject(authenticationManager)
         }
-        .environmentObject(authenticationManager)
     }
     
     

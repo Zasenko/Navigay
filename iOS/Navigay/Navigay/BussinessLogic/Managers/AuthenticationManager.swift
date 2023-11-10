@@ -32,12 +32,12 @@ final class AuthenticationManager: ObservableObject {
     
  //   @Published var userAuthorizationStatus: UserAuthorizationStatus = .loading
     @Published var appUser: AppUser? = nil
+    let errorManager: ErrorManagerProtocol
     
     // MARK: - Private Properties
     
     private let keychainManager: KeychainManagerProtocol
     private let networkManager: AuthNetworkManagerProtocol
-    private let errorManager: ErrorManagerProtocol
     
     // MARK: - Inits
     

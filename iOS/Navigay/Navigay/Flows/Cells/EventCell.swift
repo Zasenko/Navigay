@@ -54,7 +54,7 @@ struct EventCell: View {
                 .font(.caption)
                 .bold()
                 .foregroundColor(.white)
-                .modifier(CapsuleSmall(background: .green))
+                .modifier(CapsuleSmall(background: .green, foreground: .white))
                 .opacity(event.isFree ? 1 : 0)
                 .padding(.bottom)
         }

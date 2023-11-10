@@ -18,10 +18,10 @@ struct ErrorModel: Identifiable {
     
     // MARK: - Init
     
-    init(massage: String, img: Image, color: Color) {
+    init(massage: String, img: Image?, color: Color?) {
         self.id = UUID()
         self.massage = massage
-        self.img = img
-        self.color = color
+        self.img = img ?? Image(systemName: "exclamationmark.triangle")
+        self.color = color ?? .red
     }
 }

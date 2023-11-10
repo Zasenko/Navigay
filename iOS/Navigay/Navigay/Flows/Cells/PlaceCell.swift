@@ -69,7 +69,7 @@ struct PlaceCell: View {
         }
     }
 }
-
-#Preview {
-    PlaceCell(place: Place(decodedPlace: DecodedPlace(id: 12, name: "HardOn", type: .bar, photoSmall: nil, photoLarge: nil, address: "Linker gasse 1/23", latitude: 15.255, longitude: 18.648, tags: [.darkroom, .fetish], workingTime: PlaceWorkingTime(days: [PlaceWorkDay(day: .friday, opening: "10:00", closing: "23:30")], other: nil), isActive: true)))
-}
+//
+//#Preview {
+//    PlaceCell(place: Place(decodedPlace: DecodedPlace(id: 1, name: "HardOn", type: .cruiseBar, photoSmall: nil, photoLarge: nil, address: "Linker gasse 1/23", latitude: 46.255, longitude: 18.648, tags: [.darkroom, .fetish], timetable: [PlaceWorkDay(day: .friday, opening: "10:00", closing: "23:00")], otherInfo: nil, isActive: true)))
+//}
