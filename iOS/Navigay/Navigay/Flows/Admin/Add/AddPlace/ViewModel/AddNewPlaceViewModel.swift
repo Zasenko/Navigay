@@ -50,10 +50,10 @@ final class AddNewPlaceViewModel: ObservableObject {
     
     @Published var isLoading: Bool = false
     
+    let errorManager: ErrorManagerProtocol
+    
     //MARK: - Private Properties
-    
-    private let errorManager: ErrorManagerProtocol
-    
+        
     //MARK: - Inits
     
     init(user: AppUser, networkManager: PlaceNetworkManagerProtocol, errorManager: ErrorManagerProtocol) {

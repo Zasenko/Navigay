@@ -501,13 +501,13 @@
 		0F9915242ACC6C16008416D6 /* Managers */ = {
 			isa = PBXGroup;
 			children = (
+				0F741A362ACD502100A7759E /* Network */,
 				0F741A872ACDAAD400A7759E /* ImageCacher */,
 				0F741A342ACD501800A7759E /* KeychainManager.swift */,
 				0F741A322ACD500800A7759E /* AppSettingsManager.swift */,
 				0F9915262ACC6C5E008416D6 /* AuthenticationManager.swift */,
 				0F741A2E2ACD4DB600A7759E /* ErrorManager.swift */,
 				0FC965302ADD4C2900108443 /* LocationManager.swift */,
-				0F741A362ACD502100A7759E /* Network */,
 			);
 			path = Managers;
 			sourceTree = "<group>";

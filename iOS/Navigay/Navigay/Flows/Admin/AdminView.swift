@@ -35,7 +35,7 @@ struct AdminView: View {
             List {
                 Section {
                     NavigationLink("Add new place") {
-                        AddNewPlaceView(viewModel: AddNewPlaceViewModel(user: viewModel.user, networkManager: PlaceNetworkManager(errorManager: viewModel.errorManager), errorManager: viewModel.errorManager))
+                        AddNewPlaceView(viewModel: AddNewPlaceViewModel(user: viewModel.user, networkManager: PlaceNetworkManager(), errorManager: viewModel.errorManager))
                     }
                     NavigationLink("Add new event") {
                         Color.red

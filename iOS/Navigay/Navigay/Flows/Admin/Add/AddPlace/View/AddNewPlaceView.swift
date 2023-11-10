@@ -33,7 +33,7 @@ struct AddNewPlaceView: View {
                         .disabled(viewModel.isLoading)
                 case .photos:
                     if let id = viewModel.placeId {
-                        EditPlacePhotosView(viewModel: EditPlacePhotosViewModel(bigImage: nil, smallImage: nil, photos: [], placeId: id, networkManager: viewModel.networkManager))
+                        EditPlacePhotosView(viewModel: EditPlacePhotosViewModel(bigImage: nil, smallImage: nil, photos: [], placeId: id, networkManager: viewModel.networkManager, errorManager: viewModel.errorManager))
                     } else {
                         //TODO
                        EmptyView()
@@ -97,6 +97,6 @@ struct AddNewPlaceView: View {
     let decodetUser = DecodedAppUser(id: 0, name: "Test", email: "test@test.com", status: .admin, bio: nil, photo: nil, instagram: nil, likedPlacesId: nil)
     let user = AppUser(decodedUser: decodetUser)
     let errorManager = ErrorManager()
-    return AddNewPlaceView(viewModel: AddNewPlaceViewModel(user: user, networkManager: PlaceNetworkManager(errorManager: errorManager), errorManager: errorManager))
+    return AddNewPlaceView(viewModel: AddNewPlaceViewModel(user: user, networkManager: PlaceNetworkManager(), errorManager: errorManager))
 }
 

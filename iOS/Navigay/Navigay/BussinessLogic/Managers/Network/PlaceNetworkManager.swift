@@ -23,13 +23,9 @@ final class PlaceNetworkManager {
     
     private let scheme = "https"
     private let host = "www.navigay.me"
-    private let errorManager: ErrorManagerProtocol
     
     // MARK: - Inits
     
-    init(errorManager: ErrorManagerProtocol) {
-        self.errorManager = errorManager
-    }
 }
 
 // MARK: - AuthNetworkManagerProtocol
