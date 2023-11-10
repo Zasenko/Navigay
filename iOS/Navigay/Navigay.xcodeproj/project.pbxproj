@@ -261,6 +261,43 @@
 			path = AddPlace;
 			sourceTree = "<group>";
 		};
+		0F354CB52AFE5F2A00594AE0 /* Results */ = {
+			isa = PBXGroup;
+			children = (
+				0F741A722ACD644D00A7759E /* CityResult.swift */,
+				0F741A442ACD523200A7759E /* AuthResult.swift */,
+				0F97BEDD2AFD361900DE645D /* DeleteResult.swift */,
+				0FA010F32AFA8DED003CF485 /* ImageResult.swift */,
+				0F79B2692AF273F000FCAED2 /* NewPlaceResult.swift */,
+				0F741A6C2ACD644D00A7759E /* CountriesResult.swift */,
+				0F741A6E2ACD644D00A7759E /* CountryResult.swift */,
+				0F741A6D2ACD644D00A7759E /* EventResult.swift */,
+			);
+			path = Results;
+			sourceTree = "<group>";
+		};
+		0F354CB62AFE5F5F00594AE0 /* NewItems */ = {
+			isa = PBXGroup;
+			children = (
+				0F90B4DC2AF90D7E00547224 /* NewPlace.swift */,
+			);
+			path = NewItems;
+			sourceTree = "<group>";
+		};
+		0F354CB72AFE5F7B00594AE0 /* Decoded */ = {
+			isa = PBXGroup;
+			children = (
+				0F741A302ACD4DCE00A7759E /* ApiError.swift */,
+				0FD617A32ACC3AF500877C70 /* DecodedUser.swift */,
+				0F741A6B2ACD644D00A7759E /* DecodedCity.swift */,
+				0F741A702ACD644D00A7759E /* DecodedCountry.swift */,
+				0F741A712ACD644D00A7759E /* DecodedEvent.swift */,
+				0F741A6A2ACD644D00A7759E /* DecodedPlace.swift */,
+				0F741A6F2ACD644D00A7759E /* DecodedRegion.swift */,
+			);
+			path = Decoded;
+			sourceTree = "<group>";
+		};
 		0F6500BF2ACE9A7900A58E77 /* Registration */ = {
 			isa = PBXGroup;
 			children = (
@@ -339,22 +376,9 @@
 		0F741A3F2ACD523200A7759E /* JsonModels */ = {
 			isa = PBXGroup;
 			children = (
-				0F741A442ACD523200A7759E /* AuthResult.swift */,
-				0F97BEDD2AFD361900DE645D /* DeleteResult.swift */,
-				0FA010F32AFA8DED003CF485 /* ImageResult.swift */,
-				0F79B2692AF273F000FCAED2 /* NewPlaceResult.swift */,
-				0F741A302ACD4DCE00A7759E /* ApiError.swift */,
-				0FD617A32ACC3AF500877C70 /* DecodedUser.swift */,
-				0F741A722ACD644D00A7759E /* CityResult.swift */,
-				0F741A6C2ACD644D00A7759E /* CountriesResult.swift */,
-				0F741A6E2ACD644D00A7759E /* CountryResult.swift */,
-				0F741A6B2ACD644D00A7759E /* DecodedCity.swift */,
-				0F741A702ACD644D00A7759E /* DecodedCountry.swift */,
-				0F741A712ACD644D00A7759E /* DecodedEvent.swift */,
-				0F741A6A2ACD644D00A7759E /* DecodedPlace.swift */,
-				0F741A6F2ACD644D00A7759E /* DecodedRegion.swift */,
-				0F741A6D2ACD644D00A7759E /* EventResult.swift */,
-				0F90B4DC2AF90D7E00547224 /* NewPlace.swift */,
+				0F354CB52AFE5F2A00594AE0 /* Results */,
+				0F354CB72AFE5F7B00594AE0 /* Decoded */,
+				0F354CB62AFE5F5F00594AE0 /* NewItems */,
 			);
 			path = JsonModels;
 			sourceTree = "<group>";
