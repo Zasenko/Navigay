@@ -29,41 +29,11 @@ struct NewPlaceInfoView: View {
                         .padding()
                         .padding(.top)
                     PlaceAdditionalFieldsView(viewModel: viewModel)
-                    activationField
-                    checkField
-                    Button("Add new place") {
-                        viewModel.addNewPlace()
-                    }
-                    .buttonStyle(.bordered)
-                    .disabled(viewModel.name.isEmpty)
-                    .disabled(viewModel.addressOrigin.isEmpty == true)
-                    .disabled(viewModel.type == nil)
-                    .disabled(viewModel.longitude == nil)
-                    .disabled(viewModel.latitude == nil)
+                    ActivationFieldsView(isActive: $viewModel.isActive, isChecked: $viewModel.isChecked)
+                        .padding(.bottom)
                 }
             }
         }
-    }
-    
-    private var activationField: some View {
-        HStack {
-            Text("Place is Active")
-                .font(.callout)
-                .foregroundStyle(Color.secondary)
-                .frame(maxWidth: .infinity, alignment: .leading)
-            Toggle("", isOn: $viewModel.isActive)
-        }
-        .padding()
-    }
-    private var checkField: some View {
-        HStack {
-            Text("Place is checked")
-                .font(.callout)
-                .foregroundStyle(Color.secondary)
-                .frame(maxWidth: .infinity, alignment: .leading)
-            Toggle("", isOn: $viewModel.isChecked)
-        }
-        .padding()
     }
 }
 

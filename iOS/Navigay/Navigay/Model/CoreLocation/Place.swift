@@ -48,8 +48,8 @@ final class Place {
     func updatePlaceIncomplete(decodedPlace: DecodedPlace) {
         name = decodedPlace.name
         type = decodedPlace.type
-        photoSmall = decodedPlace.photoSmall
-        photoBig = decodedPlace.photoLarge
+        photoSmall = decodedPlace.avatar
+        photoBig = decodedPlace.mainPhoto
         address = decodedPlace.address
         latitude = decodedPlace.latitude
         longitude = decodedPlace.longitude

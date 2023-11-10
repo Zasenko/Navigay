@@ -11,12 +11,8 @@ final class AddNewPlaceViewModel: ObservableObject {
     
     //MARK: - Properties
     
-    let user: AppUser
-    let networkManager: PlaceNetworkManagerProtocol
-    @Published var placeId: Int? = nil
-    
     @Published var router: AddNewPlaceRouter = .info
-    
+    @Published var placeId: Int? = nil
     @Published var name: String = ""
     @Published var type: PlaceType? = nil
     @Published var isoCountryCode: String = ""
@@ -29,7 +25,6 @@ final class AddNewPlaceViewModel: ObservableObject {
     @Published var addressOrigin: String = ""
     @Published var latitude: Double? = nil
     @Published var longitude: Double? = nil
-    
     @Published var tags: [Tag] = []
     @Published var timetable: [NewWorkingDay] = []
     @Published var otherInfo: String = ""
@@ -40,17 +35,14 @@ final class AddNewPlaceViewModel: ObservableObject {
     @Published var www: String = ""
     @Published var facebook: String = ""
     @Published var instagram: String = ""
-    
     @Published var isOwned: Bool = false
-    
     @Published var isActive: Bool = false
     @Published var isChecked: Bool = false
-    
     @Published var showMap: Bool = false
-    
     @Published var isLoading: Bool = false
-    
+    let user: AppUser
     let errorManager: ErrorManagerProtocol
+    let networkManager: PlaceNetworkManagerProtocol
     
     //MARK: - Private Properties
         
@@ -83,7 +75,7 @@ extension AddNewPlaceViewModel {
             guard let latitude else { return }
             guard let longitude else { return }
             
-            let about = about.map( { PlaceAboutForSend(language: $0.language.rawValue, about: $0.about) } )
+            let about = about.map( { DecodedAbout(language: $0.language.rawValue, about: $0.about) } )
             let tags = tags.map( { $0.rawValue} )
             let timetable = timetable.map( { PlaceWorkDay(day: $0.day, opening: $0.opening.format("HH:mm"), closing: $0.closing.format("HH:mm")) } )
             

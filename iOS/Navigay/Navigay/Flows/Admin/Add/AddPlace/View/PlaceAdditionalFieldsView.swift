@@ -17,7 +17,7 @@ struct PlaceAdditionalFieldsView: View {
     
     var body: some View {
         NavigationStack {
-            ScrollView(showsIndicators: false) {
+        //    ScrollView(showsIndicators: false) {
 //                Divider()
                 LazyVStack(spacing: 0) {
                     VStack(spacing: 0) {
@@ -100,22 +100,10 @@ struct PlaceAdditionalFieldsView: View {
                             .padding(.top, 40)
                     }
                     owner
-                    
-                    //                HStack {
-                    //                    Button("Add") {
-                    //                        viewModel.addAdditionalInformation()
-                    //                    }
-                    //                    Button("Skip") {
-                    //                        viewModel.chanchRouter(page: .avatarImage)
-                    //                    }
-                    //                }
-                    //
-                    //                .buttonStyle(.bordered)
-                    //                .padding(.top, 50)
                 }
                 .padding(.horizontal)
             
-            }
+        //    }
         }
     }
     
@@ -195,6 +183,7 @@ struct PlaceAdditionalFieldsView: View {
         .padding(.bottom, 40)
     }
     
+    //TODO
     private var timetable: some View {
         HStack {
             Text("Timetable".uppercased())
@@ -207,7 +196,7 @@ struct PlaceAdditionalFieldsView: View {
         }
         .padding(.vertical)
     }
-    
+    //TODO
     private var workdays: some View {
         VStack(spacing: 10) {
             ForEach(viewModel.timetable) { day in
@@ -352,10 +341,14 @@ struct PlaceAdditionalFieldsView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
             Toggle("", isOn: $viewModel.isOwned)
         }
-        .padding()
+        .padding(.horizontal)
     }
 }
 
-//#Preview {
-//    NewPlaceAdditionalFieldsView(viewModel: AddNewPlaceViewModel(networkManager: AddNetworkManager()))
-//}
+#Preview {
+    let decodetUser = DecodedAppUser(id: 0, name: "Test", email: "test@test.com", status: .admin, bio: nil, photo: nil, instagram: nil, likedPlacesId: nil)
+    let user = AppUser(decodedUser: decodetUser)
+    let errorManager = ErrorManager()
+    let networkManage = PlaceNetworkManager()
+    return PlaceAdditionalFieldsView(viewModel: AddNewPlaceViewModel(user: user, networkManager: networkManage, errorManager: errorManager))
+}

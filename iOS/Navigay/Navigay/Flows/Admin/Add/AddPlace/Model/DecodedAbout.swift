@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct PlaceAboutForSend: Codable {
+struct DecodedAbout: Codable {
     let language: String
     let about: String
 }

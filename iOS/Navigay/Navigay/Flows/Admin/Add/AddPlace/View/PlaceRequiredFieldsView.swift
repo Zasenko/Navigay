@@ -112,7 +112,6 @@ struct PlaceRequiredFieldsView: View {
             }
         }
         .padding()
-        .padding(.top, 20)
     }
     
     private var map: some View {

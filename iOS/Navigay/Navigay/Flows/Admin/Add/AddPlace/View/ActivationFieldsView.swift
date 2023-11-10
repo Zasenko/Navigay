@@ -18,33 +18,31 @@ struct ActivationFieldsView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            active
+            activationField
                 .padding(.top)
                 .padding(.vertical)
-            check
+            checkField
                 .padding(.bottom)
         }
+        .padding(.horizontal)
         .padding(.horizontal)
     }
     
     //MARK: - Views
     
-    private var active: some View {
+    private var activationField: some View {
         HStack {
-            Text("Active".uppercased())
-                .font(.caption)
-                .bold()
+            Text("Place is Active")
+                .font(.callout)
                 .foregroundStyle(Color.secondary)
                 .frame(maxWidth: .infinity, alignment: .leading)
             Toggle("", isOn: $isActive)
         }
-        
     }
-    private var check: some View {
+    private var checkField: some View {
         HStack {
-            Text("Check".uppercased())
-                .font(.caption)
-                .bold()
+            Text("Place is checked")
+                .font(.callout)
                 .foregroundStyle(Color.secondary)
                 .frame(maxWidth: .infinity, alignment: .leading)
             Toggle("", isOn: $isChecked)

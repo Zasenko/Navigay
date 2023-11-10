@@ -22,7 +22,7 @@ struct NewPlace: Codable {
     let latitude: Double
     let longitude: Double
     
-    let about: [PlaceAboutForSend]?
+    let about: [DecodedAbout]?
     let tags: [Int]?
     let timetable: [PlaceWorkDay]?
     let otherInfo: String?
@@ -38,7 +38,7 @@ struct NewPlace: Codable {
     let isActive: Bool
     let isChecked: Bool
     
-    init(name: String, type: Int, isoCountryCode: String, countryOrigin: String?, countryEnglish: String?, regionOrigin: String?, regionEnglish: String?, cityOrigin: String?, cityEnglish: String?, address: String, latitude: Double, longitude: Double, about: [PlaceAboutForSend]?, tags: [Int]?, timetable: [PlaceWorkDay]?, otherInfo: String?, email: String?, phone: String?, www: String?, facebook: String?, instagram: String?, ownderId: Int?, addedBy: Int?, isActive: Bool, isChecked: Bool) {
+    init(name: String, type: Int, isoCountryCode: String, countryOrigin: String?, countryEnglish: String?, regionOrigin: String?, regionEnglish: String?, cityOrigin: String?, cityEnglish: String?, address: String, latitude: Double, longitude: Double, about: [DecodedAbout]?, tags: [Int]?, timetable: [PlaceWorkDay]?, otherInfo: String?, email: String?, phone: String?, www: String?, facebook: String?, instagram: String?, ownderId: Int?, addedBy: Int?, isActive: Bool, isChecked: Bool) {
         self.name = name
         self.type = type
         self.isoCountryCode = isoCountryCode
