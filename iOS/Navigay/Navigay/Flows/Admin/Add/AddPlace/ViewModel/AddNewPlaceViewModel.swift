@@ -15,7 +15,7 @@ final class AddNewPlaceViewModel: ObservableObject {
     let networkManager: PlaceNetworkManagerProtocol
     @Published var placeId: Int? = nil
     
-    @Published var router: AddNewPlaceRouter = .photos
+    @Published var router: AddNewPlaceRouter = .info
     
     @Published var name: String = ""
     @Published var type: PlaceType? = nil
@@ -50,11 +50,14 @@ final class AddNewPlaceViewModel: ObservableObject {
     
     //MARK: - Private Properties
     
+    private let errorManager: ErrorManagerProtocol
+    
     //MARK: - Inits
     
-    init(user: AppUser, networkManager: PlaceNetworkManagerProtocol) {
+    init(user: AppUser, networkManager: PlaceNetworkManagerProtocol, errorManager: ErrorManagerProtocol) {
         self.user = user
         self.networkManager = networkManager
+        self.errorManager = errorManager
     }
 }
 extension AddNewPlaceViewModel {
@@ -106,21 +109,19 @@ extension AddNewPlaceViewModel {
                                               isActive: isActive,
                                               isChecked: isChecked)
             do {
-                let result = try await networkManager.addNewPlace(place: newPlace)
-                guard result.result,
-                      let placeId = result.placeId
-                else {
-                    if let massage = result.error?.message {
-                        debugPrint("ERROR addNewPlace(): ", massage)
-                    }
+                let decodedResult = try await networkManager.addNewPlace(place: newPlace)
+                
+                guard let id = decodedResult.placeId, decodedResult.result else {
+                    let errorModel = ErrorModel(massage: "Something went wrong. The place didn't load to database. Please try again later.", img: nil, color: nil)
+                    errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: errorModel)
                     return
                 }
-                self.placeId = placeId
-                
+                await MainActor.run {
+                    self.placeId = id
+                }
             } catch {
-                //TODO
-                print("Что-то пошло не так... Место не добавилось.")
-                print(error)
+                let errorModel = ErrorModel(massage: "Something went wrong. The place didn't load to database. Please try again later.", img: nil, color: nil)
+                errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
             }
         }
     }

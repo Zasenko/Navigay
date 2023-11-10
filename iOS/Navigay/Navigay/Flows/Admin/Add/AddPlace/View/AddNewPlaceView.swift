@@ -31,11 +31,12 @@ struct AddNewPlaceView: View {
                 case .info:
                     NewPlaceInfoView(viewModel: viewModel)
                 case .photos:
-                   // if let id = viewModel.placeId {
-                        EditPlacePhotosView(viewModel: EditPlacePhotosViewModel(bigImage: nil, smallImage: nil, images: [], placeId: 35, networkManager: viewModel.networkManager))
-//                    } else {
-//                       EmptyView()
-//                    }
+                    if let id = viewModel.placeId {
+                        EditPlacePhotosView(viewModel: EditPlacePhotosViewModel(bigImage: nil, smallImage: nil, photos: [], placeId: id, networkManager: viewModel.networkManager))
+                    } else {
+                        //TODO
+                       EmptyView()
+                    }
                 }
             }
             .navigationBarBackButtonHidden()
@@ -89,6 +90,7 @@ struct AddNewPlaceView: View {
 #Preview {
     let decodetUser = DecodedAppUser(id: 0, name: "Test", email: "test@test.com", status: .admin, bio: nil, photo: nil, instagram: nil, likedPlacesId: nil)
     let user = AppUser(decodedUser: decodetUser)
-    return AddNewPlaceView(viewModel: AddNewPlaceViewModel(user: user, networkManager: PlaceNetworkManager(errorManager: ErrorManager())))
+    let errorManager = ErrorManager()
+    return AddNewPlaceView(viewModel: AddNewPlaceViewModel(user: user, networkManager: PlaceNetworkManager(errorManager: errorManager), errorManager: errorManager))
 }
 

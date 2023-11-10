@@ -35,8 +35,12 @@ final class ErrorManager: ErrorManagerProtocol {
     }
     
     func showApiErrorOrMessage(apiError: ApiError?, or error: ErrorModel) {
-        if let apiError = apiError, apiError.show {
-            getError?(ErrorModel.init(massage: apiError.message, img: Image(systemName: "exclamationmark.triangle"), color: .red))
+        if let apiError = apiError {
+            if apiError.show {
+                getError?(ErrorModel.init(massage: apiError.message, img: nil, color: nil))
+            } else {
+                debugPrint(apiError.message)
+            }
         } else {
             showError(model: error)
         }

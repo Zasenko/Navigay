@@ -17,6 +17,7 @@
 		0F151F4F2AE94D2E0049C60F /* EditPhoneView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F151F4E2AE94D2E0049C60F /* EditPhoneView.swift */; };
 		0F34DF7E2AE665BA005D29D0 /* AddLocationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F34DF7D2AE665BA005D29D0 /* AddLocationView.swift */; };
 		0F34DF832AE692BB005D29D0 /* SearchLocationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F34DF822AE692BB005D29D0 /* SearchLocationView.swift */; };
+		0F354CB12AFE144000594AE0 /* Photo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F354CB02AFE144000594AE0 /* Photo.swift */; };
 		0F4856F12AF3FF17007FAA49 /* AddNewPlaceRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F4856F02AF3FF17007FAA49 /* AddNewPlaceRouter.swift */; };
 		0F5DE7032AF581F30022BFEE /* NewPlaceInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F5DE7022AF581F30022BFEE /* NewPlaceInfoView.swift */; };
 		0F6500C62ACEB3C800A58E77 /* AppUserView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F6500C52ACEB3C800A58E77 /* AppUserView.swift */; };
@@ -124,6 +125,7 @@
 		0F151F4E2AE94D2E0049C60F /* EditPhoneView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditPhoneView.swift; sourceTree = "<group>"; };
 		0F34DF7D2AE665BA005D29D0 /* AddLocationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddLocationView.swift; sourceTree = "<group>"; };
 		0F34DF822AE692BB005D29D0 /* SearchLocationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchLocationView.swift; sourceTree = "<group>"; };
+		0F354CB02AFE144000594AE0 /* Photo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Photo.swift; sourceTree = "<group>"; };
 		0F4856F02AF3FF17007FAA49 /* AddNewPlaceRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddNewPlaceRouter.swift; sourceTree = "<group>"; };
 		0F5DE7022AF581F30022BFEE /* NewPlaceInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewPlaceInfoView.swift; sourceTree = "<group>"; };
 		0F6500C52ACEB3C800A58E77 /* AppUserView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppUserView.swift; sourceTree = "<group>"; };
@@ -481,6 +483,7 @@
 				0F741A642ACD642200A7759E /* EventType.swift */,
 				0F741A622ACD642200A7759E /* PlaceType.swift */,
 				0F79B2652AF26E5800FCAED2 /* DayOfWeek.swift */,
+				0F354CB02AFE144000594AE0 /* Photo.swift */,
 			);
 			path = Other;
 			sourceTree = "<group>";
@@ -761,6 +764,7 @@
 				0F741A862ACDAAD000A7759E /* ImageCacher.swift in Sources */,
 				0F741A8D2ACDB66900A7759E /* SearchView.swift in Sources */,
 				0F741A762ACD644D00A7759E /* EventResult.swift in Sources */,
+				0F354CB12AFE144000594AE0 /* Photo.swift in Sources */,
 				0FD617AB2ACC3C5C00877C70 /* LoginView.swift in Sources */,
 				0FD617A62ACC3B0400877C70 /* UserAccessRights.swift in Sources */,
 				0F741A662ACD642200A7759E /* Country.swift in Sources */,
@@ -982,7 +986,7 @@
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = "Launch Screen.storyboard";
-				INFOPLIST_KEY_UIRequiresFullScreen = NO;
+				INFOPLIST_KEY_UIRequiresFullScreen = YES;
 				INFOPLIST_KEY_UIStatusBarStyle = "";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1018,7 +1022,7 @@
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = "Launch Screen.storyboard";
-				INFOPLIST_KEY_UIRequiresFullScreen = NO;
+				INFOPLIST_KEY_UIRequiresFullScreen = YES;
 				INFOPLIST_KEY_UIStatusBarStyle = "";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				LD_RUNPATH_SEARCH_PATHS = (

@@ -29,7 +29,8 @@ final class EditPlacePhotosViewModel: ObservableObject {
     @Published var libraryPhotoLoading: Bool = false
     
     @Published var libraryPhotoId: UUID = UUID()
-
+    @Published var gridLayout: [GridItem] = Array(repeating: GridItem(.flexible(), spacing: 2), count: 3)
+    
     //MARK: - Private Properties
     
     private let networkManager: PlaceNetworkManagerProtocol
@@ -37,10 +38,10 @@ final class EditPlacePhotosViewModel: ObservableObject {
     
     //MARK: - Inits
     
-    init(bigImage: Image?, smallImage: Image?, images: [Image], placeId: Int, networkManager: PlaceNetworkManagerProtocol) {
+    init(bigImage: Image?, smallImage: Image?, photos: [Photo], placeId: Int, networkManager: PlaceNetworkManagerProtocol) {
         self.mainPhoto = bigImage
         self.avatarPhoto = smallImage
-        self.photos = [Photo(id: UUID(), image: Image("1"))]//images.map( { Photo(image: $0) })
+        self.photos = photos
         self.placeId = placeId
         self.networkManager = networkManager
     }

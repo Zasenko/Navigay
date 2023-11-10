@@ -7,24 +7,13 @@
 
 import SwiftUI
 
-struct Photo: Identifiable {
-    let id: UUID
-    var image: Image
-        
-    init(id: UUID, image: Image) {
-        self.id = id
-        self.image = image
-    }
-    
-    mutating func updateImage(image: Image) {
-        self.image = image
-    }
-}
-
 struct EditPlacePhotosView: View {
     
+    //MARK: - Properties
+    
     @StateObject var viewModel: EditPlacePhotosViewModel
-    @State var gridLayout: [GridItem] = Array(repeating: GridItem(.flexible(), spacing: 2), count: 3)
+    
+    //MARK: - Body
     
     var body: some View {
         NavigationStack {
@@ -35,9 +24,10 @@ struct EditPlacePhotosView: View {
                         bigPhoto(width: proxy.size.width)
                         smallPhoto
                     }
-                    Text("Add avatar and main photo to the place. You can also add 9 additional photos.")
+                    Text("Add avatar and main photo to the place.\nYou can also add 9 additional photos.")
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.leading)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                         .padding()
                         .padding(.bottom)
                     library(width: proxy.size.width)
@@ -46,6 +36,8 @@ struct EditPlacePhotosView: View {
             
         }
     }
+    
+    //MARK: - Views
     
     @ViewBuilder
     private func library(width: CGFloat) -> some View {
@@ -76,7 +68,7 @@ struct EditPlacePhotosView: View {
                 }
             }
             .padding()
-            LazyVGrid(columns: gridLayout, spacing: 2) {
+            LazyVGrid(columns: viewModel.gridLayout, spacing: 2) {
                 ForEach(viewModel.photos) { photo in
                     Menu {
                         Section("Change photo") {
@@ -129,7 +121,6 @@ struct EditPlacePhotosView: View {
             }
         }
     }
-        
         
     @ViewBuilder
     private func bigPhoto(width: CGFloat) -> some View {
@@ -241,5 +232,5 @@ struct EditPlacePhotosView: View {
 }
 
 #Preview {
-    EditPlacePhotosView(viewModel: EditPlacePhotosViewModel(bigImage: nil, smallImage: nil, images: [Image("5x7"), Image("7x5"), Image("test200x200"), Image("test200x200"), Image("5x7")], placeId: 0, networkManager: PlaceNetworkManager(errorManager: ErrorManager())))
+    EditPlacePhotosView(viewModel: EditPlacePhotosViewModel(bigImage: nil, smallImage: nil, photos: [], placeId: 0, networkManager: PlaceNetworkManager(errorManager: ErrorManager())))
 }
