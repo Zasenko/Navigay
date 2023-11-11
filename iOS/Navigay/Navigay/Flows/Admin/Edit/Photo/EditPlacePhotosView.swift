@@ -18,22 +18,26 @@ struct EditPlacePhotosView: View {
     var body: some View {
         NavigationStack {
             GeometryReader { proxy  in
-                
-                ScrollView(showsIndicators: false) {
-                    ZStack(alignment: .bottomLeading) {
-                        bigPhoto(width: proxy.size.width)
-                        smallPhoto
+                ScrollViewReader { scrollProxy in
+                    ScrollView(showsIndicators: false) {
+                        ZStack(alignment: .bottomLeading) {
+                            bigPhoto(width: proxy.size.width)
+                            smallPhoto
+                        }
+                        Text("Add avatar and main photo to the place. You can also add 9 additional photos.")
+                            .foregroundStyle(.secondary)
+                            .multilineTextAlignment(.leading)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding()
+                            .padding(.bottom)
+                        library(width: proxy.size.width)
+                            .id(1)
                     }
-                    Text("Add avatar and main photo to the place.\nYou can also add 9 additional photos.")
-                        .foregroundStyle(.secondary)
-                        .multilineTextAlignment(.leading)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding()
-                        .padding(.bottom)
-                    library(width: proxy.size.width)
+                    .onChange(of: viewModel.photos, initial: false) { oldValue, newValue in
+                        scrollProxy.scrollTo(1, anchor: .bottom)
+                    }
                 }
             }
-            
         }
     }
     
@@ -53,9 +57,9 @@ struct EditPlacePhotosView: View {
                             viewModel.libraryPhotoId = UUID()
                             viewModel.showLibraryPhotoPicker.toggle()
                         }
-                        Button("Add from camera") {
-                            viewModel.libraryPhotoId = UUID()
-                        }
+//                        Button("Add from camera") {
+//                            viewModel.libraryPhotoId = UUID()
+//                        }
                         NavigationLink("Add from url") {
                             AddPhotoFromUrlView { uiImage in
                                 viewModel.libraryPhotoId = UUID()
@@ -76,9 +80,9 @@ struct EditPlacePhotosView: View {
                                 viewModel.libraryPhotoId = photo.id
                                 viewModel.showLibraryPhotoPicker.toggle()
                             }
-                            Button("Add from camera") {
-                                viewModel.libraryPhotoId = photo.id
-                            }
+//                            Button("Add from camera") {
+//                                viewModel.libraryPhotoId = photo.id
+//                            }
                             NavigationLink("Add from url") {
                                 AddPhotoFromUrlView { uiImage in
                                     viewModel.libraryPhotoId = photo.id
@@ -128,9 +132,9 @@ struct EditPlacePhotosView: View {
             Button("Select from library") {
                 viewModel.showMainPhotoPicker.toggle()
             }
-            Button("Add from camera") {
-                
-            }
+//            Button("Add from camera") {
+//                
+//            }
             NavigationLink("Add from url") {
                 AddPhotoFromUrlView { uiImage in
                     viewModel.loadMainPhoto(uiImage: uiImage)
@@ -178,9 +182,9 @@ struct EditPlacePhotosView: View {
             Button("Select from library") {
                 viewModel.showAvatarPhotoPicker.toggle()
             }
-            Button("Add from camera") {
-                
-            }
+//            Button("Add from camera") {
+//                
+//            }
             NavigationLink("Add from url") {
                 AddPhotoFromUrlView { uiImage in
                     viewModel.loadAvatar(uiImage: uiImage)
@@ -189,14 +193,14 @@ struct EditPlacePhotosView: View {
         } label: {
             ZStack {
                 Color.clear
-                    .frame(width: /*@START_MENU_TOKEN@*/100/*@END_MENU_TOKEN@*/, height: 100)
+                    .frame(width: 80, height: 80)
                     .background(AppColors.background, in: Circle())
                     .padding()
                 if let smallImage =  viewModel.avatarPhoto {
                     smallImage
                         .resizable()
                         .scaledToFill()
-                        .frame(width: 100, height: 100)
+                        .frame(width: 80, height: 80)
                         .clipShape(Circle())
                         .opacity(viewModel.avatarLoading ? 0.3 : 1)
                         .overlay(Circle().stroke(Color.white, lineWidth: 5))
@@ -207,8 +211,8 @@ struct EditPlacePhotosView: View {
                         .scaledToFit()
                         .opacity(viewModel.avatarLoading ? 0 : 1)
                         .tint(.primary)
-                        .frame(width: 50)
-                        .frame(width: /*@START_MENU_TOKEN@*/100/*@END_MENU_TOKEN@*/, height: 100)
+                        .frame(width: 40)
+                        .frame(width: 80, height: 80)
                         .background(AppColors.background, in: Circle())
                         .padding()
                 }
@@ -231,7 +235,7 @@ struct EditPlacePhotosView: View {
     }
 }
 
-//#Preview {
-//    let errorManager = ErrorManager()
-//    return EditPlacePhotosView(viewModel: EditPlacePhotosViewModel(bigImage: nil, smallImage: nil, photos: [], placeId: 0, networkManager: PlaceNetworkManager(), errorManager: errorManager))
-//}
+#Preview {
+    let errorManager = ErrorManager()
+    return EditPlacePhotosView(viewModel: EditPlacePhotosViewModel(bigImage: nil, smallImage: nil, photos: [], placeId: 0, networkManager: PlaceNetworkManager(), errorManager: errorManager))
+}

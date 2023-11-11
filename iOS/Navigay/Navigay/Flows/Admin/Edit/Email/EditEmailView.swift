@@ -38,8 +38,6 @@ struct EditEmailView: View {
                 Divider()
                 TextField(placeholder, text: $email)
                     .keyboardType(.emailAddress)
-                    .font(.body)
-                    .lineSpacing(5)
                     .autocorrectionDisabled(true)
                     .textInputAutocapitalization(.never)
                     .focused($focused)

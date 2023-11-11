@@ -23,16 +23,15 @@ struct PlaceRequiredFieldsView: View {
     var body: some View {
         NavigationStack {
                 LazyVStack(spacing: 0) {
-                    VStack {
+                    VStack(spacing: 0) {
                         NavigationLink {
-                            EditTextFieldView(text: viewModel.name, characterLimit: 20, minHaracters: 2, title: "Title", placeholder: "Title") { string in
+                            EditTextFieldView(text: viewModel.name, characterLimit: 30, minHaracters: 2, title: "Title", placeholder: "Title") { string in
                                 viewModel.name = string
                             }
                         } label: {
                             nameField
                         }
                         Divider()
-                            .padding(.horizontal)
                         typeField
                     }
                     .background(AppColors.lightGray6)
@@ -114,6 +113,7 @@ struct PlaceRequiredFieldsView: View {
         .padding()
     }
     
+    //TODO сделать пин большим
     private var map: some View {
         VStack(spacing: 0) {
             if let latitude = viewModel.latitude, let longitude = viewModel.longitude  {
@@ -126,6 +126,8 @@ struct PlaceRequiredFieldsView: View {
                         Marker("", coordinate: CLLocationCoordinate2D(latitude: latitude, longitude: longitude))
                     }
                 }
+                .mapStyle(.standard(elevation: .flat, pointsOfInterest: .including([.publicTransport])))
+                .mapControlVisibility(.hidden)
                 .frame(height: 200)
                 .clipShape(RoundedRectangle(cornerRadius: 10))
                 .padding(.bottom)
@@ -153,8 +155,7 @@ struct PlaceRequiredFieldsView: View {
                 .foregroundStyle(.quaternary)
         }
         .padding()
-        .background(AppColors.lightGray6)
-        .cornerRadius(10)
+        .background(AppColors.lightGray6, in: RoundedRectangle(cornerRadius: 10))
     }
 }
 

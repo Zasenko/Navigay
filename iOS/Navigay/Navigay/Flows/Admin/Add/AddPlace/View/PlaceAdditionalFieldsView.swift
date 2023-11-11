@@ -75,11 +75,7 @@ struct PlaceAdditionalFieldsView: View {
                         }
                     }
                     .padding(.bottom, 40)
-                    
-//                    Divider()
                     tagsView
-                    
-                    Divider()
                     NavigationLink {
                         EditTimetableView(timetable: viewModel.timetable) { timetable in
                             viewModel.timetable = timetable
@@ -134,40 +130,39 @@ struct PlaceAdditionalFieldsView: View {
     }
     
     private var aboutView: some View {
-                VStack {
-                    ForEach(viewModel.about.indices, id: \.self) { index in
-                        let info = viewModel.about[index]
-                        HStack(spacing: 20) {
-                            Button {
-                                if let existingIndex = viewModel.about.firstIndex(where: { $0.id == info.id }) {
-                                    let removedLanguage = viewModel.about.remove(at: existingIndex).language
-                                    viewModel.languages.append(removedLanguage)
-                                }
-                            } label: {
-                                AppImages.iconTrash
-                                    .bold()
-                                    .foregroundStyle(.red)
-                                    .frame(width: 30, height: 30)
-                            }
-                            NavigationLink {
-                                AddAboutPlaceView(language: info.language, text: info.about) { placeAbout in
-                                    if let existingIndex = viewModel.about.firstIndex(where: { $0.id == info.id }) {
-                                        viewModel.about[existingIndex] = placeAbout
-                                    }
-                                }
-                            } label: {
-                                Text("\(info.language.getFlag()) \(info.about)")
-                                    .lineLimit(1)
-                                    .tint(.primary)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                AppImages.iconRight
-                                    .foregroundStyle(.secondary)
-                            }
-                            .padding()
-                            .background(AppColors.lightGray6, in: RoundedRectangle(cornerRadius: 10))
+        VStack {
+            ForEach(viewModel.about.indices, id: \.self) { index in
+                let info = viewModel.about[index]
+                HStack(spacing: 20) {
+                    Button {
+                        if let existingIndex = viewModel.about.firstIndex(where: { $0.id == info.id }) {
+                            let removedLanguage = viewModel.about.remove(at: existingIndex).language
+                            viewModel.languages.append(removedLanguage)
                         }
+                    } label: {
+                        AppImages.iconTrash
+                            .foregroundStyle(.red)
+                            .padding(.leading)
                     }
+                    NavigationLink {
+                        AddAboutPlaceView(language: info.language, text: info.about) { placeAbout in
+                            if let existingIndex = viewModel.about.firstIndex(where: { $0.id == info.id }) {
+                                viewModel.about[existingIndex] = placeAbout
+                            }
+                        }
+                    } label: {
+                        Text("\(info.language.getFlag()) \(info.about)")
+                            .lineLimit(1)
+                            .tint(.primary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        AppImages.iconRight
+                            .foregroundStyle(.quaternary)
+                    }
+                    .padding()
+                    .background(AppColors.lightGray6, in: RoundedRectangle(cornerRadius: 10))
                 }
+            }
+        }
     }
 
     private var tagsView: some View {
@@ -183,27 +178,25 @@ struct PlaceAdditionalFieldsView: View {
         .padding(.bottom, 40)
     }
     
-    //TODO
     private var timetable: some View {
         HStack {
-            Text("Timetable".uppercased())
-                .font(.caption)
-                .bold()
-                .foregroundStyle(viewModel.timetable.isEmpty ? Color.secondary : Color.green)
-                .frame(maxWidth: .infinity, alignment: .leading)
+                Text("Timetable")
+                    .font(.callout)
+                    .foregroundStyle(viewModel.timetable.isEmpty ? Color.secondary : Color.green)
+
+            .frame(maxWidth: .infinity, alignment: .leading)
             AppImages.iconRight
-                .foregroundStyle(AppColors.lightGray5)
+                .foregroundStyle(.quaternary)
         }
-        .padding(.vertical)
+        .padding()
+        .background(AppColors.lightGray6, in: RoundedRectangle(cornerRadius: 10))
     }
-    //TODO
+    
     private var workdays: some View {
         VStack(spacing: 10) {
             ForEach(viewModel.timetable) { day in
                 HStack {
                     Text(day.day.getString())
-                        .font(.caption)
-                        .bold()
                         .frame(maxWidth: .infinity, alignment: .leading)
                     Text(day.opening.formatted(date: .omitted, time: .shortened))
                     Text("—")
@@ -212,7 +205,6 @@ struct PlaceAdditionalFieldsView: View {
             }
         }
         .padding()
-        .background(AppColors.lightGray6, in: RoundedRectangle(cornerRadius: 10))
         .padding(.bottom)
     }
 
@@ -233,10 +225,8 @@ struct PlaceAdditionalFieldsView: View {
                 .foregroundStyle(.quaternary)
         }
         .padding()
-        .background(AppColors.lightGray6)
-        .cornerRadius(10)
+        .background(AppColors.lightGray6, in: RoundedRectangle(cornerRadius: 10))
     }
-    
 
     private var emailField: some View {
         HStack {
