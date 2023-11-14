@@ -28,9 +28,9 @@ struct TabBarView: View {
     @State private var selectedPage: TabBarRouter = TabBarRouter.home
     
     var body: some View {
-        GeometryReader {
-            let safeArea = $0.safeAreaInsets //EdgeInsets
-            let windowSize = $0.size // CGSize
+//        GeometryReader {
+//            let safeArea = $0.safeAreaInsets //EdgeInsets
+//            let windowSize = $0.size // CGSize
             
             VStack(spacing: 0) {
                 switch selectedPage {
@@ -100,7 +100,7 @@ struct TabBarView: View {
                 }
             }
             .environmentObject(authenticationManager)
-        }
+       // }
     }
     
     

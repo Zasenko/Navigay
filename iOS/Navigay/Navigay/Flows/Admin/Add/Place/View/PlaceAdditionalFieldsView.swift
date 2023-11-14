@@ -26,7 +26,7 @@ struct PlaceAdditionalFieldsView: View {
                                 viewModel.email = string.lowercased()
                             }
                         } label: {
-                            emailField
+                            EditField(title: "Email", text: $viewModel.email, emptyFieldColor: .secondary)
                         }
                         Divider()
                             .padding(.horizontal)
@@ -35,7 +35,7 @@ struct PlaceAdditionalFieldsView: View {
                                 viewModel.phone = phone
                             }
                         } label: {
-                            phoneField
+                            EditField(title: "Phone", text: $viewModel.phone, emptyFieldColor: .secondary)
                         }
                         Divider()
                             .padding(.horizontal)
@@ -44,7 +44,7 @@ struct PlaceAdditionalFieldsView: View {
                                 viewModel.www = string
                             }
                         } label: {
-                            wwwField
+                            EditField(title: "www", text: $viewModel.www, emptyFieldColor: .secondary)
                         }
                         Divider()
                             .padding(.horizontal)
@@ -53,7 +53,7 @@ struct PlaceAdditionalFieldsView: View {
                                 viewModel.facebook = string
                             }
                         } label: {
-                            facebookField
+                            EditField(title: "Facebook", text: $viewModel.facebook, emptyFieldColor: .secondary)
                         }
                         Divider()
                             .padding(.horizontal)
@@ -62,7 +62,7 @@ struct PlaceAdditionalFieldsView: View {
                                 viewModel.instagram = string
                             }
                         } label: {
-                            instagramField
+                            EditField(title: "Instagram", text: $viewModel.instagram, emptyFieldColor: .secondary)
                         }
                     }
                     .background(AppColors.lightGray6)
@@ -91,11 +91,10 @@ struct PlaceAdditionalFieldsView: View {
                             viewModel.otherInfo = string
                         }
                     } label: {
-                        otherInfoField
+                        EditField(title: "Other information", text: $viewModel.otherInfo, emptyFieldColor: .secondary)
                             .padding(.bottom, 40)
                             .padding(.top, 40)
                     }
-                    owner
                 }
                 .padding(.horizontal)
             
@@ -107,7 +106,7 @@ struct PlaceAdditionalFieldsView: View {
     
     private var aboutField: some View {
         HStack {
-            Text("About Place")
+            Text("About")
                 .font(.callout)
                 .foregroundStyle(viewModel.about.isEmpty ? Color.secondary : .green)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -206,132 +205,6 @@ struct PlaceAdditionalFieldsView: View {
         }
         .padding()
         .padding(.bottom)
-    }
-
-    private var otherInfoField: some View {
-        HStack {
-            VStack(alignment: .leading) {
-                Text("Other info")
-                    .font(.callout)
-                    .foregroundStyle(viewModel.otherInfo.isEmpty ? Color.secondary : Color.green)
-                if !viewModel.otherInfo.isEmpty {
-                    Text(viewModel.otherInfo)
-                        .multilineTextAlignment(.leading)
-                        .tint(.primary)
-                }
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            AppImages.iconRight
-                .foregroundStyle(.quaternary)
-        }
-        .padding()
-        .background(AppColors.lightGray6, in: RoundedRectangle(cornerRadius: 10))
-    }
-
-    private var emailField: some View {
-        HStack {
-            VStack(alignment: .leading) {
-                Text("Email")
-                    .font(.callout)
-                    .foregroundStyle(viewModel.email.isEmpty ? Color.secondary : Color.green)
-                if !viewModel.email.isEmpty {
-                    Text(viewModel.email)
-                        .lineLimit(1)
-                        .tint(.primary)
-                }
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            AppImages.iconRight
-                .foregroundStyle(.quaternary)
-        }
-        .padding()
-    }
-    
-    private var phoneField: some View {
-        HStack {
-            VStack(alignment: .leading) {
-                Text("Phone")
-                    .font(.callout)
-                    .foregroundStyle(viewModel.phone.isEmpty ? Color.secondary : Color.green)
-                if !viewModel.phone.isEmpty {
-                    Text(viewModel.phone)
-                        .lineLimit(1)
-                        .tint(.primary)
-                }
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            AppImages.iconRight
-                .foregroundStyle(.quaternary)
-        }
-        .padding()
-    }
-    
-    private var wwwField: some View {
-        HStack {
-            VStack(alignment: .leading) {
-                Text("www")
-                    .font(.callout)
-                    .foregroundStyle(viewModel.www.isEmpty ? Color.secondary : Color.green)
-                if !viewModel.www.isEmpty {
-                    Text(viewModel.www)
-                        .lineLimit(1)
-                        .tint(.primary)
-                }
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            AppImages.iconRight
-                .foregroundStyle(.quaternary)
-        }
-        .padding()
-    }
-    
-    private var facebookField: some View {
-        HStack {
-            VStack(alignment: .leading) {
-                Text("Facebook")
-                    .font(.callout)
-                    .foregroundStyle(viewModel.facebook.isEmpty ? Color.secondary : Color.green)
-                if !viewModel.facebook.isEmpty {
-                    Text(viewModel.facebook)
-                        .lineLimit(1)
-                        .tint(.primary)
-                }
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            AppImages.iconRight
-                .foregroundStyle(.quaternary)
-        }
-        .padding()
-    }
-    
-    private var instagramField: some View {
-        HStack {
-            VStack(alignment: .leading) {
-                Text("Instagram")
-                    .font(.callout)
-                    .foregroundStyle(viewModel.instagram.isEmpty ? Color.secondary : Color.green)
-                if !viewModel.instagram.isEmpty {
-                    Text(viewModel.instagram)
-                        .lineLimit(1)
-                        .tint(.primary)
-                }
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            AppImages.iconRight
-                .foregroundStyle(.quaternary)
-        }
-        .padding()
-    }
-    
-    private var owner: some View {
-        HStack {
-            Text("Are you an owner of this place?")
-                .font(.callout)
-                .foregroundStyle(viewModel.about.isEmpty ? Color.secondary : .green)
-                .frame(maxWidth: .infinity, alignment: .leading)
-            Toggle("", isOn: $viewModel.isOwned)
-        }
-        .padding(.horizontal)
     }
 }
 

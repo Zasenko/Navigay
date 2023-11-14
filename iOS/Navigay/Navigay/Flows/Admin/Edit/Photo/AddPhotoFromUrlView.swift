@@ -41,6 +41,7 @@ struct AddPhotoFromUrlView: View {
                         .font(.body)
                         .focused($focused)
                         .onChange(of: text) { oldValue, newValue in
+                            guard !newValue.isEmpty else { return }
                             loadImageFromUrl(urlString: newValue)
                         }
                         .padding()

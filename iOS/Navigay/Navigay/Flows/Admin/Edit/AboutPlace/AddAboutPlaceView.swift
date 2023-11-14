@@ -11,7 +11,7 @@ struct AddAboutPlaceView: View {
     
     //MARK: - Properties
     
-    var onSave: (PlaceAbout) -> Void
+    var onSave: (NewPlaceAbout) -> Void
     
     //MARK: - Private Properties
     
@@ -24,7 +24,7 @@ struct AddAboutPlaceView: View {
     
     //MARK: - Inits
     
-    init(language: Language, text: String, onSave: @escaping (PlaceAbout) -> Void) {
+    init(language: Language, text: String, onSave: @escaping (NewPlaceAbout) -> Void) {
         self.language = language
         self._text = State(initialValue: text)
         self.title = "\(language.getFlag()) \(language.getName())"
@@ -71,7 +71,7 @@ struct AddAboutPlaceView: View {
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Готово") {
-                        let about = PlaceAbout(language: language, about: text)
+                        let about = NewPlaceAbout(language: language, about: text)
                         onSave(about)
                         dismiss()
                     }

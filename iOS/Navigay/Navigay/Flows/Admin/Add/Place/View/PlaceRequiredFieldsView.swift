@@ -29,9 +29,10 @@ struct PlaceRequiredFieldsView: View {
                                 viewModel.name = string
                             }
                         } label: {
-                            nameField
+                            EditField(title: "Name", text: $viewModel.name, emptyFieldColor: .red)
                         }
                         Divider()
+                            .padding(.horizontal)
                         typeField
                     }
                     .background(AppColors.lightGray6)
@@ -42,7 +43,7 @@ struct PlaceRequiredFieldsView: View {
                             viewModel.addressOrigin = string
                         }
                     } label: {
-                        addressField
+                        EditField(title: "Address", text: $viewModel.addressOrigin, emptyFieldColor: .red)
                     }
                     locationField
                     map
@@ -53,24 +54,6 @@ struct PlaceRequiredFieldsView: View {
     
     //MARK: - Views
     
-    private var nameField: some View {
-        HStack {
-            VStack(alignment: .leading) {
-                Text("Name")
-                    .font(.callout)
-                    .foregroundStyle(viewModel.name.isEmpty ? .red : .green)
-                if !viewModel.name.isEmpty {
-                    Text(viewModel.name)
-                        .multilineTextAlignment(.leading)
-                        .tint(.primary)
-                }
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            AppImages.iconRight
-                .foregroundStyle(.quaternary)
-        }
-        .padding()
-    }
     private var typeField: some View {
             Menu {
                 ForEach(PlaceType.allCases, id: \.self) { type in
@@ -137,28 +120,12 @@ struct PlaceRequiredFieldsView: View {
             }
         }
     }
-    
-    private var addressField: some View {
-        HStack {
-            VStack(alignment: .leading) {
-                Text("Address")
-                    .font(.callout)
-                    .foregroundStyle(viewModel.addressOrigin.isEmpty ? .red : .green)
-                if !viewModel.addressOrigin.isEmpty {
-                    Text(viewModel.addressOrigin)
-                        .multilineTextAlignment(.leading)
-                        .tint(.primary)
-                }
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            AppImages.iconRight
-                .foregroundStyle(.quaternary)
-        }
-        .padding()
-        .background(AppColors.lightGray6, in: RoundedRectangle(cornerRadius: 10))
-    }
 }
 
-//#Preview {
-//    NewPlaceRequiredFieldsView(viewModel: AddNewPlaceViewModel(networkManager: AddNetworkManager()))
-//}
+#Preview {
+    let decodetUser = DecodedAppUser(id: 0, name: "Test", email: "test@test.com", status: .admin, bio: nil, photo: nil, instagram: nil, likedPlacesId: nil)
+    let user = AppUser(decodedUser: decodetUser)
+    let errorManager = ErrorManager()
+    let networkManage = PlaceNetworkManager()
+    return PlaceRequiredFieldsView(viewModel: AddNewPlaceViewModel(user: user, networkManager: networkManage, errorManager: errorManager))
+}

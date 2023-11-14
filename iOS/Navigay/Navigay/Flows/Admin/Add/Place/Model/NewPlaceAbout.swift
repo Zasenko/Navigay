@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct PlaceAbout: Identifiable {
+struct NewPlaceAbout: Identifiable {
     
     //MARK: - Properties
     
