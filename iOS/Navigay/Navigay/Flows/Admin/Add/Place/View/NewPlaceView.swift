@@ -7,19 +7,20 @@
 
 import SwiftUI
 
-struct AddNewPlaceView: View {
+struct NewPlaceView: View {
     
     //MARK: - Private Properties
     
     @StateObject private var viewModel: AddNewPlaceViewModel
     private var infoTitle: String = "New place"
-    private var photoTitle: String = "Add photos"
+    private var photoTitle: String = "Place's photos"
     @Environment(\.dismiss) private var dismiss
+    
+    //MARK: - Inits
     
     init(viewModel: AddNewPlaceViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel)
     }
-    
     
     //MARK: - Body
     
@@ -64,9 +65,9 @@ struct AddNewPlaceView: View {
                     }
                     .tint(.primary)
                 }
-                
-                if viewModel.router == .info {
-                    ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItem(placement: .topBarTrailing) {
+                    switch viewModel.router {
+                    case .info:
                         if viewModel.isLoading {
                             ProgressView()
                                 .tint(.blue)
@@ -80,15 +81,13 @@ struct AddNewPlaceView: View {
                             .disabled(viewModel.longitude == nil)
                             .disabled(viewModel.latitude == nil)
                         }
+                    case .photos:
+                        Button("Готово") {
+                            dismiss()
+                        }
                     }
                 }
             }
-            .onChange(of: viewModel.placeId) { oldValue, newValue in
-                if newValue != nil {
-                    viewModel.router = .photos
-                }
-            }
-            
         }
     }
 }
@@ -97,6 +96,6 @@ struct AddNewPlaceView: View {
     let decodetUser = DecodedAppUser(id: 0, name: "Test", email: "test@test.com", status: .admin, bio: nil, photo: nil, instagram: nil, likedPlacesId: nil)
     let user = AppUser(decodedUser: decodetUser)
     let errorManager = ErrorManager()
-    return AddNewPlaceView(viewModel: AddNewPlaceViewModel(user: user, networkManager: PlaceNetworkManager(), errorManager: errorManager))
+    return NewPlaceView(viewModel: AddNewPlaceViewModel(user: user, networkManager: PlaceNetworkManager(), errorManager: errorManager))
 }
 

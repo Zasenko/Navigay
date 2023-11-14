@@ -8,12 +8,11 @@
 import SwiftUI
 
 struct NewPlaceInfoView: View {
+    
     //MARK: - Properties
     
     @ObservedObject var viewModel: AddNewPlaceViewModel
-    
-    //MARK: - Private Properties
-        
+            
     //MARK: - Body
     
     var body: some View {
@@ -29,8 +28,13 @@ struct NewPlaceInfoView: View {
                         .padding()
                         .padding(.top)
                     PlaceAdditionalFieldsView(viewModel: viewModel)
-                    ActivationFieldsView(isActive: $viewModel.isActive, isChecked: $viewModel.isChecked)
-                        .padding(.bottom)
+                    if viewModel.user.status == .admin || viewModel.user.status == .moderator {
+                        ActivationFieldsView(isActive: $viewModel.isActive, isChecked: $viewModel.isChecked)
+                            .padding(.bottom, 40)
+                    } else {
+                        EditToggleField(toggle: $viewModel.isOwned, text: "Are you an owner of this place?")
+                            .padding(.bottom, 40)
+                    }
                 }
             }
         }

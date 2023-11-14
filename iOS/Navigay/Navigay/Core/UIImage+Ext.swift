@@ -25,4 +25,20 @@ extension UIImage {
         }
         return resized
     }
+    
+    func cropImage(maxWidth: CGFloat, maxHeight: CGFloat) -> UIImage {
+        let widthRatio = maxWidth / self.size.width
+        let heightRatio = maxHeight / self.size.height
+        let scaleFactor = min(widthRatio, heightRatio)
+        let scaledImageSize = CGSize(width: self.size.width * scaleFactor,
+                                     height: self.size.height * scaleFactor)
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 1
+        let renderer = UIGraphicsImageRenderer(size: scaledImageSize,
+                                               format: format)
+        let scaledImage = renderer.image { _ in
+            self.draw(in: CGRect(origin: .zero, size: scaledImageSize))
+        }
+        return scaledImage
+    }
 }

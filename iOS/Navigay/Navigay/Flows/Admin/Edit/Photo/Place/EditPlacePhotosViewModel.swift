@@ -37,6 +37,9 @@ final class EditPlacePhotosViewModel: ObservableObject {
     private let errorManager: ErrorManagerProtocol
     private var placeId: Int
     
+    private let loadErrorModel = ErrorModel(massage: "Something went wrong. The photo didn't load. Please try again later.", img: Image(systemName: "photo.fill"), color: .red)
+    private let deleteErrorModel = ErrorModel(massage: "Something went wrong. The photo didn't delete. Please try again later.", img: Image(systemName: "trash.slash.fill"), color: .red)
+    
     //MARK: - Inits
     
     init(bigImage: Image?, smallImage: Image?, photos: [Photo], placeId: Int, networkManager: PlaceNetworkManagerProtocol, errorManager: ErrorManagerProtocol) {
@@ -53,44 +56,43 @@ extension EditPlacePhotosViewModel {
     
     //MARK: - Functions
     
+    @MainActor
     func loadAvatar(uiImage: UIImage) {
         avatarLoading = true
-        let scaledImage = uiImage.cropImage(width: 150, height: 150)
         let previousImage = avatarPhoto
-        avatarPhoto = Image(uiImage: scaledImage)
-        updateAvatar(uiImage: scaledImage, previousImage: previousImage)
+        avatarPhoto = Image(uiImage: uiImage)
+        updateAvatar(uiImage: uiImage, previousImage: previousImage)
     }
     
+    @MainActor
     func loadMainPhoto(uiImage: UIImage) {
         mainPhotoLoading = true
-        let scaledImage = uiImage.cropImage(width: 600, height: 750)
         let previousImage = mainPhoto
-        mainPhoto = Image(uiImage: scaledImage)
-        updateMainPhoto(uiImage: scaledImage, previousImage: previousImage)
+        mainPhoto = Image(uiImage: uiImage)
+        updateMainPhoto(uiImage: uiImage, previousImage: previousImage)
     }
     
+    @MainActor
     func loadLibraryPhoto(uiImage: UIImage) {
         libraryPhotoLoading = true
-        let scaledImage = uiImage.cropImage(width: 600, height: 750)
         var previousPhoto: Image? = nil
         if let photoIndex = photos.firstIndex(where: { $0.id == libraryPhotoId }) {
             previousPhoto = photos[photoIndex].image
-            photos[photoIndex].updateImage(image: Image(uiImage: scaledImage))
+            photos[photoIndex].updateImage(image: Image(uiImage: uiImage))
         } else {
-            let photo = Photo(id: libraryPhotoId, image: Image(uiImage: scaledImage))
+            let photo = Photo(id: libraryPhotoId, image: Image(uiImage: uiImage))
             photos.append(photo)
         }
-        updateLibraryPhoto(uiImage: scaledImage, previousImage: previousPhoto)
+        updateLibraryPhoto(uiImage: uiImage, previousImage: previousPhoto)
     }
     
     func deleteLibraryPhoto() {
         libraryPhotoLoading = true
         Task {
-            let errorModel = ErrorModel(massage: "Something went wrong. The photo didn't delete. Please try again later.", img: Image(systemName: "trash.slash.fill"), color: .red)
             do {
                 let decodedResult = try await networkManager.deleteLibraryPhoto(placeId: placeId, photoId: libraryPhotoId)
                 guard decodedResult.result else {
-                    errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: errorModel)
+                    errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: deleteErrorModel)
                     return
                 }
                 await MainActor.run {
@@ -101,7 +103,7 @@ extension EditPlacePhotosViewModel {
                 }
             } catch {
                 debugPrint("ERROR - deleteLibraryPhoto: ", error)
-                errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
+                errorManager.showApiErrorOrMessage(apiError: nil, or: deleteErrorModel)
                 await MainActor.run {
                     self.libraryPhotoLoading = false
                 }
@@ -113,11 +115,11 @@ extension EditPlacePhotosViewModel {
     
     private func updateAvatar(uiImage: UIImage, previousImage: Image?) {
         Task {
-            let errorModel = ErrorModel(massage: "Something went wrong. The photo didn't load. Please try again later.", img: Image(systemName: "photo.fill"), color: .red)
+            let scaledImage = uiImage.cropImage(width: 150, height: 150)
             do {
-                let decodedResult = try await networkManager.updateAvatar(placeId: placeId, uiImage: uiImage)
+                let decodedResult = try await networkManager.updateAvatar(placeId: placeId, uiImage: scaledImage)
                 guard decodedResult.result else {
-                    errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: errorModel)
+                    errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: loadErrorModel)
                     return
                 }
                 await MainActor.run {
@@ -125,7 +127,7 @@ extension EditPlacePhotosViewModel {
                 }
             } catch {
                 debugPrint("ERROR - updateAvatar: ", error)
-                errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
+                errorManager.showApiErrorOrMessage(apiError: nil, or: loadErrorModel)
                 await MainActor.run {
                     self.avatarLoading = false
                     self.avatarPhoto = previousImage
@@ -136,11 +138,11 @@ extension EditPlacePhotosViewModel {
     
     private func updateMainPhoto(uiImage: UIImage, previousImage: Image?) {
         Task {
-            let errorModel = ErrorModel(massage: "Something went wrong. The photo didn't load. Please try again later.", img: Image(systemName: "photo.fill"), color: .red)
+            let scaledImage = uiImage.cropImage(width: 600, height: 750)
             do {
-                let decodedResult = try await networkManager.updateMainPhoto(placeId: placeId, uiImage: uiImage)
+                let decodedResult = try await networkManager.updateMainPhoto(placeId: placeId, uiImage: scaledImage)
                 guard decodedResult.result else {
-                    errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: errorModel)
+                    errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: loadErrorModel)
                     return
                 }
                 await MainActor.run {
@@ -148,7 +150,7 @@ extension EditPlacePhotosViewModel {
                 }
             } catch {
                 debugPrint("ERROR - updateMainPhoto: ", error)
-                errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
+                errorManager.showApiErrorOrMessage(apiError: nil, or: loadErrorModel)
                 await MainActor.run {
                     self.mainPhotoLoading = false
                     self.mainPhoto = previousImage
@@ -159,11 +161,11 @@ extension EditPlacePhotosViewModel {
     
     private func updateLibraryPhoto(uiImage: UIImage, previousImage: Image?) {
         Task {
-            let errorModel = ErrorModel(massage: "Something went wrong. The photo didn't load. Please try again later.", img: Image(systemName: "photo.fill"), color: .red)
+            let scaledImage = uiImage.cropImage(width: 600, height: 750)
             do {
-                let decodedResult = try await networkManager.updateLibraryPhoto(placeId: placeId, photoId: libraryPhotoId, uiImage: uiImage)
+                let decodedResult = try await networkManager.updateLibraryPhoto(placeId: placeId, photoId: libraryPhotoId, uiImage: scaledImage)
                 guard decodedResult.result else {
-                    errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: errorModel)
+                    errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: loadErrorModel)
                     return
                 }
                 await MainActor.run {
@@ -171,7 +173,7 @@ extension EditPlacePhotosViewModel {
                 }
             } catch {
                 debugPrint("ERROR - updateLibraryPhoto: ", error)
-                errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
+                errorManager.showApiErrorOrMessage(apiError: nil, or: loadErrorModel)
                 await MainActor.run {
                     if let photoIndex = photos.firstIndex(where: { $0.id == libraryPhotoId }) {
                         if let previousImage = previousImage {

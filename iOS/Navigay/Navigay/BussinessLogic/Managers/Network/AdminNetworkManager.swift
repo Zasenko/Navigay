@@ -24,6 +24,7 @@ final class AdminNetworkManager {
 // MARK: - AuthNetworkManagerProtocol
 
 extension AdminNetworkManager: AdminNetworkManagerProtocol {
+    
     func getAdminInfo() async throws -> AdminInfoResult {
         debugPrint("--- getAdminInfo()")
         let path = "/api/admin/get-admin-info.php"

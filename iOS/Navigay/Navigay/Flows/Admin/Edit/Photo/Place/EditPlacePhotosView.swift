@@ -156,7 +156,7 @@ struct EditPlacePhotosView: View {
                         .opacity(viewModel.mainPhotoLoading ? 0 : 1)
                         .tint(.primary)
                         .frame(width: 100)
-                        .frame(width: UIScreen.main.bounds.width, height: (UIScreen.main.bounds.width / 4) * 5)
+                        .frame(width: width, height: (width / 4) * 5)
                         .background(AppColors.lightGray6)
                 }
                 if viewModel.mainPhotoLoading {
