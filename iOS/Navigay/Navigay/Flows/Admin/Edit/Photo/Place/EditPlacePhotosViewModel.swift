@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import PhotosUI
 
 final class EditPlacePhotosViewModel: ObservableObject {
     
@@ -16,9 +15,27 @@ final class EditPlacePhotosViewModel: ObservableObject {
     @Published var showMainPhotoPicker: Bool = false
     @Published var showLibraryPhotoPicker: Bool = false
     
-    @Published var mainPhotoPickerItem: PhotosPickerItem? = nil
-    @Published var avatarPickerItem: PhotosPickerItem? = nil
-    @Published var libraryPickerItem: PhotosPickerItem? = nil
+    @Published var mainPhotoPickerImage: UIImage? {
+        didSet {
+            if let mainPhotoPickerImage {
+                loadMainPhoto(uiImage: mainPhotoPickerImage)
+            }
+        }
+    }
+    @Published var avatarPickerImage: UIImage? {
+        didSet {
+            if let avatarPickerImage {
+                loadAvatar(uiImage: avatarPickerImage)
+            }
+        }
+    }
+    @Published var libraryPickerImage: UIImage? {
+        didSet {
+            if let libraryPickerImage {
+                loadLibraryPhoto(uiImage: libraryPickerImage)
+            }
+        }
+    }
     
     @Published var mainPhoto: Image?
     @Published var avatarPhoto: Image?
@@ -56,7 +73,6 @@ extension EditPlacePhotosViewModel {
     
     //MARK: - Functions
     
-    @MainActor
     func loadAvatar(uiImage: UIImage) {
         avatarLoading = true
         let previousImage = avatarPhoto
@@ -64,7 +80,6 @@ extension EditPlacePhotosViewModel {
         updateAvatar(uiImage: uiImage, previousImage: previousImage)
     }
     
-    @MainActor
     func loadMainPhoto(uiImage: UIImage) {
         mainPhotoLoading = true
         let previousImage = mainPhoto
@@ -72,7 +87,6 @@ extension EditPlacePhotosViewModel {
         updateMainPhoto(uiImage: uiImage, previousImage: previousImage)
     }
     
-    @MainActor
     func loadLibraryPhoto(uiImage: UIImage) {
         libraryPhotoLoading = true
         var previousPhoto: Image? = nil

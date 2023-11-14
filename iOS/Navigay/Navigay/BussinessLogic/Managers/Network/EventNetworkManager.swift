@@ -10,7 +10,7 @@ import SwiftUI
 protocol EventNetworkManagerProtocol {
     func fetchEvent(id: Int) async throws -> EventResult
     func addNewEvent(event: NewEvent) async throws -> NewEventResult
-    func updatePoster(eventId: Int, poster: UIImage, smallPoster: UIImage) async throws -> ImageResult
+    func updatePoster(eventId: Int, poster: UIImage, smallPoster: UIImage) async throws -> PosterResult
 }
 
 final class EventNetworkManager {
@@ -96,7 +96,7 @@ extension EventNetworkManager: EventNetworkManagerProtocol {
         }
     }
     
-    func updatePoster(eventId: Int, poster: UIImage, smallPoster: UIImage) async throws -> ImageResult {
+    func updatePoster(eventId: Int, poster: UIImage, smallPoster: UIImage) async throws -> PosterResult {
         let path = "/api/event/update-poster.php"
         var urlComponents: URLComponents {
             var components = URLComponents()
@@ -118,7 +118,7 @@ extension EventNetworkManager: EventNetworkManagerProtocol {
             guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
                 throw NetworkErrors.invalidData
             }
-            guard let decodedResult = try? JSONDecoder().decode(ImageResult.self, from: data) else {
+            guard let decodedResult = try? JSONDecoder().decode(PosterResult.self, from: data) else {
                 throw NetworkErrors.decoderError
             }
             return decodedResult
@@ -143,8 +143,8 @@ extension EventNetworkManager {
         body.append("Content-Type: image/jpeg\r\n\r\n".data(using: .utf8)!)
         body.append(posterData)
         body.append("\r\n".data(using: .utf8)!)
-        body.append("--\(boundary)--\r\n".data(using: .utf8)!)
-        body.append("Content-Disposition: form-data; name=\"poster_small\"; filename=\"image.jpg\"\r\n".data(using: .utf8)!)
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"small_poster\"; filename=\"image.jpg\"\r\n".data(using: .utf8)!)
         body.append("Content-Type: image/jpeg\r\n\r\n".data(using: .utf8)!)
         body.append(smallPosterData)
         body.append("\r\n".data(using: .utf8)!)

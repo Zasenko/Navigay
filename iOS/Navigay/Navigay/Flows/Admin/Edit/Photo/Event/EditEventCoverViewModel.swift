@@ -6,14 +6,19 @@
 //
 
 import SwiftUI
-import PhotosUI
 
 final class EditEventCoverViewModel: ObservableObject {
     
     //MARK: - Properties
     
-    @Published var showPosterPhotoPicker: Bool = false
-    @Published var posterPickerItem: PhotosPickerItem? = nil
+    @Published var showPicker: Bool = false
+    @Published var pickerImage: UIImage? {
+        didSet {
+            if let pickerImage {
+                loadPoster(uiImage: pickerImage)
+            }
+        }
+    }
     @Published var poster: Image?
     @Published var isLoading: Bool = false
     
@@ -39,7 +44,6 @@ extension EditEventCoverViewModel {
     
     //MARK: - Functions
     
-    @MainActor
     func loadPoster(uiImage: UIImage) {
         isLoading = true
         let previousImage = poster

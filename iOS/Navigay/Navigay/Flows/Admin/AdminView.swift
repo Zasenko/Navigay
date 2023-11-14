@@ -108,7 +108,7 @@ struct AdminView: View {
                         NewPlaceView(viewModel: AddNewPlaceViewModel(user: viewModel.user, networkManager: PlaceNetworkManager(), errorManager: viewModel.errorManager))
                     }
                     NavigationLink("Add new event") {
-                        Color.red
+                        NewEventView(viewModel: NewEventViewModel(user: viewModel.user, place: nil, networkManager: EventNetworkManager(appSettingsManager: AppSettingsManager()), errorManager: viewModel.errorManager))
                     }
                 }
             }

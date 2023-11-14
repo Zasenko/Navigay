@@ -25,17 +25,22 @@ struct EditEventCoverView: View {
                     Spacer()
                 }
                 .disabled(viewModel.isLoading)
+                .sheet(isPresented: $viewModel.showPicker) {
+                    ImagePicker(selectedImage: $viewModel.pickerImage, sourceType: .photoLibrary)
+                }
             }
         }
     }
         
     //MARK: - Views
     
+    
+    
     @ViewBuilder
     private func makeCoverView(width: CGFloat) -> some View {
         Menu {
             Button("Select from library") {
-                viewModel.showPosterPhotoPicker.toggle()
+                viewModel.showPicker.toggle()
             }
             //            Button("Add from camera") {
             //
@@ -47,7 +52,7 @@ struct EditEventCoverView: View {
             }
         } label: {
             ZStack {
-                if let cover =  viewModel.poster {
+                if let cover = viewModel.poster {
                     cover
                         .resizable()
                         .scaledToFit()
@@ -69,15 +74,6 @@ struct EditEventCoverView: View {
                 if viewModel.isLoading {
                     ProgressView()
                         .tint(.blue)
-                }
-            }
-        }
-        .photosPicker(isPresented: $viewModel.showPosterPhotoPicker, selection: $viewModel.posterPickerItem, matching: .any(of: [.images, .screenshots, .livePhotos]))
-        .onChange(of: viewModel.posterPickerItem) { oldValue, newValue in
-            Task {
-                guard let data = try? await viewModel.posterPickerItem?.loadTransferable(type: Data.self) else { return }
-                if let uiImage = UIImage(data: data) {
-                    viewModel.loadPoster(uiImage: uiImage)
                 }
             }
         }

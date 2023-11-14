@@ -71,7 +71,7 @@ struct NewEventView: View {
                                     .tint(.blue)
                             } else {
                                 Button("Add") {
-                                    //----------
+                                    viewModel.addNewEvent()
                                 }
                                 .disabled(viewModel.name.isEmpty)
                                 .disabled(viewModel.addressOrigin.isEmpty == true)

@@ -115,14 +115,8 @@ struct EditPlacePhotosView: View {
             }
         }
         .disabled(viewModel.libraryPhotoLoading)
-        .photosPicker(isPresented: $viewModel.showLibraryPhotoPicker, selection: $viewModel.libraryPickerItem, matching: .any(of: [.images, .screenshots, .livePhotos]))
-        .onChange(of: viewModel.libraryPickerItem) { oldValue, newValue in
-            Task {
-                guard let data = try? await newValue?.loadTransferable(type: Data.self) else { return }
-                if let uiImage = UIImage(data: data) {
-                    viewModel.loadLibraryPhoto(uiImage: uiImage)
-                }
-            }
+        .sheet(isPresented: $viewModel.showLibraryPhotoPicker) {
+            ImagePicker(selectedImage: $viewModel.libraryPickerImage, sourceType: .photoLibrary)
         }
     }
         
@@ -166,14 +160,8 @@ struct EditPlacePhotosView: View {
             }
         }
         .disabled(viewModel.mainPhotoLoading)
-        .photosPicker(isPresented: $viewModel.showMainPhotoPicker, selection: $viewModel.mainPhotoPickerItem, matching: .any(of: [.images, .screenshots, .livePhotos]))
-        .onChange(of: viewModel.mainPhotoPickerItem) { oldValue, newValue in
-            Task {
-                guard let data = try? await viewModel.mainPhotoPickerItem?.loadTransferable(type: Data.self) else { return }
-                if let uiImage = UIImage(data: data) {
-                    viewModel.loadMainPhoto(uiImage: uiImage)
-                }
-            }
+        .sheet(isPresented: $viewModel.showMainPhotoPicker) {
+            ImagePicker(selectedImage: $viewModel.mainPhotoPickerImage, sourceType: .photoLibrary)
         }
     }
     
@@ -223,14 +211,8 @@ struct EditPlacePhotosView: View {
             }
         }
         .disabled(viewModel.avatarLoading)
-        .photosPicker(isPresented: $viewModel.showAvatarPhotoPicker, selection: $viewModel.avatarPickerItem, matching: .any(of: [.images, .screenshots, .livePhotos]))
-        .onChange(of: viewModel.avatarPickerItem) { oldValue, newValue in
-            Task {
-                guard let data = try? await viewModel.avatarPickerItem?.loadTransferable(type: Data.self) else { return }
-                if let uiImage = UIImage(data: data) {
-                    viewModel.loadAvatar(uiImage: uiImage)
-                }
-            }
+        .sheet(isPresented: $viewModel.showAvatarPhotoPicker) {
+            ImagePicker(selectedImage: $viewModel.avatarPickerImage, sourceType: .photoLibrary)
         }
     }
 }
