@@ -160,9 +160,9 @@ $types = "siiiiddsssssssissssssssiiiii";
 $stmt = executeQuery($conn, $sql, $params, $types);
 
 if (checkInsertResult($stmt, $conn, 'Failed to insert data into Event table.')) {
-    $place_id = getLastInsertId($conn);
+    $event_id = getLastInsertId($conn);
     $conn->close();
-    $json = ['result' => true, 'placeId' => $place_id];
+    $json = ['result' => true, 'id' => $event_id];
     echo json_encode($json, JSON_NUMERIC_CHECK);
     exit;
 }
