@@ -33,7 +33,6 @@ struct AdminPlace: Identifiable, Codable {
     let ownerId: Int?
     let isActive: Bool
     let isChecked: Bool
-    let lastUpdate: String
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -60,6 +59,5 @@ struct AdminPlace: Identifiable, Codable {
         case ownerId = "owner_id"
         case isActive = "is_active"
         case isChecked = "is_checked"
-        case lastUpdate = "updated_at"
     }
 }

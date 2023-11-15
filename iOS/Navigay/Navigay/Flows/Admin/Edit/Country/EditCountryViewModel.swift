@@ -25,9 +25,9 @@ final class EditCountryViewModel: ObservableObject {
     @Published var photo: Image?
     @Published var languages: [Language]
     @Published var about: [NewPlaceAbout]
-    @Published var showRegions: Bool = false
-    @Published var isActive: Bool = false
-    @Published var isChecked: Bool = false
+    @Published var showRegions: Bool
+    @Published var isActive: Bool
+    @Published var isChecked: Bool
     
     @Published var isLoading: Bool = false
     @Published var isLoadingPhoto: Bool = false
@@ -118,7 +118,7 @@ extension EditCountryViewModel {
                 let decodedResult = try await networkManager.updateCountryPhoto(countryId: id, uiImage: scaledImage)
                 guard decodedResult.result else {
                     errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: errorModel)
-                    return
+                    throw NetworkErrors.apiError
                 }
                 await MainActor.run {
                     self.isLoadingPhoto = false

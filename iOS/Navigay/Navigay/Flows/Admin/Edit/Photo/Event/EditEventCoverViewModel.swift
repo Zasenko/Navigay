@@ -61,7 +61,7 @@ extension EditEventCoverViewModel {
                 let decodedResult = try await networkManager.updatePoster(eventId: eventId, poster: scaledImage, smallPoster: scaledImageSmall)
                 guard decodedResult.result else {
                     errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: errorModel)
-                    return
+                    throw NetworkErrors.apiError
                 }
                 await MainActor.run {
                     self.isLoading = false
