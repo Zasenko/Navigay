@@ -10,7 +10,7 @@ import Foundation
 struct AdminCountry: Identifiable, Codable {
     let id: Int
     let isoCountryCode: String
-    let name: String?
+    let nameOrigin: String?
     let nameEn: String?
     let nameFr: String?
     let nameDe: String?
@@ -24,10 +24,10 @@ struct AdminCountry: Identifiable, Codable {
     let showRegions: Bool
     let isActive: Bool
     let isChecked: Bool
-    let lastUpdate: String
     
     enum CodingKeys: String, CodingKey {
-        case id, isoCountryCode, name, photo, about
+        case id, isoCountryCode, photo, about
+        case nameOrigin = "name_origin"
         case nameEn = "name_en"
         case nameFr = "name_fr"
         case nameDe = "name_de"
@@ -39,6 +39,5 @@ struct AdminCountry: Identifiable, Codable {
         case showRegions = "show_regions"
         case isActive = "is_active"
         case isChecked = "is_checked"
-        case lastUpdate = "updated_at"
     }
 }

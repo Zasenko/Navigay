@@ -26,16 +26,14 @@ struct EditEventCoverView: View {
                 }
                 .disabled(viewModel.isLoading)
                 .sheet(isPresented: $viewModel.showPicker) {
-                    ImagePicker(selectedImage: $viewModel.pickerImage, sourceType: .photoLibrary)
+                    ImagePicker(selectedImage: $viewModel.pickerImage)
                 }
             }
         }
     }
         
     //MARK: - Views
-    
-    
-    
+
     @ViewBuilder
     private func makeCoverView(width: CGFloat) -> some View {
         Menu {

@@ -66,16 +66,16 @@ struct AdminView: View {
     var body: some View {
         NavigationStack {
             List {
-                Section("Unchecked Places") {
-                    ForEach(viewModel.uncheckedPlaces) { place in
-                        VStack {
-                            Text("id \(place.id)")
-                            Text(place.name)
-                            Text(place.type.getName())
-                            Text(place.address)
-                        }
-                    }
-                }
+//                Section("Unchecked Places") {
+//                    ForEach(viewModel.uncheckedPlaces) { place in
+//                        VStack {
+//                            Text("id \(place.id)")
+//                            Text(place.name)
+//                            Text(place.type.getName())
+//                            Text(place.address)
+//                        }
+//                    }
+//                }
 //                Section("Unchecked Regions") {
 //                    ForEach(viewModel.uncheckedRegions) { region in
 //                        VStack {
@@ -94,15 +94,19 @@ struct AdminView: View {
 //                        }
 //                    }
 //                }
-//                Section("Unchecked Countries") {
-//                    ForEach(viewModel.uncheckedCountries) { country in
-//                        VStack {
-//                            Text("id \(country.id)")
-//                            Text(country.isoCountryCode)
-//                            Text(country.name ?? "")
-//                        }
-//                    }
-//                }
+                Section("Unchecked Countries") {
+                    ForEach(viewModel.uncheckedCountries) { country in
+                        NavigationLink {
+                            EditCountryView(viewModel: EditCountryViewModel(country: country, errorManager: viewModel.errorManager, networkManager: viewModel.networkManager))
+                        } label: {
+                            VStack {
+                                Text("id \(country.id)")
+                                Text(country.isoCountryCode)
+                                Text(country.nameOrigin ?? "")
+                            }
+                        }
+                    }
+                }
                 Section {
                     NavigationLink("Add new place") {
                         NewPlaceView(viewModel: AddNewPlaceViewModel(user: viewModel.user, networkManager: PlaceNetworkManager(), errorManager: viewModel.errorManager))

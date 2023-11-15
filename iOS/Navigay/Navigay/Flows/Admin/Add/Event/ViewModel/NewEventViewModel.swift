@@ -95,7 +95,7 @@ extension NewEventViewModel {
             let finishDateString = finishDate?.format("yyyy-MM-dd")
             let finishTimeString = finishTime?.format("HH:mm")
 
-            let about = about.map( { DecodedAbout(language: $0.language.rawValue, about: $0.about) } )
+            let about = about.map( { DecodedAbout(language: $0.language, about: $0.about) } )
             let tags = tags.map( { $0.rawValue} )
             
             let newEvent: NewEvent = NewEvent(name: name,

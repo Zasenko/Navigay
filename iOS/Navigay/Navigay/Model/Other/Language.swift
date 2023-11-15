@@ -9,7 +9,7 @@ import Foundation
 
 enum Language: String, CaseIterable, Codable {
     
-    case en, de, es, it, fr, ru
+    case en, de, es, it, fr, ru, pt
     
     func getFlag() -> String {
         switch self {
@@ -25,6 +25,8 @@ enum Language: String, CaseIterable, Codable {
             return "🇮🇹"
         case .fr:
             return "🇫🇷"
+        case .pt:
+            return "🇵🇹"
         }
     }
     
@@ -42,6 +44,8 @@ enum Language: String, CaseIterable, Codable {
             return "Italiano"
         case .fr:
             return "Français"
+        case .pt:
+            return "Português"
         }
     }
 }
