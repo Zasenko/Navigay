@@ -25,11 +25,11 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 if (empty($_POST["id"])) {
-    sendError('Country ID is required.');
+    sendError('Region ID is required.');
 }
-$country_id = intval($_POST["id"]);
-if ($country_id <= 0) {
-    sendError('Invalid country ID.');
+$region_id = intval($_POST["id"]);
+if ($region_id <= 0) {
+    sendError('Invalid region ID.');
 }
 
 if (empty($_FILES['image']['name'])) {
@@ -49,8 +49,8 @@ if ($image_size > $max_file_size) {
 
 require_once('../dbconfig.php');
 
-$sql = "SELECT id, photo FROM Country WHERE id = ?";
-$params = [$country_id];
+$sql = "SELECT id, photo FROM Region WHERE id = ?";
+$params = [$region_id];
 $types = "i";
 $stmt = executeQuery($conn, $sql, $params, $types);
 $result = $stmt->get_result();
@@ -58,7 +58,7 @@ $stmt->close();
 
 if ($result->num_rows === 0) {
     $conn->close();
-    sendError('Country with id ' . $country_id . ' not found.');
+    sendError('Region with id ' . $region_id . ' not found.');
 }
 
 $row = $result->fetch_assoc();
@@ -72,24 +72,24 @@ if (!empty($image_url)) {
     }
 }
 
-$photo_dir = "../../images/countries/$country_id/";
+$photo_dir = "../../images/regions/$region_id/";
 if (!file_exists($photo_dir)) {
     mkdir($photo_dir, 0777, true);
 }
 $image_name_unique = generateUniqueFilename($image_extension);
 $image_upload_path = $photo_dir . $image_name_unique;
-$image_path = "images/countries/$country_id/" . $image_name_unique;
+$image_path = "images/regions/$region_id/" . $image_name_unique;
 
 if (!move_uploaded_file($_FILES['image']['tmp_name'], $image_upload_path)) {
     $conn->close();
     sendError('Failed to upload image.');
 }
 
-$sql = "UPDATE Country SET photo = ? WHERE id = ?";
-$params = [$image_path, $country_id];
+$sql = "UPDATE Region SET photo = ? WHERE id = ?";
+$params = [$image_path, $region_id];
 $types = "si";
 $stmt = executeQuery($conn, $sql, $params, $types);
-if (checkInsertResult($stmt, $conn, 'Failed to update photo in country table.')) {
+if (checkInsertResult($stmt, $conn, 'Failed to update photo in region table.')) {
     $conn->close();
     $url = "https://www.navigay.me/" . $image_path;
     $json = ['result' => true, 'url' => $url];
