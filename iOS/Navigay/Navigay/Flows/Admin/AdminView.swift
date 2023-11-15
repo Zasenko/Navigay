@@ -88,15 +88,18 @@ struct AdminView: View {
                         }
                     }
                 }
-//                Section("Unchecked Cities") {
-//                    ForEach(viewModel.uncheckedCities) { city in
-//                        VStack {
-//                            Text("id \(city.id)")
-//                            Text("countryId \(city.countryId)")
-//                            Text(city.name ?? "")
-//                        }
-//                    }
-//                }
+                Section("Unchecked Cities") {
+                    ForEach(viewModel.uncheckedCities) { city in
+                        NavigationLink {
+                            EditCityView(viewModel: EditCityViewModel(city: city, errorManager: viewModel.errorManager, networkManager: viewModel.networkManager))
+                        } label: {
+                            VStack {
+                                Text("id \(city.id)")
+                                Text(city.nameOrigin ?? "")
+                            }
+                        }
+                    }
+                }
                 Section("Unchecked Countries") {
                     ForEach(viewModel.uncheckedCountries) { country in
                         NavigationLink {

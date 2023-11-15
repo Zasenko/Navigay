@@ -22,8 +22,8 @@ final class EditRegionViewModel: ObservableObject {
     @Published var nameEs: String
     @Published var namePt: String
     @Published var photo: Image?
-    @Published var isActive: Bool = false
-    @Published var isChecked: Bool = false
+    @Published var isActive: Bool
+    @Published var isChecked: Bool
     
     @Published var isLoading: Bool = false
     @Published var isLoadingPhoto: Bool = false
@@ -106,7 +106,7 @@ extension EditRegionViewModel {
                 let decodedResult = try await networkManager.updateRegionPhoto(regionId: id, uiImage: scaledImage)
                 guard decodedResult.result else {
                     errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: errorModel)
-                    return
+                    throw NetworkErrors.apiError
                 }
                 await MainActor.run {
                     self.isLoadingPhoto = false

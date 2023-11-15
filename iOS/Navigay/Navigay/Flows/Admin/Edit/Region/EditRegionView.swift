@@ -103,6 +103,7 @@ struct EditRegionView: View {
                     }
                 }
                 .disabled(viewModel.isLoadingPhoto)
+                .disabled(viewModel.isLoading)
             }
         }
     }

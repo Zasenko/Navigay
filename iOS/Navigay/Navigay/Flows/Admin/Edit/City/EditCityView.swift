@@ -1,22 +1,21 @@
 //
-//  EditCountryView.swift
+//  EditCityView.swift
 //  Navigay
 //
-//  Created by Dmitry Zasenko on 14.11.23.
+//  Created by Dmitry Zasenko on 15.11.23.
 //
 
 import SwiftUI
 
-struct EditCountryView: View {
+struct EditCityView: View {
     
     //MARK: - Private Properties
     
-    @StateObject private var viewModel: EditCountryViewModel
+    @StateObject private var viewModel: EditCityViewModel
     @Environment(\.dismiss) private var dismiss
-    
     //MARK: - Inits
-
-    init(viewModel: EditCountryViewModel) {
+    
+    init(viewModel: EditCityViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel)
     }
     
@@ -55,22 +54,21 @@ struct EditCountryView: View {
                         } onSave: { uiImage in
                             viewModel.loadImage(uiImage: uiImage)
                         } onDelete: {}
-                        NavigationLink {
-                            EditTextFieldView(text: viewModel.flagEmoji, characterLimit: 1, minHaracters: 1, title: "Flag emoji", placeholder: "Emoji") { string in
-                                viewModel.flagEmoji = string
+                        EditLibraryView(photos: $viewModel.photos, isLoading: $viewModel.isLoadingLibraryPhoto, width: proxy.size.width) { result in
+                            viewModel.loadLibraryPhoto(photoId: result.id, uiImage: result.uiImage)
+                        } onDelete: { id in
+                            if let id {
+                                viewModel.deleteLibraryPhoto(photoId: id)
                             }
-                        } label: {
-                            EditField(title: "Flag emoji", text: $viewModel.flagEmoji, emptyFieldColor: .red)
                         }
-                        .padding()
+                        .padding(.vertical)
                         NamesEditView(nameOrigin: $viewModel.nameOrigin, nameEn: $viewModel.nameEn, nameFr: $viewModel.nameFr, nameDe: $viewModel.nameDe, nameRu: $viewModel.nameRu, nameIt: $viewModel.nameIt, nameEs: $viewModel.nameEs, namePt: $viewModel.namePt)
                             .padding()
                         AboutEditView(languages: $viewModel.languages, about: $viewModel.about)
                             .padding()
-                        EditToggleField(toggle: $viewModel.showRegions, text: "Show regions")
-                            .padding(.vertical)
                         ActivationFieldsView(isActive: $viewModel.isActive, isChecked: $viewModel.isChecked)
                             .padding(.vertical)
+                            .padding(.bottom, 50)
                     }
                 }
                 .navigationBarBackButtonHidden()
@@ -78,7 +76,7 @@ struct EditCountryView: View {
                 .toolbarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .principal) {
-                        Text("\(viewModel.isoCountryCode): \(viewModel.nameOrigin)")
+                        Text(viewModel.nameOrigin)
                             .font(.headline.bold())
                     }
                     ToolbarItem(placement: .topBarLeading) {
@@ -116,6 +114,7 @@ struct EditCountryView: View {
                 }
                 .disabled(viewModel.isLoadingPhoto)
                 .disabled(viewModel.isLoading)
+                .disabled(viewModel.isLoadingLibraryPhoto)
             }
         }
     }
@@ -124,6 +123,78 @@ struct EditCountryView: View {
 #Preview {
     let errorManager = ErrorManager()
     let networkManager = AdminNetworkManager()
-    let country = AdminCountry(id: 0, isoCountryCode: "AT", nameOrigin: nil, nameEn: nil, nameFr: nil, nameDe: nil, nameRu: nil, nameIt: nil, nameEs: nil, namePt: nil, about: nil, flagEmoji: nil, photo: nil, showRegions: true, isActive: true, isChecked: true)
-    return EditCountryView(viewModel: EditCountryViewModel(country: country, errorManager: errorManager, networkManager: networkManager))
+    let city = AdminCity(id: 0, countryId: 0, regionId: 0, nameOrigin: nil, nameEn: nil, nameFr: nil, nameDe: nil, nameRu: nil, nameIt: nil, nameEs: nil, namePt: nil, about: nil, photo: nil, photos: nil, isActive: false, isChecked: false)
+    return EditCityView(viewModel: EditCityViewModel(city: city, errorManager: errorManager, networkManager: networkManager))
+}
+
+struct EditLibraryView: View {
+    
+    //MARK: - Properties
+    
+    var onSave: ((id: UUID, uiImage: UIImage)) -> Void
+    var onDelete: (UUID?) -> Void
+    
+    @Binding var photos: [Photo]
+    @Binding var isLoading: Bool
+    let width: CGFloat
+    
+    //MARK: - Private Properties
+
+    @State private var photoId: UUID = UUID()
+    @State private var gridLayout: [GridItem] = Array(repeating: GridItem(.flexible(), spacing: 2), count: 3)
+    
+       //MARK: - Inits
+    
+    init(photos: Binding<[Photo]>, isLoading: Binding<Bool>, width: CGFloat, onSave: @escaping ((id: UUID, uiImage: UIImage)) -> Void, onDelete: @escaping (UUID?) -> Void) {
+        _photos = photos
+        _isLoading = isLoading
+        self.width = width
+        self.onSave = onSave
+        self.onDelete = onDelete
+    }
+
+    //MARK: - Body
+    
+    var body: some View {
+        VStack {
+            HStack {
+                Text("Other photos")
+                    .font(.title3).bold()
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                if photos.count < 9 {
+                    PhotoEditView(canDelete: false) {
+                        Text("Add photo")
+                    } onSave: { uiImage in
+                        photoId = UUID()
+                        onSave((id: photoId, uiImage: uiImage))
+                    } onDelete: {}
+                }
+            }
+            .padding()
+            LazyVGrid(columns: gridLayout, spacing: 2) {
+                ForEach(photos) { photo in
+                    PhotoEditView(canDelete: true) {
+                        ZStack {
+                            photo.image
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: (width - 4) / 3,
+                                       height: (width - 4) / 3)
+                                .clipped()
+                                .opacity(isLoading && photoId == photo.id ? 0.2 : 1)
+                            if isLoading && photoId == photo.id {
+                                ProgressView()
+                                    .tint(.blue)
+                            }
+                        }
+                    } onSave: { uiImage in
+                        onSave((id: photo.id, uiImage: uiImage))
+                    } onDelete: {
+                        onDelete(photo.id)
+                    }
+                }
+            }
+        }
+    }
 }

@@ -56,7 +56,7 @@ struct PhotoEditView<Content: View>: View {
             } label: {
                 content()
             }
-            .sheet(isPresented: $showPicker) {
+            .fullScreenCover(isPresented: $showPicker) {
                 ImagePicker(selectedImage: $pickerImage)
             }
             .onChange(of: pickerImage) { oldValue, newValue in
