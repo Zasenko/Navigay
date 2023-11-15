@@ -21,7 +21,6 @@ struct AdminRegion: Identifiable, Codable {
     let photo: String?
     let isActive: Bool
     let isChecked: Bool
-    let lastUpdate: String
     
     enum CodingKeys: String, CodingKey {
         case id, photo
@@ -36,6 +35,5 @@ struct AdminRegion: Identifiable, Codable {
         case namePt = "name_pt"
         case isActive = "is_active"
         case isChecked = "is_checked"
-        case lastUpdate = "updated_at"
     }
 }
