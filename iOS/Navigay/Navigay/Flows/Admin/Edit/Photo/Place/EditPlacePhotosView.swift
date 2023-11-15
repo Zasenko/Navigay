@@ -116,7 +116,7 @@ struct EditPlacePhotosView: View {
         }
         .disabled(viewModel.libraryPhotoLoading)
         .sheet(isPresented: $viewModel.showLibraryPhotoPicker) {
-            ImagePicker(selectedImage: $viewModel.libraryPickerImage, sourceType: .photoLibrary)
+            ImagePicker(selectedImage: $viewModel.libraryPickerImage)
         }
     }
         
@@ -161,7 +161,7 @@ struct EditPlacePhotosView: View {
         }
         .disabled(viewModel.mainPhotoLoading)
         .sheet(isPresented: $viewModel.showMainPhotoPicker) {
-            ImagePicker(selectedImage: $viewModel.mainPhotoPickerImage, sourceType: .photoLibrary)
+            ImagePicker(selectedImage: $viewModel.mainPhotoPickerImage)
         }
     }
     
@@ -212,7 +212,7 @@ struct EditPlacePhotosView: View {
         }
         .disabled(viewModel.avatarLoading)
         .sheet(isPresented: $viewModel.showAvatarPhotoPicker) {
-            ImagePicker(selectedImage: $viewModel.avatarPickerImage, sourceType: .photoLibrary)
+            ImagePicker(selectedImage: $viewModel.avatarPickerImage)
         }
     }
 }

@@ -76,7 +76,7 @@ extension AddNewPlaceViewModel {
             guard let latitude else { return }
             guard let longitude else { return }
             
-            let about = about.map( { DecodedAbout(language: $0.language.rawValue, about: $0.about) } )
+            let about = about.map( { DecodedAbout(language: $0.language, about: $0.about) } )
             let tags = tags.map( { $0.rawValue} )
             let timetable = timetable.map( { PlaceWorkDay(day: $0.day, opening: $0.opening.format("HH:mm"), closing: $0.closing.format("HH:mm")) } )
             

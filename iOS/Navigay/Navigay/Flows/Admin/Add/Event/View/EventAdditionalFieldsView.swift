@@ -150,7 +150,6 @@ struct EventAdditionalFieldsView: View {
             }
         }
         .padding(.bottom, 40)
-        
     }
 
     private var TagsView: some View {

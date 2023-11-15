@@ -11,7 +11,7 @@ struct AdminCity: Identifiable, Codable {
     let id: Int
     let countryId: Int
     let regionId: Int
-    let name: String?
+    let nameOrigin: String?
     let nameEn: String?
     let nameFr: String?
     let nameDe: String?
@@ -27,9 +27,10 @@ struct AdminCity: Identifiable, Codable {
     let lastUpdate: String
     
     enum CodingKeys: String, CodingKey {
-        case id, name, about, photo, photos
+        case id, about, photo, photos
         case countryId = "country_id"
         case regionId = "region_id"
+        case nameOrigin = "name_origin"
         case nameEn = "name_en"
         case nameFr = "name_fr"
         case nameDe = "name_de"

@@ -8,6 +8,6 @@
 import Foundation
 
 struct DecodedAbout: Codable {
-    let language: String
+    let language: Language
     let about: String
 }

@@ -12,7 +12,7 @@ protocol PlaceNetworkManagerProtocol {
     func updateAvatar(placeId: Int, uiImage: UIImage) async throws -> ImageResult
     func updateMainPhoto(placeId: Int, uiImage: UIImage) async throws -> ImageResult
     func updateLibraryPhoto(placeId: Int, photoId: UUID, uiImage: UIImage) async throws -> ImageResult
-    func deleteLibraryPhoto(placeId: Int, photoId: UUID) async throws -> DeleteResult
+    func deleteLibraryPhoto(placeId: Int, photoId: UUID) async throws -> ApiResult
    // func addAdditionalInfoToPlace(place: PlaceAdditionalInfo) async throws -> NewPlaceResult
     //func addNewPlace(place: NewPlace, uiImageSmall: UIImage?, uiImageBig: UIImage?) async throws -> DecodedPlace
 }
@@ -156,7 +156,7 @@ extension PlaceNetworkManager: PlaceNetworkManagerProtocol {
         }
     }
     
-    func deleteLibraryPhoto(placeId: Int, photoId: UUID) async throws -> DeleteResult {
+    func deleteLibraryPhoto(placeId: Int, photoId: UUID) async throws -> ApiResult {
         let path = "/api/place/delete-library-photo.php"
         var urlComponents: URLComponents {
             var components = URLComponents()
@@ -175,7 +175,6 @@ extension PlaceNetworkManager: PlaceNetworkManagerProtocol {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-
         do {
             let requestData = try JSONSerialization.data(withJSONObject: parameters)
             request.httpBody = requestData
@@ -183,7 +182,7 @@ extension PlaceNetworkManager: PlaceNetworkManagerProtocol {
             guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
                 throw NetworkErrors.invalidData
             }
-            guard let decodedResult = try? JSONDecoder().decode(DeleteResult.self, from: data) else {
+            guard let decodedResult = try? JSONDecoder().decode(ApiResult.self, from: data) else {
                 throw NetworkErrors.decoderError
             }
             return decodedResult
@@ -204,18 +203,14 @@ extension PlaceNetworkManager {
             throw NetworkErrors.imageDataError
         }
         body.append("--\(boundary)\r\n".data(using: .utf8)!)
-        
         body.append("Content-Disposition: form-data; name=\"place_id\"\r\n\r\n".data(using: .utf8)!)
         body.append("\(placeId)\r\n".data(using: .utf8)!)
         body.append("\r\n".data(using: .utf8)!)
-        
         body.append("--\(boundary)\r\n".data(using: .utf8)!)
-        
         body.append("Content-Disposition: form-data; name=\"image\"; filename=\"image.jpg\"\r\n".data(using: .utf8)!)
         body.append("Content-Type: image/jpeg\r\n\r\n".data(using: .utf8)!)
         body.append(imageData)
         body.append("\r\n".data(using: .utf8)!)
-        
         body.append("--\(boundary)--\r\n".data(using: .utf8)!)
         return body
     }
@@ -241,24 +236,4 @@ extension PlaceNetworkManager {
         body.append("--\(boundary)--\r\n".data(using: .utf8)!)
         return body
     }
-    
-//    private func createBodyLibraryImageDelete(placeId: Int, photoId: UUID, boundary: String) async throws -> Data {
-//        var body = Data()
-//        body.append("--\(boundary)\r\n".data(using: .utf8)!)
-//        body.append("Content-Disposition: form-data; name=\"place_id\"\r\n\r\n".data(using: .utf8)!)
-//        body.append("\(placeId)\r\n".data(using: .utf8)!)
-//        body.append("\r\n".data(using: .utf8)!)
-//        body.append("--\(boundary)\r\n".data(using: .utf8)!)
-//        body.append("Content-Disposition: form-data; name=\"photo_id\"\r\n\r\n".data(using: .utf8)!)
-//        body.append("\(photoId)\r\n".data(using: .utf8)!)
-//        body.append("\r\n".data(using: .utf8)!)
-//        body.append("--\(boundary)--\r\n".data(using: .utf8)!)
-//        return body
-//    }
-    
-//    private func encodeData(string: String) throws -> Data {
-//        guard let data = string.data(using: .utf8) else {
-//            throw NetworkErrors.bodyEncoderError
-//        }
-//    }
 }

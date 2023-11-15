@@ -10,7 +10,7 @@ import Foundation
 struct AdminRegion: Identifiable, Codable {
     let id: Int
     let countryId: Int
-    let name: String?
+    let nameOrigin: String?
     let nameEn: String?
     let nameFr: String?
     let nameDe: String?
@@ -24,8 +24,9 @@ struct AdminRegion: Identifiable, Codable {
     let lastUpdate: String
     
     enum CodingKeys: String, CodingKey {
-        case id, name, photo
+        case id, photo
         case countryId = "country_id"
+        case nameOrigin = "name_origin"
         case nameEn = "name_en"
         case nameFr = "name_fr"
         case nameDe = "name_de"
