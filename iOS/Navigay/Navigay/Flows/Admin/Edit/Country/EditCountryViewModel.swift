@@ -112,11 +112,10 @@ extension EditCountryViewModel {
     
     private func updateImage(uiImage: UIImage, previousImage: Image?) {
         Task {
-            let scaledImage = uiImage.cropImage(maxWidth: 750, maxHeight: 750)
-            let scaledImageSmall = uiImage.cropImage(maxWidth: 350, maxHeight: 350)
+            let scaledImage = uiImage.cropImage(width: 600, height: 750)
             let errorModel = ErrorModel(massage: "Something went wrong. The photo didn't load. Please try again later.", img: Image(systemName: "photo.fill"), color: .red)
             do {
-                let decodedResult = try await networkManager.updateCountryPhoto(countryId: id, uiImage: uiImage)
+                let decodedResult = try await networkManager.updateCountryPhoto(countryId: id, uiImage: scaledImage)
                 guard decodedResult.result else {
                     errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: errorModel)
                     return
