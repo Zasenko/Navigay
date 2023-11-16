@@ -22,7 +22,6 @@ function executeQuery($conn, $sql, $params, $types)
     $stmt = $conn->prepare($sql);
     if (!$stmt) {
         $error = $conn->error;
-        $stmt->close();
         $conn->close();
         sendError('Failed to prepare SQL statement: ' . $error);
     }

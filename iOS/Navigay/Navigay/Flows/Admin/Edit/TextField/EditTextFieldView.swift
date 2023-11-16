@@ -41,9 +41,6 @@ struct EditTextFieldView: View {
             VStack(spacing: 0) {
                 Divider()
                 TextField(placeholder, text: $text)
-                    .keyboardType(.emailAddress)
-                    .font(.body)
-                    .lineSpacing(5)
                     .focused($focused)
                     .onChange(of: text, initial: true) { oldValue, newValue in
                         text = String(newValue.prefix(characterLimit))

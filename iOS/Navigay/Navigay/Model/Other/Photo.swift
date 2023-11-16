@@ -7,7 +7,8 @@
 
 import SwiftUI
 
-struct Photo: Identifiable {
+struct Photo: Identifiable, Equatable {
+    
     let id: UUID
     var image: Image
         
@@ -18,5 +19,9 @@ struct Photo: Identifiable {
     
     mutating func updateImage(image: Image) {
         self.image = image
+    }
+    
+    static func ==(lhs: Photo, rhs: Photo) -> Bool {
+        return lhs.id == rhs.id
     }
 }

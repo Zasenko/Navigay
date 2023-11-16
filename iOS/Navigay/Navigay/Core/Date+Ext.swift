@@ -55,6 +55,11 @@ extension Date {
         return Calendar.current.compare(self, to: .init(), toGranularity: .hour) == .orderedAscending
     }
     
+    /// next day from date
+    var nextDay: Date? {
+        return Calendar.current.date(byAdding: .day, value: 1, to: self)
+    }
+    
     /// Checking if the date is Same Day with other Date
     func isSameDayWithOtherDate(_ date: Date) -> Bool {
         return Calendar.current.isDate(self, inSameDayAs: date)

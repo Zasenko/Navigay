@@ -100,11 +100,10 @@ struct EditPhoneView: View {
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Готово") {
-                        onSave("\(countryCode) \(mobPhoneNumber)")
+                        onSave(mobPhoneNumber.isEmpty ? "" : "\(countryCode) \(mobPhoneNumber)")
                         dismiss()
                     }
                     .bold()
-                    .disabled(mobPhoneNumber.count < 5)
                 }
             }
             .onTapGesture {

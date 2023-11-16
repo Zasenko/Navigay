@@ -98,17 +98,17 @@ $latitude = isset($decodedPlace["latitude"]) ? floatval($decodedPlace["latitude"
 $email = isset($decodedPlace["email"]) ? htmlspecialchars($decodedPlace["email"]) : null;
 $phone = isset($decodedPlace["phone"]) ? htmlspecialchars($decodedPlace["phone"]) : null;
 $www = isset($decodedPlace["www"]) ? htmlspecialchars($decodedPlace["www"]) : null;
-$fb = isset($decodedPlace["facebook"]) ? htmlspecialchars($decodedPlace["facebook"]) : null;
-$insta = isset($decodedPlace["instagram"]) ? htmlspecialchars($decodedPlace["instagram"]) : null;
+$facebook = isset($decodedPlace["facebook"]) ? htmlspecialchars($decodedPlace["facebook"]) : null;
+$instagram = isset($decodedPlace["instagram"]) ? htmlspecialchars($decodedPlace["instagram"]) : null;
 $about = isset($decodedPlace["about"]) ? json_encode($decodedPlace["about"]) : null;
 $tags = isset($decodedPlace["tags"]) ? json_encode($decodedPlace["tags"]) : null;
 $timetable = isset($decodedPlace["timetable"]) ? json_encode($decodedPlace["timetable"]) : null;
-$otherInfo = isset($decodedPlace["otherInfo"]) ? htmlspecialchars($decodedPlace["otherInfo"]) : null;
+$other_info = isset($decodedPlace["otherInfo"]) ? htmlspecialchars($decodedPlace["otherInfo"]) : null;
 
-$ownerId = isset($decodedPlace["ownerId"]) ? intval($decodedPlace["ownerId"]) : null;
+$owner_id = isset($decodedPlace["ownerId"]) ? intval($decodedPlace["ownerId"]) : null;
 
-$isActive = isset($decodedPlace["isActive"]) ? boolval($decodedPlace["isActive"]) : false;
-$isChecked = isset($decodedPlace["isChecked"]) ? boolval($decodedPlace["isChecked"]) : false;
+$is_active = isset($decodedPlace["isActive"]) ? boolval($decodedPlace["isActive"]) : false;
+$is_checked = isset($decodedPlace["isChecked"]) ? boolval($decodedPlace["isChecked"]) : false;
 
 require_once('../dbconfig.php');
 
@@ -116,8 +116,8 @@ $country_id = getOrCreateCountryId($conn, $isoCountryCode, $country_name, $count
 $region_id = getOrCreateRegionId($conn, $country_id, $region_name, $region_name_eng);
 $city_id = getOrCreateCityId($conn, $country_id, $region_id, $city_name, $city_name_en);
 
-$sql = "INSERT INTO Place (name, type_id, country_id, region_id, city_id, address, latitude, longitude, email, phone, www, fb, insta, about, tags, timetable, other_info, owner_id, is_active, is_checked) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-$params = [$name, $type_id, $country_id, $region_id, $city_id, $address, $latitude, $longitude, $email, $phone, $www, $fb, $insta, $about, $tags, $timetable, $otherInfo, $ownerId, $isActive, $isChecked];
+$sql = "INSERT INTO Place (name, type_id, country_id, region_id, city_id, address, latitude, longitude, email, phone, www, facebook, instagram, about, tags, timetable, other_info, owner_id, is_active, is_checked) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+$params = [$name, $type_id, $country_id, $region_id, $city_id, $address, $latitude, $longitude, $email, $phone, $www, $facebook, $instagram, $about, $tags, $timetable, $other_info, $owner_id, $is_active, $is_checked];
 $types = "siiiisddsssssssssiii";
 $stmt = executeQuery($conn, $sql, $params, $types);
 
