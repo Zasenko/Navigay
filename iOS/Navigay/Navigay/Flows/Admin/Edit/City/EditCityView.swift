@@ -30,12 +30,21 @@ struct EditCityView: View {
                         PhotoEditView(canDelete: false) {
                             ZStack {
                                 if let photo = viewModel.photo {
-                                    photo
-                                        .resizable()
-                                        .scaledToFill()
-                                        .frame(width: proxy.size.width, height: (proxy.size.width / 4) * 5)
-                                        .clipped()
+                                    if let image = photo.image {
+                                        image
+                                            .resizable()
+                                            .scaledToFill()
+                                            .frame(width: proxy.size.width, height: (proxy.size.width / 4) * 5)
+                                            .clipped()
+                                            .opacity(viewModel.isLoadingPhoto ? 0.2 : 1)
+                                    } else if let url = photo.url {
+                                        ImageLoadingView(url: url, width: proxy.size.width, height: (proxy.size.width / 4) * 5, contentMode: .fit) {
+                                            Color.red
+                                        }
                                         .opacity(viewModel.isLoadingPhoto ? 0.2 : 1)
+                                    } else {
+                                        Color.black
+                                    }
                                 } else {
                                     AppImages.iconCamera
                                         .resizable()
@@ -125,4 +134,48 @@ struct EditCityView: View {
     let networkManager = AdminNetworkManager()
     let city = AdminCity(id: 0, countryId: 0, regionId: 0, nameOrigin: nil, nameEn: nil, nameFr: nil, nameDe: nil, nameRu: nil, nameIt: nil, nameEs: nil, namePt: nil, about: nil, photo: nil, photos: nil, isActive: false, isChecked: false)
     return EditCityView(viewModel: EditCityViewModel(city: city, errorManager: errorManager, networkManager: networkManager))
+}
+
+
+struct ImageLoadingView<Content: View>: View {
+    
+    //MARK: - Properties
+    
+    let loadView: () -> Content  //загрузка
+    
+    
+    @State private var image: Image?
+    let url: String
+    let width: CGFloat
+    let height: CGFloat
+    let contentMode: ContentMode
+    
+    init(url: String, width: CGFloat, height: CGFloat, contentMode: ContentMode, @ViewBuilder content: @escaping () -> Content) {
+        self.loadView = content
+        self.url = url
+        self.width = width
+        self.height = height
+        self.contentMode = contentMode
+    }
+    
+    var body: some View {
+        Group {
+            if let image = image  {
+                image
+                    .resizable()
+                    .aspectRatio(contentMode: contentMode)
+                    .frame(width: width, height: height)
+                    .clipped()
+            } else {
+                loadView()
+                    .onAppear() {
+                        Task {
+                            if let image = await ImageLoader.shared.loadImage(urlString: url) {
+                                self.image = image
+                            }
+                        }
+                    }
+            }
+        }.frame(width: width, height: height)
+    }
 }

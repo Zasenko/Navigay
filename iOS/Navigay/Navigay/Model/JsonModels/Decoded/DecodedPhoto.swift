@@ -8,6 +8,6 @@
 import Foundation
 
 struct DecodedPhoto: Identifiable, Codable {
-    let id: UUID
+    let id: String
     let url: String
 }

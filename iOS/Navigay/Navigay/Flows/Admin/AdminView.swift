@@ -76,14 +76,58 @@ struct AdminView: View {
 //                        }
 //                    }
 //                }
+                Section("Unchecked Countries") {
+                    ForEach(viewModel.uncheckedCountries) { country in
+                        NavigationLink {
+                            EditCountryView(viewModel: EditCountryViewModel(country: country, errorManager: viewModel.errorManager, networkManager: viewModel.networkManager))
+                        } label: {
+                            HStack(spacing: 10) {
+                                if let url = country.photo {
+                                    ImageLoadingView(url: url, width: 80, height: 80, contentMode: .fill) {
+                                        Color.red
+                                    }
+                                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                                } else {
+                                    Color.clear
+                                        .frame(width: 80, height: 80)
+                                }
+                                VStack(alignment: .leading, spacing: 10) {
+                                    Text("id: \(country.id), code: \(country.isoCountryCode)")
+                                        .font(.callout)
+                                        .foregroundStyle(.secondary)
+                                    Text(country.nameOrigin ?? "")
+                                        .font(.headline)
+                                        .bold()
+                                }
+                            }
+                        }
+                    }
+                }
                 Section("Unchecked Regions") {
                     ForEach(viewModel.uncheckedRegions) { region in
                         NavigationLink {
                             EditRegionView(viewModel: EditRegionViewModel(region: region, errorManager: viewModel.errorManager, networkManager: viewModel.networkManager))
                         } label: {
                             VStack {
-                                Text("id \(region.id)")
-                                Text(region.nameOrigin ?? "")
+                                HStack(spacing: 10) {
+                                    if let url = region.photo {
+                                        ImageLoadingView(url: url, width: 80, height: 80, contentMode: .fill) {
+                                            Color.red
+                                        }
+                                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                                    } else {
+                                        Color.clear
+                                            .frame(width: 80, height: 80)
+                                    }
+                                    VStack(alignment: .leading, spacing: 10) {
+                                        Text("id \(region.id)")
+                                            .font(.callout)
+                                            .foregroundStyle(.secondary)
+                                        Text(region.nameOrigin ?? "")
+                                            .font(.headline)
+                                            .bold()
+                                    }
+                                }
                             }
                         }
                     }
@@ -96,19 +140,6 @@ struct AdminView: View {
                             VStack {
                                 Text("id \(city.id)")
                                 Text(city.nameOrigin ?? "")
-                            }
-                        }
-                    }
-                }
-                Section("Unchecked Countries") {
-                    ForEach(viewModel.uncheckedCountries) { country in
-                        NavigationLink {
-                            EditCountryView(viewModel: EditCountryViewModel(country: country, errorManager: viewModel.errorManager, networkManager: viewModel.networkManager))
-                        } label: {
-                            VStack {
-                                Text("id \(country.id)")
-                                Text(country.isoCountryCode)
-                                Text(country.nameOrigin ?? "")
                             }
                         }
                     }

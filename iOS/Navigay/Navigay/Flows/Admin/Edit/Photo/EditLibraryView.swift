@@ -11,21 +11,21 @@ struct EditLibraryView: View {
     
     //MARK: - Properties
     
-    var onSave: ((id: UUID, uiImage: UIImage)) -> Void
-    var onDelete: (UUID?) -> Void
+    var onSave: ((id: String, uiImage: UIImage)) -> Void
+    var onDelete: (String?) -> Void
     
-    @Binding var photos: [Photo]
+    @Binding var photos: [AdminPhoto]
     @Binding var isLoading: Bool
     let width: CGFloat
     
     //MARK: - Private Properties
     
-    @State private var photoId: UUID = UUID()
+    @State private var photoId: String = UUID().uuidString
     @State private var gridLayout: [GridItem] = Array(repeating: GridItem(.flexible(), spacing: 2), count: 3)
     
     //MARK: - Inits
     
-    init(photos: Binding<[Photo]>, isLoading: Binding<Bool>, width: CGFloat, onSave: @escaping ((id: UUID, uiImage: UIImage)) -> Void, onDelete: @escaping (UUID?) -> Void) {
+    init(photos: Binding<[AdminPhoto]>, isLoading: Binding<Bool>, width: CGFloat, onSave: @escaping ((id: String, uiImage: UIImage)) -> Void, onDelete: @escaping (String?) -> Void) {
         _photos = photos
         _isLoading = isLoading
         self.width = width
@@ -46,7 +46,7 @@ struct EditLibraryView: View {
                     PhotoEditView(canDelete: false) {
                         Text("Add photo")
                     } onSave: { uiImage in
-                        photoId = UUID()
+                        photoId = UUID().uuidString
                         onSave((id: photoId, uiImage: uiImage))
                     } onDelete: {}
                 }
@@ -56,13 +56,22 @@ struct EditLibraryView: View {
                 ForEach(photos) { photo in
                     PhotoEditView(canDelete: true) {
                         ZStack {
-                            photo.image
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: (width - 4) / 3,
-                                       height: (width - 4) / 3)
-                                .clipped()
+                            if let image = photo.image {
+                                image
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: (width - 4) / 3,
+                                           height: (width - 4) / 3)
+                                    .clipped()
+                                    .opacity(isLoading && photoId == photo.id ? 0.2 : 1)
+                            } else if let url = photo.url {
+                                ImageLoadingView(url: url, width: (width - 4) / 3, height: (width - 4) / 3, contentMode: .fill) {
+                                    AppColors.lightGray6 //TODO animation
+                                }
                                 .opacity(isLoading && photoId == photo.id ? 0.2 : 1)
+                            } else {
+                                Color.black
+                            }   
                             if isLoading && photoId == photo.id {
                                 ProgressView()
                                     .tint(.blue)

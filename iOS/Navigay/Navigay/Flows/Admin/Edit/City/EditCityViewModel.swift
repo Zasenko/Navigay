@@ -9,6 +9,32 @@ import SwiftUI
 
 import SwiftUI
 
+struct AdminPhoto: Identifiable, Equatable {
+    
+    let id: String
+    var image: Image?
+    let url: String?
+    
+        
+    init?(id: String, image: Image?, url: String?) {
+        if image == nil && url == nil {
+            return nil
+        }
+        self.id = id
+        self.image = image
+        self.url = url
+    }
+    
+    mutating func updateImage(image: Image) {
+        self.image = image
+    }
+    
+    static func ==(lhs: AdminPhoto, rhs: AdminPhoto) -> Bool {
+        return lhs.id == rhs.id
+    }
+}
+
+
 final class EditCityViewModel: ObservableObject {
     
     //MARK: - Properties
@@ -21,8 +47,8 @@ final class EditCityViewModel: ObservableObject {
     @Published var nameIt: String
     @Published var nameEs: String
     @Published var namePt: String
-    @Published var photo: Image?
-    @Published var photos: [Photo]
+    @Published var photo: AdminPhoto?
+    @Published var photos: [AdminPhoto]
     @Published var languages: [Language]
     @Published var about: [NewPlaceAbout]
     @Published var isActive: Bool
@@ -65,8 +91,13 @@ final class EditCityViewModel: ObservableObject {
         self.languages = Language.allCases.filter { !existingLanguages.contains($0) }
         self.isActive = city.isActive
         self.isChecked = city.isChecked
-        self.photos = []// [Photo(id: UUID(), image: Image("1")), Photo(id: UUID(), image: Image("2"))]
-        //photo photos!
+        self.photo = AdminPhoto(id: UUID().uuidString, image: nil, url: city.photo)
+        if let photos = city.photos, !photos.isEmpty {
+            let a = photos.compactMap( { AdminPhoto(id: $0.id, image: nil, url: $0.url)})
+            self.photos = a
+        } else {
+            self.photos = []
+        }
     }
 }
 
@@ -110,24 +141,26 @@ extension EditCityViewModel {
     func loadImage(uiImage: UIImage) {
         isLoadingPhoto = true
         let previousImage = photo
-        photo = Image(uiImage: uiImage)
+        photo = AdminPhoto(id: UUID().uuidString, image: Image(uiImage: uiImage), url: nil)
         updateImage(uiImage: uiImage, previousImage: previousImage)
     }
     
-    func loadLibraryPhoto(photoId: UUID, uiImage: UIImage) {
+    func loadLibraryPhoto(photoId: String, uiImage: UIImage) {
         isLoadingLibraryPhoto = true
         var previousImage: Image? = nil
         if let index = photos.firstIndex(where: { $0.id == photoId }) {
             previousImage = photos[index].image
             photos[index].updateImage(image: Image(uiImage: uiImage))
         } else {
-            let photo = Photo(id: photoId, image: Image(uiImage: uiImage))
+            guard let photo = AdminPhoto(id: photoId, image: Image(uiImage: uiImage), url: nil) else {
+                return
+            }
             photos.append(photo)
         }
         updateLibraryPhoto(photoId: photoId, uiImage: uiImage, previousImage: previousImage)
     }
     
-    func deleteLibraryPhoto(photoId: UUID) {
+    func deleteLibraryPhoto(photoId: String) {
         isLoadingLibraryPhoto = true
         Task {
             do {
@@ -154,7 +187,7 @@ extension EditCityViewModel {
     
     //MARK: - Private Functions
     
-    private func updateImage(uiImage: UIImage, previousImage: Image?) {
+    private func updateImage(uiImage: UIImage, previousImage: AdminPhoto?) {
         Task {
             let scaledImage = uiImage.cropImage(width: 600, height: 750)
             let errorModel = ErrorModel(massage: "Something went wrong. The photo didn't load. Please try again later.", img: Image(systemName: "photo.fill"), color: .red)
@@ -178,7 +211,7 @@ extension EditCityViewModel {
         }
     }
     
-    private func updateLibraryPhoto(photoId: UUID, uiImage: UIImage, previousImage: Image?) {
+    private func updateLibraryPhoto(photoId: String, uiImage: UIImage, previousImage: Image?) {
         Task {
             let scaledImage = uiImage.cropImage(width: 600, height: 750)
             do {
