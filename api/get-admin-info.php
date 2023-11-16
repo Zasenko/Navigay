@@ -34,10 +34,12 @@ while ($row = $result->fetch_assoc()) {
     $show_regions = (bool)$row['show_regions'];
     $is_active = (bool)$row['is_active'];
     $is_checked = (bool)$row['is_checked'];
+    $photo = $row['photo'];
+    $photo_url = isset($photo) ? "https://www.navigay.me/" . $photo : null;
     $country = array(
         'id' => $row['id'],
         'isoCountryCode' => $row["isoCountryCode"],
-        'name' => $row['name_origin'],
+        'name_origin' => $row['name_origin'],
         'name_en' => $row['name_en'],
         'name_fr' => $row['name_fr'],
         'name_de' => $row['name_de'],
@@ -47,16 +49,14 @@ while ($row = $result->fetch_assoc()) {
         'name_pt' => $row['name_pt'],
         'about' => $about_data,
         'flag_emoji' => $row['flag_emoji'],
-        'photo' => $row['photo'],
+        'photo' => $photo_url,
         'show_regions' => $show_regions,
         'is_active' => $is_active,
         'is_checked' => $is_checked,
-        'updated_at' => $row['updated_at'],
     );
     array_push($countries, $country);
 }
 
-//------------
 $sql = "SELECT * FROM Region WHERE is_checked = false";
 $stmt = $conn->prepare($sql);
 if (!$stmt) {
@@ -78,7 +78,7 @@ while ($row = $result->fetch_assoc()) {
     $region = array(
         'id' => $row['id'],
         'country_id' => $row["country_id"],
-        'name' => $row['name_origin'],
+        'name_origin' => $row['name_origin'],
         'name_en' => $row['name_en'],
         'name_fr' => $row['name_fr'],
         'name_de' => $row['name_de'],
@@ -89,7 +89,6 @@ while ($row = $result->fetch_assoc()) {
         'photo' => $row['photo'],
         'is_active' => $is_active,
         'is_checked' => $is_checked,
-        'updated_at' => $row['updated_at'],
     );
     array_push($regions, $region);
 }
@@ -115,12 +114,29 @@ while ($row = $result->fetch_assoc()) {
     $is_active = (bool)$row['is_active'];
     $is_checked = (bool)$row['is_checked'];
     $about_data = json_decode($row['about'], true);
+
+    $photo = $row['photo'];
+    $photo_url = isset($photo) ? "https://www.navigay.me/" . $photo : null;
+
     $photos = json_decode($row['photos'], true);
+    $library_photos = array();
+
+    if (is_array($photos)) {
+        foreach ($photos as $photoData) {
+            if (isset($photoData['url']) && && isset($photoData['id'])) {
+                $library_photo = array(
+                    'id' => strval($photoData['id']),
+                    'url' => "https://www.navigay.me/" . $photoData['url']
+                );
+                array_push($library_photos, $library_photo);
+            }
+        }
+    }
     $city = array(
         'id' => $row['id'],
         'country_id' => $row["country_id"],
         'region_id' => $row['region_id'],
-        'name' => $row['name_origin'],
+        'name_origin' => $row['name_origin'],
         'name_en' => $row['name_en'],
         'name_fr' => $row['name_fr'],
         'name_de' => $row['name_de'],
@@ -129,11 +145,10 @@ while ($row = $result->fetch_assoc()) {
         'name_es' => $row['name_es'],
         'name_pt' => $row['name_pt'],
         'about' => $about_data,
-        'photo' => $row['photo'],
-        'photos' => $photos,
+        'photo' => $photo_url,
+        'photos' => $library_photos,
         'is_active' => $is_active,
         'is_checked' => $is_checked,
-        'updated_at' => $row['updated_at'],
     );
     array_push($cities, $city);
 }
@@ -186,7 +201,6 @@ while ($row = $result->fetch_assoc()) {
         'owner_id' => $row['owner_id'],
         'is_active' => $is_active,
         'is_checked' => $is_checked,
-        'updated_at' => $row['updated_at'],
     );
     array_push($places, $place);
 }

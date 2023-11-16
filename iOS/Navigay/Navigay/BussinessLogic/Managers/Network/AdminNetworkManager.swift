@@ -15,8 +15,8 @@ protocol AdminNetworkManagerProtocol {
     func updateRegionPhoto(regionId: Int, uiImage: UIImage) async throws -> ImageResult
     func updateCity(city: AdminCity) async throws -> ApiResult
     func updateCityPhoto(cityId: Int, uiImage: UIImage) async throws -> ImageResult
-    func updateCityLibraryPhoto(cityId: Int, photoId: UUID, uiImage: UIImage) async throws -> ImageResult
-    func deleteCityLibraryPhoto(cityId: Int, photoId: UUID) async throws -> ApiResult
+    func updateCityLibraryPhoto(cityId: Int, photoId: String, uiImage: UIImage) async throws -> ImageResult
+    func deleteCityLibraryPhoto(cityId: Int, photoId: String) async throws -> ApiResult
 }
 
 final class AdminNetworkManager {
@@ -246,7 +246,7 @@ extension AdminNetworkManager: AdminNetworkManagerProtocol {
         }
     }
     
-    func updateCityLibraryPhoto(cityId: Int, photoId: UUID, uiImage: UIImage) async throws -> ImageResult {
+    func updateCityLibraryPhoto(cityId: Int, photoId: String, uiImage: UIImage) async throws -> ImageResult {
         let path = "/api/admin/update-city-library-photo.php"
         var urlComponents: URLComponents {
             var components = URLComponents()
@@ -277,7 +277,7 @@ extension AdminNetworkManager: AdminNetworkManagerProtocol {
         }
     }
     
-    func deleteCityLibraryPhoto(cityId: Int, photoId: UUID) async throws -> ApiResult {
+    func deleteCityLibraryPhoto(cityId: Int, photoId: String) async throws -> ApiResult {
         let path = "/api/admin/delete-city-library-photo.php"
         var urlComponents: URLComponents {
             var components = URLComponents()
@@ -291,7 +291,7 @@ extension AdminNetworkManager: AdminNetworkManagerProtocol {
         }
         let parameters: [String: Any] = [
             "id": cityId,
-            "photo_id": photoId.uuidString
+            "photo_id": photoId
         ]
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
@@ -335,7 +335,7 @@ extension AdminNetworkManager {
         return body
     }
     
-    private func createBodyLibraryImageUpdating(image: UIImage, cityId: Int, photoId: UUID, boundary: String) async throws -> Data {
+    private func createBodyLibraryImageUpdating(image: UIImage, cityId: Int, photoId: String, boundary: String) async throws -> Data {
         var body = Data()
         guard let imageData = image.jpegData(compressionQuality: 0.8) else {
             throw NetworkErrors.imageDataError

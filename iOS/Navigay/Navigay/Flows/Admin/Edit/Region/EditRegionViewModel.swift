@@ -21,7 +21,7 @@ final class EditRegionViewModel: ObservableObject {
     @Published var nameIt: String
     @Published var nameEs: String
     @Published var namePt: String
-    @Published var photo: Image?
+    @Published var photo: AdminPhoto?
     @Published var isActive: Bool
     @Published var isChecked: Bool
     
@@ -48,6 +48,7 @@ final class EditRegionViewModel: ObservableObject {
         self.nameIt = region.nameIt ?? ""
         self.nameEs = region.nameEs ?? ""
         self.namePt = region.namePt ?? ""
+        self.photo = AdminPhoto(id: UUID().uuidString, image: nil, url: region.photo)
         self.isActive = region.isActive
         self.isChecked = region.isChecked
         
@@ -92,13 +93,13 @@ extension EditRegionViewModel {
     func loadImage(uiImage: UIImage) {
         isLoadingPhoto = true
         let previousImage = photo
-        photo = Image(uiImage: uiImage)
+        photo = AdminPhoto(id: UUID().uuidString, image: Image(uiImage: uiImage), url: nil)
         updateImage(uiImage: uiImage, previousImage: previousImage)
     }
     
     //MARK: - Private Functions
     
-    private func updateImage(uiImage: UIImage, previousImage: Image?) {
+    private func updateImage(uiImage: UIImage, previousImage: AdminPhoto?) {
         Task {
             let scaledImage = uiImage.cropImage(width: 600, height: 750)
             let errorModel = ErrorModel(massage: "Something went wrong. The photo didn't load. Please try again later.", img: Image(systemName: "photo.fill"), color: .red)

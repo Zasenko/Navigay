@@ -31,12 +31,21 @@ struct EditCountryView: View {
                         PhotoEditView(canDelete: false) {
                             ZStack {
                                 if let photo = viewModel.photo {
-                                    photo
-                                        .resizable()
-                                        .scaledToFill()
-                                        .frame(width: proxy.size.width, height: (proxy.size.width / 4) * 5)
-                                        .clipped()
+                                    if let image = photo.image {
+                                        image
+                                            .resizable()
+                                            .scaledToFill()
+                                            .frame(width: proxy.size.width, height: (proxy.size.width / 4) * 5)
+                                            .clipped()
+                                            .opacity(viewModel.isLoadingPhoto ? 0.2 : 1)
+                                    } else if let url = photo.url {
+                                        ImageLoadingView(url: url, width: proxy.size.width, height: (proxy.size.width / 4) * 5, contentMode: .fill) {
+                                            Color.red
+                                        }
                                         .opacity(viewModel.isLoadingPhoto ? 0.2 : 1)
+                                    } else {
+                                        Color.black
+                                    }
                                 } else {
                                     AppImages.iconCamera
                                         .resizable()

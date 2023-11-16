@@ -30,12 +30,21 @@ struct EditCityView: View {
                         PhotoEditView(canDelete: false) {
                             ZStack {
                                 if let photo = viewModel.photo {
-                                    photo
-                                        .resizable()
-                                        .scaledToFill()
-                                        .frame(width: proxy.size.width, height: (proxy.size.width / 4) * 5)
-                                        .clipped()
+                                    if let image = photo.image {
+                                        image
+                                            .resizable()
+                                            .scaledToFill()
+                                            .frame(width: proxy.size.width, height: (proxy.size.width / 4) * 5)
+                                            .clipped()
+                                            .opacity(viewModel.isLoadingPhoto ? 0.2 : 1)
+                                    } else if let url = photo.url {
+                                        ImageLoadingView(url: url, width: proxy.size.width, height: (proxy.size.width / 4) * 5, contentMode: .fit) {
+                                            Color.red
+                                        }
                                         .opacity(viewModel.isLoadingPhoto ? 0.2 : 1)
+                                    } else {
+                                        Color.black
+                                    }
                                 } else {
                                     AppImages.iconCamera
                                         .resizable()
@@ -127,74 +136,46 @@ struct EditCityView: View {
     return EditCityView(viewModel: EditCityViewModel(city: city, errorManager: errorManager, networkManager: networkManager))
 }
 
-struct EditLibraryView: View {
+
+struct ImageLoadingView<Content: View>: View {
     
     //MARK: - Properties
     
-    var onSave: ((id: UUID, uiImage: UIImage)) -> Void
-    var onDelete: (UUID?) -> Void
+    let loadView: () -> Content  //загрузка
     
-    @Binding var photos: [Photo]
-    @Binding var isLoading: Bool
+    
+    @State private var image: Image?
+    let url: String
     let width: CGFloat
+    let height: CGFloat
+    let contentMode: ContentMode
     
-    //MARK: - Private Properties
-
-    @State private var photoId: UUID = UUID()
-    @State private var gridLayout: [GridItem] = Array(repeating: GridItem(.flexible(), spacing: 2), count: 3)
-    
-       //MARK: - Inits
-    
-    init(photos: Binding<[Photo]>, isLoading: Binding<Bool>, width: CGFloat, onSave: @escaping ((id: UUID, uiImage: UIImage)) -> Void, onDelete: @escaping (UUID?) -> Void) {
-        _photos = photos
-        _isLoading = isLoading
+    init(url: String, width: CGFloat, height: CGFloat, contentMode: ContentMode, @ViewBuilder content: @escaping () -> Content) {
+        self.loadView = content
+        self.url = url
         self.width = width
-        self.onSave = onSave
-        self.onDelete = onDelete
+        self.height = height
+        self.contentMode = contentMode
     }
-
-    //MARK: - Body
     
     var body: some View {
-        VStack {
-            HStack {
-                Text("Other photos")
-                    .font(.title3).bold()
-                    .foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                if photos.count < 9 {
-                    PhotoEditView(canDelete: false) {
-                        Text("Add photo")
-                    } onSave: { uiImage in
-                        photoId = UUID()
-                        onSave((id: photoId, uiImage: uiImage))
-                    } onDelete: {}
-                }
-            }
-            .padding()
-            LazyVGrid(columns: gridLayout, spacing: 2) {
-                ForEach(photos) { photo in
-                    PhotoEditView(canDelete: true) {
-                        ZStack {
-                            photo.image
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: (width - 4) / 3,
-                                       height: (width - 4) / 3)
-                                .clipped()
-                                .opacity(isLoading && photoId == photo.id ? 0.2 : 1)
-                            if isLoading && photoId == photo.id {
-                                ProgressView()
-                                    .tint(.blue)
+        Group {
+            if let image = image  {
+                image
+                    .resizable()
+                    .aspectRatio(contentMode: contentMode)
+                    .frame(width: width, height: height)
+                    .clipped()
+            } else {
+                loadView()
+                    .onAppear() {
+                        Task {
+                            if let image = await ImageLoader.shared.loadImage(urlString: url) {
+                                self.image = image
                             }
                         }
-                    } onSave: { uiImage in
-                        onSave((id: photo.id, uiImage: uiImage))
-                    } onDelete: {
-                        onDelete(photo.id)
                     }
-                }
             }
-        }
+        }.frame(width: width, height: height)
     }
 }

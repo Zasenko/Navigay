@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct Photo: Identifiable, Equatable {
+    
     let id: UUID
     var image: Image
         

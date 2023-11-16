@@ -22,7 +22,7 @@ final class EditCountryViewModel: ObservableObject {
     @Published var nameEs: String
     @Published var namePt: String
     @Published var flagEmoji: String
-    @Published var photo: Image?
+    @Published var photo: AdminPhoto?
     @Published var languages: [Language]
     @Published var about: [NewPlaceAbout]
     @Published var showRegions: Bool
@@ -53,6 +53,7 @@ final class EditCountryViewModel: ObservableObject {
         self.nameEs = country.nameEs ?? ""
         self.namePt = country.namePt ?? ""
         self.flagEmoji = country.flagEmoji ?? ""
+        self.photo = AdminPhoto(id: UUID().uuidString, image: nil, url: country.photo)
         self.about = country.about?.map({ NewPlaceAbout(language: $0.language, about: $0.about) }) ?? []
         let existingLanguages = country.about?.map( { $0.language } ) ?? []
         self.languages = Language.allCases.filter { !existingLanguages.contains($0) }
@@ -104,13 +105,13 @@ extension EditCountryViewModel {
     func loadImage(uiImage: UIImage) {
         isLoadingPhoto = true
         let previousImage = photo
-        photo = Image(uiImage: uiImage)
+        photo = AdminPhoto(id: UUID().uuidString, image: Image(uiImage: uiImage), url: nil)
         updateImage(uiImage: uiImage, previousImage: previousImage)
     }
     
     //MARK: - Private Functions
     
-    private func updateImage(uiImage: UIImage, previousImage: Image?) {
+    private func updateImage(uiImage: UIImage, previousImage: AdminPhoto?) {
         Task {
             let scaledImage = uiImage.cropImage(width: 600, height: 750)
             let errorModel = ErrorModel(massage: "Something went wrong. The photo didn't load. Please try again later.", img: Image(systemName: "photo.fill"), color: .red)
