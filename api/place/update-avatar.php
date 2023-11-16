@@ -77,13 +77,13 @@ if (!empty($image_url)) {
     }
 }
 
-$photo_dir = "../../images/$isoCountryCode/places/$place_id/";
+$photo_dir = "../../images/places/$isoCountryCode/$place_id/";
 if (!file_exists($photo_dir)) {
     mkdir($photo_dir, 0777, true);
 }
 $image_name_unique = generateUniqueFilename($image_extension);
 $image_upload_path = $photo_dir . $image_name_unique;
-$image_path = "images/$isoCountryCode/places/$place_id/" . $image_name_unique;
+$image_path = "images/places/$isoCountryCode/$place_id/" . $image_name_unique;
 
 if (!move_uploaded_file($_FILES['image']['tmp_name'], $image_upload_path)) {
     $conn->close();

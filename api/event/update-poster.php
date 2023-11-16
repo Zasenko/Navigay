@@ -97,7 +97,7 @@ if (!empty($small_poster_url)) {
     }
 }
 
-$photo_dir = "../../images/$isoCountryCode/events/$event_id/";
+$photo_dir = "../../images/events/$isoCountryCode/$event_id/";
 if (!file_exists($photo_dir)) {
     mkdir($photo_dir, 0777, true);
 }
@@ -108,8 +108,8 @@ $poster_upload_path = $photo_dir . $poster_name_unique;
 $small_poster_upload_path = $photo_dir . $small_poster_name_unique;
 
 
-$poster_path = "images/$isoCountryCode/events/$event_id/" . $poster_name_unique;
-$small_poster_path = "images/$isoCountryCode/events/$event_id/" . $small_poster_name_unique;
+$poster_path = "images/events/$isoCountryCode$event_id/" . $poster_name_unique;
+$small_poster_path = "images/events/$isoCountryCode$event_id/" . $small_poster_name_unique;
 
 if (!move_uploaded_file($_FILES['poster']['tmp_name'], $poster_upload_path)) {
     $conn->close();
