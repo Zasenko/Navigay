@@ -23,25 +23,28 @@ final class Event {
     var address: String = ""
     var latitude: Double = 0.0
     var longitude: Double = 0.0
-    var isCoverHorizontal: Bool = false
-    var cover: String? = nil
+   // var isCoverHorizontal: Bool = false
+    var poster: String? = nil
+    var smallPoster: String? = nil
     var isFree: Bool = false
     var tags: [Tag] = []
     var isActive: Bool = true
     
-    var placeName: String? = nil
+    var location: String? = nil
     var www: String? = nil
-    var fb: String? = nil
-    var insta: String? = nil
+    var facebook: String? = nil
+    var instagram: String? = nil
     var tickets: String? = nil
-    var placeId: Int? = nil
-    var ownerId: Int? = nil
+    
+    //TODO
+//    var placeId: Int? = nil
+//    var ownerId: Int? = nil
+    var city: City? = nil
+    var place: Place? = nil
+    
     
     
     var isLiked: Bool = false
-    
-    var city: City? = nil
-    var place: Place? = nil
     
     @Transient
     lazy var coordinate: CLLocationCoordinate2D = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
@@ -64,8 +67,8 @@ final class Event {
         address = decodedEvent.address
         latitude = decodedEvent.latitude
         longitude = decodedEvent.longitude
-        isCoverHorizontal = decodedEvent.isHorizontal
-        cover = decodedEvent.cover
+        poster = decodedEvent.poster
+        smallPoster = decodedEvent.smallPoster
         isFree = decodedEvent.isFree
         tags.removeAll()
         if let dacodedTags = decodedEvent.tags {
@@ -73,7 +76,7 @@ final class Event {
                 tags.append(tag)
             }
         }
-        placeName = decodedEvent.placeName
+        location = decodedEvent.location
         isActive = decodedEvent.isActive
         
         @Transient
@@ -90,8 +93,8 @@ final class Event {
         address = decodedEvent.address
         latitude = decodedEvent.latitude
         longitude = decodedEvent.longitude
-        isCoverHorizontal = decodedEvent.isHorizontal
-        cover = decodedEvent.cover
+        poster = decodedEvent.poster
+        smallPoster = decodedEvent.smallPoster
         isFree = decodedEvent.isFree
         tags.removeAll()
         if let dacodedTags = decodedEvent.tags {
@@ -100,12 +103,11 @@ final class Event {
             }
         }
         isActive = decodedEvent.isActive
-        
-        placeName = decodedEvent.placeName
-        about = decodedEvent.about
-        www = decodedEvent.www
-        fb = decodedEvent.fb
-        insta = decodedEvent.insta
-        tickets = decodedEvent.tickets
+        location = decodedEvent.location
+//        about = decodedEvent.about
+//        www = decodedEvent.www
+//        facebook = decodedEvent.facebook
+//        instagram = decodedEvent.instagram
+//        tickets = decodedEvent.tickets
     }
 }

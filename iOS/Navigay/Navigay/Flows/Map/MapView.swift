@@ -38,7 +38,7 @@ struct MapEventPin: View {
                 }
         
         .onAppear() {
-            if let url = event.cover {
+            if let url = event.smallPoster {
                 Task {
                     if let image = await ImageLoader.shared.loadImage(urlString: url) {
                         await MainActor.run {

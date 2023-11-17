@@ -27,6 +27,9 @@ struct EventCell: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .padding(.bottom, 8)
+            
+            
+            
             if let image = image {
                 image
                     .resizable()
@@ -60,7 +63,7 @@ struct EventCell: View {
         }
         .frame(width: 170)
         .onAppear() {
-            if let url = event.cover {
+            if let url = event.smallPoster {
                 Task {
                     if let image = await ImageLoader.shared.loadImage(urlString: url) {
                         await MainActor.run {
@@ -72,7 +75,7 @@ struct EventCell: View {
         }
     }
 }
-
-#Preview {
-    EventCell(event: Event(decodedEvent: DecodedEvent(id: 1, name: "CoNNect", type: .party, startDate: "2023-11-17", startTime: "", finishDate: "", finishTime: "", address: "", latitude: 16.5875, longitude: 26.5786, isHorizontal: true, cover: "https://img.freepik.com/free-vector/valentines-day-party-invitation-poster-template-with-lettering-text-love-purple-hearts_333792-7.jpg", isFree: true, tags: [.dj, .menOnly, .goGoShow], isActive: true, placeName: "Opera club", about: nil, www: nil, fb: nil, insta: nil, tickets: nil, ownerPlace: nil, ownerUser: nil)))
-}
+//
+//#Preview {
+//    EventCell(event: Event(decodedEvent: DecodedEvent(id: 1, name: "CoNNect", type: .party, startDate: "2023-11-17", startTime: "", finishDate: "", finishTime: "", address: "", latitude: 16.5875, longitude: 26.5786, isHorizontal: true, cover: "https://img.freepik.com/free-vector/valentines-day-party-invitation-poster-template-with-lettering-text-love-purple-hearts_333792-7.jpg", isFree: true, tags: [.dj, .menOnly, .goGoShow], isActive: true, placeName: "Opera club", about: nil, www: nil, fb: nil, insta: nil, tickets: nil, ownerPlace: nil, ownerUser: nil)))
+//}

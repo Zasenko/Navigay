@@ -50,7 +50,6 @@
 		0F5DE38C2B04D15F007D5238 /* EditRegionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F5DE38B2B04D15F007D5238 /* EditRegionViewModel.swift */; };
 		0F5DE38F2B04E4FE007D5238 /* EditCityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F5DE38E2B04E4FE007D5238 /* EditCityView.swift */; };
 		0F5DE3912B04E511007D5238 /* EditCityViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F5DE3902B04E511007D5238 /* EditCityViewModel.swift */; };
-		0F5DE3932B05335E007D5238 /* TestLoadImg.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F5DE3922B05335E007D5238 /* TestLoadImg.swift */; };
 		0F5DE3952B05350D007D5238 /* EditLibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F5DE3942B05350D007D5238 /* EditLibraryView.swift */; };
 		0F5DE7032AF581F30022BFEE /* NewPlaceInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F5DE7022AF581F30022BFEE /* NewPlaceInfoView.swift */; };
 		0F6500C62ACEB3C800A58E77 /* AppUserView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F6500C52ACEB3C800A58E77 /* AppUserView.swift */; };
@@ -110,6 +109,8 @@
 		0F7E57E82AE129A40091A0F8 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F7E57E72AE129A40091A0F8 /* HomeView.swift */; };
 		0F7E57EB2AE15B550091A0F8 /* AdminView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F7E57EA2AE15B550091A0F8 /* AdminView.swift */; };
 		0F7E57ED2AE15BB50091A0F8 /* NewPlaceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F7E57EC2AE15BB50091A0F8 /* NewPlaceView.swift */; };
+		0F80E9DF2B068499006ABBF0 /* AroundNetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F80E9DE2B068499006ABBF0 /* AroundNetworkManager.swift */; };
+		0F80E9E12B0696DC006ABBF0 /* AroundResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F80E9E02B0696DC006ABBF0 /* AroundResult.swift */; };
 		0F89545D2AF420B900CE46EC /* PlaceAdditionalInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F89545C2AF420B900CE46EC /* PlaceAdditionalInfo.swift */; };
 		0F90B4DD2AF90D7E00547224 /* NewPlace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F90B4DC2AF90D7E00547224 /* NewPlace.swift */; };
 		0F97BEDE2AFD361900DE645D /* ApiResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F97BEDD2AFD361900DE645D /* ApiResult.swift */; };
@@ -193,7 +194,6 @@
 		0F5DE38B2B04D15F007D5238 /* EditRegionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditRegionViewModel.swift; sourceTree = "<group>"; };
 		0F5DE38E2B04E4FE007D5238 /* EditCityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditCityView.swift; sourceTree = "<group>"; };
 		0F5DE3902B04E511007D5238 /* EditCityViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditCityViewModel.swift; sourceTree = "<group>"; };
-		0F5DE3922B05335E007D5238 /* TestLoadImg.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestLoadImg.swift; sourceTree = "<group>"; };
 		0F5DE3942B05350D007D5238 /* EditLibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditLibraryView.swift; sourceTree = "<group>"; };
 		0F5DE7022AF581F30022BFEE /* NewPlaceInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewPlaceInfoView.swift; sourceTree = "<group>"; };
 		0F6500C52ACEB3C800A58E77 /* AppUserView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppUserView.swift; sourceTree = "<group>"; };
@@ -254,6 +254,8 @@
 		0F7E57E72AE129A40091A0F8 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		0F7E57EA2AE15B550091A0F8 /* AdminView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdminView.swift; sourceTree = "<group>"; };
 		0F7E57EC2AE15BB50091A0F8 /* NewPlaceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewPlaceView.swift; sourceTree = "<group>"; };
+		0F80E9DE2B068499006ABBF0 /* AroundNetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AroundNetworkManager.swift; sourceTree = "<group>"; };
+		0F80E9E02B0696DC006ABBF0 /* AroundResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AroundResult.swift; sourceTree = "<group>"; };
 		0F89545C2AF420B900CE46EC /* PlaceAdditionalInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceAdditionalInfo.swift; sourceTree = "<group>"; };
 		0F90B4DC2AF90D7E00547224 /* NewPlace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewPlace.swift; sourceTree = "<group>"; };
 		0F97BEDD2AFD361900DE645D /* ApiResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApiResult.swift; sourceTree = "<group>"; };
@@ -374,6 +376,7 @@
 				0F741A6E2ACD644D00A7759E /* CountryResult.swift */,
 				0F741A6D2ACD644D00A7759E /* EventResult.swift */,
 				0F2765642B03780C0084B5DD /* PosterResult.swift */,
+				0F80E9E02B0696DC006ABBF0 /* AroundResult.swift */,
 			);
 			path = Results;
 			sourceTree = "<group>";
@@ -544,6 +547,7 @@
 				0F741A942ACDB68E00A7759E /* EventNetworkManager.swift */,
 				0F79B25D2AF26CB300FCAED2 /* PlaceNetworkManager.swift */,
 				0F354CB82AFE756800594AE0 /* AdminNetworkManager.swift */,
+				0F80E9DE2B068499006ABBF0 /* AroundNetworkManager.swift */,
 			);
 			path = Network;
 			sourceTree = "<group>";
@@ -817,7 +821,6 @@
 				0FD617932ACC398300877C70 /* Assets.xcassets */,
 				0FA6C8B42AD7E6CD00F30B4A /* Test.swift */,
 				0FFB3A392AF102A2001CF946 /* Test2.swift */,
-				0F5DE3922B05335E007D5238 /* TestLoadImg.swift */,
 				0FD617952ACC398300877C70 /* Preview Content */,
 			);
 			path = Navigay;
@@ -963,7 +966,6 @@
 				0F741A672ACD642200A7759E /* PlaceType.swift in Sources */,
 				0F354CBE2AFE82FA00594AE0 /* AdminCity.swift in Sources */,
 				0F741A502ACD523200A7759E /* AuthResult.swift in Sources */,
-				0F5DE3932B05335E007D5238 /* TestLoadImg.swift in Sources */,
 				0FFB3A4C2AF23E3E001CF946 /* CPData.swift in Sources */,
 				0F741A2C2ACD4D8000A7759E /* ErrorModel.swift in Sources */,
 				0F354CD22AFF7F0400594AE0 /* NewEventViewModel.swift in Sources */,
@@ -1053,6 +1055,7 @@
 				0F741A352ACD501800A7759E /* KeychainManager.swift in Sources */,
 				0F354CD02AFF789600594AE0 /* EditField.swift in Sources */,
 				0F2765442B0234250084B5DD /* EventRequiredFieldsView.swift in Sources */,
+				0F80E9DF2B068499006ABBF0 /* AroundNetworkManager.swift in Sources */,
 				0F741A852ACDAACF00A7759E /* ImageLoader.swift in Sources */,
 				0F741A792ACD644D00A7759E /* DecodedCountry.swift in Sources */,
 				0F79B2662AF26E5800FCAED2 /* DayOfWeek.swift in Sources */,
@@ -1081,6 +1084,7 @@
 				0F27655F2B02A7FA0084B5DD /* EditEventCoverView.swift in Sources */,
 				0F79B25E2AF26CB300FCAED2 /* PlaceNetworkManager.swift in Sources */,
 				0F741A752ACD644D00A7759E /* CountriesResult.swift in Sources */,
+				0F80E9E12B0696DC006ABBF0 /* AroundResult.swift in Sources */,
 				0FFB3A372AF0FB56001CF946 /* EditTextFieldView.swift in Sources */,
 				0F354CBB2AFE81F300594AE0 /* DecodedPhoto.swift in Sources */,
 				0FFB3A422AF14F66001CF946 /* PlaceRequiredFieldsView.swift in Sources */,
