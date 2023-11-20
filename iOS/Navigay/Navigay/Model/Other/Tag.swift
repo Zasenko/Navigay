@@ -5,7 +5,7 @@
 //  Created by Dmitry Zasenko on 02.10.23.
 //
 
-import Foundation
+import SwiftUI
 
 enum Tag: Int, Codable, CaseIterable {
     case pool = 1,
@@ -101,6 +101,71 @@ enum Tag: Int, Codable, CaseIterable {
             return "all genders"
         case .cinema:
             return "cinema"
+        }
+    }
+    
+    func getColor() -> Color {
+        switch self {
+        case .pool:
+            return .green
+        case .darkroom:
+            return .red
+        case .dragShow:
+            return .orange
+        case .terrace:
+            return .green
+        case .heteroFriendly:
+            return .blue
+        case .gayFriendly:
+            return .blue
+        case .menOnly:
+            return .red
+        case .naked:
+            return .red
+        case .lesbian:
+            return .blue
+        case .bar:
+            return .green
+        case .restaurant:
+            return .green
+        case .dj:
+            return .orange
+        case .shop:
+            return .green
+        case .adultsOnly:
+            return .red
+        case .fetish:
+            return .red
+        case .cruise:
+            return .red
+        case .goGoShow:
+            return .orange
+        case .music:
+            return .orange
+        case .massage:
+            return .red
+        case .gym:
+            return .green
+        case .karaoke:
+            return .orange
+        case .liveMusic:
+            return .orange
+        case .freeWiFi:
+            return .green
+        case .drag:
+            return .blue
+        case .garden:
+            return .green
+        case .beach:
+            return .green
+        case .cabins:
+            return .red
+        case .gay:
+            return .blue
+        case .allGenders:
+            return .blue
+        case .cinema:
+            return .green
         }
     }
 }

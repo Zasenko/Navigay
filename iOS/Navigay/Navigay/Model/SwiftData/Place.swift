@@ -69,6 +69,7 @@ final class Place {
     }
     
     func updatePlaceComplite(decodedPlace: DecodedPlace) {
+        
         name = decodedPlace.name
         type = decodedPlace.type
         avatar = decodedPlace.avatar

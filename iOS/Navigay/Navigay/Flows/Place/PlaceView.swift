@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 import MapKit
 
 struct PlaceView: View {
@@ -13,6 +14,9 @@ struct PlaceView: View {
     // MARK: - Properties
     @Environment(\.openURL) private var openURL
     @EnvironmentObject private var authenticationManager: AuthenticationManager
+    
+    @Query(animation: .snappy)
+    private var allEvents: [Event]
     
     // MARK: - Private Properties
     
@@ -25,6 +29,7 @@ struct PlaceView: View {
     private let errorManager: ErrorManagerProtocol
     
     @State private var gridLayout: [GridItem] = Array(repeating: GridItem(.flexible(), spacing: 2), count: 3)
+    @State private var gridLayoutEvents: [GridItem] = Array(repeating: GridItem(.flexible(), spacing: 10), count: 2)
     @State private var position: MapCameraPosition = .automatic
     
     // MARK: - Inits
@@ -50,11 +55,10 @@ struct PlaceView: View {
                     ToolbarItem(placement: .principal) {
                         VStack(spacing: 0) {
                             Text(place.type.getName().uppercased())
-                                .font(.caption.bold())
+                                .font(.caption).bold()
                                 .foregroundStyle(.secondary)
                             Text(place.name)
-                                .font(.headline)
-                                .fontWeight(.black)
+                                .font(.headline).bold()
                         }
                     }
                     ToolbarItem(placement: .topBarLeading) {
@@ -124,9 +128,7 @@ struct PlaceView: View {
             .padding()
             .listRowSeparator(.hidden)
             .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-            
-            //ПАРТИ
-            
+                        
             TagsView(tags: place.tags)
                 .padding(.bottom)
                 .listRowSeparator(.hidden)
@@ -145,6 +147,9 @@ struct PlaceView: View {
                     .font(.caption)
                 }
                 Text(place.otherInfo ?? "")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .padding(.bottom, 40)
             }
             .padding()
             .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
@@ -232,6 +237,26 @@ struct PlaceView: View {
             
             map
             
+            Section {
+                Text("Upcoming events".uppercased())
+                    .foregroundColor(.white)
+                    .font(.caption)
+                    .bold()
+                    .modifier(CapsuleSmall(background: .red, foreground: .white))
+                    .frame(maxWidth: .infinity)
+                    .padding(.top)
+                    .padding()
+                    .padding(.bottom)
+                LazyVGrid(columns: gridLayoutEvents, spacing: 50) {
+                    ForEach(place.events.sorted(by: { $0.startDate < $1.startDate } )) { event in
+                        EventCell(event: event, width: (width - 50) / 2)
+                    }
+                }
+            }
+            .listRowSeparator(.hidden)
+            .frame(maxWidth: .infinity)
+            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+            
             Text(place.about ?? "")
                 .font(.callout)
                 .padding()
@@ -292,6 +317,7 @@ struct PlaceView: View {
             .background(AppColors.lightGray6)
             .clipShape(Capsule(style: .continuous))
             .buttonStyle(.borderless)
+            .padding(.bottom, 40)
         }
         .listRowSeparator(.hidden)
         .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
@@ -322,6 +348,7 @@ struct PlaceView: View {
                             allPhotos.append(links)
                         }
                     }
+                    updateEvents(decodedEvents: decodedPlace.events)
                 }
             } catch {
                 debugPrint("ERROR - get place: ", error)
@@ -346,6 +373,24 @@ struct PlaceView: View {
         }
     }
     
+    private func updateEvents(decodedEvents: [DecodedEvent]?) {
+        if let decodedEvents {
+            for decodeEvent in decodedEvents {
+                var newEvent: Event?
+                if let event = allEvents.first(where: { $0.id == decodeEvent.id} ) {
+                    event.updateEventIncomplete(decodedEvent: decodeEvent)
+                    newEvent = event
+                } else if decodeEvent.isActive {
+                    let event = Event(decodedEvent: decodeEvent)
+                    newEvent = event
+                }
+                if let newEvent = newEvent, !place.events.contains(where: { $0.id == newEvent.id } ) {
+                    place.events.append(newEvent)
+                }
+            }
+        }
+    }
+    
     private func call(phone: String) {
         let api = "tel://"
         let stringUrl = api + phone
@@ -357,15 +402,12 @@ struct PlaceView: View {
         guard let url = URL(string: url) else { return }
         openURL(url)
     }
+    
     private func goToMaps(coordinate: CLLocationCoordinate2D) {
         let stringUrl = "maps://?saddr=&daddr=\(coordinate.latitude),\(coordinate.longitude)"
         guard let url = URL(string: stringUrl) else { return }
         openURL(url)
     }
-    
-    
-    
-    
 }
 
 //#Preview {
@@ -452,7 +494,7 @@ struct TagsView: View {
         
         return ZStack(alignment: .topLeading) {
             ForEach(tags, id: \.self) { tag in
-                item(tag: tag, color: color)
+                item(tag: tag)
                     .padding([.horizontal, .vertical], 4)
                     .alignmentGuide(.leading, computeValue: { d in
                         if (abs(width - d.width) > g.size.width) {
@@ -478,12 +520,12 @@ struct TagsView: View {
         }.background(viewHeightReader(totalHeight))
     }
     
-    private func item(tag: Tag, color: Color) -> some View {
+    private func item(tag: Tag) -> some View {
         Text(tag.getString())
             .font(.caption)
             .bold()
             .foregroundColor(.primary)
-            .modifier(CapsuleSmall(background: color, foreground: .primary))
+            .modifier(CapsuleSmall(background: AppColors.lightGray6, foreground: .primary))
     }
     
     private func viewHeightReader(_ binding: Binding<CGFloat>) -> some View {
