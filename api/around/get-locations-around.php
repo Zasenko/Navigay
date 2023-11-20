@@ -36,22 +36,25 @@ while ($row = $result->fetch_assoc()) {
     $tags = json_decode($row['tags'], true);
     $timetable = json_decode($row['timetable'], true);
 
-    $avatar_url = "https://www.navigay.me/" . $row['avatar'];
-    $poster_url = "https://www.navigay.me/" . $row['main_photo'];
+    $avatar = $row['avatar'];
+    $avatar_url = isset($avatar) ? "https://www.navigay.me/" . $avatar : null;
+
+    $main_photo = $row['main_photo'];
+    $main_photo_url = isset($main_photo) ? "https://www.navigay.me/" . $main_photo : null;
 
     $place = array(
         'id' => $row['id'],
         'name' => $row["name"],
         'type_id' => $row['type_id'],
         'avatar' => $avatar_url,
-        'main_photo' => $poster_url,
+        'main_photo' => $main_photo_url,
         'address' => $row['address'],
         'latitude' => $row['latitude'],
         'longitude' => $row['longitude'],
-        'is_active' => $is_active,
-        'updated_at' => $row['updated_at'],
         'tags' => $tags,
         'timetable' => $timetable,
+        'is_active' => $is_active,
+        'updated_at' => $row['updated_at'],
     );
     array_push($places, $place);
 }
@@ -68,8 +71,13 @@ while ($row = $result->fetch_assoc()) {
     $is_free = (bool)$row['is_free'];
     $tags = json_decode($row['tags'], true);
 
-    $poster_url = "https://www.navigay.me/" . $row['poster'];
-    $poster_small_url = "https://www.navigay.me/" . $row['poster_small'];
+
+
+    $poster_small = $row['poster_small'];
+    $poster_small_url = isset($poster_small) ? "https://www.navigay.me/" . $poster_small : null;
+
+    $poster = $row['poster'];
+    $poster_url = isset($poster) ? "https://www.navigay.me/" . $poster : null;
 
     $event = array(
         "id" => $row['id'],
