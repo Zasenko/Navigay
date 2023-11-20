@@ -258,8 +258,6 @@ struct CapsuleSmall: ViewModifier {
     
     func body(content: Content) -> some View {
         content
-            .font(.caption)
-            .bold()
             .padding(5)
             .padding(.horizontal, 5)
             .foregroundColor(foreground)
@@ -267,3 +265,5 @@ struct CapsuleSmall: ViewModifier {
             .clipShape(Capsule(style: .continuous))
     }
 }
+
+

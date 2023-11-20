@@ -48,22 +48,13 @@ struct PlaceView: View {
                 .toolbarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .principal) {
-                        HStack(spacing: 0) {
-                            if let url = place.avatar {
-                                ImageLoadingView(url: url, width: 40, height: 40, contentMode: .fill) {
-                                    Color.orange
-                                }
-                                .clipShape(Circle())
-                                .padding()
-                            }
-                            VStack(spacing: 0) {
-                                Text(place.type.getName().uppercased())
-                                    .font(.caption.bold())
-                                    .foregroundStyle(.secondary)
-                                Text(place.name)
-                                    .font(.headline)
-                                    .fontWeight(.black)
-                            }
+                        VStack(spacing: 0) {
+                            Text(place.type.getName().uppercased())
+                                .font(.caption.bold())
+                                .foregroundStyle(.secondary)
+                            Text(place.name)
+                                .font(.headline)
+                                .fontWeight(.black)
                         }
                     }
                     ToolbarItem(placement: .topBarLeading) {
@@ -110,21 +101,23 @@ struct PlaceView: View {
                     .padding(.bottom)
             }
             Section {
+                HStack {
+                    if let url = place.avatar {
+                        ImageLoadingView(url: url, width: 80, height: 80, contentMode: .fill) {
+                            Color.orange
+                        }
+                        .clipShape(Circle())
+                        .padding()
+                    }
                     VStack(alignment: .leading, spacing: 4) {
                         Text(place.name)
                             .font(.largeTitle).bold()
                             .foregroundColor(.primary)
-                        HStack {
-                            Text(place.address)
-                                .font(.body)
-                                .foregroundColor(.secondary)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                            Button("Open in Maps") {
-                                goToMaps(coordinate: place.coordinate)
-                            }
-                            .buttonStyle(.borderless)
-                            .tint(.blue)
-                        }
+                        Text(place.address)
+                            .font(.body)
+                            .foregroundColor(.secondary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
@@ -134,20 +127,10 @@ struct PlaceView: View {
             
             //ПАРТИ
             
-            
             TagsView(tags: place.tags)
                 .padding(.bottom)
                 .listRowSeparator(.hidden)
                 .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                
-            
-            Text("Timetable")
-                .font(.title2)
-                .bold()
-                .foregroundStyle(.secondary)
-                .listRowSeparator(.hidden)
-                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                .padding()
             
             Section {
                 ForEach(place.timetable.sorted(by: { $0.day.rawValue < $1.day.rawValue } )) { day in
@@ -163,23 +146,30 @@ struct PlaceView: View {
                 }
                 Text(place.otherInfo ?? "")
             }
+            .padding()
             .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
             .listSectionSeparator(.hidden)
-            .padding(.horizontal)
             
             VStack(spacing: 10) {
                 if let phone = place.phone {
                     Button {
                         call(phone: phone)
                     } label: {
-                        Label {
+                        HStack {
+                            AppImages.iconPhoneFill
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 25, height: 25, alignment: .leading)
                             Text(phone)
-                                .font(.subheadline)
-                        } icon: {
-                            AppImages.iconPhoneCircleFill
+                                .font(.title2)
+                                .bold()
                         }
                     }
-                    .buttonStyle(PlainButtonStyle())
+                    .padding()
+                    .foregroundColor(.black)
+                    .background(AppColors.lightGray6)
+                    .clipShape(Capsule(style: .continuous))
+                    .buttonStyle(.borderless)
                 }
                 HStack {
                     if let www = place.www {
@@ -190,92 +180,85 @@ struct PlaceView: View {
                                 AppImages.iconGlobe
                                     .resizable()
                                     .scaledToFit()
-                                    .frame(width: 30, height: 30, alignment: .leading)
-                                Text("web page".uppercased())
+                                    .frame(width: 25, height: 25, alignment: .leading)
+                                Text("Web page")
+                                    .font(.caption)
+                                    .bold()
                             }
                         }
                         .buttonStyle(.borderless)
-                        .tint(.blue)
-                        .font(.caption)
-                        .bold()
-                        .modifier(CapsuleSmall(background: AppColors.lightGray6, foreground: .black))
-                        .frame(maxWidth: .infinity)
+                        .foregroundColor(.black)
+                        .padding()
+                        .background(AppColors.lightGray6)
+                        .clipShape(Capsule(style: .continuous))
                     }
                     if let facebook = place.facebook {
                         Button {
                             goToWebSite(url: facebook)
                         } label: {
-                            HStack {
-                                AppImages.iconFacebook
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 30, height: 30, alignment: .leading)
-                                Text("facebook".uppercased())
-                            }
+                            AppImages.iconFacebook
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 25, height: 25, alignment: .leading)
                         }
                         .buttonStyle(.borderless)
-                        .tint(.blue)
-                        .font(.caption)
-                        .bold()
-                        .modifier(CapsuleSmall(background: AppColors.lightGray6, foreground: .black))
-                        .frame(maxWidth: .infinity)
+                        .foregroundColor(.black)
+                        .padding()
+                        .background(AppColors.lightGray6)
+                        .clipShape(.circle)
                     }
                     
                     if let instagram = place.instagram {
                         Button {
                             goToWebSite(url: instagram)
                         } label: {
-                            HStack {
-                                AppImages.iconInstagram
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 30, height: 30, alignment: .leading)
-                                Text("instagram".uppercased())
-                            }
+                            AppImages.iconInstagram
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 25, height: 25, alignment: .leading)
                         }
                         .buttonStyle(.borderless)
-                        .tint(.blue)
-                        .font(.caption)
-                        .bold()
-                        .modifier(CapsuleSmall(background: AppColors.lightGray6, foreground: .black))
-                        .frame(maxWidth: .infinity)
+                        .foregroundColor(.black)
+                        .padding()
+                        .background(AppColors.lightGray6)
+                        .clipShape(.circle)
                     }
-                    
                 }
             }
-            .padding(.horizontal)
+            .frame(maxWidth: .infinity, alignment: .center)
+            .padding()
             .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
             .listSectionSeparator(.hidden)
             
-            Section {
-                map
-                Text(place.about ?? "")
-                
-            }
-            .padding(.horizontal)
-            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-            .listSectionSeparator(.hidden)
+            map
             
-                //фотографии должны открываться
-                Section {
-                    LazyVGrid(columns: gridLayout, spacing: 2) {
-                        ForEach(place.photos, id: \.self) { url in
-                            ImageLoadingView(url: url, width: (width - 4) / 3, height: (width - 4) / 3, contentMode: .fill) {
-                                AppColors.lightGray6 //TODO animation
-                            }
-                            .clipped()
-                        }
-                    }
-                }
-                .listRowSeparator(.hidden)
+            Text(place.about ?? "")
+                .font(.callout)
+                .padding()
+                .padding(.vertical, 40)
                 .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                .listRowSeparator(.hidden)
+            
+            //фотографии должны открываться
+            Section {
+                LazyVGrid(columns: gridLayout, spacing: 2) {
+                    ForEach(place.photos, id: \.self) { url in
+                        ImageLoadingView(url: url, width: (width - 4) / 3, height: (width - 4) / 3, contentMode: .fill) {
+                            AppColors.lightGray6 //TODO animation
+                        }
+                        .clipped()
+                    }
+                }
+            }
+            .listRowSeparator(.hidden)
+            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
         }
         .listStyle(.plain)
         .scrollIndicators(.hidden)
     }
     
     private var map: some View {
-        VStack(spacing: 0) {
+        VStack {
             Map(position: $position, interactionModes: []) {
                 Marker("", monogram: Text(place.type.getImage()), coordinate: place.coordinate)
                     .tint(place.type.getColor())
@@ -283,14 +266,37 @@ struct PlaceView: View {
             .mapStyle(.standard(elevation: .flat, pointsOfInterest: .including([.publicTransport])))
             .mapControlVisibility(.hidden)
             .frame(height: 200)
-            .clipShape(RoundedRectangle(cornerRadius: 10))
-            .padding(.bottom)
+            .clipShape(RoundedRectangle(cornerRadius: 0))
+            .padding(.vertical)
             .onAppear {
                 position = .camera(MapCamera(centerCoordinate: place.coordinate, distance: 500))
             }
+            Text(place.address)
+                .font(.caption)
+                .foregroundColor(.secondary)
+            Button {
+                goToMaps(coordinate: place.coordinate)
+            } label: {
+                HStack {
+                    AppImages.iconLocation
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 25, height: 25, alignment: .leading)
+                    Text("Open in Maps")
+                        .font(.caption)
+                        .bold()
+                }
+            }
+            .padding()
+            .foregroundColor(.black)
+            .background(AppColors.lightGray6)
+            .clipShape(Capsule(style: .continuous))
+            .buttonStyle(.borderless)
         }
+        .listRowSeparator(.hidden)
+        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
     }
-
+    
     // MARK: - Private Functions
     
     private func loadPlace() {
@@ -353,14 +359,13 @@ struct PlaceView: View {
     }
     private func goToMaps(coordinate: CLLocationCoordinate2D) {
         let stringUrl = "maps://?saddr=&daddr=\(coordinate.latitude),\(coordinate.longitude)"
-        
         guard let url = URL(string: stringUrl) else { return }
         openURL(url)
     }
     
     
     
-
+    
 }
 
 //#Preview {
@@ -390,7 +395,7 @@ struct PhotosTabView: View {
             }
             .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
             .frame(width: width, height: (width / 4) * 5)
-
+            
             HStack(spacing: 10) {
                 ForEach(0..<allPhotos.count, id: \.self) { index in
                     Circle()
@@ -410,11 +415,11 @@ struct PhotosTabView: View {
 struct TagsView: View {
     
     //MARK: - Properties
-
+    
     //MARK: - Private Properties
     
     let tags: [Tag]
-
+    
     @State private var totalHeight: CGFloat = .zero
     
     @Environment(\.dismiss) private var dismiss
@@ -444,7 +449,7 @@ struct TagsView: View {
     private func generateContent(for tags: [Tag], color: Color, in g: GeometryProxy, totalHeight: Binding<CGFloat>) -> some View {
         var width = CGFloat.zero
         var height = CGFloat.zero
-
+        
         return ZStack(alignment: .topLeading) {
             ForEach(tags, id: \.self) { tag in
                 item(tag: tag, color: color)
@@ -472,7 +477,7 @@ struct TagsView: View {
             }
         }.background(viewHeightReader(totalHeight))
     }
-
+    
     private func item(tag: Tag, color: Color) -> some View {
         Text(tag.getString())
             .font(.caption)
@@ -480,7 +485,7 @@ struct TagsView: View {
             .foregroundColor(.primary)
             .modifier(CapsuleSmall(background: color, foreground: .primary))
     }
-
+    
     private func viewHeightReader(_ binding: Binding<CGFloat>) -> some View {
         return GeometryReader { geometry -> Color in
             let rect = geometry.frame(in: .local)

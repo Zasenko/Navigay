@@ -28,7 +28,7 @@ struct AppImages {
     static let iconCalendar = Image(systemName: "calendar")
     
     static let iconHeartFill = Image(systemName: "heart.fill")
-    static let iconPhoneCircleFill = Image(systemName: "phone.circle.fill")
+    static let iconPhoneFill = Image(systemName: "phone.fill")
     static let iconGlobe = Image(systemName: "globe")
 
     static let iconArrowRight = Image(systemName: "arrow.forward")
@@ -40,6 +40,7 @@ struct AppImages {
     static let iconInstagram = Image("icon_instagram")
     static let iconFacebook2 = Image("icon_facebook2")
     static let iconInstagram2 = Image("icon_instagram2")
+    static let iconLocation = Image("icon_location")
     
 //    static let mapBarIcon = UIImage(named: "barIcon")
 //    static let mapCafeIcon = UIImage(named: "cafeIcon")
