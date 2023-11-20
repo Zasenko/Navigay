@@ -6,14 +6,21 @@
 //
 
 import SwiftUI
+import CoreLocation
 
 protocol AroundNetworkManagerProtocol {
+    var userLocations: [CLLocation] { get set }
+    func addToUserLocations(location: CLLocation)
+    
     var appSettingsManager: AppSettingsManagerProtocol { get }
     func fetchLocations(latitude: Double, longitude: Double) async throws -> AroundResult
 }
 
 final class AroundNetworkManager {
     
+    // MARK: - Properties
+    
+    var userLocations: [CLLocation] = []
     let appSettingsManager: AppSettingsManagerProtocol
     
     // MARK: - Private Properties
@@ -29,6 +36,10 @@ final class AroundNetworkManager {
 // MARK: - AuthNetworkManagerProtocol
 
 extension AroundNetworkManager: AroundNetworkManagerProtocol {
+    
+    func addToUserLocations(location: CLLocation) {
+        userLocations.append(location)
+    }
     
     func fetchLocations(latitude: Double, longitude: Double) async throws -> AroundResult {
         debugPrint("--- fetchLocations around()")

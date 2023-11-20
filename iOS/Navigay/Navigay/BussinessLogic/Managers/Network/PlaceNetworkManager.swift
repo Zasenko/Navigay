@@ -8,23 +8,36 @@
 import SwiftUI
 
 protocol PlaceNetworkManagerProtocol {
+    var loadedPlaces: [Int] { get set }
+    func addToLoadedPlaces(id: Int)
     func addNewPlace(place: NewPlace) async throws -> NewPlaceResult
     func updateAvatar(placeId: Int, uiImage: UIImage) async throws -> ImageResult
     func updateMainPhoto(placeId: Int, uiImage: UIImage) async throws -> ImageResult
     func updateLibraryPhoto(placeId: Int, photoId: UUID, uiImage: UIImage) async throws -> ImageResult
     func deleteLibraryPhoto(placeId: Int, photoId: UUID) async throws -> ApiResult
+    func getPlace(id: Int) async throws -> PlaceResult
    // func addAdditionalInfoToPlace(place: PlaceAdditionalInfo) async throws -> NewPlaceResult
     //func addNewPlace(place: NewPlace, uiImageSmall: UIImage?, uiImageBig: UIImage?) async throws -> DecodedPlace
 }
 
 final class PlaceNetworkManager {
     
+    // MARK: - Properties
+    
+    var loadedPlaces: [Int] = []
+    
     // MARK: - Private Properties
     
     private let scheme = "https"
     private let host = "www.navigay.me"
     
-    // MARK: - Inits
+    private let appSettingsManager: AppSettingsManagerProtocol
+    
+    //MARK: - Inits
+    
+    init(appSettingsManager: AppSettingsManagerProtocol) {
+        self.appSettingsManager = appSettingsManager
+    }
     
 }
 
@@ -32,6 +45,45 @@ final class PlaceNetworkManager {
 
 extension PlaceNetworkManager: PlaceNetworkManagerProtocol {
     
+    func addToLoadedPlaces(id: Int) {
+        loadedPlaces.append(id)
+    }
+    
+    func getPlace(id: Int) async throws -> PlaceResult {
+        debugPrint("--- getPlace id: ", id)
+        let path = "/api/place/get-place.php"
+        var urlComponents: URLComponents {
+            var components = URLComponents()
+            components.scheme = scheme
+            components.host = host
+            components.path = path
+            components.queryItems = [
+                URLQueryItem(name: "place_id", value: "\(id)"),
+                URLQueryItem(name: "language", value: appSettingsManager.language),
+            ]
+            return components
+        }
+        guard let url = urlComponents.url else {
+            throw NetworkErrors.bedUrl
+        }
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        do {
+            let (data, response) = try await URLSession.shared.data(for: request)
+            guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
+                throw NetworkErrors.invalidData
+            }
+            let json = try JSONSerialization.jsonObject(with: data, options: JSONSerialization.ReadingOptions.allowFragments)
+            // выводим в консоль
+            guard let decodedResult = try? JSONDecoder().decode(PlaceResult.self, from: data) else {
+                throw NetworkErrors.decoderError
+            }
+            
+            return decodedResult
+        } catch {
+            throw error
+        }
+    }
     func addNewPlace(place: NewPlace) async throws -> NewPlaceResult {
         let path = "/api/place/add-new-place.php"
         var urlComponents: URLComponents {

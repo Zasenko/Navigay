@@ -21,6 +21,7 @@ struct HomeView: View {
     
     let networkManager: AroundNetworkManagerProtocol
     let eventNetworkManager: EventNetworkManagerProtocol
+    let placeNetworkManager: PlaceNetworkManagerProtocol
     let errorManager: ErrorManagerProtocol
     
     @State private var groupedPlaces: [PlaceType: [Place]] = [:]
@@ -28,9 +29,13 @@ struct HomeView: View {
     
     @State private var isLoading: Bool = false
     
+    @State private var gridLayout: [GridItem] = Array(repeating: GridItem(.flexible(), spacing: 10), count: 2)
+    
+    
     init(networkManager: AroundNetworkManagerProtocol, locationManager: LocationManager, errorManager: ErrorManagerProtocol) {
         self.networkManager = networkManager
         self.eventNetworkManager = EventNetworkManager(appSettingsManager: networkManager.appSettingsManager)
+        self.placeNetworkManager = PlaceNetworkManager(appSettingsManager: networkManager.appSettingsManager)
         self.locationManager = locationManager
         self.errorManager = errorManager
     }
@@ -43,82 +48,105 @@ struct HomeView: View {
             
         } else {
             NavigationStack {
-                List {
-                    if aroundEvents.count > 0 {
-                        Section {
-                            Text("Upcoming events".uppercased())
-                                .foregroundColor(.white)
-                                .font(.caption)
-                                .bold()
-                                .modifier(CapsuleSmall(background: .red, foreground: .white))
-                                .frame(maxWidth: .infinity)
-                                .padding(.top)
-                                .padding()
-                                .padding(.bottom)
-                            ScrollView(.horizontal, showsIndicators: false) {
-                                LazyHStack(alignment: .center, spacing: 20) {
+                GeometryReader { proxy in
+                    List {
+                        if aroundEvents.count > 0 {
+                            Section {
+                                Text("Upcoming events".uppercased())
+                                    .foregroundColor(.white)
+                                    .font(.caption)
+                                    .bold()
+                                    .modifier(CapsuleSmall(background: .red, foreground: .white))
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.top)
+                                    .padding()
+                                    .padding(.bottom)
+                                LazyVGrid(columns: gridLayout, spacing: 50) {
                                     ForEach(aroundEvents.sorted(by: { $0.startDate < $1.startDate } )) { event in
-                                        EventCell(event: event)
-                                            .padding(.horizontal)
+                                        EventCell(event: event, width: (proxy.size.width - 50) / 2)
+//                                            .frame(width: (proxy.size.width - 10) / 2,
+//                                                   height: (((proxy.size.width - 10) / 2) / 4) * 5)
                                     }
                                 }
                             }
-                            .padding(.bottom)
+                            .listRowSeparator(.hidden)
+                            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                         }
-                        .listRowSeparator(.hidden)
-                        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                    }
-
-                    ForEach(groupedPlaces.keys.sorted(), id: \.self) { key in
-                        Section {
-                            Text(key.getPluralName().uppercased())
-                                .foregroundColor(.white)
-                                .font(.caption)
-                                .bold()
-                                .modifier(CapsuleSmall(background: key.getColor(), foreground: .white))
-                                .frame(maxWidth: .infinity)
-                                .padding(.top)
-                            
-                            ForEach(groupedPlaces[key] ?? []) { place in
-                                NavigationLink {
-                                    PlaceView(place: place, networkManager: eventNetworkManager)
-                                } label: {
-                                    PlaceCell(place: place)
+                        
+                        ForEach(groupedPlaces.keys.sorted(), id: \.self) { key in
+                            Section {
+                                Text(key.getPluralName().uppercased())
+                                    .foregroundColor(.white)
+                                    .font(.caption)
+                                    .bold()
+                                    .modifier(CapsuleSmall(background: key.getColor(), foreground: .white))
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.top)
+                                
+                                ForEach(groupedPlaces[key] ?? []) { place in
+                                    NavigationLink {
+                                        PlaceView(place: place, networkManager: placeNetworkManager, errorManager: errorManager)
+                                    } label: {
+                                        PlaceCell(place: place)
+                                    }
                                 }
                             }
+                            .listRowSeparator(.hidden)
                         }
-                        .listRowSeparator(.hidden)
                     }
-                }
-                .listSectionSeparator(.hidden)
-                .listStyle(.plain)
-                .onChange(of: locationManager.userLocation, initial: true) { oldValue, newValue in
-                    guard let userLocation = newValue else { return }
-                    let radius: Double = 20000 // Радиус в метрах
-                    let aroundPlaces  = allPlaces.filter { place in
-                        let distance = userLocation.distance(from: CLLocation(latitude: place.latitude, longitude: place.longitude))
-                        return distance <= radius
+                    .listSectionSeparator(.hidden)
+                    .listStyle(.plain)
+                    .scrollIndicators(.hidden)
+//                    .onAppear() {
+//                        guard let userLocation = locationManager.userLocation else { return }
+//                        if !networkManager.userLocations.contains(where: { $0 == userLocation } ) {
+//                            let radius: Double = 20000 // Радиус в метрах
+//                            let aroundPlaces  = allPlaces.filter { place in
+//                                let distance = userLocation.distance(from: CLLocation(latitude: place.latitude, longitude: place.longitude))
+//                                return distance <= radius
+//                            }
+//                            createGrouppedExpenses(aroundPlaces)
+//                            aroundEvents = allEvents.filter { event in
+//                                let distance = userLocation.distance(from: CLLocation(latitude: event.latitude, longitude: event.longitude))
+//                                return distance <= radius && event.isActive == true//) && (event.startDate.isToday || event.startDate.isTomorrow )
+//                            }
+//                            if aroundEvents.isEmpty && groupedPlaces.isEmpty {
+//                                isLoading = true
+//                            }
+//                            load(location: userLocation)
+//                            
+//                        }
+//                    }
+                    .onChange(of: locationManager.userLocation, initial: true) { oldValue, newValue in
+                        guard let userLocation = newValue else { return }
+                        let radius: Double = 20000 // Радиус в метрах
+                        let aroundPlaces  = allPlaces.filter { place in
+                            let distance = userLocation.distance(from: CLLocation(latitude: place.latitude, longitude: place.longitude))
+                            return distance <= radius
+                        }
+                        createGrouppedExpenses(aroundPlaces)
+                        aroundEvents = allEvents.filter { event in
+                            let distance = userLocation.distance(from: CLLocation(latitude: event.latitude, longitude: event.longitude))
+                            return distance <= radius && event.isActive == true//) && (event.startDate.isToday || event.startDate.isTomorrow )
+                        }
+                        if aroundEvents.isEmpty && groupedPlaces.isEmpty {
+                            isLoading = true
+                        }
+                        if !networkManager.userLocations.contains(where: { $0 == userLocation } ) {
+                            load(location: userLocation)
+                        }
                     }
-                    createGrouppedExpenses(aroundPlaces)
-                    aroundEvents = allEvents.filter { event in
-                        let distance = userLocation.distance(from: CLLocation(latitude: event.latitude, longitude: event.longitude))
-                        return distance <= radius && event.isActive == true//) && (event.startDate.isToday || event.startDate.isTomorrow )
-                    }
-                    //запрос в сеть
-                    if aroundEvents.isEmpty && groupedPlaces.isEmpty {
-                        isLoading = true
-                    }
-                    load(latitude: userLocation.coordinate.latitude, longitude: userLocation.coordinate.longitude)
                 }
             }
         }
     }
     
-    private func load(latitude: Double, longitude: Double) {
+    private func load(location: CLLocation) {
         Task {
             let errorModel = ErrorModel(massage: "Something went wrong. The information has not been updated. Please try again later.", img: nil, color: nil)
+            let latitude: Double = location.coordinate.latitude
+            let longitude: Double = location.coordinate.longitude
             do {
-                
                 let decodedResult = try await networkManager.fetchLocations(latitude: latitude, longitude: longitude)
                 guard decodedResult.result else {
                     debugPrint("ERROR - getAdminInfo API:", decodedResult.error?.message ?? "---")
@@ -129,7 +157,10 @@ struct HomeView: View {
                     await MainActor.run {
                         for decodedPlace in decodedPlaces {
                             if let place = allPlaces.first(where: { $0.id == decodedPlace.id} ) {
-                                place.updatePlaceIncomplete(decodedPlace: decodedPlace)
+                                let lastUpdate = decodedPlace.lastUpdate.dateFromString(format: "yyyy-MM-dd HH:mm:ss")
+                                if place.lastUpdateIncomplete != lastUpdate {
+                                    place.updatePlaceIncomplete(decodedPlace: decodedPlace)
+                                }
                             } else if decodedPlace.isActive {
                                 let place = Place(decodedPlace: decodedPlace)
                                 context.insert(place)
@@ -149,6 +180,7 @@ struct HomeView: View {
                         }
                     }
                 }
+                networkManager.addToUserLocations(location: location)
                 await MainActor.run {
                     let userLocation = CLLocation(latitude: latitude, longitude: longitude)
                     let radius: Double = 20000 // Радиус в метрах
@@ -164,6 +196,7 @@ struct HomeView: View {
                     isLoading = false
                 }
             } catch {
+                isLoading = false
                 debugPrint(error)
                 errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
             }
@@ -188,6 +221,11 @@ struct HomeView: View {
     }
 }
 
-//#Preview {
-//    HomeView()
-//}
+#Preview {
+    let appSettingsManager = AppSettingsManager()
+    let networkManager = AroundNetworkManager(appSettingsManager: appSettingsManager)
+    let locationManager = LocationManager()
+    let errorManager = ErrorManager()
+    return HomeView(networkManager: networkManager, locationManager: locationManager, errorManager: errorManager)
+       // .modelContainer(for: [Place.self, Event.self], inMemory: false)
+}

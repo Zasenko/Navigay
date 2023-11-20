@@ -219,5 +219,6 @@ struct EditPlacePhotosView: View {
 
 #Preview {
     let errorManager = ErrorManager()
-    return EditPlacePhotosView(viewModel: EditPlacePhotosViewModel(bigImage: nil, smallImage: nil, photos: [], placeId: 0, networkManager: PlaceNetworkManager(), errorManager: errorManager))
+    let appSettingsManager = AppSettingsManager()
+    return EditPlacePhotosView(viewModel: EditPlacePhotosViewModel(bigImage: nil, smallImage: nil, photos: [], placeId: 0, networkManager: PlaceNetworkManager(appSettingsManager: appSettingsManager), errorManager: errorManager))
 }

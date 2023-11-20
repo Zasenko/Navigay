@@ -28,7 +28,7 @@ struct Test2: View {
                             .scaledToFill()
                     }
                 }
-                .tabViewStyle(PageTabViewStyle())
+                .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
                 .frame(height: (UIScreen.main.bounds.width / 4) * 5)
                 .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                 HStack(spacing: 10) {

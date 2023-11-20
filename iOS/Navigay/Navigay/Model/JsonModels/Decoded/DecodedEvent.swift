@@ -53,7 +53,7 @@ struct DecodedEvent: Identifiable, Codable {
     let tags: [Tag]?
     let isActive: Bool
     let location: String?
-    let lastUpdate: String?
+    let lastUpdate: String
    // let about: String?
    // let email: String?
    // let www: String?

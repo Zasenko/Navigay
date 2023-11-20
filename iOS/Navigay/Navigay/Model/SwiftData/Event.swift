@@ -42,7 +42,8 @@ final class Event {
     var city: City? = nil
     var place: Place? = nil
     
-    
+    var lastUpdateIncomplete: Date? = nil
+    var lastUpdateComplite: Date? = nil
     
     var isLiked: Bool = false
     
@@ -79,11 +80,10 @@ final class Event {
         location = decodedEvent.location
         isActive = decodedEvent.isActive
         
-        @Transient
-        lazy var coordinate: CLLocationCoordinate2D = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+        lastUpdateIncomplete = decodedEvent.lastUpdate.dateFromString(format: "yyyy-MM-dd HH:mm:ss")
     }
     
-    func updateEvent(decodedEvent: DecodedEvent) {
+    func updateEventComplete(decodedEvent: DecodedEvent) {
         name = decodedEvent.name
         type = decodedEvent.type
         startDate = startDate
@@ -109,5 +109,7 @@ final class Event {
 //        facebook = decodedEvent.facebook
 //        instagram = decodedEvent.instagram
 //        tickets = decodedEvent.tickets
+        
+        lastUpdateComplite = decodedEvent.lastUpdate.dateFromString(format: "yyyy-MM-dd HH:mm:ss")
     }
 }
