@@ -25,7 +25,7 @@ struct PlaceRequiredFieldsView: View {
                 LazyVStack(spacing: 0) {
                     VStack(spacing: 0) {
                         NavigationLink {
-                            EditTextFieldView(text: viewModel.name, characterLimit: 30, minHaracters: 2, title: "Title", placeholder: "Title") { string in
+                            EditTextFieldView(text: viewModel.name, characterLimit: 50, minHaracters: 2, title: "Title", placeholder: "Title") { string in
                                 viewModel.name = string
                             }
                         } label: {
@@ -126,6 +126,7 @@ struct PlaceRequiredFieldsView: View {
     let decodetUser = DecodedAppUser(id: 0, name: "Test", email: "test@test.com", status: .admin, bio: nil, photo: nil, instagram: nil, likedPlacesId: nil)
     let user = AppUser(decodedUser: decodetUser)
     let errorManager = ErrorManager()
-    let networkManage = PlaceNetworkManager()
+    let appSettingsManager = AppSettingsManager()
+    let networkManage = PlaceNetworkManager(appSettingsManager: appSettingsManager)
     return PlaceRequiredFieldsView(viewModel: AddNewPlaceViewModel(user: user, networkManager: networkManage, errorManager: errorManager))
 }

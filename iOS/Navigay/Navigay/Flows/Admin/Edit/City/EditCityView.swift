@@ -42,8 +42,6 @@ struct EditCityView: View {
                                             Color.red
                                         }
                                         .opacity(viewModel.isLoadingPhoto ? 0.2 : 1)
-                                    } else {
-                                        Color.black
                                     }
                                 } else {
                                     AppImages.iconCamera
@@ -164,8 +162,6 @@ struct ImageLoadingView<Content: View>: View {
                 image
                     .resizable()
                     .aspectRatio(contentMode: contentMode)
-                    .frame(width: width, height: height)
-                    .clipped()
             } else {
                 loadView()
                     .onAppear() {

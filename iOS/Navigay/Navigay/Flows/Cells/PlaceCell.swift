@@ -19,19 +19,17 @@ struct PlaceCell: View {
     var body: some View {
 
         HStack(spacing: 20) {
-            if let image = image {
-                image
-                    .resizable()
-                    .scaledToFill()
-                    .background(.regularMaterial)
-                    .frame(width: 50, height: 50)
-                    .mask(Circle())
+            if let url = place.avatar {
+                ImageLoadingView(url: url, width: 50, height: 50, contentMode: .fill) {
+                    Color.orange
+                }
+                .background(.regularMaterial)
+                .mask(Circle())
             } else {
                 Text(place.type.getImage())
                     .frame(width: 50, height: 50)
                     .background(.regularMaterial)
                     .mask(Circle())
-                
             }
             
             VStack(alignment: .leading, spacing: 4) {
@@ -59,7 +57,7 @@ struct PlaceCell: View {
         
         .padding(.trailing)
         .onAppear() {
-            if let url = place.photoSmall {
+            if let url = place.avatar {
                 Task {
                     if let image = await ImageLoader.shared.loadImage(urlString: url) {
                         self.image = image

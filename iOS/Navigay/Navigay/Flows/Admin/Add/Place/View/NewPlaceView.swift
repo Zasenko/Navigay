@@ -96,6 +96,8 @@ struct NewPlaceView: View {
     let decodetUser = DecodedAppUser(id: 0, name: "Test", email: "test@test.com", status: .admin, bio: nil, photo: nil, instagram: nil, likedPlacesId: nil)
     let user = AppUser(decodedUser: decodetUser)
     let errorManager = ErrorManager()
-    return NewPlaceView(viewModel: AddNewPlaceViewModel(user: user, networkManager: PlaceNetworkManager(), errorManager: errorManager))
+    let appSettingsManager = AppSettingsManager()
+
+    return NewPlaceView(viewModel: AddNewPlaceViewModel(user: user, networkManager: PlaceNetworkManager(appSettingsManager: appSettingsManager), errorManager: errorManager))
 }
 

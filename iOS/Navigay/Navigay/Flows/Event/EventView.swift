@@ -30,11 +30,10 @@ struct EventView: View {
                 Text(event.startTime?.formatted() ?? "")
                 Text(event.finishDate?.formatted() ?? "")
                 Text(event.finishTime?.formatted() ?? "")
-                Text(event.cover ?? "")
-                Text(event.placeName ?? "")
+                Text(event.poster ?? "")
                 Text(event.tickets ?? "")
                 Text(event.www ?? "")
-                Text(event.insta ?? "")
+                Text(event.instagram ?? "")
             }
             
             Section {

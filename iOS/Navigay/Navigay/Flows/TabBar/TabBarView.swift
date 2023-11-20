@@ -35,11 +35,13 @@ struct TabBarView: View {
             VStack(spacing: 0) {
                 switch selectedPage {
                 case .home:
-                    HomeView(networkManager: CatalogNetworkManager(appSettingsManager: appSettingsManager), locationManager: locationManager)
+                    HomeView(networkManager: AroundNetworkManager(appSettingsManager: appSettingsManager), locationManager: locationManager, errorManager: authenticationManager.errorManager)
                 case .map:
-                    MapView(locationManager: locationManager)
+                    Color.red
+                    //MapView(locationManager: locationManager)
                 case .search:
-                    SearchView(networkManager: CatalogNetworkManager(appSettingsManager: appSettingsManager))
+                    Color.red
+                   // SearchView(networkManager: CatalogNetworkManager(appSettingsManager: appSettingsManager))
                 case .user:
                     AppUserView(authenticationManager: authenticationManager)
                 case .admin:

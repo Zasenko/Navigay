@@ -43,8 +43,6 @@ struct EditCountryView: View {
                                             Color.red
                                         }
                                         .opacity(viewModel.isLoadingPhoto ? 0.2 : 1)
-                                    } else {
-                                        Color.black
                                     }
                                 } else {
                                     AppImages.iconCamera

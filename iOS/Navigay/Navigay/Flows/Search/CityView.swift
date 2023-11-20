@@ -16,6 +16,7 @@ struct CityView: View {
     @Environment(\.dismiss) private var dismiss
     let networkManager: CatalogNetworkManagerProtocol
     let eventNetworkManager: EventNetworkManagerProtocol
+    let placeNetworkManager: PlaceNetworkManagerProtocol
     
     
    // @State private var groupedExpenses: [GroupedExpenses] = []
@@ -27,6 +28,7 @@ struct CityView: View {
         self.city = city
         self.networkManager = networkManager
         self.eventNetworkManager = EventNetworkManager(appSettingsManager: networkManager.appSettingsManager)
+        self.placeNetworkManager = PlaceNetworkManager(appSettingsManager: networkManager.appSettingsManager)
     }
     
     var body: some View {
@@ -43,50 +45,50 @@ struct CityView: View {
                     .listRowSeparator(.hidden)
                     .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                     
-                    if city.events.count > 0 {
-                        Section {
-                            Text("Upcoming events".uppercased())
-                                .modifier(CapsuleSmall(background: .red, foreground: .white))
-                                .frame(maxWidth: .infinity)
-                                .padding(.top)
-                                .padding()
-                                .padding(.bottom)
-                            ScrollView(.horizontal, showsIndicators: false) {
-                                LazyHStack(alignment: .center, spacing: 20) {
-                                    ForEach(city.events) { event in
-                                        EventCell(event: event)
-                                            .padding(.horizontal)
-                                    }
-                                }
-                            }
-                            .padding(.bottom)
-                        }
-                        .listRowSeparator(.hidden)
-                        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                        
-                    }
+//                    if city.events.count > 0 {
+//                        Section {
+//                            Text("Upcoming events".uppercased())
+//                                .modifier(CapsuleSmall(background: .red, foreground: .white))
+//                                .frame(maxWidth: .infinity)
+//                                .padding(.top)
+//                                .padding()
+//                                .padding(.bottom)
+//                            ScrollView(.horizontal, showsIndicators: false) {
+//                                LazyHStack(alignment: .center, spacing: 20) {
+//                                    ForEach(city.events) { event in
+//                                        EventCell(event: event, width: (geometry.size.width - 10) / 2)
+//                                            .padding(.horizontal)
+//                                    }
+//                                }
+//                            }
+//                            .padding(.bottom)
+//                        }
+//                        .listRowSeparator(.hidden)
+//                        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+//                        
+//                    }
                     
-                    ForEach(originalGroupedPlaces.keys.sorted(), id: \.self) { key in
-                        Section {
-                            Text(key.getPluralName().uppercased())
-                                .foregroundColor(.white)
-                                .font(.caption)
-                                .bold()
-                                .modifier(CapsuleSmall(background: key.getColor(), foreground: .white))
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                            
-                            ForEach(originalGroupedPlaces[key] ?? []) { place in
-                                NavigationLink {
-                                    PlaceView(place: place, networkManager: eventNetworkManager)
-                                } label: {
-                                    PlaceCell(place: place)
-                                }
-                                
-                            }
-                        }
-                        .listRowSeparator(.hidden)
-                    }
+//                    ForEach(originalGroupedPlaces.keys.sorted(), id: \.self) { key in
+//                        Section {
+//                            Text(key.getPluralName().uppercased())
+//                                .foregroundColor(.white)
+//                                .font(.caption)
+//                                .bold()
+//                                .modifier(CapsuleSmall(background: key.getColor(), foreground: .white))
+//                                .frame(maxWidth: .infinity)
+//                                .padding()
+//                            
+//                            ForEach(originalGroupedPlaces[key] ?? []) { place in
+//                                NavigationLink {
+//                                    PlaceView(place: place, networkManager: placeNetworkManager, errorManager: ErrorManager)
+//                                } label: {
+//                                    PlaceCell(place: place)
+//                                }
+//                                
+//                            }
+//                        }
+//                        .listRowSeparator(.hidden)
+//                    }
                 }
                 .listSectionSeparator(.hidden)
                 .listStyle(.plain)
@@ -256,8 +258,6 @@ struct CapsuleSmall: ViewModifier {
     
     func body(content: Content) -> some View {
         content
-            .font(.caption)
-            .bold()
             .padding(5)
             .padding(.horizontal, 5)
             .foregroundColor(foreground)
@@ -265,3 +265,5 @@ struct CapsuleSmall: ViewModifier {
             .clipShape(Capsule(style: .continuous))
     }
 }
+
+

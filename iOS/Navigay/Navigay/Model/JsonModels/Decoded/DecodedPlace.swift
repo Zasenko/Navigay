@@ -6,8 +6,29 @@
 //
 
 import Foundation
-
 struct DecodedPlace: Identifiable, Codable {
+    enum CodingKeys: String, CodingKey {
+        case id
+        case name
+        case type = "type_id"
+        case address
+        case latitude
+        case longitude
+        case isActive = "is_active"
+        case lastUpdate = "updated_at"
+        case avatar
+        case mainPhoto = "main_photo"
+        case photos
+        case tags
+        case timetable
+        case about
+        case www, facebook, instagram, phone
+        case otherInfo = "other_info"
+        case countryId = "country_id"
+        case regionId = "region_id"
+        case cityId = "city_id"
+        case events
+    }
 
     let id: Int
     let name: String
@@ -20,36 +41,19 @@ struct DecodedPlace: Identifiable, Codable {
     
     let avatar: String?
     let mainPhoto: String?
+    let photos: [String]?
     let tags: [Tag]?
     let timetable: [PlaceWorkDay]?
     let otherInfo: String?
-    let about: [About]?
-    let email: String?
+    let about: String?
     let www: String?
     let facebook: String?
     let instagram: String?
     let phone: String?
-
     let countryId: Int?
     let regionId: Int?
     let cityId: Int?
-    
-    let ownerId: Int?
-    let isChecked: Bool?
-    
-    enum CodingKeys: String, CodingKey {
-        case id, name, address, latitude, longitude, avatar, tags, timetable, about, email, www, facebook, instagram, phone
-        case type = "type_id"
-        case isActive = "is_active"
-        case isChecked = "is_checked"
-        case lastUpdate = "updated_at"
-        case mainPhoto = "main_photo"
-        case otherInfo = "other_info"
-        case countryId = "country_id"
-        case regionId = "region_id"
-        case cityId = "city_id"
-        case ownerId = "owner_id"
-    }
+    let events: [DecodedEvent]?
 }
 
 struct PlaceWorkDay: Codable {

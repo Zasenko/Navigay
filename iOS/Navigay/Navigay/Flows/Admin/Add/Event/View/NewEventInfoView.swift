@@ -17,7 +17,7 @@ struct NewEventInfoView: View {
     
     var body: some View {
         NavigationStack {
-            ScrollView(showsIndicators: false) {
+            ScrollView {
                 LazyVStack(spacing: 0) {
                     EventRequiredFieldsView(name: $viewModel.name, type: $viewModel.type, isoCountryCode: $viewModel.isoCountryCode, countryOrigin: $viewModel.countryOrigin, countryEnglish: $viewModel.countryEnglish, regionOrigin: $viewModel.regionOrigin, regionEnglish: $viewModel.regionEnglish, cityOrigin: $viewModel.cityOrigin, cityEnglish: $viewModel.cityEnglish, addressOrigin: $viewModel.addressOrigin, latitude: $viewModel.latitude, longitude: $viewModel.longitude)
                         .padding(.bottom, 40)
@@ -42,6 +42,7 @@ struct NewEventInfoView: View {
                     }
                 }
             }
+            .scrollIndicators(.hidden)
         }
     }
 }
