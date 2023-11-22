@@ -34,6 +34,7 @@ struct PlaceView: View {
     
     // MARK: - Inits
     init(place: Place, networkManager: PlaceNetworkManagerProtocol, errorManager: ErrorManagerProtocol) {
+        print("init place view id: \(place.id)")
         self.place = place
         self.networkManager = networkManager
         self.errorManager = errorManager

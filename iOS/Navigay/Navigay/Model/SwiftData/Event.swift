@@ -23,7 +23,6 @@ final class Event {
     var address: String = ""
     var latitude: Double = 0.0
     var longitude: Double = 0.0
-   // var isCoverHorizontal: Bool = false
     var poster: String? = nil
     var smallPoster: String? = nil
     var isFree: Bool = false
@@ -34,11 +33,10 @@ final class Event {
     var www: String? = nil
     var facebook: String? = nil
     var instagram: String? = nil
+    var phone: String? = nil
     var tickets: String? = nil
+    var fee: String? = nil
     
-    //TODO
-//    var placeId: Int? = nil
-//    var ownerId: Int? = nil
     var city: City? = nil
     var place: Place? = nil
     
@@ -104,12 +102,13 @@ final class Event {
         }
         isActive = decodedEvent.isActive
         location = decodedEvent.location
-//        about = decodedEvent.about
-//        www = decodedEvent.www
-//        facebook = decodedEvent.facebook
-//        instagram = decodedEvent.instagram
-//        tickets = decodedEvent.tickets
-        
+        about = decodedEvent.about
+        www = decodedEvent.www
+        facebook = decodedEvent.facebook
+        instagram = decodedEvent.instagram
+        phone = decodedEvent.phone
+        tickets = decodedEvent.tickets
+        fee = decodedEvent.fee
         lastUpdateComplite = decodedEvent.lastUpdate.dateFromString(format: "yyyy-MM-dd HH:mm:ss")
     }
 }

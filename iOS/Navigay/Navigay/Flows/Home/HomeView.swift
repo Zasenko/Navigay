@@ -27,6 +27,8 @@ struct HomeView: View {
     @State private var groupedPlaces: [PlaceType: [Place]] = [:]
     @State private var aroundEvents: [Event] = []
     
+    @State private var selectedEvent: Event? = nil
+    
     @State private var isLoading: Bool = false
     
     @State private var gridLayout: [GridItem] = Array(repeating: GridItem(.flexible(), spacing: 10), count: 2)
@@ -41,102 +43,97 @@ struct HomeView: View {
     }
     
     var body: some View {
-        if isLoading {
-            ProgressView()
-                .tint(.blue)
-                .frame(maxHeight: .infinity)
-            
-        } else {
-            NavigationStack {
-                GeometryReader { proxy in
-                    List {
-                        if aroundEvents.count > 0 {
-                            Section {
-                                Text("Upcoming events".uppercased())
-                                    .foregroundColor(.white)
-                                    .font(.caption)
-                                    .bold()
-                                    .modifier(CapsuleSmall(background: .red, foreground: .white))
-                                    .frame(maxWidth: .infinity)
-                                    .padding(.top)
-                                    .padding()
-                                    .padding(.bottom)
-                                LazyVGrid(columns: gridLayout, spacing: 50) {
-                                    ForEach(aroundEvents.sorted(by: { $0.startDate < $1.startDate } )) { event in
-                                        EventCell(event: event, width: (proxy.size.width - 50) / 2)
+        ZStack {
+            if isLoading {
+                ProgressView()
+                    .tint(.blue)
+                    .frame(maxHeight: .infinity)
+                
+            } else {
+                NavigationStack {
+                    GeometryReader { proxy in
+                        listView(width: proxy.size.width)
+                    }
+                }
+            }
+            if let selectedEvent {
+                EventView(event: selectedEvent, networkManager: eventNetworkManager, errorManager: errorManager, placeNetworkManager: placeNetworkManager)
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private func listView(width: CGFloat) -> some View {
+        List {
+            if aroundEvents.count > 0 {
+                Section {
+                    Text("Upcoming events".uppercased())
+                        .foregroundColor(.white)
+                        .font(.caption)
+                        .bold()
+                        .modifier(CapsuleSmall(background: .red, foreground: .white))
+                        .frame(maxWidth: .infinity)
+                        .padding(.top)
+                        .padding()
+                        .padding(.bottom)
+         //           LazyVGrid(columns: gridLayout, spacing: 50) {
+                        ForEach(aroundEvents.sorted(by: { $0.startDate < $1.startDate } )) { event in
+                            NavigationLink {
+                                EventView(event: event, networkManager: eventNetworkManager, errorManager: errorManager, placeNetworkManager: placeNetworkManager)
+                            } label: {
+                                EventCell(event: event, width: (width - 50) / 2)
 //                                            .frame(width: (proxy.size.width - 10) / 2,
 //                                                   height: (((proxy.size.width - 10) / 2) / 4) * 5)
-                                    }
-                                }
                             }
-                            .listRowSeparator(.hidden)
-                            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                            
                         }
-                        
-                        ForEach(groupedPlaces.keys.sorted(), id: \.self) { key in
-                            Section {
-                                Text(key.getPluralName().uppercased())
-                                    .foregroundColor(.white)
-                                    .font(.caption)
-                                    .bold()
-                                    .modifier(CapsuleSmall(background: key.getColor(), foreground: .white))
-                                    .frame(maxWidth: .infinity)
-                                    .padding(.top)
-                                
-                                ForEach(groupedPlaces[key] ?? []) { place in
-                                    NavigationLink {
-                                        PlaceView(place: place, networkManager: placeNetworkManager, errorManager: errorManager)
-                                    } label: {
-                                        PlaceCell(place: place)
-                                    }
-                                }
-                            }
-                            .listRowSeparator(.hidden)
-                        }
-                    }
-                    .listSectionSeparator(.hidden)
-                    .listStyle(.plain)
-                    .scrollIndicators(.hidden)
-//                    .onAppear() {
-//                        guard let userLocation = locationManager.userLocation else { return }
-//                        if !networkManager.userLocations.contains(where: { $0 == userLocation } ) {
-//                            let radius: Double = 20000 // Радиус в метрах
-//                            let aroundPlaces  = allPlaces.filter { place in
-//                                let distance = userLocation.distance(from: CLLocation(latitude: place.latitude, longitude: place.longitude))
-//                                return distance <= radius
-//                            }
-//                            createGrouppedExpenses(aroundPlaces)
-//                            aroundEvents = allEvents.filter { event in
-//                                let distance = userLocation.distance(from: CLLocation(latitude: event.latitude, longitude: event.longitude))
-//                                return distance <= radius && event.isActive == true//) && (event.startDate.isToday || event.startDate.isTomorrow )
-//                            }
-//                            if aroundEvents.isEmpty && groupedPlaces.isEmpty {
-//                                isLoading = true
-//                            }
-//                            load(location: userLocation)
-//                            
-//                        }
-//                    }
-                    .onChange(of: locationManager.userLocation, initial: true) { oldValue, newValue in
-                        guard let userLocation = newValue else { return }
-                        let radius: Double = 20000 // Радиус в метрах
-                        let aroundPlaces  = allPlaces.filter { place in
-                            let distance = userLocation.distance(from: CLLocation(latitude: place.latitude, longitude: place.longitude))
-                            return distance <= radius
-                        }
-                        createGrouppedExpenses(aroundPlaces)
-                        aroundEvents = allEvents.filter { event in
-                            let distance = userLocation.distance(from: CLLocation(latitude: event.latitude, longitude: event.longitude))
-                            return distance <= radius && event.isActive == true//) && (event.startDate.isToday || event.startDate.isTomorrow )
-                        }
-                        if aroundEvents.isEmpty && groupedPlaces.isEmpty {
-                            isLoading = true
-                        }
-                        if !networkManager.userLocations.contains(where: { $0 == userLocation } ) {
-                            load(location: userLocation)
+          //          }
+                }
+                .listRowSeparator(.hidden)
+                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+            }
+            
+            ForEach(groupedPlaces.keys.sorted(), id: \.self) { key in
+                Section {
+                    Text(key.getPluralName().uppercased())
+                        .foregroundColor(.white)
+                        .font(.caption)
+                        .bold()
+                        .modifier(CapsuleSmall(background: key.getColor(), foreground: .white))
+                        .frame(maxWidth: .infinity)
+                        .padding(.top)
+                    
+                    ForEach(groupedPlaces[key] ?? []) { place in
+                        NavigationLink {
+                            PlaceView(place: place, networkManager: placeNetworkManager, errorManager: errorManager)
+                        } label: {
+                            PlaceCell(place: place)
                         }
                     }
                 }
+                .listRowSeparator(.hidden)
+            }
+        }
+        .listSectionSeparator(.hidden)
+        .listStyle(.plain)
+        .scrollIndicators(.hidden)
+        .onChange(of: locationManager.userLocation, initial: true) { oldValue, newValue in
+            guard let userLocation = newValue else { return }
+            let radius: Double = 20000 // Радиус в метрах
+            let aroundPlaces  = allPlaces.filter { place in
+                let distance = userLocation.distance(from: CLLocation(latitude: place.latitude, longitude: place.longitude))
+                return distance <= radius
+            }
+            createGrouppedExpenses(aroundPlaces)
+            aroundEvents = allEvents.filter { event in
+                let distance = userLocation.distance(from: CLLocation(latitude: event.latitude, longitude: event.longitude))
+                return distance <= radius && event.isActive == true//) && (event.startDate.isToday || event.startDate.isTomorrow )
+            }
+            if aroundEvents.isEmpty && groupedPlaces.isEmpty {
+                isLoading = true
+            }
+            if !networkManager.userLocations.contains(where: { $0 == userLocation } ) {
+                load(location: userLocation)
             }
         }
     }

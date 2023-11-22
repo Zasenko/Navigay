@@ -13,6 +13,7 @@ struct PlaceCell: View {
     @State private var image: Image? = nil
     
     init(place: Place) {
+        print("init place cell id: \(place.id)")
         self.place = place
     }
     
@@ -31,7 +32,6 @@ struct PlaceCell: View {
                     .background(.regularMaterial)
                     .mask(Circle())
             }
-            
             VStack(alignment: .leading, spacing: 4) {
                 HStack(alignment: .firstTextBaseline, spacing: 4) {
                     if place.isLiked {
@@ -54,7 +54,6 @@ struct PlaceCell: View {
             Spacer()
             
         }
-        
         .padding(.trailing)
         .onAppear() {
             if let url = place.avatar {
