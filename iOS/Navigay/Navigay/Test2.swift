@@ -18,61 +18,49 @@ struct Test2: View {
     
     @State private var pics: [P] = [P(pic: Image("1")), P(pic: Image("2")), P(pic: Image("3"))]
     
+    @Namespace var namespace
+    @State private var show = false
+    
     var body: some View {
-        NavigationView {
-            List {
-                TabView {
-                    ForEach(pics) { pic in
-                        pic.pic
-                            .resizable()
-                            .scaledToFill()
-                    }
-                }
-                .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
-                .frame(height: (UIScreen.main.bounds.width / 4) * 5)
-                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                HStack(spacing: 10) {
-                    ForEach(1...4, id: \.self) { index in
-                        Circle()
-                            .foregroundStyle(.secondary)
-                            .frame(width: 8, height: 8)
-                    }
-                }.frame(maxWidth: .infinity)
 
+        ZStack {
+            if !show {
+                VStack {
+                    Text("SwiftUI")
+                        .font(.title)
+                        .matchedGeometryEffect(id: "title", in: namespace)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    Text("20 sections 3 hours")
+                        .font(.footnote.weight(.semibold))
+                        .matchedGeometryEffect(id: "subTitle", in: namespace)
+                }
+                .foregroundStyle(.orange)
+                .background(
+                    Color.yellow
+                        .matchedGeometryEffect(id: "bg", in: namespace)
+                )
+            } else {
+                VStack {
+                    Spacer()
+                    Text("20 sections 3 hours")
+                        .font(.footnote.weight(.semibold))
+                        .matchedGeometryEffect(id: "subTitle", in: namespace)
+                    Text("SwiftUI")
+                        .font(.title)
+                        .matchedGeometryEffect(id: "title", in: namespace)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .foregroundStyle(.blue)
+                .background(
+                    Color.red
+                        .matchedGeometryEffect(id: "bg", in: namespace)
+                )
             }
-            .listStyle(.plain)
-            .navigationBarBackButtonHidden()
-            .toolbarBackground(AppColors.background)
-            .toolbarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .principal) {
-                    VStack(spacing: 0) {
-                        Text("BAR")
-                            .foregroundStyle(.secondary)
-                            .font(.caption.bold())
-                        Text("Hard On")
-                            .font(.headline.bold())
-                    }
-                }
-                ToolbarItem(placement: .topBarLeading) {
-                    Button {
-                        dismiss()
-                    } label: {
-                        AppImages.iconLeft
-                            .bold()
-                            .frame(width: 30, height: 30, alignment: .leading)
-                    }
-                    .tint(.primary)
-                }
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        
-                    } label: {
-                        Image(systemName: "ellipsis")
-                    }
-                }
+        }
+        .onTapGesture {
+            withAnimation {
+                show.toggle()
             }
-            
         }
     }
 }

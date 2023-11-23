@@ -9,16 +9,21 @@ import SwiftUI
 import SwiftData
 import MapKit
 
+final class PlaceViewModel: ObservableObject {
+    
+}
+
 struct PlaceView: View {
     
     // MARK: - Properties
+        
+    // MARK: - Private Properties
+    
     @Environment(\.openURL) private var openURL
     @EnvironmentObject private var authenticationManager: AuthenticationManager
     
     @Query(animation: .snappy)
     private var allEvents: [Event]
-    
-    // MARK: - Private Properties
     
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var context
@@ -26,77 +31,91 @@ struct PlaceView: View {
     private let place: Place
     @State private var allPhotos: [String] = []
     private let networkManager: PlaceNetworkManagerProtocol
+    private let eventNetworkManager: EventNetworkManagerProtocol
     private let errorManager: ErrorManagerProtocol
     
     @State private var gridLayout: [GridItem] = Array(repeating: GridItem(.flexible(), spacing: 2), count: 3)
     @State private var gridLayoutEvents: [GridItem] = Array(repeating: GridItem(.flexible(), spacing: 10), count: 2)
     @State private var position: MapCameraPosition = .automatic
     
+    @State private var isShowEvent: Bool = false
+    @State private var selectedEvent: Event? = nil
+ //   @Namespace var namespace
+    
     // MARK: - Inits
-    init(place: Place, networkManager: PlaceNetworkManagerProtocol, errorManager: ErrorManagerProtocol) {
+    init(place: Place, networkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol) {
         print("init place view id: \(place.id)")
         self.place = place
         self.networkManager = networkManager
+        self.eventNetworkManager = eventNetworkManager
         self.errorManager = errorManager
     }
     
     // MARK: - Body
     
     var body: some View {
-        NavigationStack {
-            GeometryReader { geometry in
-                VStack(spacing: 0) {
-                    Divider()
-                    createList(width: geometry.size.width)
-                }
-                .navigationBarBackButtonHidden()
-                .toolbarBackground(AppColors.background)
-                .toolbarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .principal) {
+        ZStack {
+//            if isShowEvent, let event = selectedEvent {
+//                EventView(isPresented: $isShowEvent, event: event, networkManager: eventNetworkManager, errorManager: errorManager, placeNetworkManager: networkManager)
+//            } else {
+                NavigationStack {
+                    GeometryReader { geometry in
                         VStack(spacing: 0) {
-                            Text(place.type.getName().uppercased())
-                                .font(.caption).bold()
-                                .foregroundStyle(.secondary)
-                            Text(place.name)
-                                .font(.headline).bold()
+                            Divider()
+                            createList(width: geometry.size.width, geom: geometry.size)
                         }
-                    }
-                    ToolbarItem(placement: .topBarLeading) {
-                        Button {
-                            withAnimation {
-                                dismiss()
+                        .navigationBarBackButtonHidden()
+                        .toolbarBackground(AppColors.background)
+                        .toolbarTitleDisplayMode(.inline)
+                 //      .toolbar(isShowEvent ? .hidden : .visible, for: .navigationBar)
+                        .toolbar {
+                            ToolbarItem(placement: .principal) {
+                                VStack(spacing: 0) {
+                                    Text(place.type.getName().uppercased())
+                                        .font(.caption).bold()
+                                        .foregroundStyle(.secondary)
+                                    Text(place.name)
+                                        .font(.headline).bold()
+                                }
                             }
-                        } label: {
-                            AppImages.iconLeft
-                                .bold()
-                                .frame(width: 30, height: 30, alignment: .leading)
+                            ToolbarItem(placement: .topBarLeading) {
+                                Button {
+                                    withAnimation {
+                                        dismiss()
+                                    }
+                                } label: {
+                                    AppImages.iconLeft
+                                        .bold()
+                                        .frame(width: 30, height: 30, alignment: .leading)
+                                }
+                                .tint(.primary)
+                            }
+                            ToolbarItem(placement: .topBarTrailing) {
+                                Button {
+                                    place.isLiked.toggle()
+                                } label: {
+                                    Image(systemName: place.isLiked ? "heart.fill" : "heart")
+                                        .bold()
+                                        .frame(width: 30, height: 30, alignment: .leading)
+                                }
+                                .tint(place.isLiked ? .red :  .secondary)
+                            }
                         }
-                        .tint(.primary)
-                    }
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button {
-                            place.isLiked.toggle()
-                        } label: {
-                            Image(systemName: place.isLiked ? "heart.fill" : "heart")
-                                .bold()
-                                .frame(width: 30, height: 30, alignment: .leading)
+                        .onAppear() {
+                            allPhotos = place.getAllPhotos()
+                            loadPlace()
                         }
-                        .tint(place.isLiked ? .red :  .secondary)
+                        
                     }
                 }
-                .onAppear() {
-                    allPhotos = place.getAllPhotos()
-                    loadPlace()
-                }
-            }
+          //  }
         }
     }
     
     // MARK: - Views
     
     @ViewBuilder
-    private func createList(width: CGFloat) -> some View {
+    private func createList(width: CGFloat, geom: CGSize) -> some View {
         List {
             if !allPhotos.isEmpty {
                 PhotosTabView(allPhotos: $allPhotos, width: width)
@@ -250,7 +269,27 @@ struct PlaceView: View {
                     .padding(.bottom)
                 LazyVGrid(columns: gridLayoutEvents, spacing: 50) {
                     ForEach(place.events.sorted(by: { $0.startDate < $1.startDate } )) { event in
-                        EventCell(event: event, width: (width - 50) / 2)
+                        EventCell(event: event, width: (width - 50) / 2, onTap: { image in
+                            event.image = image
+                        })
+                        .onTapGesture {
+                            withAnimation(.spring()) {
+                                selectedEvent = event
+                                isShowEvent = true
+                            }
+                        }
+                    }
+                }
+                .sheet(isPresented:  $isShowEvent) {
+                    selectedEvent = nil
+                } content: {
+                    if let event = selectedEvent {
+                        EventView(isPresented: $isShowEvent, event: event, networkManager: eventNetworkManager, errorManager: errorManager, placeNetworkManager: networkManager)
+                            .presentationDragIndicator(.hidden)
+                            .presentationDetents([.large])
+                            .presentationCornerRadius(25)
+                    } else {
+                        EmptyView()
                     }
                 }
             }

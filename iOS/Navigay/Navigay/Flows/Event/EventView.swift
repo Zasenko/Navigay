@@ -13,18 +13,20 @@ struct EventView: View {
     
     // MARK: - Properties
     
-    @Environment(\.openURL) private var openURL
-    @EnvironmentObject private var authenticationManager: AuthenticationManager
+    // MARK: - Private Properties
     
+    @Environment(\.openURL) private var openURL
+    
+    @EnvironmentObject private var authenticationManager: AuthenticationManager
+  //  @Environment(\.dismiss) private var dismiss
+    
+    @Environment(\.modelContext) private var context
+    @Binding var isPresented: Bool
     @Query(animation: .snappy)
     private var allPlaces: [Place]
     
-    // MARK: - Private Properties
-    
-    @Environment(\.dismiss) private var dismiss
-    @Environment(\.modelContext) private var context
-    
     private let event: Event
+    @State private var image: Image? = nil
     private let networkManager: EventNetworkManagerProtocol
     private let errorManager: ErrorManagerProtocol
     private let placeNetworkManager: PlaceNetworkManagerProtocol
@@ -32,13 +34,20 @@ struct EventView: View {
     @State private var position: MapCameraPosition = .automatic
     @State private var isShowPlace: Bool = true
     
+    
+    @State private var place: Place? = nil
+ //   let namespace: Namespace.ID
+    
     // MARK: - Inits
-    init(event: Event, networkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol, placeNetworkManager: PlaceNetworkManagerProtocol) {
+    init(isPresented: Binding<Bool>, event: Event, networkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol, placeNetworkManager: PlaceNetworkManagerProtocol) {
         print("init event view id: \(event.id)")
+        _isPresented = isPresented
         self.event = event
         self.networkManager = networkManager
         self.errorManager = errorManager
         self.placeNetworkManager = placeNetworkManager
+     //   self.namespace = namespace
+        self.image = event.image
     }
     
     // MARK: - Body
@@ -47,45 +56,60 @@ struct EventView: View {
         NavigationStack {
             GeometryReader { geometry in
                 VStack(spacing: 0) {
-                    Divider()
+                    //  Divider()
                     createList(width: geometry.size.width)
+                 //       .ignoresSafeArea(.all, edges: .top)
+                    
+                    //                    .navigationDestination(for: Place.self, destination: { placeS in
+                    //                        PlaceView(place: placeS, networkManager: placeNetworkManager, errorManager: errorManager)
+                    //                    })
+                    
+                    //  .listStyle(.plain)
+                    //   .scrollIndicators(.hidden)
                 }
-                .navigationBarBackButtonHidden()
-                .toolbarBackground(AppColors.background)
-                .toolbarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .principal) {
-                        VStack(spacing: 0) {
-                            Text(event.type.getName().uppercased())
-                                .font(.caption).bold()
-                                .foregroundStyle(.secondary)
-                            Text(event.name)
-                                .font(.headline).bold()
-                        }
-                    }
-                    ToolbarItem(placement: .topBarLeading) {
-                        Button {
-                            withAnimation {
-                                dismiss()
-                            }
-                        } label: {
-                            AppImages.iconLeft
-                                .bold()
-                                .frame(width: 30, height: 30, alignment: .leading)
-                        }
-                        .tint(.primary)
-                    }
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button {
-                            event.isLiked.toggle()
-                        } label: {
-                            Image(systemName: event.isLiked ? "heart.fill" : "heart")
-                                .bold()
-                                .frame(width: 30, height: 30, alignment: .leading)
-                        }
-                        .tint(event.isLiked ? .red :  .secondary)
-                    }
-                }
+                //              .navigationBarBackButtonHidden()
+                //                .navigationDestination(item: $place) { place in
+                //                    PlaceView(place: place, networkManager: placeNetworkManager, errorManager: errorManager)
+                //                }
+                //                .navigationDestination(for: Place.self) { place in
+                //                    PlaceView(place: place, networkManager: placeNetworkManager, eventNetworkManager: networkManager, errorManager: errorManager)
+                //                }
+                .toolbar(.hidden, for: .navigationBar)
+                //                .toolbarBackground(AppColors.background)
+                //                .toolbarTitleDisplayMode(.inline)
+                //                .toolbar {
+                //                    ToolbarItem(placement: .principal) {
+                //                        VStack(spacing: 0) {
+                //                            Text(event.type.getName().uppercased())
+                //                                .font(.caption).bold()
+                //                                .foregroundStyle(.secondary)
+                //                            Text(event.name)
+                //                                .font(.headline).bold()
+                //                        }
+                //                    }
+                ////                    ToolbarItem(placement: .topBarLeading) {
+                ////                        Button {
+                ////                            withAnimation {
+                ////                                dismiss()
+                ////                            }
+                ////                        } label: {
+                ////                            AppImages.iconLeft
+                ////                                .bold()
+                ////                                .frame(width: 30, height: 30, alignment: .leading)
+                ////                        }
+                ////                        .tint(.primary)
+                ////                    }
+                //                    ToolbarItem(placement: .topBarTrailing) {
+                //                        Button {
+                //                            event.isLiked.toggle()
+                //                        } label: {
+                //                            Image(systemName: event.isLiked ? "heart.fill" : "heart")
+                //                                .bold()
+                //                                .frame(width: 30, height: 30, alignment: .leading)
+                //                        }
+                //                        .tint(event.isLiked ? .red :  .secondary)
+                //                    }
+                //                }
                 .onAppear() {
                     loadEvent()
                 }
@@ -98,12 +122,55 @@ struct EventView: View {
     @ViewBuilder
     private func createList(width: CGFloat) -> some View {
         List {
-            if let url = event.poster {
-                ImageLoadingView(url: url, width: width, height: (width / 4) * 5, contentMode: .fit) {
-                    Color.orange
-                }
-                .clipped()
+//            if let url = event.poster {
+//                ImageLoadingView(url: url, width: width, height: (width / 4) * 5, contentMode: .fit) {
+//                    Color.orange
+//                }
+//                .clipped()
+//                .listRowSeparator(.hidden)
+//                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+//                .ignoresSafeArea(.all, edges: .top)
               //  .listRowSeparator(.hidden)
+            ZStack(alignment: .topTrailing) {
+                if let image = image  {
+                    image
+                        .resizable()
+                        .scaledToFit()
+                       // .matchedGeometryEffect(id: "img", in: namespace)
+                        .frame(width: width)
+                        .clipped()
+                    
+                    
+                } else {
+                    Color.red
+                        .frame(width: width, height: (width / 4) * 3)
+                }
+                Button {
+                    isPresented.toggle()
+                } label: {
+                    AppImages.iconX
+                        .bold()
+                        .foregroundStyle(.secondary)
+                        .padding(5)
+                        .background(.ultraThinMaterial)
+                        .clipShape(.circle)
+                }
+                .padding()
+            }
+            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+            .ignoresSafeArea(.all, edges: .top)
+            .listRowSeparator(.hidden)
+            .onAppear() {
+                Task {
+                    if let url = event.poster {
+                        if let image = await ImageLoader.shared.loadImage(urlString: url) {
+                            await MainActor.run {
+                                self.image = image
+                                self.event.image = image
+                            }
+                        }
+                    }
+                }
             }
                 
             Section {
@@ -323,8 +390,8 @@ struct EventView: View {
            // .listRowBackground(Color.orange)
             
             if let place = event.place {
-                Section {
                     //DOTO!!!!!!!!!!
+                NavigationLink(place.name, value: place)
                     VStack( alignment: .leading, spacing: 0) {
                         Text("Location:")
                             .bold()
@@ -367,11 +434,13 @@ struct EventView: View {
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                     }
-                }
                 .padding()
                 .frame(maxWidth: .infinity)
                 .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                 .listRowSeparator(.hidden)
+//                .onTapGesture {
+//                    self.place = place
+//                }
                 
             }
             map

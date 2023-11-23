@@ -27,12 +27,14 @@ struct HomeView: View {
     @State private var groupedPlaces: [PlaceType: [Place]] = [:]
     @State private var aroundEvents: [Event] = []
     
+    @State private var showEvent: Bool = false
     @State private var selectedEvent: Event? = nil
     
     @State private var isLoading: Bool = false
     
     @State private var gridLayout: [GridItem] = Array(repeating: GridItem(.flexible(), spacing: 10), count: 2)
-    
+    @Namespace var namespace
+
     
     init(networkManager: AroundNetworkManagerProtocol, locationManager: LocationManager, errorManager: ErrorManagerProtocol) {
         self.networkManager = networkManager
@@ -53,11 +55,27 @@ struct HomeView: View {
                 NavigationStack {
                     GeometryReader { proxy in
                         listView(width: proxy.size.width)
+                            .onChange(of: locationManager.userLocation, initial: true) { oldValue, newValue in
+                                guard let userLocation = newValue else { return }
+                                let radius: Double = 20000 // Радиус в метрах
+                                let aroundPlaces  = allPlaces.filter { place in
+                                    let distance = userLocation.distance(from: CLLocation(latitude: place.latitude, longitude: place.longitude))
+                                    return distance <= radius
+                                }
+                                createGrouppedExpenses(aroundPlaces)
+                                aroundEvents = allEvents.filter { event in
+                                    let distance = userLocation.distance(from: CLLocation(latitude: event.latitude, longitude: event.longitude))
+                                    return distance <= radius && event.isActive == true//) && (event.startDate.isToday || event.startDate.isTomorrow )
+                                }
+                                if aroundEvents.isEmpty && groupedPlaces.isEmpty {
+                                    isLoading = true
+                                }
+                                if !networkManager.userLocations.contains(where: { $0 == userLocation } ) {
+                                    load(location: userLocation)
+                                }
+                            }
                     }
                 }
-            }
-            if let selectedEvent {
-                EventView(event: selectedEvent, networkManager: eventNetworkManager, errorManager: errorManager, placeNetworkManager: placeNetworkManager)
             }
         }
     }
@@ -76,23 +94,36 @@ struct HomeView: View {
                         .padding(.top)
                         .padding()
                         .padding(.bottom)
-         //           LazyVGrid(columns: gridLayout, spacing: 50) {
+                    LazyVGrid(columns: gridLayout, spacing: 50) {
                         ForEach(aroundEvents.sorted(by: { $0.startDate < $1.startDate } )) { event in
-                            NavigationLink {
-                                EventView(event: event, networkManager: eventNetworkManager, errorManager: errorManager, placeNetworkManager: placeNetworkManager)
-                            } label: {
-                                EventCell(event: event, width: (width - 50) / 2)
-//                                            .frame(width: (proxy.size.width - 10) / 2,
-//                                                   height: (((proxy.size.width - 10) / 2) / 4) * 5)
+                            EventCell(event: event, width: (width - 50) / 2, onTap: { image in
+                                event.image = image
+                            })
+                            .onTapGesture {
+                                withAnimation(.spring()) {
+                                    selectedEvent = event
+                                    showEvent = true
+                                }
                             }
-                            
                         }
-          //          }
+                    }
+                    .sheet(isPresented:  $showEvent) {
+                        selectedEvent = nil
+                    } content: {
+                        if let event = selectedEvent {
+                            EventView(isPresented: $showEvent, event: event, networkManager: eventNetworkManager, errorManager: errorManager, placeNetworkManager: placeNetworkManager)
+                                .presentationDragIndicator(.hidden)
+                                .presentationDetents([.large])
+                                .presentationCornerRadius(25)
+                        } else {
+                            EmptyView()
+                        }
+                    }
                 }
                 .listRowSeparator(.hidden)
                 .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
             }
-            
+
             ForEach(groupedPlaces.keys.sorted(), id: \.self) { key in
                 Section {
                     Text(key.getPluralName().uppercased())
@@ -105,7 +136,7 @@ struct HomeView: View {
                     
                     ForEach(groupedPlaces[key] ?? []) { place in
                         NavigationLink {
-                            PlaceView(place: place, networkManager: placeNetworkManager, errorManager: errorManager)
+                            PlaceView(place: place, networkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager)
                         } label: {
                             PlaceCell(place: place)
                         }
@@ -117,25 +148,6 @@ struct HomeView: View {
         .listSectionSeparator(.hidden)
         .listStyle(.plain)
         .scrollIndicators(.hidden)
-        .onChange(of: locationManager.userLocation, initial: true) { oldValue, newValue in
-            guard let userLocation = newValue else { return }
-            let radius: Double = 20000 // Радиус в метрах
-            let aroundPlaces  = allPlaces.filter { place in
-                let distance = userLocation.distance(from: CLLocation(latitude: place.latitude, longitude: place.longitude))
-                return distance <= radius
-            }
-            createGrouppedExpenses(aroundPlaces)
-            aroundEvents = allEvents.filter { event in
-                let distance = userLocation.distance(from: CLLocation(latitude: event.latitude, longitude: event.longitude))
-                return distance <= radius && event.isActive == true//) && (event.startDate.isToday || event.startDate.isTomorrow )
-            }
-            if aroundEvents.isEmpty && groupedPlaces.isEmpty {
-                isLoading = true
-            }
-            if !networkManager.userLocations.contains(where: { $0 == userLocation } ) {
-                load(location: userLocation)
-            }
-        }
     }
     
     private func load(location: CLLocation) {

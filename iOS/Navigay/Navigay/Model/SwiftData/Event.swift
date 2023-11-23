@@ -5,6 +5,7 @@
 //  Created by Dmitry Zasenko on 02.10.23.
 //
 
+import SwiftUI
 import SwiftData
 import CoreLocation
 
@@ -50,6 +51,9 @@ final class Event {
     
     @Transient
     var tag: UUID = UUID()
+    
+    @Transient
+    var image: Image?
     
     init(decodedEvent: DecodedEvent) {
         self.id = decodedEvent.id

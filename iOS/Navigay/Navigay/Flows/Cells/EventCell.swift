@@ -12,7 +12,7 @@ struct ImageLoadingView2<Content: View>: View {
     //MARK: - Properties
     
     let loadView: () -> Content  //загрузка
-    
+   // let namespace: Namespace.ID
     
     @State private var image: Image?
     let url: String
@@ -26,6 +26,7 @@ struct ImageLoadingView2<Content: View>: View {
         self.width = width
         self.height = height
         self.contentMode = contentMode
+      //  self.namespace = namespace
     }
     
     var body: some View {
@@ -34,8 +35,7 @@ struct ImageLoadingView2<Content: View>: View {
                 image
                     .resizable()
                     .aspectRatio(contentMode: contentMode)
-          //          .frame(width: width, height: height)
-                   // .clipped()
+                 //   .matchedGeometryEffect(id: "img", in: namespace)
             } else {
                 loadView()
                     .onAppear() {
@@ -46,16 +46,17 @@ struct ImageLoadingView2<Content: View>: View {
                         }
                     }
             }
-        }.frame(width: width, height: height)
+        }
+        .frame(width: width, height: height)
     }
 }
+
 
 
 struct EventCell: View {
     
     let event: Event
-    
-   @State private var image: Image? = nil
+    @State private var image: Image? = nil
     let width: CGFloat
     var formattedDate: AttributedString {
         var formattedDate: AttributedString = event.startDate.formatted(Date.FormatStyle().day().month(.wide).weekday(.wide).attributed)
@@ -65,25 +66,59 @@ struct EventCell: View {
         return formattedDate
     }
     
+    var onTap: (Image?) -> Void
+    
+    init(event: Event, image: Image? = nil, width: CGFloat, onTap: @escaping (Image?) -> Void) {
+        self.event = event
+        self.image = image
+        self.width = width
+        self.onTap = onTap
+    }
+    
     var body: some View {
         VStack(alignment: .center, spacing: 0) {
-                         Text("free event")
-                                .font(.caption)
-                                .bold()
-                                .foregroundColor(.white)
-                                .modifier(CapsuleSmall(background: .green, foreground: .white))
-                                //.opacity(event.isFree ? 1 : 0)
-                                .padding(.bottom, 8)
-                Text(formattedDate)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .padding(.bottom, 8)
+            Text("free event")
+                .font(.caption)
+                .bold()
+                .foregroundColor(.white)
+                .modifier(CapsuleSmall(background: .green, foreground: .white))
+            //.opacity(event.isFree ? 1 : 0)
+                .padding(.bottom, 8)
+            Text(formattedDate)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .padding(.bottom, 8)
             VStack(spacing: 0) {
-                
-                
                 if let url = event.smallPoster {
-                    ImageLoadingView(url: url, width: width, height: (width / 4) * 3, contentMode: .fill) {
-                        Color.orange
+                    Group {
+                        if let image = image  {
+                            image
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: width, height: (width / 4) * 3)
+                                .clipped()
+                                .onAppear() {
+                                    Task {
+                                        if let image = await ImageLoader.shared.loadImage(urlString: url) {
+                                            await MainActor.run {
+                                                self.image = image
+                                                self.event.image = image
+                                            }
+                                        }
+                                    }
+                                }
+                            
+                        } else {
+                            Color.red
+                                .frame(width: width, height: (width / 4) * 3)
+                        }
+                    }
+                    .onAppear() {
+                        Task {
+                            if let image = await ImageLoader.shared.loadImage(urlString: url) {
+                                self.image = image
+                            }
+                        }
                     }
                    // .padding(10)
                     .clipped()
