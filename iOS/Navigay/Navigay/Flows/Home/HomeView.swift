@@ -100,8 +100,8 @@ struct HomeView: View {
                                 event.image = image
                             })
                             .onTapGesture {
+                                selectedEvent = event
                                 withAnimation(.spring()) {
-                                    selectedEvent = event
                                     showEvent = true
                                 }
                             }
@@ -116,7 +116,7 @@ struct HomeView: View {
                                 .presentationDetents([.large])
                                 .presentationCornerRadius(25)
                         } else {
-                            EmptyView()
+                            Color.gray
                         }
                     }
                 }

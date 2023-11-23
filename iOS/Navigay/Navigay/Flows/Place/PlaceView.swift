@@ -273,8 +273,8 @@ struct PlaceView: View {
                             event.image = image
                         })
                         .onTapGesture {
+                            selectedEvent = event
                             withAnimation(.spring()) {
-                                selectedEvent = event
                                 isShowEvent = true
                             }
                         }

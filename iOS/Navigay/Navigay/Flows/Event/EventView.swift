@@ -58,58 +58,8 @@ struct EventView: View {
                 VStack(spacing: 0) {
                     //  Divider()
                     createList(width: geometry.size.width)
-                 //       .ignoresSafeArea(.all, edges: .top)
-                    
-                    //                    .navigationDestination(for: Place.self, destination: { placeS in
-                    //                        PlaceView(place: placeS, networkManager: placeNetworkManager, errorManager: errorManager)
-                    //                    })
-                    
-                    //  .listStyle(.plain)
-                    //   .scrollIndicators(.hidden)
-                }
-                //              .navigationBarBackButtonHidden()
-                //                .navigationDestination(item: $place) { place in
-                //                    PlaceView(place: place, networkManager: placeNetworkManager, errorManager: errorManager)
-                //                }
-                //                .navigationDestination(for: Place.self) { place in
-                //                    PlaceView(place: place, networkManager: placeNetworkManager, eventNetworkManager: networkManager, errorManager: errorManager)
-                //                }
+                           }
                 .toolbar(.hidden, for: .navigationBar)
-                //                .toolbarBackground(AppColors.background)
-                //                .toolbarTitleDisplayMode(.inline)
-                //                .toolbar {
-                //                    ToolbarItem(placement: .principal) {
-                //                        VStack(spacing: 0) {
-                //                            Text(event.type.getName().uppercased())
-                //                                .font(.caption).bold()
-                //                                .foregroundStyle(.secondary)
-                //                            Text(event.name)
-                //                                .font(.headline).bold()
-                //                        }
-                //                    }
-                ////                    ToolbarItem(placement: .topBarLeading) {
-                ////                        Button {
-                ////                            withAnimation {
-                ////                                dismiss()
-                ////                            }
-                ////                        } label: {
-                ////                            AppImages.iconLeft
-                ////                                .bold()
-                ////                                .frame(width: 30, height: 30, alignment: .leading)
-                ////                        }
-                ////                        .tint(.primary)
-                ////                    }
-                //                    ToolbarItem(placement: .topBarTrailing) {
-                //                        Button {
-                //                            event.isLiked.toggle()
-                //                        } label: {
-                //                            Image(systemName: event.isLiked ? "heart.fill" : "heart")
-                //                                .bold()
-                //                                .frame(width: 30, height: 30, alignment: .leading)
-                //                        }
-                //                        .tint(event.isLiked ? .red :  .secondary)
-                //                    }
-                //                }
                 .onAppear() {
                     loadEvent()
                 }
