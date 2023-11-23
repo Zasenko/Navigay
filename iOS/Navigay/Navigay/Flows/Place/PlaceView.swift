@@ -38,9 +38,8 @@ struct PlaceView: View {
     @State private var gridLayoutEvents: [GridItem] = Array(repeating: GridItem(.flexible(), spacing: 10), count: 2)
     @State private var position: MapCameraPosition = .automatic
     
-    @State private var isShowEvent: Bool = false
-    @State private var selectedEvent: Event? = nil
- //   @Namespace var namespace
+   // @State private var isShowEvent: Bool = false
+   // @State private var selectedEvent: Event? = nil
     
     // MARK: - Inits
     init(place: Place, networkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol) {
@@ -269,27 +268,7 @@ struct PlaceView: View {
                     .padding(.bottom)
                 LazyVGrid(columns: gridLayoutEvents, spacing: 50) {
                     ForEach(place.events.sorted(by: { $0.startDate < $1.startDate } )) { event in
-                        EventCell(event: event, width: (width - 50) / 2, onTap: { image in
-                            event.image = image
-                        })
-                        .onTapGesture {
-                            selectedEvent = event
-                            withAnimation(.spring()) {
-                                isShowEvent = true
-                            }
-                        }
-                    }
-                }
-                .sheet(isPresented:  $isShowEvent) {
-                    selectedEvent = nil
-                } content: {
-                    if let event = selectedEvent {
-                        EventView(isPresented: $isShowEvent, event: event, networkManager: eventNetworkManager, errorManager: errorManager, placeNetworkManager: networkManager)
-                            .presentationDragIndicator(.hidden)
-                            .presentationDetents([.large])
-                            .presentationCornerRadius(25)
-                    } else {
-                        EmptyView()
+                        EventCell(event: event, width: (width - 50) / 2, networkManager: eventNetworkManager, errorManager: errorManager, placeNetworkManager: networkManager)
                     }
                 }
             }

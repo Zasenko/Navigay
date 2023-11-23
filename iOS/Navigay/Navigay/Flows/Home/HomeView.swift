@@ -96,27 +96,7 @@ struct HomeView: View {
                         .padding(.bottom)
                     LazyVGrid(columns: gridLayout, spacing: 50) {
                         ForEach(aroundEvents.sorted(by: { $0.startDate < $1.startDate } )) { event in
-                            EventCell(event: event, width: (width - 50) / 2, onTap: { image in
-                                event.image = image
-                            })
-                            .onTapGesture {
-                                selectedEvent = event
-                                withAnimation(.spring()) {
-                                    showEvent = true
-                                }
-                            }
-                        }
-                    }
-                    .sheet(isPresented:  $showEvent) {
-                        selectedEvent = nil
-                    } content: {
-                        if let event = selectedEvent {
-                            EventView(isPresented: $showEvent, event: event, networkManager: eventNetworkManager, errorManager: errorManager, placeNetworkManager: placeNetworkManager)
-                                .presentationDragIndicator(.hidden)
-                                .presentationDetents([.large])
-                                .presentationCornerRadius(25)
-                        } else {
-                            Color.gray
+                            EventCell(event: event, width: (width - 50) / 2, networkManager: eventNetworkManager, errorManager: errorManager, placeNetworkManager: placeNetworkManager)
                         }
                     }
                 }

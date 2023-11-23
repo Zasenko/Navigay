@@ -36,7 +36,7 @@ struct EventView: View {
     
     
     @State private var place: Place? = nil
- //   let namespace: Namespace.ID
+   // let namespace: Namespace.ID
     
     // MARK: - Inits
     init(isPresented: Binding<Bool>, event: Event, networkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol, placeNetworkManager: PlaceNetworkManagerProtocol) {
@@ -46,7 +46,6 @@ struct EventView: View {
         self.networkManager = networkManager
         self.errorManager = errorManager
         self.placeNetworkManager = placeNetworkManager
-     //   self.namespace = namespace
         self.image = event.image
     }
     
@@ -89,8 +88,6 @@ struct EventView: View {
                        // .matchedGeometryEffect(id: "img", in: namespace)
                         .frame(width: width)
                         .clipped()
-                    
-                    
                 } else {
                     Color.red
                         .frame(width: width, height: (width / 4) * 3)

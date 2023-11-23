@@ -7,56 +7,54 @@
 
 import SwiftUI
 
-struct ImageLoadingView2<Content: View>: View {
-    
-    //MARK: - Properties
-    
-    let loadView: () -> Content  //загрузка
-   // let namespace: Namespace.ID
-    
-    @State private var image: Image?
-    let url: String
-    let width: CGFloat
-    let height: CGFloat
-    let contentMode: ContentMode
-    
-    init(url: String, width: CGFloat, height: CGFloat, contentMode: ContentMode, @ViewBuilder content: @escaping () -> Content) {
-        self.loadView = content
-        self.url = url
-        self.width = width
-        self.height = height
-        self.contentMode = contentMode
-      //  self.namespace = namespace
-    }
-    
-    var body: some View {
-        Group {
-            if let image = image  {
-                image
-                    .resizable()
-                    .aspectRatio(contentMode: contentMode)
-                 //   .matchedGeometryEffect(id: "img", in: namespace)
-            } else {
-                loadView()
-                    .onAppear() {
-                        Task {
-                            if let image = await ImageLoader.shared.loadImage(urlString: url) {
-                                self.image = image
-                            }
-                        }
-                    }
-            }
-        }
-        .frame(width: width, height: height)
-    }
-}
-
-
+//struct ImageLoadingView2<Content: View>: View {
+//    
+//    //MARK: - Properties
+//    
+//    let loadView: () -> Content  //загрузка
+//   // let namespace: Namespace.ID
+//    
+//    @State private var image: Image?
+//    let url: String
+//    let width: CGFloat
+//    let height: CGFloat
+//    let contentMode: ContentMode
+//    
+//    init(url: String, width: CGFloat, height: CGFloat, contentMode: ContentMode, @ViewBuilder content: @escaping () -> Content) {
+//        self.loadView = content
+//        self.url = url
+//        self.width = width
+//        self.height = height
+//        self.contentMode = contentMode
+//      //  self.namespace = namespace
+//    }
+//    
+//    var body: some View {
+//        Group {
+//            if let image = image  {
+//                image
+//                    .resizable()
+//                    .aspectRatio(contentMode: contentMode)
+//                 //   .matchedGeometryEffect(id: "img", in: namespace)
+//            } else {
+//                loadView()
+//                    .onAppear() {
+//                        Task {
+//                            if let image = await ImageLoader.shared.loadImage(urlString: url) {
+//                                self.image = image
+//                            }
+//                        }
+//                    }
+//            }
+//        }
+//        .frame(width: width, height: height)
+//    }
+//}
 
 struct EventCell: View {
     
     let event: Event
-    @State private var image: Image? = nil
+    @State private var image: Image?
     let width: CGFloat
     var formattedDate: AttributedString {
         var formattedDate: AttributedString = event.startDate.formatted(Date.FormatStyle().day().month(.wide).weekday(.wide).attributed)
@@ -66,13 +64,22 @@ struct EventCell: View {
         return formattedDate
     }
     
-    var onTap: (Image?) -> Void
+    //var onTap: (Image?) -> Void
+        
+    @State private var isShowEvent: Bool = false
     
-    init(event: Event, image: Image? = nil, width: CGFloat, onTap: @escaping (Image?) -> Void) {
+    private let networkManager: EventNetworkManagerProtocol
+    private let errorManager: ErrorManagerProtocol
+    private let placeNetworkManager: PlaceNetworkManagerProtocol
+    
+    init(event: Event, image: Image? = nil, width: CGFloat, networkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol, placeNetworkManager: PlaceNetworkManagerProtocol) {//, onTap: @escaping () -> Void) {
         self.event = event
-        self.image = image
+        _image = State(initialValue: image)
         self.width = width
-        self.onTap = onTap
+      //  self.onTap = onTap
+        self.networkManager = networkManager
+        self.errorManager = errorManager
+        self.placeNetworkManager = placeNetworkManager
     }
     
     var body: some View {
@@ -120,9 +127,9 @@ struct EventCell: View {
                             }
                         }
                     }
-                   // .padding(10)
+                    // .padding(10)
                     .clipped()
-//                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                    //                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                     //                    .padding()
                     //                    .mask(
                     //                        RoundedRectangle(cornerRadius: 10, style: .continuous)
@@ -145,25 +152,39 @@ struct EventCell: View {
             .background(.indigo)
             .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
             Spacer()
-            }
+        }
         .background(.gray)
-            .frame(width: width,
-                   height: (width / 4) * 8)
+        .frame(width: width,
+               height: (width / 4) * 8)
         .background(.red)
-            .onAppear() {
-                if let url = event.smallPoster {
-                    Task {
-                        if let image = await ImageLoader.shared.loadImage(urlString: url) {
-                            await MainActor.run {
-                                self.image = image
-                            }
+        .onAppear() {
+            if let url = event.smallPoster {
+                Task {
+                    if let image = await ImageLoader.shared.loadImage(urlString: url) {
+                        await MainActor.run {
+                            self.event.image = image
+                            self.image = image
                         }
                     }
                 }
             }
-        
+        }
+        .onTapGesture {
+            withAnimation(.spring()) {
+                isShowEvent = true
+            }
+        }
+        .sheet(isPresented:  $isShowEvent) {
+        } content: {
+                EventView(isPresented: $isShowEvent, event: event, networkManager: networkManager, errorManager: errorManager, placeNetworkManager: placeNetworkManager)
+                    .presentationDragIndicator(.hidden)
+                    .presentationDetents([.large])
+                    .presentationCornerRadius(25)
+           
+        }
     }
 }
+
 //
 //#Preview {
 //    EventCell(event: Event(decodedEvent: DecodedEvent(id: 1, name: "CoNNect", type: .party, startDate: "2023-11-17", startTime: "", finishDate: "", finishTime: "", address: "", latitude: 16.5875, longitude: 26.5786, isHorizontal: true, cover: "https://img.freepik.com/free-vector/valentines-day-party-invitation-poster-template-with-lettering-text-love-purple-hearts_333792-7.jpg", isFree: true, tags: [.dj, .menOnly, .goGoShow], isActive: true, placeName: "Opera club", about: nil, www: nil, fb: nil, insta: nil, tickets: nil, ownerPlace: nil, ownerUser: nil)))
