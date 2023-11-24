@@ -13,28 +13,23 @@ struct EventView: View {
     
     // MARK: - Properties
     
+    @Binding var isPresented: Bool
+    
     // MARK: - Private Properties
     
     @Environment(\.openURL) private var openURL
-    
     @EnvironmentObject private var authenticationManager: AuthenticationManager
   //  @Environment(\.dismiss) private var dismiss
-    
     @Environment(\.modelContext) private var context
-    @Binding var isPresented: Bool
     @Query(animation: .snappy)
     private var allPlaces: [Place]
-    
     private let event: Event
     @State private var image: Image? = nil
     private let networkManager: EventNetworkManagerProtocol
     private let errorManager: ErrorManagerProtocol
-    private let placeNetworkManager: PlaceNetworkManagerProtocol
-    
+    private let placeNetworkManager: PlaceNetworkManagerProtocol //??
     @State private var position: MapCameraPosition = .automatic
     @State private var isShowPlace: Bool = true
-    
-    
     @State private var place: Place? = nil
    // let namespace: Namespace.ID
     
@@ -54,10 +49,10 @@ struct EventView: View {
     var body: some View {
         NavigationStack {
             GeometryReader { geometry in
-                VStack(spacing: 0) {
+               // VStack(spacing: 0) {
                     //  Divider()
                     createList(width: geometry.size.width)
-                           }
+                      //     }
                 .toolbar(.hidden, for: .navigationBar)
                 .onAppear() {
                     loadEvent()
@@ -71,21 +66,11 @@ struct EventView: View {
     @ViewBuilder
     private func createList(width: CGFloat) -> some View {
         List {
-//            if let url = event.poster {
-//                ImageLoadingView(url: url, width: width, height: (width / 4) * 5, contentMode: .fit) {
-//                    Color.orange
-//                }
-//                .clipped()
-//                .listRowSeparator(.hidden)
-//                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-//                .ignoresSafeArea(.all, edges: .top)
-              //  .listRowSeparator(.hidden)
             ZStack(alignment: .topTrailing) {
                 if let image = image  {
                     image
                         .resizable()
                         .scaledToFit()
-                       // .matchedGeometryEffect(id: "img", in: namespace)
                         .frame(width: width)
                         .clipped()
                 } else {
@@ -203,6 +188,7 @@ struct EventView: View {
             .padding()
             .listRowSeparator(.hidden)
             .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+            
             TagsView(tags: event.tags)
                 .padding(.bottom)
                 .listRowSeparator(.hidden)
@@ -216,6 +202,7 @@ struct EventView: View {
                     .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                 //    .listRowSeparator(.hidden)
             }
+            
             if event.isFree {
                 //todo
                 Text("Free event")
@@ -235,6 +222,7 @@ struct EventView: View {
                 .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                 
             }
+            
             VStack(spacing: 10) {
                 if let phone = event.phone {
                     Button {
@@ -390,6 +378,7 @@ struct EventView: View {
 //                }
                 
             }
+            
             map
         }
         .listStyle(.plain)
@@ -502,3 +491,35 @@ struct EventView: View {
 //#Preview {
 //    EventView()
 //}
+
+private struct OffsetPreferenceKey: PreferenceKey {
+  static var defaultValue: CGFloat = .zero
+  static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {}
+}
+
+struct ScrollViewOffset<Content: View>: View {
+  let content: () -> Content
+
+  init(@ViewBuilder content: @escaping () -> Content) {
+    self.content = content
+  }
+
+  var body: some View {
+    ScrollView {
+      offsetReader
+      content()
+    }
+    .coordinateSpace(name: "frameLayer")
+  }
+
+  var offsetReader: some View {
+    GeometryReader { proxy in
+      Color.clear
+        .preference(
+          key: OffsetPreferenceKey.self,
+          value: proxy.frame(in: .named("frameLayer")).minY
+        )
+    }
+    .frame(height: 0) // 👈🏻 make sure that the reader doesn't affect the content height
+  }
+}
