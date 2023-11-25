@@ -32,7 +32,8 @@ struct HomeView: View {
     
     @State private var isLoading: Bool = false
     
-    @State private var gridLayout: [GridItem] = Array(repeating: GridItem(.flexible(), spacing: 10), count: 2)
+    @State private var gridLayout: [GridItem] = Array(repeating: GridItem(.flexible(), spacing: 20), count: 2)
+   
     @Namespace var namespace
 
     
@@ -94,11 +95,12 @@ struct HomeView: View {
                         .padding(.top)
                         .padding()
                         .padding(.bottom)
-                    LazyVGrid(columns: gridLayout, spacing: 50) {
+                    LazyVGrid(columns: gridLayout, spacing: 20) {
                         ForEach(aroundEvents.sorted(by: { $0.startDate < $1.startDate } )) { event in
-                            EventCell(event: event, width: (width - 50) / 2, networkManager: eventNetworkManager, errorManager: errorManager, placeNetworkManager: placeNetworkManager)
+                            EventCell(event: event, width: (width / 2) - 30, networkManager: eventNetworkManager, errorManager: errorManager, placeNetworkManager: placeNetworkManager)
                         }
                     }
+                    .padding(.horizontal, 20)
                 }
                 .listRowSeparator(.hidden)
                 .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
@@ -124,6 +126,9 @@ struct HomeView: View {
                 }
                 .listRowSeparator(.hidden)
             }
+            Color.clear
+                .frame(height: 50)
+                .listSectionSeparator(.hidden)
         }
         .listSectionSeparator(.hidden)
         .listStyle(.plain)
@@ -149,10 +154,25 @@ struct HomeView: View {
                                 let lastUpdate = decodedPlace.lastUpdate.dateFromString(format: "yyyy-MM-dd HH:mm:ss")
                                 if place.lastUpdateIncomplete != lastUpdate {
                                     place.updatePlaceIncomplete(decodedPlace: decodedPlace)
+                                    let timetable = place.timetable
+                                    place.timetable.removeAll()
+                                    timetable.forEach( { context.delete($0) })
+                                    if let timetable = decodedPlace.timetable {
+                                        for day in timetable {
+                                            let workingDay = WorkDay(workDay: day)
+                                            place.timetable.append(workingDay)
+                                        }
+                                    }
                                 }
                             } else if decodedPlace.isActive {
                                 let place = Place(decodedPlace: decodedPlace)
                                 context.insert(place)
+                                if let timetable = decodedPlace.timetable {
+                                    for day in timetable {
+                                        let workingDay = WorkDay(workDay: day)
+                                        place.timetable.append(workingDay)
+                                    }
+                                }
                             }
                         }
                     }

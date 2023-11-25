@@ -68,15 +68,18 @@ struct EditLibraryView: View {
                                 ImageLoadingView(url: url, width: (width - 4) / 3, height: (width - 4) / 3, contentMode: .fill) {
                                     AppColors.lightGray6 //TODO animation
                                 }
+                                
                                 .opacity(isLoading && photoId == photo.id ? 0.2 : 1)
                             } else {
                                 Color.black
-                            }   
+                            }
                             if isLoading && photoId == photo.id {
                                 ProgressView()
                                     .tint(.blue)
                             }
                         }
+                        .frame(width: (width - 4) / 3,
+                                height: (width - 4) / 3)
                     } onSave: { uiImage in
                         onSave((id: photo.id, uiImage: uiImage))
                     } onDelete: {

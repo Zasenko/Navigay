@@ -105,6 +105,28 @@ final class Place {
         }
         return allPhotos
     }
+    
+    @Transient
+    func isOpenNow() -> Bool {
+        let currentDay = Date().dayOfWeek
+        if let currentWorkDay = timetable.first(where: { $0.day == currentDay }) {
+            let open = currentWorkDay.open
+            let close = currentWorkDay.close
+            if (open.isPastHour(of: .now) || open.isSameHour(as: .now)) && close.isFutureHour(of: .now) {
+                return true
+            } else if (open.isPastHour(of: .now) || open.isSameHour(as: .now)) && close.isPastHour(of: .now) {
+                if close.isPastHour(of: open) || close.isSameHour(as: open) {
+                    return true
+                } else {
+                    return false
+                }
+            } else {
+                return false
+            }
+        } else {
+            return false
+        }
+    }
 }
 
 

@@ -16,7 +16,7 @@ final class PlaceViewModel: ObservableObject {
 struct PlaceView: View {
     
     // MARK: - Properties
-        
+    
     // MARK: - Private Properties
     
     @Environment(\.openURL) private var openURL
@@ -38,12 +38,9 @@ struct PlaceView: View {
     @State private var gridLayoutEvents: [GridItem] = Array(repeating: GridItem(.flexible(), spacing: 10), count: 2)
     @State private var position: MapCameraPosition = .automatic
     
-   // @State private var isShowEvent: Bool = false
-   // @State private var selectedEvent: Event? = nil
-    
     // MARK: - Inits
+    
     init(place: Place, networkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol) {
-        print("init place view id: \(place.id)")
         self.place = place
         self.networkManager = networkManager
         self.eventNetworkManager = eventNetworkManager
@@ -54,60 +51,55 @@ struct PlaceView: View {
     
     var body: some View {
         ZStack {
-//            if isShowEvent, let event = selectedEvent {
-//                EventView(isPresented: $isShowEvent, event: event, networkManager: eventNetworkManager, errorManager: errorManager, placeNetworkManager: networkManager)
-//            } else {
-                NavigationStack {
-                    GeometryReader { geometry in
-                        VStack(spacing: 0) {
-                            Divider()
-                            createList(width: geometry.size.width, geom: geometry.size)
-                        }
-                        .navigationBarBackButtonHidden()
-                        .toolbarBackground(AppColors.background)
-                        .toolbarTitleDisplayMode(.inline)
-                 //      .toolbar(isShowEvent ? .hidden : .visible, for: .navigationBar)
-                        .toolbar {
-                            ToolbarItem(placement: .principal) {
-                                VStack(spacing: 0) {
-                                    Text(place.type.getName().uppercased())
-                                        .font(.caption).bold()
-                                        .foregroundStyle(.secondary)
-                                    Text(place.name)
-                                        .font(.headline).bold()
-                                }
-                            }
-                            ToolbarItem(placement: .topBarLeading) {
-                                Button {
-                                    withAnimation {
-                                        dismiss()
-                                    }
-                                } label: {
-                                    AppImages.iconLeft
-                                        .bold()
-                                        .frame(width: 30, height: 30, alignment: .leading)
-                                }
-                                .tint(.primary)
-                            }
-                            ToolbarItem(placement: .topBarTrailing) {
-                                Button {
-                                    place.isLiked.toggle()
-                                } label: {
-                                    Image(systemName: place.isLiked ? "heart.fill" : "heart")
-                                        .bold()
-                                        .frame(width: 30, height: 30, alignment: .leading)
-                                }
-                                .tint(place.isLiked ? .red :  .secondary)
-                            }
-                        }
-                        .onAppear() {
-                            allPhotos = place.getAllPhotos()
-                            loadPlace()
-                        }
-                        
+            NavigationStack {
+                GeometryReader { geometry in
+                    VStack(spacing: 0) {
+                        Divider()
+                        createList(width: geometry.size.width, geom: geometry.size)
                     }
+                    .navigationBarBackButtonHidden()
+                    .toolbarBackground(AppColors.background)
+                    .toolbarTitleDisplayMode(.inline)
+                    .toolbar {
+                        ToolbarItem(placement: .principal) {
+                            VStack(spacing: 0) {
+                                Text(place.type.getName().uppercased())
+                                    .font(.caption).bold()
+                                    .foregroundStyle(.secondary)
+                                Text(place.name)
+                                    .font(.headline).bold()
+                            }
+                        }
+                        ToolbarItem(placement: .topBarLeading) {
+                            Button {
+                                withAnimation {
+                                    dismiss()
+                                }
+                            } label: {
+                                AppImages.iconLeft
+                                    .bold()
+                                    .frame(width: 30, height: 30, alignment: .leading)
+                            }
+                            .tint(.primary)
+                        }
+                        ToolbarItem(placement: .topBarTrailing) {
+                            Button {
+                                place.isLiked.toggle()
+                            } label: {
+                                Image(systemName: place.isLiked ? "heart.fill" : "heart")
+                                    .bold()
+                                    .frame(width: 30, height: 30, alignment: .leading)
+                            }
+                            .tint(place.isLiked ? .red :  .secondary)
+                        }
+                    }
+                    .onAppear() {
+                        allPhotos = place.getAllPhotos()
+                        loadPlace()
+                    }
+                    
                 }
-          //  }
+            }
         }
     }
     
@@ -147,7 +139,7 @@ struct PlaceView: View {
             .padding()
             .listRowSeparator(.hidden)
             .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                        
+            
             TagsView(tags: place.tags)
                 .padding(.bottom)
                 .listRowSeparator(.hidden)
@@ -155,15 +147,25 @@ struct PlaceView: View {
             
             Section {
                 ForEach(place.timetable.sorted(by: { $0.day.rawValue < $1.day.rawValue } )) { day in
+                    let dayOfWeek = Date().dayOfWeek
                     HStack {
                         Text(day.day.getString())
                             .bold()
                             .frame(maxWidth: .infinity, alignment: .leading)
+                        if dayOfWeek == day.day {
+                            if place.isOpenNow() {
+                                Text("open now")
+                                    .font(.footnote).bold()
+                                    .foregroundColor(.green)
+                                    .padding(.trailing)
+                            }
+                        }
                         Text(day.open.formatted(date: .omitted, time: .shortened))
                         Text("—")
                         Text(day.close.formatted(date: .omitted, time: .shortened))
                     }
                     .font(.caption)
+                    .listRowBackground(dayOfWeek == day.day ? AppColors.lightGray6 : AppColors.background)
                 }
                 Text(place.otherInfo ?? "")
                     .font(.caption)
@@ -450,8 +452,8 @@ struct PhotosTabView: View {
                     ImageLoadingView(url: allPhotos[index], width: width, height: (width / 4) * 5, contentMode: .fill) {
                         AppColors.lightGray6 // TODO: animation
                     }
-                    .tag(index)
                     .clipped()
+                    .tag(index)
                 }
             }
             .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))

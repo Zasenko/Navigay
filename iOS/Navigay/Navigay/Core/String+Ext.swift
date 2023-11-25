@@ -15,4 +15,12 @@ extension String {
             dateFormatter.dateFormat = format // Adjust the date format according to your needs
             return dateFormatter.date(from: self)
         }
+    
+    func parseHTML() -> String {
+        if let decodedText = self.removingPercentEncoding {
+            return decodedText
+        } else {
+            return self
+        }
+    }
 }

@@ -29,9 +29,9 @@ struct EventView: View {
     private let errorManager: ErrorManagerProtocol
     private let placeNetworkManager: PlaceNetworkManagerProtocol //??
     @State private var position: MapCameraPosition = .automatic
+    @State private var isPosterLoaded: Bool = false
     @State private var isShowPlace: Bool = true
     @State private var place: Place? = nil
-   // let namespace: Namespace.ID
     
     // MARK: - Inits
     init(isPresented: Binding<Bool>, event: Event, networkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol, placeNetworkManager: PlaceNetworkManagerProtocol) {
@@ -41,7 +41,9 @@ struct EventView: View {
         self.networkManager = networkManager
         self.errorManager = errorManager
         self.placeNetworkManager = placeNetworkManager
-        self.image = event.image
+//        if let image = event.image {
+//            self.image = event.image
+//        }
     }
     
     // MARK: - Body
@@ -67,15 +69,27 @@ struct EventView: View {
     private func createList(width: CGFloat) -> some View {
         List {
             ZStack(alignment: .topTrailing) {
-                if let image = image  {
-                    image
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: width)
-                        .clipped()
-                } else {
-                    Color.red
-                        .frame(width: width, height: (width / 4) * 3)
+                if event.poster != nil {
+                    if !isPosterLoaded {
+                        if let image = event.image  {
+                            image
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: width)
+                                .clipped()
+                        }  else {
+                            Color.red
+                                .frame(width: width, height: (width / 4) * 3)
+                        }
+                    } else {
+                        if let image = image  {
+                            image
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: width)
+                                .clipped()
+                        }
+                    }
                 }
                 Button {
                     isPresented.toggle()
@@ -99,6 +113,7 @@ struct EventView: View {
                             await MainActor.run {
                                 self.image = image
                                 self.event.image = image
+                                self.isPosterLoaded = true
                             }
                         }
                     }

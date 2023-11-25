@@ -32,10 +32,9 @@ struct AppImages {
     static let iconClock = Image(systemName:"clock")
     static let iconFacebook = Image("icon_facebook")
     static let iconInstagram = Image("icon_instagram")
-    static let iconFacebook2 = Image("icon_facebook2")
-    static let iconInstagram2 = Image("icon_instagram2")
     static let iconLocation = Image("icon_location")
     static let iconWallet = Image("icon_wallet")
+    
 //    static let mapBarIcon = UIImage(named: "barIcon")
 //    static let mapCafeIcon = UIImage(named: "cafeIcon")
 //    static let mapClubIcon = UIImage(named: "clubIcon")

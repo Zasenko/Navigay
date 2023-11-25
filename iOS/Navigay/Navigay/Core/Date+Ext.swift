@@ -41,18 +41,43 @@ extension Date {
     }
     
     /// Checking if the date is Today Same Hour
-    var isSameHour: Bool {
-        return Calendar.current.compare(self, to: .init(), toGranularity: .hour) == .orderedSame
-    }
     
     /// Checking if the date is Past Day form Today
     var isPastDate: Bool {
         return Calendar.current.compare(self, to: .init(), toGranularity: .day) == .orderedAscending
     }
+//    var isSameHour: Bool {
+//        return Calendar.current.compare(self, to: .init(), toGranularity: .hour) == .orderedSame
+//    }
+//    /// Checking if the date is Past Hour  form Today
+//    var isPastHour: Bool {
+//        print("Date", Date())
+//        print("Calendar.current.component: ", Calendar.current.component(.hour, from: .init()))
+//        return Calendar.current.compare(self, to: .init(), toGranularity: .hour) == .orderedAscending
+//    }
+//    
+//    /// Checking if the date is Futur Hour form Today
+//    var isFuturHour: Bool {
+//        return Calendar.current.compare(self, to: .init(), toGranularity: .hour) == .orderedDescending
+//    }
     
-    /// Checking if the date is Past Hour  form Today
-    var isPastHour: Bool {
-        return Calendar.current.compare(self, to: .init(), toGranularity: .hour) == .orderedAscending
+    func isSameHour(as otherDate: Date) -> Bool {
+        let calendar = Calendar.current
+        let components1 = calendar.dateComponents([.hour], from: self)
+        let components2 = calendar.dateComponents([.hour], from: otherDate)
+        return components1.hour == components2.hour
+    }
+    func isPastHour(of otherDate: Date) -> Bool {
+        let calendar = Calendar.current
+        let components1 = calendar.dateComponents([.hour], from: self)
+        let components2 = calendar.dateComponents([.hour], from: otherDate)
+        return components1.hour! < components2.hour!
+    }
+    func isFutureHour(of otherDate: Date) -> Bool {
+        let calendar = Calendar.current
+        let components1 = calendar.dateComponents([.hour], from: self)
+        let components2 = calendar.dateComponents([.hour], from: otherDate)
+        return components1.hour! > components2.hour!
     }
     
     /// next day from date
@@ -63,6 +88,28 @@ extension Date {
     /// Checking if the date is Same Day with other Date
     func isSameDayWithOtherDate(_ date: Date) -> Bool {
         return Calendar.current.isDate(self, inSameDayAs: date)
+    }
+    
+    var dayOfWeek: DayOfWeek {
+        let dayNumber = Calendar.current.component(.weekday, from: self)
+        switch dayNumber {
+        case 1:
+            return .sunday
+        case 2:
+            return .monday
+        case 3:
+            return .tuesday
+        case 4:
+            return .wednesday
+        case 5:
+            return .thursday
+        case 6:
+            return .friday
+        case 7:
+            return .saturday
+        default:
+            return .sunday
+        }
     }
     
 //    /// Fetching week based on given date

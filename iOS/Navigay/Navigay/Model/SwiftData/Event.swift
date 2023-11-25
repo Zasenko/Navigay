@@ -61,13 +61,13 @@ final class Event {
     }
     
     func updateEventIncomplete(decodedEvent: DecodedEvent) {
-        name = decodedEvent.name
+        name = decodedEvent.name.parseHTML()
         type = decodedEvent.type
         startDate = decodedEvent.startDate.dateFromString(format: "yyyy-MM-dd") ?? .now
         startTime = decodedEvent.startTime?.dateFromString(format: "HH:mm:ss")
         finishDate = decodedEvent.finishDate?.dateFromString(format: "yyyy-MM-dd")
         finishTime = decodedEvent.finishTime?.dateFromString(format: "HH:mm:ss")
-        address = decodedEvent.address
+        address = decodedEvent.address.parseHTML()
         latitude = decodedEvent.latitude
         longitude = decodedEvent.longitude
         poster = decodedEvent.poster
@@ -79,20 +79,20 @@ final class Event {
                 tags.append(tag)
             }
         }
-        location = decodedEvent.location
+        location = decodedEvent.location?.parseHTML()
         isActive = decodedEvent.isActive
         
         lastUpdateIncomplete = decodedEvent.lastUpdate.dateFromString(format: "yyyy-MM-dd HH:mm:ss")
     }
     
     func updateEventComplete(decodedEvent: DecodedEvent) {
-        name = decodedEvent.name
+        name = decodedEvent.name.parseHTML()
         type = decodedEvent.type
         startDate = startDate
         startTime = decodedEvent.startTime?.dateFromString(format: "HH:mm:ss")
         finishDate = decodedEvent.finishDate?.dateFromString(format: "yyyy-MM-dd")
         finishTime = decodedEvent.finishTime?.dateFromString(format: "HH:mm:ss")
-        address = decodedEvent.address
+        address = decodedEvent.address.parseHTML()
         latitude = decodedEvent.latitude
         longitude = decodedEvent.longitude
         poster = decodedEvent.poster
@@ -105,14 +105,14 @@ final class Event {
             }
         }
         isActive = decodedEvent.isActive
-        location = decodedEvent.location
-        about = decodedEvent.about
+        location = decodedEvent.location?.parseHTML()
+        about = decodedEvent.about?.parseHTML()
         www = decodedEvent.www
         facebook = decodedEvent.facebook
         instagram = decodedEvent.instagram
         phone = decodedEvent.phone
         tickets = decodedEvent.tickets
-        fee = decodedEvent.fee
+        fee = decodedEvent.fee?.parseHTML()
         lastUpdateComplite = decodedEvent.lastUpdate.dateFromString(format: "yyyy-MM-dd HH:mm:ss")
     }
 }
