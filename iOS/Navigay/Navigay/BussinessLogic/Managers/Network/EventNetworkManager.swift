@@ -8,12 +8,18 @@
 import SwiftUI
 
 protocol EventNetworkManagerProtocol {
+    var loadedEvents: [Int] { get set }
+    func addToLoadedEvents(id: Int)
     func fetchEvent(id: Int) async throws -> EventResult
     func addNewEvent(event: NewEvent) async throws -> NewEventResult
     func updatePoster(eventId: Int, poster: UIImage, smallPoster: UIImage) async throws -> PosterResult
 }
 
 final class EventNetworkManager {
+    
+    // MARK: - Propertie
+    
+    var loadedEvents: [Int] = []
     
     // MARK: - Private Properties
     
@@ -32,16 +38,20 @@ final class EventNetworkManager {
 
 extension EventNetworkManager: EventNetworkManagerProtocol {
     
+    func addToLoadedEvents(id: Int) {
+        loadedEvents.append(id)
+    }
+    
     func fetchEvent(id: Int) async throws -> EventResult {
-        debugPrint("--- fetchEvent()")
-        let path = "/api/event/get-event-by-id.php"
+        debugPrint("--- fetchEvent(id: \(id)")
+        let path = "/api/event/get-event.php"
         var urlComponents: URLComponents {
             var components = URLComponents()
             components.scheme = scheme
             components.host = host
             components.path = path
             components.queryItems = [
-                URLQueryItem(name: "id", value: String(id)),
+                URLQueryItem(name: "event_id", value: String(id)),
                 URLQueryItem(name: "language", value: self.appSettingsManager.language)
             ]
             return components

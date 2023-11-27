@@ -93,7 +93,7 @@ $place = array(
     'is_active' => $is_active,
     'updated_at' => $row['updated_at']
 );
-//TODO Event start_date или finish_date
+//TODO Event start_date >= now или finish_date  >= now
 $sql = "SELECT id, name, type_id, country_id, region_id, city_id, latitude, longitude, start_date, start_time, finish_date, finish_time, address, location, poster, poster_small, is_free, tags, place_id, is_active, updated_at FROM Event WHERE place_id = ?";
 $params = [$place_id];
 $types = "i";

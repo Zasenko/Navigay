@@ -42,6 +42,7 @@ struct EditRegionView: View {
                                         ImageLoadingView(url: url, width: proxy.size.width, height: (proxy.size.width / 4) * 5, contentMode: .fill) {
                                             Color.red
                                         }
+                                        .clipped()
                                         .opacity(viewModel.isLoadingPhoto ? 0.2 : 1)
                                     }
                                 } else {

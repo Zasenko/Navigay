@@ -41,6 +41,7 @@ struct EditCityView: View {
                                         ImageLoadingView(url: url, width: proxy.size.width, height: (proxy.size.width / 4) * 5, contentMode: .fit) {
                                             Color.red
                                         }
+                                        .clipped()
                                         .opacity(viewModel.isLoadingPhoto ? 0.2 : 1)
                                     }
                                 } else {
@@ -165,7 +166,7 @@ struct ImageLoadingView<Content: View>: View {
             } else {
                 loadView()
                     .onAppear() {
-                        Task {
+                        Task(priority: .high) {
                             if let image = await ImageLoader.shared.loadImage(urlString: url) {
                                 self.image = image
                             }

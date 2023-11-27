@@ -59,7 +59,6 @@ final class Place {
         longitude = decodedPlace.longitude
         isActive = decodedPlace.isActive
         lastUpdateIncomplete = decodedPlace.lastUpdate.dateFromString(format: "yyyy-MM-dd HH:mm:ss")
-        
         tags.removeAll()
         if let dacodedTags = decodedPlace.tags {
             for tag in dacodedTags {
@@ -69,15 +68,7 @@ final class Place {
     }
     
     func updatePlaceComplite(decodedPlace: DecodedPlace) {
-        
-        name = decodedPlace.name
-        type = decodedPlace.type
-        avatar = decodedPlace.avatar
-        mainPhoto = decodedPlace.mainPhoto
-        address = decodedPlace.address
-        latitude = decodedPlace.latitude
-        longitude = decodedPlace.longitude
-        isActive = decodedPlace.isActive
+        updatePlaceIncomplete(decodedPlace: decodedPlace)
         about = decodedPlace.about
         photos = decodedPlace.photos ?? []//?.map( { $0.url} ) ?? []
         otherInfo = decodedPlace.otherInfo
@@ -87,12 +78,6 @@ final class Place {
         instagram = decodedPlace.instagram
         isActive = decodedPlace.isActive
         lastUpdateComplite = decodedPlace.lastUpdate.dateFromString(format: "yyyy-MM-dd HH:mm:ss")
-        tags.removeAll()
-        if let dacodedTags = decodedPlace.tags {
-            for tag in dacodedTags {
-                tags.append(tag)
-            }
-        }
     }
     
     func getAllPhotos() -> [String] {
@@ -104,6 +89,27 @@ final class Place {
             photos.forEach( { allPhotos.append($0) } )
         }
         return allPhotos
+    }
+    
+    func isOpenNow() -> Bool {
+        let currentDay = Date().dayOfWeek
+        if let currentWorkDay = timetable.first(where: { $0.day == currentDay }) {
+            let open = currentWorkDay.open
+            let close = currentWorkDay.close
+            if (open.isPastHour(of: .now) || open.isSameHour(as: .now)) && close.isFutureHour(of: .now) {
+                return true
+            } else if (open.isPastHour(of: .now) || open.isSameHour(as: .now)) && close.isPastHour(of: .now) {
+                if close.isPastHour(of: open) || close.isSameHour(as: open) {
+                    return true
+                } else {
+                    return false
+                }
+            } else {
+                return false
+            }
+        } else {
+            return false
+        }
     }
 }
 

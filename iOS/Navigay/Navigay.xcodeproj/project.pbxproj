@@ -10,7 +10,7 @@
 		0F151F402AE90DBC0049C60F /* Language.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F151F3F2AE90DBC0049C60F /* Language.swift */; };
 		0F151F422AE90E680049C60F /* UIImage+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F151F412AE90E680049C60F /* UIImage+Ext.swift */; };
 		0F151F442AE90E8B0049C60F /* View+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F151F432AE90E8B0049C60F /* View+Ext.swift */; };
-		0F151F462AE910290049C60F /* AddAboutPlaceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F151F452AE910290049C60F /* AddAboutPlaceView.swift */; };
+		0F151F462AE910290049C60F /* EditTextEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F151F452AE910290049C60F /* EditTextEditorView.swift */; };
 		0F151F482AE92AC10049C60F /* NewPlaceAbout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F151F472AE92AC10049C60F /* NewPlaceAbout.swift */; };
 		0F151F4B2AE93B7A0049C60F /* AddNewPlaceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F151F4A2AE93B7A0049C60F /* AddNewPlaceViewModel.swift */; };
 		0F151F4D2AE948BD0049C60F /* CountryNumbers.json in Resources */ = {isa = PBXBuildFile; fileRef = 0F151F4C2AE948BD0049C60F /* CountryNumbers.json */; };
@@ -155,7 +155,7 @@
 		0F151F3F2AE90DBC0049C60F /* Language.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Language.swift; sourceTree = "<group>"; };
 		0F151F412AE90E680049C60F /* UIImage+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Ext.swift"; sourceTree = "<group>"; };
 		0F151F432AE90E8B0049C60F /* View+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+Ext.swift"; sourceTree = "<group>"; };
-		0F151F452AE910290049C60F /* AddAboutPlaceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddAboutPlaceView.swift; sourceTree = "<group>"; };
+		0F151F452AE910290049C60F /* EditTextEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditTextEditorView.swift; sourceTree = "<group>"; };
 		0F151F472AE92AC10049C60F /* NewPlaceAbout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewPlaceAbout.swift; sourceTree = "<group>"; };
 		0F151F4A2AE93B7A0049C60F /* AddNewPlaceViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddNewPlaceViewModel.swift; sourceTree = "<group>"; };
 		0F151F4C2AE948BD0049C60F /* CountryNumbers.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = CountryNumbers.json; sourceTree = "<group>"; };
@@ -676,7 +676,7 @@
 				0F79B25B2AF2692900FCAED2 /* Phone */,
 				0F79B2592AF268FE00FCAED2 /* Location */,
 				0F79B25A2AF2690800FCAED2 /* Photo */,
-				0FFB3A4D2AF2405A001CF946 /* TextField */,
+				0FFB3A4D2AF2405A001CF946 /* Text */,
 				0F79B2502AF2443600FCAED2 /* Email */,
 			);
 			path = Edit;
@@ -874,18 +874,18 @@
 			path = Auth;
 			sourceTree = "<group>";
 		};
-		0FFB3A4D2AF2405A001CF946 /* TextField */ = {
+		0FFB3A4D2AF2405A001CF946 /* Text */ = {
 			isa = PBXGroup;
 			children = (
+				0F151F452AE910290049C60F /* EditTextEditorView.swift */,
 				0FFB3A362AF0FB56001CF946 /* EditTextFieldView.swift */,
 			);
-			path = TextField;
+			path = Text;
 			sourceTree = "<group>";
 		};
 		0FFB3A4E2AF24075001CF946 /* AboutPlace */ = {
 			isa = PBXGroup;
 			children = (
-				0F151F452AE910290049C60F /* AddAboutPlaceView.swift */,
 				0F7823D42B04C0BE0080F226 /* AboutEditView.swift */,
 			);
 			path = AboutPlace;
@@ -1030,7 +1030,7 @@
 				0F2765572B0284630084B5DD /* EditToggleField.swift in Sources */,
 				0FD617A22ACC3A3300877C70 /* User.swift in Sources */,
 				0F97BEDE2AFD361900DE645D /* ApiResult.swift in Sources */,
-				0F151F462AE910290049C60F /* AddAboutPlaceView.swift in Sources */,
+				0F151F462AE910290049C60F /* EditTextEditorView.swift in Sources */,
 				0F741A982ACDB7B300A7759E /* TabBarButton.swift in Sources */,
 				0F79B2682AF2710E00FCAED2 /* DecodedAbout.swift in Sources */,
 				0FFB3A3B2AF102A2001CF946 /* Test2.swift in Sources */,

@@ -17,45 +17,52 @@ struct PlaceCell: View {
     }
     
     var body: some View {
-
-        HStack(spacing: 20) {
-            if let url = place.avatar {
-                ImageLoadingView(url: url, width: 50, height: 50, contentMode: .fill) {
-                    Color.orange
-                }
-                .background(.regularMaterial)
-                .mask(Circle())
-            } else {
-                Text(place.type.getImage())
-                    .frame(width: 50, height: 50)
-                    .background(.regularMaterial)
-                    .mask(Circle())
-            }
-            
-            VStack(alignment: .leading, spacing: 4) {
-                HStack(alignment: .firstTextBaseline, spacing: 4) {
-                    if place.isLiked {
-                        AppImages.iconHeartFill
-                            .font(.body)
-                            .foregroundColor(.red)
+        VStack(spacing: 0) {
+            HStack(spacing: 20) {
+                if let url = place.avatar {
+                    ImageLoadingView(url: url, width: 50, height: 50, contentMode: .fill) {
+                        Text(place.type.getImage())
                     }
-                    Text(place.name)
-                        .multilineTextAlignment(.leading)
-                        .font(.body)
-                        .bold()
-                        .foregroundColor(.primary)
-                    
+                    .background(.regularMaterial)
+                    .clipShape(.circle)
+                    .overlay(Circle().stroke(AppColors.lightGray5, lineWidth: 1))
+                } else {
+                    Text(place.type.getImage())
+                        .frame(width: 50, height: 50)
+                        .background(.regularMaterial)
+                        .mask(Circle())
                 }
-                Text(place.address)
-                    .font(.footnote)
-                    .foregroundColor(.secondary)
-                    .multilineTextAlignment(.leading)
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack(alignment: .firstTextBaseline, spacing: 4) {
+                        if place.isLiked {
+                            AppImages.iconHeartFill
+                                .font(.body)
+                                .foregroundColor(.red)
+                        }
+                        Text(place.name)
+                            .multilineTextAlignment(.leading)
+                            .font(.body)
+                            .bold()
+                            .foregroundColor(.primary)
+                        
+                    }
+                    HStack(alignment: .top) {
+                        if place.isOpenNow() {
+                            Text("open now")
+                                .font(.footnote).bold()
+                                .foregroundColor(.green)
+                        }
+                        Text(place.address)
+                            .font(.footnote)
+                            .foregroundColor(.secondary)
+                            .multilineTextAlignment(.leading)
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
-            Spacer()
-            
+            Divider()
+                .offset(x: 70)
         }
-        
-        .padding(.trailing)
         .onAppear() {
             if let url = place.avatar {
                 Task {

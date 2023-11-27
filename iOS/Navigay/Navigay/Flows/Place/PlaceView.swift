@@ -9,16 +9,21 @@ import SwiftUI
 import SwiftData
 import MapKit
 
+final class PlaceViewModel: ObservableObject {
+    
+}
+
 struct PlaceView: View {
     
     // MARK: - Properties
+    
+    // MARK: - Private Properties
+    
     @Environment(\.openURL) private var openURL
     @EnvironmentObject private var authenticationManager: AuthenticationManager
     
     @Query(animation: .snappy)
     private var allEvents: [Event]
-    
-    // MARK: - Private Properties
     
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var context
@@ -26,6 +31,7 @@ struct PlaceView: View {
     private let place: Place
     @State private var allPhotos: [String] = []
     private let networkManager: PlaceNetworkManagerProtocol
+    private let eventNetworkManager: EventNetworkManagerProtocol
     private let errorManager: ErrorManagerProtocol
     
     @State private var gridLayout: [GridItem] = Array(repeating: GridItem(.flexible(), spacing: 2), count: 3)
@@ -33,60 +39,65 @@ struct PlaceView: View {
     @State private var position: MapCameraPosition = .automatic
     
     // MARK: - Inits
-    init(place: Place, networkManager: PlaceNetworkManagerProtocol, errorManager: ErrorManagerProtocol) {
+    
+    init(place: Place, networkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol) {
         self.place = place
         self.networkManager = networkManager
+        self.eventNetworkManager = eventNetworkManager
         self.errorManager = errorManager
     }
     
     // MARK: - Body
     
     var body: some View {
-        NavigationStack {
-            GeometryReader { geometry in
-                VStack(spacing: 0) {
-                    Divider()
-                    createList(width: geometry.size.width)
-                }
-                .navigationBarBackButtonHidden()
-                .toolbarBackground(AppColors.background)
-                .toolbarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .principal) {
-                        VStack(spacing: 0) {
-                            Text(place.type.getName().uppercased())
-                                .font(.caption).bold()
-                                .foregroundStyle(.secondary)
-                            Text(place.name)
-                                .font(.headline).bold()
-                        }
+        ZStack {
+            NavigationStack {
+                GeometryReader { geometry in
+                    VStack(spacing: 0) {
+                        Divider()
+                        createList(width: geometry.size.width, geom: geometry.size)
                     }
-                    ToolbarItem(placement: .topBarLeading) {
-                        Button {
-                            withAnimation {
-                                dismiss()
+                    .navigationBarBackButtonHidden()
+                    .toolbarBackground(AppColors.background)
+                    .toolbarTitleDisplayMode(.inline)
+                    .toolbar {
+                        ToolbarItem(placement: .principal) {
+                            VStack(spacing: 0) {
+                                Text(place.type.getName().uppercased())
+                                    .font(.caption).bold()
+                                    .foregroundStyle(.secondary)
+                                Text(place.name)
+                                    .font(.headline).bold()
                             }
-                        } label: {
-                            AppImages.iconLeft
-                                .bold()
-                                .frame(width: 30, height: 30, alignment: .leading)
                         }
-                        .tint(.primary)
-                    }
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button {
-                            place.isLiked.toggle()
-                        } label: {
-                            Image(systemName: place.isLiked ? "heart.fill" : "heart")
-                                .bold()
-                                .frame(width: 30, height: 30, alignment: .leading)
+                        ToolbarItem(placement: .topBarLeading) {
+                            Button {
+                                withAnimation {
+                                    dismiss()
+                                }
+                            } label: {
+                                AppImages.iconLeft
+                                    .bold()
+                                    .frame(width: 30, height: 30, alignment: .leading)
+                            }
+                            .tint(.primary)
                         }
-                        .tint(place.isLiked ? .red :  .secondary)
+                        ToolbarItem(placement: .topBarTrailing) {
+                            Button {
+                                place.isLiked.toggle()
+                            } label: {
+                                Image(systemName: place.isLiked ? "heart.fill" : "heart")
+                                    .bold()
+                                    .frame(width: 30, height: 30, alignment: .leading)
+                            }
+                            .tint(place.isLiked ? .red :  .secondary)
+                        }
                     }
-                }
-                .onAppear() {
-                    allPhotos = place.getAllPhotos()
-                    loadPlace()
+                    .onAppear() {
+                        allPhotos = place.getAllPhotos()
+                        loadPlace()
+                    }
+                    
                 }
             }
         }
@@ -95,7 +106,7 @@ struct PlaceView: View {
     // MARK: - Views
     
     @ViewBuilder
-    private func createList(width: CGFloat) -> some View {
+    private func createList(width: CGFloat, geom: CGSize) -> some View {
         List {
             if !allPhotos.isEmpty {
                 PhotosTabView(allPhotos: $allPhotos, width: width)
@@ -128,7 +139,7 @@ struct PlaceView: View {
             .padding()
             .listRowSeparator(.hidden)
             .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                        
+            
             TagsView(tags: place.tags)
                 .padding(.bottom)
                 .listRowSeparator(.hidden)
@@ -136,15 +147,25 @@ struct PlaceView: View {
             
             Section {
                 ForEach(place.timetable.sorted(by: { $0.day.rawValue < $1.day.rawValue } )) { day in
+                    let dayOfWeek = Date().dayOfWeek
                     HStack {
                         Text(day.day.getString())
                             .bold()
                             .frame(maxWidth: .infinity, alignment: .leading)
+                        if dayOfWeek == day.day {
+                            if place.isOpenNow() {
+                                Text("open now")
+                                    .font(.footnote).bold()
+                                    .foregroundColor(.green)
+                                    .padding(.trailing)
+                            }
+                        }
                         Text(day.open.formatted(date: .omitted, time: .shortened))
                         Text("—")
                         Text(day.close.formatted(date: .omitted, time: .shortened))
                     }
                     .font(.caption)
+                    .listRowBackground(dayOfWeek == day.day ? AppColors.lightGray6 : AppColors.background)
                 }
                 Text(place.otherInfo ?? "")
                     .font(.caption)
@@ -171,7 +192,7 @@ struct PlaceView: View {
                         }
                     }
                     .padding()
-                    .foregroundColor(.black)
+                    .foregroundColor(.primary)
                     .background(AppColors.lightGray6)
                     .clipShape(Capsule(style: .continuous))
                     .buttonStyle(.borderless)
@@ -186,13 +207,13 @@ struct PlaceView: View {
                                     .resizable()
                                     .scaledToFit()
                                     .frame(width: 25, height: 25, alignment: .leading)
-                                Text("Web page")
+                                Text("Web")
                                     .font(.caption)
                                     .bold()
                             }
                         }
                         .buttonStyle(.borderless)
-                        .foregroundColor(.black)
+                        .foregroundColor(.primary)
                         .padding()
                         .background(AppColors.lightGray6)
                         .clipShape(Capsule(style: .continuous))
@@ -207,7 +228,7 @@ struct PlaceView: View {
                                 .frame(width: 25, height: 25, alignment: .leading)
                         }
                         .buttonStyle(.borderless)
-                        .foregroundColor(.black)
+                        .foregroundColor(.primary)
                         .padding()
                         .background(AppColors.lightGray6)
                         .clipShape(.circle)
@@ -223,7 +244,7 @@ struct PlaceView: View {
                                 .frame(width: 25, height: 25, alignment: .leading)
                         }
                         .buttonStyle(.borderless)
-                        .foregroundColor(.black)
+                        .foregroundColor(.primary)
                         .padding()
                         .background(AppColors.lightGray6)
                         .clipShape(.circle)
@@ -237,25 +258,28 @@ struct PlaceView: View {
             
             map
             
-            Section {
-                Text("Upcoming events".uppercased())
-                    .foregroundColor(.white)
-                    .font(.caption)
-                    .bold()
-                    .modifier(CapsuleSmall(background: .red, foreground: .white))
-                    .frame(maxWidth: .infinity)
-                    .padding(.top)
-                    .padding()
-                    .padding(.bottom)
-                LazyVGrid(columns: gridLayoutEvents, spacing: 50) {
-                    ForEach(place.events.sorted(by: { $0.startDate < $1.startDate } )) { event in
-                        EventCell(event: event, width: (width - 50) / 2)
+            if !place.events.isEmpty {
+                Section {
+                    Text("Upcoming events".uppercased())
+                        .foregroundColor(.white)
+                        .font(.caption)
+                        .bold()
+                        .modifier(CapsuleSmall(background: .red, foreground: .white))
+                        .frame(maxWidth: .infinity)
+                        .padding(.top)
+                        .padding()
+                        .padding(.bottom)
+                    LazyVGrid(columns: gridLayoutEvents, spacing: 50) {
+                        ForEach(place.events.sorted(by: { $0.startDate < $1.startDate } )) { event in
+                            EventCell(event: event, width: (width - 50) / 2, networkManager: eventNetworkManager, errorManager: errorManager, placeNetworkManager: networkManager)
+                        }
                     }
                 }
+                .listRowSeparator(.hidden)
+                .frame(maxWidth: .infinity)
+                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                
             }
-            .listRowSeparator(.hidden)
-            .frame(maxWidth: .infinity)
-            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
             
             Text(place.about ?? "")
                 .font(.callout)
@@ -290,15 +314,15 @@ struct PlaceView: View {
             }
             .mapStyle(.standard(elevation: .flat, pointsOfInterest: .including([.publicTransport])))
             .mapControlVisibility(.hidden)
-            .frame(height: 200)
+            .frame(height: 300)
             .clipShape(RoundedRectangle(cornerRadius: 0))
-            .padding(.vertical)
             .onAppear {
                 position = .camera(MapCamera(centerCoordinate: place.coordinate, distance: 500))
             }
             Text(place.address)
-                .font(.caption)
+                .font(.callout)
                 .foregroundColor(.secondary)
+                .padding()
             Button {
                 goToMaps(coordinate: place.coordinate)
             } label: {
@@ -313,7 +337,7 @@ struct PlaceView: View {
                 }
             }
             .padding()
-            .foregroundColor(.black)
+            .foregroundColor(.primary)
             .background(AppColors.lightGray6)
             .clipShape(Capsule(style: .continuous))
             .buttonStyle(.borderless)
@@ -431,8 +455,8 @@ struct PhotosTabView: View {
                     ImageLoadingView(url: allPhotos[index], width: width, height: (width / 4) * 5, contentMode: .fill) {
                         AppColors.lightGray6 // TODO: animation
                     }
-                    .tag(index)
                     .clipped()
+                    .tag(index)
                 }
             }
             .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))

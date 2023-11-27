@@ -5,6 +5,7 @@
 //  Created by Dmitry Zasenko on 02.10.23.
 //
 
+import SwiftUI
 import SwiftData
 import CoreLocation
 
@@ -23,7 +24,6 @@ final class Event {
     var address: String = ""
     var latitude: Double = 0.0
     var longitude: Double = 0.0
-   // var isCoverHorizontal: Bool = false
     var poster: String? = nil
     var smallPoster: String? = nil
     var isFree: Bool = false
@@ -34,11 +34,10 @@ final class Event {
     var www: String? = nil
     var facebook: String? = nil
     var instagram: String? = nil
+    var phone: String? = nil
     var tickets: String? = nil
+    var fee: String? = nil
     
-    //TODO
-//    var placeId: Int? = nil
-//    var ownerId: Int? = nil
     var city: City? = nil
     var place: Place? = nil
     
@@ -53,19 +52,22 @@ final class Event {
     @Transient
     var tag: UUID = UUID()
     
+    @Transient
+    var image: Image?
+    
     init(decodedEvent: DecodedEvent) {
         self.id = decodedEvent.id
         updateEventIncomplete(decodedEvent: decodedEvent)
     }
     
     func updateEventIncomplete(decodedEvent: DecodedEvent) {
-        name = decodedEvent.name
+        name = String(htmlEncodedString: decodedEvent.name) ?? decodedEvent.name
         type = decodedEvent.type
         startDate = decodedEvent.startDate.dateFromString(format: "yyyy-MM-dd") ?? .now
         startTime = decodedEvent.startTime?.dateFromString(format: "HH:mm:ss")
         finishDate = decodedEvent.finishDate?.dateFromString(format: "yyyy-MM-dd")
         finishTime = decodedEvent.finishTime?.dateFromString(format: "HH:mm:ss")
-        address = decodedEvent.address
+        address = String(htmlEncodedString: decodedEvent.address) ?? decodedEvent.address
         latitude = decodedEvent.latitude
         longitude = decodedEvent.longitude
         poster = decodedEvent.poster
@@ -77,39 +79,36 @@ final class Event {
                 tags.append(tag)
             }
         }
-        location = decodedEvent.location
+        if let location = decodedEvent.location {
+            self.location = String(htmlEncodedString: location) ?? location
+        } else {
+            self.location = nil
+        }
         isActive = decodedEvent.isActive
-        
         lastUpdateIncomplete = decodedEvent.lastUpdate.dateFromString(format: "yyyy-MM-dd HH:mm:ss")
     }
     
     func updateEventComplete(decodedEvent: DecodedEvent) {
-        name = decodedEvent.name
-        type = decodedEvent.type
-        startDate = startDate
-        startTime = decodedEvent.startTime?.dateFromString(format: "HH:mm:ss")
-        finishDate = decodedEvent.finishDate?.dateFromString(format: "yyyy-MM-dd")
-        finishTime = decodedEvent.finishTime?.dateFromString(format: "HH:mm:ss")
-        address = decodedEvent.address
-        latitude = decodedEvent.latitude
-        longitude = decodedEvent.longitude
-        poster = decodedEvent.poster
-        smallPoster = decodedEvent.smallPoster
-        isFree = decodedEvent.isFree
-        tags.removeAll()
-        if let dacodedTags = decodedEvent.tags {
-            for tag in dacodedTags {
-                tags.append(tag)
-            }
+        updateEventIncomplete(decodedEvent: decodedEvent)
+        if let about = decodedEvent.about {
+            self.about = String(htmlEncodedString: about) ?? about
+        } else {
+            self.about = nil
         }
-        isActive = decodedEvent.isActive
-        location = decodedEvent.location
-//        about = decodedEvent.about
-//        www = decodedEvent.www
-//        facebook = decodedEvent.facebook
-//        instagram = decodedEvent.instagram
-//        tickets = decodedEvent.tickets
-        
+        if let www = decodedEvent.www {
+            self.www = String(htmlEncodedString: www) ?? www
+        } else {
+            self.www = nil
+        }
+        facebook = decodedEvent.facebook
+        instagram = decodedEvent.instagram
+        phone = decodedEvent.phone
+        tickets = decodedEvent.tickets
+        if let fee = decodedEvent.fee {
+            self.fee = String(htmlEncodedString: fee) ?? fee
+        } else {
+            self.fee = nil
+        }
         lastUpdateComplite = decodedEvent.lastUpdate.dateFromString(format: "yyyy-MM-dd HH:mm:ss")
     }
 }

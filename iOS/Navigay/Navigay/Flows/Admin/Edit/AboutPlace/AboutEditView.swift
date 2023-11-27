@@ -27,9 +27,10 @@ struct AboutEditView: View {
                     Menu("Add information") {
                         ForEach(languages, id: \.self) { language in
                             NavigationLink {
-                                AddAboutPlaceView(language: language, text: "") { placeAbout in
-                                    about.append(placeAbout)
-                                    languages.removeAll(where: { $0 == placeAbout.language})
+                                EditTextEditorView(title: "\(language.getFlag()) \(language.getName())", text: "", characterLimit: 3000) { string in
+                                    let newPlaceAbout = NewPlaceAbout(language: language, about: string)
+                                    self.about.append(newPlaceAbout)
+                                    self.languages.removeAll(where: { $0 == newPlaceAbout.language})
                                 }
                             } label: {
                                 Text("\(language.getFlag()) \(language.getName())")
@@ -41,10 +42,10 @@ struct AboutEditView: View {
             .padding()
             VStack {
                 ForEach(about.indices, id: \.self) { index in
-                    let info = about[index]
+                    let placeAbout = about[index]
                     HStack(spacing: 20) {
                         Button {
-                            if let existingIndex = about.firstIndex(where: { $0.id == info.id }) {
+                            if let existingIndex = about.firstIndex(where: { $0.id == placeAbout.id }) {
                                 let removedLanguage = about.remove(at: existingIndex).language
                                 languages.append(removedLanguage)
                             }
@@ -54,13 +55,14 @@ struct AboutEditView: View {
                                 .padding(.leading)
                         }
                         NavigationLink {
-                            AddAboutPlaceView(language: info.language, text: info.about) { placeAbout in
-                                if let existingIndex = about.firstIndex(where: { $0.id == info.id }) {
-                                    about[existingIndex] = placeAbout
+                            EditTextEditorView(title: "\(placeAbout.language.getFlag()) \(placeAbout.language.getName())", text: placeAbout.about, characterLimit: 3000) { string in
+                                if let existingIndex = self.about.firstIndex(where: { $0.id == placeAbout.id }) {
+                                    let newPlaceAbout = NewPlaceAbout(language: placeAbout.language, about: string)
+                                    self.about[existingIndex] = newPlaceAbout
                                 }
                             }
                         } label: {
-                            Text("\(info.language.getFlag()) \(info.about)")
+                            Text("\(placeAbout.language.getFlag()) \(placeAbout.about)")
                                 .lineLimit(1)
                                 .tint(.primary)
                                 .frame(maxWidth: .infinity, alignment: .leading)

@@ -7,27 +7,26 @@
 
 import SwiftUI
 
-struct AddAboutPlaceView: View {
+struct EditTextEditorView: View {
     
     //MARK: - Properties
     
-    var onSave: (NewPlaceAbout) -> Void
+    var onSave: (String) -> Void
     
     //MARK: - Private Properties
     
-    private let language: Language
     @State private var text: String
     private let title: String
-    private let characterLimit: Int = 3000
+    private let characterLimit: Int
     @FocusState private var focused: Bool
     @Environment(\.dismiss) private var dismiss
     
     //MARK: - Inits
-    
-    init(language: Language, text: String, onSave: @escaping (NewPlaceAbout) -> Void) {
-        self.language = language
-        self._text = State(initialValue: text)
-        self.title = "\(language.getFlag()) \(language.getName())"
+
+    init(title: String, text: String, characterLimit: Int, onSave: @escaping (String) -> Void) {
+        _text = State(initialValue: text)
+        self.characterLimit = characterLimit
+        self.title = title
         self.onSave = onSave
     }
     
@@ -71,8 +70,7 @@ struct AddAboutPlaceView: View {
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Готово") {
-                        let about = NewPlaceAbout(language: language, about: text)
-                        onSave(about)
+                        onSave(text)
                         dismiss()
                     }
                     .bold()
@@ -87,7 +85,7 @@ struct AddAboutPlaceView: View {
 }
 
 #Preview {
-    AddAboutPlaceView(language: .de, text: "We and our partners store and/or access information on a device, such as cookies and process personal data, such as unique identifiers and standard information sent by a device for personalised ads and content, ad and content measurement, and audience insights, as well as to develop and improve products. With your permission we and our partners may use precise geolocation data and identification through device scanning.\n\n🔥🔥🔥 You may click to consent to our and our partners’ processing as described above. Alternatively you may access more detailed information and change your preferences before consenting or to refuse consenting. Please note that some processing of your personal data may not require your consent, but you have a right to object to such processing. Your preferences will apply to this website only. You can change your preferences at any time by returning to this site or visit our privacy policy.") { placeAbout in
-        
+    EditTextEditorView(title: "New Text", text: "We and our partners store and/or access information on a device, such as cookies and process personal data, such as unique identifiers and standard information sent by a device for personalised ads and content, ad and content measurement, and audience insights, as well as to develop and improve products. With your permission we and our partners may use precise geolocation data and identification through device scanning.\n\n🔥🔥🔥 You may click to consent to our and our partners’ processing as described above. Alternatively you may access more detailed information and change your preferences before consenting or to refuse consenting. Please note that some processing of your personal data may not require your consent, but you have a right to object to such processing. Your preferences will apply to this website only. You can change your preferences at any time by returning to this site or visit our privacy policy.", characterLimit: 255) { string in
+        debugPrint(string)
     }
 }
