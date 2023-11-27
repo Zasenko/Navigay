@@ -46,21 +46,18 @@ extension Date {
     var isPastDate: Bool {
         return Calendar.current.compare(self, to: .init(), toGranularity: .day) == .orderedAscending
     }
-//    var isSameHour: Bool {
-//        return Calendar.current.compare(self, to: .init(), toGranularity: .hour) == .orderedSame
-//    }
-//    /// Checking if the date is Past Hour  form Today
-//    var isPastHour: Bool {
-//        print("Date", Date())
-//        print("Calendar.current.component: ", Calendar.current.component(.hour, from: .init()))
-//        return Calendar.current.compare(self, to: .init(), toGranularity: .hour) == .orderedAscending
-//    }
-//    
-//    /// Checking if the date is Futur Hour form Today
-//    var isFuturHour: Bool {
-//        return Calendar.current.compare(self, to: .init(), toGranularity: .hour) == .orderedDescending
-//    }
     
+//    func getAllDatesBetween(startDate: Date, finishDate: Date) -> [Date] {
+//        var startDate = startDate
+//        var allDates: [Date] = []
+//        let oneDay: TimeInterval = 24 * 60 * 60
+//        while startDate <= finishDate {
+//            allDates.append(startDate)
+//            startDate = startDate.addingTimeInterval(oneDay)
+//        }
+//        return allDates
+//    }
+
     func isSameHour(as otherDate: Date) -> Bool {
         let calendar = Calendar.current
         let components1 = calendar.dateComponents([.hour], from: self)

@@ -192,7 +192,7 @@ struct PlaceView: View {
                         }
                     }
                     .padding()
-                    .foregroundColor(.black)
+                    .foregroundColor(.primary)
                     .background(AppColors.lightGray6)
                     .clipShape(Capsule(style: .continuous))
                     .buttonStyle(.borderless)
@@ -207,13 +207,13 @@ struct PlaceView: View {
                                     .resizable()
                                     .scaledToFit()
                                     .frame(width: 25, height: 25, alignment: .leading)
-                                Text("Web page")
+                                Text("Web")
                                     .font(.caption)
                                     .bold()
                             }
                         }
                         .buttonStyle(.borderless)
-                        .foregroundColor(.black)
+                        .foregroundColor(.primary)
                         .padding()
                         .background(AppColors.lightGray6)
                         .clipShape(Capsule(style: .continuous))
@@ -228,7 +228,7 @@ struct PlaceView: View {
                                 .frame(width: 25, height: 25, alignment: .leading)
                         }
                         .buttonStyle(.borderless)
-                        .foregroundColor(.black)
+                        .foregroundColor(.primary)
                         .padding()
                         .background(AppColors.lightGray6)
                         .clipShape(.circle)
@@ -244,7 +244,7 @@ struct PlaceView: View {
                                 .frame(width: 25, height: 25, alignment: .leading)
                         }
                         .buttonStyle(.borderless)
-                        .foregroundColor(.black)
+                        .foregroundColor(.primary)
                         .padding()
                         .background(AppColors.lightGray6)
                         .clipShape(.circle)
@@ -258,25 +258,28 @@ struct PlaceView: View {
             
             map
             
-            Section {
-                Text("Upcoming events".uppercased())
-                    .foregroundColor(.white)
-                    .font(.caption)
-                    .bold()
-                    .modifier(CapsuleSmall(background: .red, foreground: .white))
-                    .frame(maxWidth: .infinity)
-                    .padding(.top)
-                    .padding()
-                    .padding(.bottom)
-                LazyVGrid(columns: gridLayoutEvents, spacing: 50) {
-                    ForEach(place.events.sorted(by: { $0.startDate < $1.startDate } )) { event in
-                        EventCell(event: event, width: (width - 50) / 2, networkManager: eventNetworkManager, errorManager: errorManager, placeNetworkManager: networkManager)
+            if !place.events.isEmpty {
+                Section {
+                    Text("Upcoming events".uppercased())
+                        .foregroundColor(.white)
+                        .font(.caption)
+                        .bold()
+                        .modifier(CapsuleSmall(background: .red, foreground: .white))
+                        .frame(maxWidth: .infinity)
+                        .padding(.top)
+                        .padding()
+                        .padding(.bottom)
+                    LazyVGrid(columns: gridLayoutEvents, spacing: 50) {
+                        ForEach(place.events.sorted(by: { $0.startDate < $1.startDate } )) { event in
+                            EventCell(event: event, width: (width - 50) / 2, networkManager: eventNetworkManager, errorManager: errorManager, placeNetworkManager: networkManager)
+                        }
                     }
                 }
+                .listRowSeparator(.hidden)
+                .frame(maxWidth: .infinity)
+                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                
             }
-            .listRowSeparator(.hidden)
-            .frame(maxWidth: .infinity)
-            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
             
             Text(place.about ?? "")
                 .font(.callout)
@@ -311,15 +314,15 @@ struct PlaceView: View {
             }
             .mapStyle(.standard(elevation: .flat, pointsOfInterest: .including([.publicTransport])))
             .mapControlVisibility(.hidden)
-            .frame(height: 200)
+            .frame(height: 300)
             .clipShape(RoundedRectangle(cornerRadius: 0))
-            .padding(.vertical)
             .onAppear {
                 position = .camera(MapCamera(centerCoordinate: place.coordinate, distance: 500))
             }
             Text(place.address)
-                .font(.caption)
+                .font(.callout)
                 .foregroundColor(.secondary)
+                .padding()
             Button {
                 goToMaps(coordinate: place.coordinate)
             } label: {
@@ -334,7 +337,7 @@ struct PlaceView: View {
                 }
             }
             .padding()
-            .foregroundColor(.black)
+            .foregroundColor(.primary)
             .background(AppColors.lightGray6)
             .clipShape(Capsule(style: .continuous))
             .buttonStyle(.borderless)

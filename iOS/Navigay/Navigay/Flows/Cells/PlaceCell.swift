@@ -24,7 +24,8 @@ struct PlaceCell: View {
                         Text(place.type.getImage())
                     }
                     .background(.regularMaterial)
-                    .mask(Circle())
+                    .clipShape(.circle)
+                    .overlay(Circle().stroke(AppColors.lightGray5, lineWidth: 1))
                 } else {
                     Text(place.type.getImage())
                         .frame(width: 50, height: 50)

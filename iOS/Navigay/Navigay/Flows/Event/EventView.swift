@@ -269,13 +269,13 @@ struct EventView: View {
                                     .resizable()
                                     .scaledToFit()
                                     .frame(width: 25, height: 25, alignment: .leading)
-                                Text("By tickets")
+                                Text("Tickets")
                                     .font(.caption)
                                     .bold()
                             }
                         }
                         .padding()
-                        .foregroundColor(.black)
+                        .foregroundColor(.primary)
                         .background(AppColors.lightGray6)
                         .clipShape(Capsule(style: .continuous))
                         .buttonStyle(.borderless)
@@ -289,13 +289,13 @@ struct EventView: View {
                                     .resizable()
                                     .scaledToFit()
                                     .frame(width: 25, height: 25, alignment: .leading)
-                                Text("Web page")
+                                Text("Web")
                                     .font(.caption)
                                     .bold()
                             }
                         }
                         .buttonStyle(.borderless)
-                        .foregroundColor(.black)
+                        .foregroundColor(.primary)
                         .padding()
                         .background(AppColors.lightGray6)
                         .clipShape(Capsule(style: .continuous))
@@ -310,7 +310,7 @@ struct EventView: View {
                                 .frame(width: 25, height: 25, alignment: .leading)
                         }
                         .buttonStyle(.borderless)
-                        .foregroundColor(.black)
+                        .foregroundColor(.primary)
                         .padding()
                         .background(AppColors.lightGray6)
                         .clipShape(.circle)
@@ -326,7 +326,7 @@ struct EventView: View {
                                 .frame(width: 25, height: 25, alignment: .leading)
                         }
                         .buttonStyle(.borderless)
-                        .foregroundColor(.black)
+                        .foregroundColor(.primary)
                         .padding()
                         .background(AppColors.lightGray6)
                         .clipShape(.circle)
@@ -340,8 +340,6 @@ struct EventView: View {
            // .listRowBackground(Color.orange)
             
             if let place = event.place {
-                    //DOTO!!!!!!!!!!
-                NavigationLink(place.name, value: place)
                     VStack( alignment: .leading, spacing: 0) {
                         Text("Location:")
                             .bold()
@@ -408,14 +406,15 @@ struct EventView: View {
             }
             .mapStyle(.standard(elevation: .flat, pointsOfInterest: .including([.publicTransport])))
             .mapControlVisibility(.hidden)
-            .frame(height: 200)
+            .frame(height: 300)
             .clipShape(RoundedRectangle(cornerRadius: 0))
             .onAppear {
                 position = .camera(MapCamera(centerCoordinate: event.coordinate, distance: 500))
             }
             Text(event.address)
-                .font(.caption)
+                .font(.callout)
                 .foregroundColor(.secondary)
+                .padding()
             Button {
                 goToMaps(coordinate: event.coordinate)
             } label: {
@@ -430,7 +429,7 @@ struct EventView: View {
                 }
             }
             .padding()
-            .foregroundColor(.black)
+            .foregroundColor(.primary)
             .background(AppColors.lightGray6)
             .clipShape(Capsule(style: .continuous))
             .buttonStyle(.borderless)

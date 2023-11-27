@@ -21,10 +21,9 @@ struct EventFeeFieldsView: View {
                 if !isFree {
                     VStack(spacing: 0) {
                         NavigationLink {
-//                            EditTextEditorView(title: "Fee information", text: fee, characterLimit: 255) { string in
-//                                self.fee = string
-//                            }
-                            Color.red
+                            EditTextEditorView(title: "Fee information", text: fee, characterLimit: 255) { string in
+                                self.fee = string
+                            }
                         } label: {
                             EditField(title: "Fee information", text: $fee, emptyFieldColor: .secondary)
                         }

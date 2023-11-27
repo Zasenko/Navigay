@@ -45,7 +45,7 @@ struct EventCell: View {
                                 image
                                     .resizable()
                                     .scaledToFill()
-                                    .frame(width: width, height: (width / 4) * 3)
+                                    .frame(width: width, height: width)
                                     .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                                     .onAppear() {
                                         Task {
@@ -59,7 +59,7 @@ struct EventCell: View {
                                     }
                             } else {
                                 Color.red
-                                    .frame(width: width, height: (width / 4) * 3)
+                                    .frame(width: width, height: width)
                             }
                         }
                         //   .shadow(color: Color.gray.opacity(0.3), radius: 5, x: 0, y: 3)

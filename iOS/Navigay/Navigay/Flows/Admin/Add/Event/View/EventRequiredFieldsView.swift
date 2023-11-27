@@ -35,7 +35,7 @@ struct EventRequiredFieldsView: View {
             VStack(spacing: 0) {
                 VStack(spacing: 0) {
                     NavigationLink {
-                        EditTextFieldView(text: name, characterLimit: 30, minHaracters: 2, title: "Title", placeholder: "Title") { string in
+                        EditTextFieldView(text: name, characterLimit: 50, minHaracters: 2, title: "Title", placeholder: "Title") { string in
                             name = string
                         }
                     } label: {

@@ -49,7 +49,7 @@ struct PlaceAdditionalFieldsView: View {
                         Divider()
                             .padding(.horizontal)
                         NavigationLink {
-                            EditTextFieldView(text: viewModel.facebook, characterLimit: 50, minHaracters: 0, title: "Facebook", placeholder: "Facebook") { string in
+                            EditTextFieldView(text: viewModel.facebook, characterLimit: 100, minHaracters: 0, title: "Facebook", placeholder: "Facebook") { string in
                                 viewModel.facebook = string
                             }
                         } label: {
@@ -58,7 +58,7 @@ struct PlaceAdditionalFieldsView: View {
                         Divider()
                             .padding(.horizontal)
                         NavigationLink {
-                            EditTextFieldView(text: viewModel.instagram, characterLimit: 50, minHaracters: 0, title: "Instagram", placeholder: "Instagram") { string in
+                            EditTextFieldView(text: viewModel.instagram, characterLimit: 100, minHaracters: 0, title: "Instagram", placeholder: "Instagram") { string in
                                 viewModel.instagram = string
                             }
                         } label: {
@@ -82,7 +82,7 @@ struct PlaceAdditionalFieldsView: View {
                         workdays
                     }
                     NavigationLink {
-                        EditTextFieldView(text: viewModel.otherInfo, characterLimit: 250, minHaracters: 0, title: "Other information", placeholder: "Information") { string in
+                        EditTextEditorView(title: "Other information", text: "Information", characterLimit: 255) { string in
                             viewModel.otherInfo = string
                         }
                     } label: {

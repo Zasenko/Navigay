@@ -59,7 +59,6 @@ final class Place {
         longitude = decodedPlace.longitude
         isActive = decodedPlace.isActive
         lastUpdateIncomplete = decodedPlace.lastUpdate.dateFromString(format: "yyyy-MM-dd HH:mm:ss")
-        
         tags.removeAll()
         if let dacodedTags = decodedPlace.tags {
             for tag in dacodedTags {
@@ -69,15 +68,7 @@ final class Place {
     }
     
     func updatePlaceComplite(decodedPlace: DecodedPlace) {
-        
-        name = decodedPlace.name
-        type = decodedPlace.type
-        avatar = decodedPlace.avatar
-        mainPhoto = decodedPlace.mainPhoto
-        address = decodedPlace.address
-        latitude = decodedPlace.latitude
-        longitude = decodedPlace.longitude
-        isActive = decodedPlace.isActive
+        updatePlaceIncomplete(decodedPlace: decodedPlace)
         about = decodedPlace.about
         photos = decodedPlace.photos ?? []//?.map( { $0.url} ) ?? []
         otherInfo = decodedPlace.otherInfo
@@ -87,12 +78,6 @@ final class Place {
         instagram = decodedPlace.instagram
         isActive = decodedPlace.isActive
         lastUpdateComplite = decodedPlace.lastUpdate.dateFromString(format: "yyyy-MM-dd HH:mm:ss")
-        tags.removeAll()
-        if let dacodedTags = decodedPlace.tags {
-            for tag in dacodedTags {
-                tags.append(tag)
-            }
-        }
     }
     
     func getAllPhotos() -> [String] {
@@ -106,7 +91,6 @@ final class Place {
         return allPhotos
     }
     
-    @Transient
     func isOpenNow() -> Bool {
         let currentDay = Date().dayOfWeek
         if let currentWorkDay = timetable.first(where: { $0.day == currentDay }) {

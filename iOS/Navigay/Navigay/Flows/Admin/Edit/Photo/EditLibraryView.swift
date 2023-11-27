@@ -68,7 +68,7 @@ struct EditLibraryView: View {
                                 ImageLoadingView(url: url, width: (width - 4) / 3, height: (width - 4) / 3, contentMode: .fill) {
                                     AppColors.lightGray6 //TODO animation
                                 }
-                                
+                                .clipped()
                                 .opacity(isLoading && photoId == photo.id ? 0.2 : 1)
                             } else {
                                 Color.black

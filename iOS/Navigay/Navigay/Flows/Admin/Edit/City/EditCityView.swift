@@ -166,7 +166,7 @@ struct ImageLoadingView<Content: View>: View {
             } else {
                 loadView()
                     .onAppear() {
-                        Task {
+                        Task(priority: .high) {
                             if let image = await ImageLoader.shared.loadImage(urlString: url) {
                                 self.image = image
                             }

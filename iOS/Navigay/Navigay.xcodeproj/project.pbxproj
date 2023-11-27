@@ -676,7 +676,7 @@
 				0F79B25B2AF2692900FCAED2 /* Phone */,
 				0F79B2592AF268FE00FCAED2 /* Location */,
 				0F79B25A2AF2690800FCAED2 /* Photo */,
-				0FFB3A4D2AF2405A001CF946 /* TextField */,
+				0FFB3A4D2AF2405A001CF946 /* Text */,
 				0F79B2502AF2443600FCAED2 /* Email */,
 			);
 			path = Edit;
@@ -874,18 +874,18 @@
 			path = Auth;
 			sourceTree = "<group>";
 		};
-		0FFB3A4D2AF2405A001CF946 /* TextField */ = {
+		0FFB3A4D2AF2405A001CF946 /* Text */ = {
 			isa = PBXGroup;
 			children = (
+				0F151F452AE910290049C60F /* EditTextEditorView.swift */,
 				0FFB3A362AF0FB56001CF946 /* EditTextFieldView.swift */,
 			);
-			path = TextField;
+			path = Text;
 			sourceTree = "<group>";
 		};
 		0FFB3A4E2AF24075001CF946 /* AboutPlace */ = {
 			isa = PBXGroup;
 			children = (
-				0F151F452AE910290049C60F /* EditTextEditorView.swift */,
 				0F7823D42B04C0BE0080F226 /* AboutEditView.swift */,
 			);
 			path = AboutPlace;

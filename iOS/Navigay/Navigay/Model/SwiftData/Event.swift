@@ -61,13 +61,13 @@ final class Event {
     }
     
     func updateEventIncomplete(decodedEvent: DecodedEvent) {
-        name = decodedEvent.name.parseHTML()
+        name = String(htmlEncodedString: decodedEvent.name) ?? decodedEvent.name
         type = decodedEvent.type
         startDate = decodedEvent.startDate.dateFromString(format: "yyyy-MM-dd") ?? .now
         startTime = decodedEvent.startTime?.dateFromString(format: "HH:mm:ss")
         finishDate = decodedEvent.finishDate?.dateFromString(format: "yyyy-MM-dd")
         finishTime = decodedEvent.finishTime?.dateFromString(format: "HH:mm:ss")
-        address = decodedEvent.address.parseHTML()
+        address = String(htmlEncodedString: decodedEvent.address) ?? decodedEvent.address
         latitude = decodedEvent.latitude
         longitude = decodedEvent.longitude
         poster = decodedEvent.poster
@@ -79,40 +79,36 @@ final class Event {
                 tags.append(tag)
             }
         }
-        location = decodedEvent.location?.parseHTML()
+        if let location = decodedEvent.location {
+            self.location = String(htmlEncodedString: location) ?? location
+        } else {
+            self.location = nil
+        }
         isActive = decodedEvent.isActive
-        
         lastUpdateIncomplete = decodedEvent.lastUpdate.dateFromString(format: "yyyy-MM-dd HH:mm:ss")
     }
     
     func updateEventComplete(decodedEvent: DecodedEvent) {
-        name = decodedEvent.name.parseHTML()
-        type = decodedEvent.type
-        startDate = startDate
-        startTime = decodedEvent.startTime?.dateFromString(format: "HH:mm:ss")
-        finishDate = decodedEvent.finishDate?.dateFromString(format: "yyyy-MM-dd")
-        finishTime = decodedEvent.finishTime?.dateFromString(format: "HH:mm:ss")
-        address = decodedEvent.address.parseHTML()
-        latitude = decodedEvent.latitude
-        longitude = decodedEvent.longitude
-        poster = decodedEvent.poster
-        smallPoster = decodedEvent.smallPoster
-        isFree = decodedEvent.isFree
-        tags.removeAll()
-        if let dacodedTags = decodedEvent.tags {
-            for tag in dacodedTags {
-                tags.append(tag)
-            }
+        updateEventIncomplete(decodedEvent: decodedEvent)
+        if let about = decodedEvent.about {
+            self.about = String(htmlEncodedString: about) ?? about
+        } else {
+            self.about = nil
         }
-        isActive = decodedEvent.isActive
-        location = decodedEvent.location?.parseHTML()
-        about = decodedEvent.about?.parseHTML()
-        www = decodedEvent.www
+        if let www = decodedEvent.www {
+            self.www = String(htmlEncodedString: www) ?? www
+        } else {
+            self.www = nil
+        }
         facebook = decodedEvent.facebook
         instagram = decodedEvent.instagram
         phone = decodedEvent.phone
         tickets = decodedEvent.tickets
-        fee = decodedEvent.fee?.parseHTML()
+        if let fee = decodedEvent.fee {
+            self.fee = String(htmlEncodedString: fee) ?? fee
+        } else {
+            self.fee = nil
+        }
         lastUpdateComplite = decodedEvent.lastUpdate.dateFromString(format: "yyyy-MM-dd HH:mm:ss")
     }
 }

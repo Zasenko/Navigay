@@ -14,6 +14,7 @@ struct HomeView: View {
     @ObservedObject var locationManager: LocationManager
     
     @Environment(\.modelContext) private var context
+    
     @Query(filter: #Predicate<Place>{ $0.isActive == true }, animation: .snappy)
     private var allPlaces: [Place]
     @Query(filter: #Predicate<Event>{ $0.isActive == true }, animation: .snappy)
@@ -29,14 +30,9 @@ struct HomeView: View {
     
     @State private var showEvent: Bool = false
     @State private var selectedEvent: Event? = nil
-    
     @State private var isLoading: Bool = false
-    
     @State private var gridLayout: [GridItem] = Array(repeating: GridItem(.flexible(), spacing: 20), count: 2)
    
-    @Namespace var namespace
-
-    
     init(networkManager: AroundNetworkManagerProtocol, locationManager: LocationManager, errorManager: ErrorManagerProtocol) {
         self.networkManager = networkManager
         self.eventNetworkManager = EventNetworkManager(appSettingsManager: networkManager.appSettingsManager)
@@ -51,29 +47,23 @@ struct HomeView: View {
                 ProgressView()
                     .tint(.blue)
                     .frame(maxHeight: .infinity)
-                
             } else {
                 NavigationStack {
                     GeometryReader { proxy in
                         listView(width: proxy.size.width)
+                            .toolbarBackground(AppColors.background)
+                            .toolbarTitleDisplayMode(.inline)
+                            .toolbar {
+                                ToolbarItem(placement: .principal) {
+                                    VStack(spacing: 0) {
+                                        Text("Around you")
+                                            .font(.headline).bold()
+                                    }
+                                }
+                            }
                             .onChange(of: locationManager.userLocation, initial: true) { oldValue, newValue in
                                 guard let userLocation = newValue else { return }
-                                let radius: Double = 20000 // Радиус в метрах
-                                let aroundPlaces  = allPlaces.filter { place in
-                                    let distance = userLocation.distance(from: CLLocation(latitude: place.latitude, longitude: place.longitude))
-                                    return distance <= radius
-                                }
-                                createGrouppedExpenses(aroundPlaces)
-                                aroundEvents = allEvents.filter { event in
-                                    let distance = userLocation.distance(from: CLLocation(latitude: event.latitude, longitude: event.longitude))
-                                    return distance <= radius && event.isActive == true//) && (event.startDate.isToday || event.startDate.isTomorrow )
-                                }
-                                if aroundEvents.isEmpty && groupedPlaces.isEmpty {
-                                    isLoading = true
-                                }
-                                if !networkManager.userLocations.contains(where: { $0 == userLocation } ) {
-                                    load(location: userLocation)
-                                }
+                                updateAroundPlacesAndEvents(userLocation: userLocation)
                             }
                     }
                 }
@@ -135,6 +125,22 @@ struct HomeView: View {
         .scrollIndicators(.hidden)
     }
     
+    private func updateAroundPlacesAndEvents(userLocation: CLLocation) {
+            let radius: Double = 20000
+            let aroundPlaces = allPlaces.filter { userLocation.distance(from: CLLocation(latitude: $0.latitude, longitude: $0.longitude)) <= radius }
+            createGroupedPlaces(places: aroundPlaces)
+            
+            aroundEvents = allEvents.filter { userLocation.distance(from: CLLocation(latitude: $0.latitude, longitude: $0.longitude)) <= radius }
+            
+            if aroundEvents.isEmpty && groupedPlaces.isEmpty {
+                isLoading = true
+            }
+            
+            if !networkManager.userLocations.contains(where: { $0 == userLocation }) {
+                load(location: userLocation)
+            }
+        }
+    
     private func load(location: CLLocation) {
         Task {
             let errorModel = ErrorModel(massage: "Something went wrong. The information has not been updated. Please try again later.", img: nil, color: nil)
@@ -190,6 +196,7 @@ struct HomeView: View {
                     }
                 }
                 networkManager.addToUserLocations(location: location)
+                
                 await MainActor.run {
                     let userLocation = CLLocation(latitude: latitude, longitude: longitude)
                     let radius: Double = 20000 // Радиус в метрах
@@ -197,10 +204,10 @@ struct HomeView: View {
                         let distance = userLocation.distance(from: CLLocation(latitude: place.latitude, longitude: place.longitude))
                         return distance <= radius
                     }
-                    createGrouppedExpenses(aroundPlaces)
+                    createGroupedPlaces(places: aroundPlaces)
                     aroundEvents = allEvents.filter { event in
                         let distance = userLocation.distance(from: CLLocation(latitude: event.latitude, longitude: event.longitude))
-                        return distance <= radius && event.isActive == true//) && (event.startDate.isToday || event.startDate.isTomorrow )
+                        return distance <= radius//) && (event.startDate.isToday || event.startDate.isTomorrow )
                     }
                     isLoading = false
                 }
@@ -211,19 +218,9 @@ struct HomeView: View {
             }
         }
     }
-    
-    func createGrouppedExpenses(_ places: [Place]) {
-        var updatedPlaces: [PlaceType: [Place]] = [:]
-        for place in places {
-            if place.isActive {
-                if var existingPlaces = updatedPlaces[place.type] {
-                    existingPlaces.append(place)
-                    updatedPlaces[place.type] = existingPlaces
-                } else {
-                    updatedPlaces[place.type] = [place]
-                }
-            }
-        }
+
+    private func createGroupedPlaces(places: [Place]) {
+        let updatedPlaces = Dictionary(grouping: places.filter { $0.isActive }) { $0.type }
         withAnimation(.spring()) {
             self.groupedPlaces = updatedPlaces
         }
