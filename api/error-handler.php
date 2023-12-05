@@ -12,7 +12,7 @@ function sendError($errorMessage)
 function sendUserError($errorMessage)
 {
     $json = ['result' => false, 'error' => ['show' => true, 'message' => $errorMessage]];
-    echo json_encode($json);
+    echo json_encode($json, JSON_UNESCAPED_UNICODE);
     exit;
 }
 
