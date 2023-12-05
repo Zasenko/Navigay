@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import SwiftData
 
 enum UserAuthorizationStatus {
     case authorized
@@ -61,7 +60,9 @@ extension AuthenticationManager {
             do {
                 let password = try keychainManager.getGenericPasswordFor(account: user.email, service: "User login")
                 let result = try await networkManager.login(email: user.email, password: password)
+                
                 await MainActor.run {
+                    
                     guard result.result,
                           let decodedUser = result.user
                     else {
@@ -91,6 +92,7 @@ extension AuthenticationManager {
                   let decodedUser = result.user
             else  {
                 errorManager.showApiError(error: result.error)
+                
                 return nil
             }
             try keychainManager.storeGenericPasswordFor(account: email,
@@ -107,64 +109,26 @@ extension AuthenticationManager {
         }
     }
     
-//    @MainActor
-//    func login(email: String, password: String) async -> Bool {
-//        do {
-//            let result = try await networkManager.login(email: email, password: password)
-//            guard result.result, let decodedUser = result.user, let userEmail = decodedUser.email else  {
-//                errorManager.showApiError(error: result.error)
-//                isUserLoggedIn = false
-//                userAccessRights = .anonim
-//                userAuthorizationStatus = .notAuthorized
-//                return false
-//            }
-//            try keychainManager.storeGenericPasswordFor(account: email,
-//                                                        service: "User login",
-//                                                        password: password)
-//            
-//            if let realmUser = realmManager.realm?.object(ofType: UserRealm.self, forPrimaryKey: decodedUser.id) {
-//                try realmManager.realm?.write {
-//                    realmUser.email = userEmail
-//                    realmUser.name = decodedUser.name
-//                    realmUser.status = decodedUser.status?.rawValue ?? UserAccessRights.user.rawValue
-//                    realmUser.bio = decodedUser.bio
-//                    realmUser.photo = decodedUser.photo
-//                    realmUser.instagram = decodedUser.instagram
-//                    realmUser.likedPlacesId.removeAll()
-//                    decodedUser.likedPlacesId?.forEach( {realmUser.likedPlacesId.append($0)} )
-//                }
-//                self.user = realmUser
-//                isUserLoggedIn = true
-//                userAccessRights = decodedUser.status ?? UserAccessRights.user
-//                userAuthorizationStatus = .authorized
-//                lastLoginnedUserId = decodedUser.id
-//                
-//                return true
-//            } else {
-//                let user = UserRealm()
-//                user.id = decodedUser.id
-//                user.email = userEmail
-//                user.name = decodedUser.name
-//                user.status = decodedUser.status?.rawValue ?? UserAccessRights.user.rawValue
-//                user.bio = decodedUser.bio
-//                user.photo = decodedUser.photo
-//                user.instagram = decodedUser.instagram
-//                decodedUser.likedPlacesId?.forEach( {user.likedPlacesId.append($0)} )
-//                
-//                realmManager.addObject(user)
-//                self.user = user
-//                isUserLoggedIn = true
-//                userAccessRights = decodedUser.status ?? UserAccessRights.user
-//                userAuthorizationStatus = .authorized
-//                lastLoginnedUserId = decodedUser.id
-//                
-//                return true
-//            }
-//        } catch {
-//            errorManager.showError(error: error)
-//            return false
-//        }
-//    }
+    @MainActor
+    func login(email: String, password: String) async -> DecodedAppUser? {
+        do {
+            let result = try await networkManager.login(email: email, password: password)
+            guard result.result,
+                  let decodedUser = result.user
+            else  {
+                errorManager.showApiError(error: result.error)
+                return nil
+            }
+            try keychainManager.storeGenericPasswordFor(account: email,
+                                                        service: "User login",
+                                                        password: password)
+            lastLoginnedUserId = decodedUser.id
+            return decodedUser
+        } catch {
+            errorManager.showError(error: error)
+            return nil
+        }
+    }
     
 //    func checkEmail(email: String) {
 //        let emailRegEx = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"

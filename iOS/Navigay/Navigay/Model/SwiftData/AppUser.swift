@@ -16,8 +16,6 @@ final class AppUser {
     var status: UserAccessRights
     var bio: String?
     var photo: String?
-    var instagram: String?
-    var likedPlacesId: [Place] = []
     var isUserLoggedIn: Bool = false
     
     init(decodedUser: DecodedAppUser) {
@@ -25,10 +23,8 @@ final class AppUser {
         self.email = decodedUser.email
         self.name = decodedUser.name
         self.status = decodedUser.status
-        self.email = decodedUser.email
         self.bio = decodedUser.bio
         self.photo = decodedUser.photo
-        self.instagram = decodedUser.instagram
     }
     
     func updateUser(decodedUser: DecodedAppUser) {
@@ -37,6 +33,5 @@ final class AppUser {
         status = decodedUser.status
         bio = decodedUser.bio
         photo = decodedUser.photo
-        instagram = decodedUser.instagram
     }
 }

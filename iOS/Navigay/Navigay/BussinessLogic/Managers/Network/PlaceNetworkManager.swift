@@ -73,8 +73,8 @@ extension PlaceNetworkManager: PlaceNetworkManagerProtocol {
             guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
                 throw NetworkErrors.invalidData
             }
-            let json = try JSONSerialization.jsonObject(with: data, options: JSONSerialization.ReadingOptions.allowFragments)
-            // выводим в консоль
+//            let json = try JSONSerialization.jsonObject(with: data, options: JSONSerialization.ReadingOptions.allowFragments)
+//            // выводим в консоль
             guard let decodedResult = try? JSONDecoder().decode(PlaceResult.self, from: data) else {
                 throw NetworkErrors.decoderError
             }

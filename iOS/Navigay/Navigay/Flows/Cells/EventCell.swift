@@ -62,8 +62,8 @@ struct EventCell: View {
                                     .frame(width: width, height: width)
                             }
                         }
-                        //   .shadow(color: Color.gray.opacity(0.3), radius: 5, x: 0, y: 3)
-                        //   .shadow(color: Color.gray.opacity(0.3), radius: 30, x: 0, y: 30)
+                           .shadow(color: Color.gray.opacity(0.3), radius: 5, x: 0, y: 3)
+                           .shadow(color: Color.gray.opacity(0.3), radius: 10, x: 0, y: 10)
                         .onAppear() {
                             Task {
                                 if let image = await ImageLoader.shared.loadImage(urlString: url) {

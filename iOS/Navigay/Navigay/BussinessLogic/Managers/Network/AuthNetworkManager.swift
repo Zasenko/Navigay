@@ -57,9 +57,8 @@ extension AuthNetworkManager: AuthNetworkManagerProtocol {
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
             request.httpBody = requestData
             let (data, response) = try await URLSession.shared.data(for: request)
-            let json = try JSONSerialization.jsonObject(with: data, options: JSONSerialization.ReadingOptions.allowFragments)
-            // выводим в консоль
-            print(json)
+           // let json = try JSONSerialization.jsonObject(with: data, options: JSONSerialization.ReadingOptions.allowFragments)
+          //  print(json)
             guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
                 throw NetworkErrors.invalidData
             }

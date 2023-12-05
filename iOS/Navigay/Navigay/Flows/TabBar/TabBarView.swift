@@ -139,10 +139,10 @@ struct TabBarView: View {
                                      button: userButton)
                 }
                 
-                // if let user = authenticationManager.appUser, user.status == .admin {
+                 if let user = authenticationManager.appUser, user.status == .admin {
                 TabBarButtonView(selectedPage: $selectedPage,
                                  button: adminButton)
-                // }
+                 }
             }
             .padding(8)
         }
