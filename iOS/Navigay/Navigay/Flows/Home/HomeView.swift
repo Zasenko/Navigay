@@ -12,7 +12,6 @@ import CoreLocation
 struct HomeView: View {
     
     @ObservedObject var locationManager: LocationManager
-    
     @Environment(\.modelContext) private var context
     
     @Query(filter: #Predicate<Place>{ $0.isActive == true }, animation: .snappy)
@@ -26,6 +25,7 @@ struct HomeView: View {
     let errorManager: ErrorManagerProtocol
     
     @State private var groupedPlaces: [PlaceType: [Place]] = [:]
+    @State private var allAroundEvents: [Event] = []
     @State private var aroundEvents: [Event] = []
     
     @State private var showEvent: Bool = false
@@ -54,10 +54,27 @@ struct HomeView: View {
                             .toolbarBackground(AppColors.background)
                             .toolbarTitleDisplayMode(.inline)
                             .toolbar {
-                                ToolbarItem(placement: .principal) {
-                                    VStack(spacing: 0) {
+                                ToolbarItem(placement: .topBarLeading) {
                                         Text("Around you")
-                                            .font(.headline).bold()
+                                        .font(.title2).bold()
+                                }
+                                
+                                ToolbarItem(placement: .topBarTrailing) {
+                                    HStack(spacing: 0) {
+                                        Text("Show\non map")
+                                            .font(.caption2)
+                                            .foregroundStyle(.secondary)
+                                            .multilineTextAlignment(.trailing)
+                                        Button {
+                                        } label: {
+                                            AppImages.iconLocation
+                                                .resizable()
+                                                .scaledToFit()
+                                                .frame(width: 30, height: 30, alignment: .leading)
+                                                .bold()
+                                        }
+                                        .tint(.primary)
+                                        
                                     }
                                 }
                             }
@@ -130,12 +147,53 @@ struct HomeView: View {
             let aroundPlaces = allPlaces.filter { userLocation.distance(from: CLLocation(latitude: $0.latitude, longitude: $0.longitude)) <= radius }
             createGroupedPlaces(places: aroundPlaces)
             
-            aroundEvents = allEvents.filter { userLocation.distance(from: CLLocation(latitude: $0.latitude, longitude: $0.longitude)) <= radius }
-            
-            if aroundEvents.isEmpty && groupedPlaces.isEmpty {
+        allAroundEvents = allEvents.filter { event in
+            let distance = userLocation.distance(from: CLLocation(latitude: event.latitude, longitude: event.longitude))
+            return distance <= radius
+        }
+        aroundEvents = allEvents.filter { event in
+            let distance = userLocation.distance(from: CLLocation(latitude: event.latitude, longitude: event.longitude))
+            let lastDayOfWeek = Calendar.current.date(byAdding: .day, value: 7, to: Date()) ?? Date()
+            let weekDays = Date().getAllDatesBetween(finishDate: lastDayOfWeek)
+            var bool = false
+            for day in weekDays {
+                if day.isSameDayWithOtherDate(event.startDate) {
+                    bool = true
+                }
+            }
+            if !bool {
+                if let finishDate = event.finishDate {
+                    let allEventsDate = event.startDate.getAllDatesBetween(finishDate: finishDate)
+                    for eventDay in allEventsDate {
+                        for day in weekDays {
+                            if day.isSameDayWithOtherDate(eventDay) {
+                                if finishDate.isToday {
+                                    if let finishTime = event.finishTime {
+                                        if finishTime.isFutureHour(of: Date()) {
+                                            bool = true
+                                            break
+                                        } else {
+                                            bool = false
+                                            break
+                                        }
+                                    } else {
+                                        bool = true
+                                        break
+                                    }
+                                } else {
+                                    bool = true
+                                    break
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return distance <= radius && bool
+        }
+            if allAroundEvents.isEmpty && groupedPlaces.isEmpty {
                 isLoading = true
             }
-            
             if !networkManager.userLocations.contains(where: { $0 == userLocation }) {
                 load(location: userLocation)
             }
@@ -205,9 +263,49 @@ struct HomeView: View {
                         return distance <= radius
                     }
                     createGroupedPlaces(places: aroundPlaces)
+                    allAroundEvents = allEvents.filter { event in
+                        let distance = userLocation.distance(from: CLLocation(latitude: event.latitude, longitude: event.longitude))
+                        return distance <= radius
+                    }
                     aroundEvents = allEvents.filter { event in
                         let distance = userLocation.distance(from: CLLocation(latitude: event.latitude, longitude: event.longitude))
-                        return distance <= radius//) && (event.startDate.isToday || event.startDate.isTomorrow )
+                        let lastDayOfWeek = Calendar.current.date(byAdding: .day, value: 7, to: Date()) ?? Date()
+                        let weekDays = Date().getAllDatesBetween(finishDate: lastDayOfWeek)
+                        var bool = false
+                        for day in weekDays {
+                            if day.isSameDayWithOtherDate(event.startDate) {
+                                bool = true
+                            }
+                        }
+                        if !bool {
+                            if let finishDate = event.finishDate {
+                                let allEventsDate = event.startDate.getAllDatesBetween(finishDate: finishDate)
+                                for eventDay in allEventsDate {
+                                    for day in weekDays {
+                                        if day.isSameDayWithOtherDate(eventDay) {
+                                            if finishDate.isToday {
+                                                if let finishTime = event.finishTime {
+                                                    if finishTime.isFutureHour(of: Date()) {
+                                                        bool = true
+                                                        break
+                                                    } else {
+                                                        bool = false
+                                                        break
+                                                    }
+                                                } else {
+                                                    bool = true
+                                                    break
+                                                }
+                                            } else {
+                                                bool = true
+                                                break
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        return distance <= radius && bool
                     }
                     isLoading = false
                 }
@@ -233,5 +331,5 @@ struct HomeView: View {
     let locationManager = LocationManager()
     let errorManager = ErrorManager()
     return HomeView(networkManager: networkManager, locationManager: locationManager, errorManager: errorManager)
-       // .modelContainer(for: [Place.self, Event.self], inMemory: false)
+        .modelContainer(for: [Place.self, Event.self], inMemory: false)
 }

@@ -9,7 +9,7 @@ import Foundation
 
 extension Date {
     
-    /// Custom Date Format
+    /// Custom Date Format / example:  "HH:mm"
     func format(_ format: String) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = format
@@ -30,33 +30,32 @@ extension Date {
     var isYesterday: Bool {
         return Calendar.current.isDateInYesterday(self)
     }
-    
+    /// Checking if the date is in weekend
     var isWeekend: Bool {
         return Calendar.current.isDateInWeekend(self)
     }
     
-    /// Checking if the date is Today Same Day
-    var isSameDay: Bool {
-        return Calendar.current.compare(self, to: .init(), toGranularity: .day) == .orderedSame
-    }
-    
-    /// Checking if the date is Today Same Hour
+//    /// Checking if the date is Today Same Day
+//    var isSameDay: Bool {
+//        return Calendar.current.compare(self, to: .init(), toGranularity: .day) == .orderedSame
+//    }
+
     
     /// Checking if the date is Past Day form Today
     var isPastDate: Bool {
         return Calendar.current.compare(self, to: .init(), toGranularity: .day) == .orderedAscending
     }
     
-//    func getAllDatesBetween(startDate: Date, finishDate: Date) -> [Date] {
-//        var startDate = startDate
-//        var allDates: [Date] = []
-//        let oneDay: TimeInterval = 24 * 60 * 60
-//        while startDate <= finishDate {
-//            allDates.append(startDate)
-//            startDate = startDate.addingTimeInterval(oneDay)
-//        }
-//        return allDates
-//    }
+    func getAllDatesBetween(finishDate: Date) -> [Date] {
+        var startDate = self
+        var allDates: [Date] = []
+        let oneDay: TimeInterval = 24 * 60 * 60
+        while startDate <= finishDate {
+            allDates.append(startDate)
+            startDate = startDate.addingTimeInterval(oneDay)
+        }
+        return allDates
+    }
 
     func isSameHour(as otherDate: Date) -> Bool {
         let calendar = Calendar.current
@@ -64,6 +63,7 @@ extension Date {
         let components2 = calendar.dateComponents([.hour], from: otherDate)
         return components1.hour == components2.hour
     }
+    
     func isPastHour(of otherDate: Date) -> Bool {
         let calendar = Calendar.current
         let components1 = calendar.dateComponents([.hour], from: self)
@@ -87,7 +87,7 @@ extension Date {
         return Calendar.current.isDate(self, inSameDayAs: date)
     }
     
-    var dayOfWeek: DayOfWeek {
+    var dayOfWeek: DayOfWeek? {
         let dayNumber = Calendar.current.component(.weekday, from: self)
         switch dayNumber {
         case 1:
@@ -105,7 +105,7 @@ extension Date {
         case 7:
             return .saturday
         default:
-            return .sunday
+            return nil
         }
     }
     

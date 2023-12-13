@@ -15,10 +15,8 @@ enum EntryViewRouter {
 
 struct EntryView: View {
     
-    @Query(animation: .snappy) private var appUsers: [AppUser]
-
+    @Query private var appUsers: [AppUser]
     @AppStorage("firstTimeInApp") private var firstTimeInApp: Bool = true
-    
     @State private var router: EntryViewRouter = .welcomeView
     @StateObject private var authenticationManager: AuthenticationManager
     private let appSettingsManager: AppSettingsManagerProtocol
@@ -31,15 +29,13 @@ struct EntryView: View {
         let keychainManager = KeychainManager()
         let authNetworkManager = AuthNetworkManager(appSettingsManager: appSettingsManager)
         let authenticationManager = AuthenticationManager(keychainManager: keychainManager, networkManager: authNetworkManager, errorManager: errorManager)
-        
         self.appSettingsManager = appSettingsManager
         self.errorManager = errorManager
         _authenticationManager = StateObject(wrappedValue: authenticationManager)
         _router = State(initialValue: EntryViewRouter.welcomeView)
-        
         let id = authenticationManager.lastLoginnedUserId
         if id != 0 {
-            self._appUsers = Query(filter: #Predicate<AppUser>{ $0.id == id })
+            _appUsers = Query(filter: #Predicate<AppUser>{ $0.id == id })
         }
     }
     

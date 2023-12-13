@@ -83,7 +83,6 @@ struct AppUserView: View {
                 Text(user.bio ?? "bio")
                     .multilineTextAlignment(.leading)
                 
-                Text(user.instagram ?? "instagram")
                 Divider()
                 
                 if !likedPlaces.isEmpty {

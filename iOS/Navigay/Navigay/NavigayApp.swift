@@ -13,7 +13,7 @@ struct NavigayApp: App {
     
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
-            AppUser.self
+            AppUser.self, Country.self, Region.self, City.self, Event.self, Place.self, User.self
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
