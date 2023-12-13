@@ -35,7 +35,6 @@ struct RegistrationView: View {
                 VStack {
                     authView
                     signInView
-                    
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -103,9 +102,9 @@ struct RegistrationView: View {
             .bold()
             Spacer()
             emailView
-                .padding(.bottom, 8)
+                .padding(.bottom, 10)
             passwordView
-                .padding(.bottom, 8)
+                .padding(.bottom, 10)
             Spacer()
             registrationButtonView
             Spacer()
@@ -144,6 +143,7 @@ struct RegistrationView: View {
         .padding(.horizontal, 10)
         .background(AppColors.lightGray6)
         .cornerRadius(16)
+        .shadow(color: .black.opacity(0.2), radius: 10, x: 0, y: 5)
         .onTapGesture {
             focusedField = .email
         }
@@ -178,6 +178,7 @@ struct RegistrationView: View {
             .padding(.horizontal, 10)
             .background(AppColors.lightGray6)
             .cornerRadius(16)
+            .shadow(color: .black.opacity(0.2), radius: 10, x: 0, y: 5)
             .onTapGesture {
                 focusedField = .password
             }
@@ -195,7 +196,7 @@ struct RegistrationView: View {
         } label: {
             HStack {
                 Text("Login")
-                    .foregroundColor(viewModel.isButtonValid ? AppColors.lightGray5 : .black)
+                    .foregroundColor(viewModel.isButtonValid ? .white : .secondary)
                 switch viewModel.buttonState {
                 case .normal, .success, .failure:
                     AppImages.iconArrowRight
@@ -203,7 +204,7 @@ struct RegistrationView: View {
                         .scaledToFit()
                         .bold()
                         .frame(width: 20, height: 20)
-                        .foregroundColor(viewModel.isButtonValid ? AppColors.lightGray5 : .black)
+                        .foregroundColor(viewModel.isButtonValid ? .white : .secondary)
                 case .loading:
                     ProgressView()
                         .frame(width: 20, height: 20)
@@ -217,8 +218,6 @@ struct RegistrationView: View {
             .clipShape(Capsule())
         }
         .disabled(!viewModel.isButtonValid)
-
-
     }
     
     var signInView: some View {

@@ -77,19 +77,11 @@ struct LoginView: View {
     var authView: some View {
         VStack {
             Spacer()
-            Group {
-                VStack(spacing: -20) {
-                    Text("Sign in")
-                        .font(.system(size: 45))
-                    Text("to your account")
-                    + Text(".")
-                        .font(.system(size: 45))
-                        .foregroundColor(.red)
-                }
-                
-            }
-            .font(.largeTitle)
-            .bold()
+            Text("Sign in\nto your Account")
+                .font(.largeTitle)
+                .bold()
+                .multilineTextAlignment(.center)
+                .lineSpacing(0)
             Spacer()
             emailView
                 .padding(.bottom,10)
@@ -100,7 +92,8 @@ struct LoginView: View {
             Spacer()
             
         }
-        .frame(maxWidth: 300)
+        .padding()
+        .frame(maxWidth: 400)
     }
     
     var emailView: some View {
@@ -124,10 +117,8 @@ struct LoginView: View {
                 .focused($focusedField, equals: .email)
             }
             AppImages.iconEnvelope
-                .resizable()
-                .scaledToFit()
+                .font(.callout)
                 .foregroundColor(.secondary)
-                .frame(width: 16, height: 16)
                 .bold()
         }
         .padding(10)
@@ -161,10 +152,8 @@ struct LoginView: View {
                     .focused($focusedField, equals: .password)
                 }
                 AppImages.iconLock
-                    .resizable()
-                    .scaledToFit()
+                    .font(.callout)
                     .foregroundColor(.secondary)
-                    .frame(width: 16, height: 16)
                     .bold()
             }
             .padding(10)
@@ -195,7 +184,7 @@ struct LoginView: View {
         } label: {
             HStack {
                 Text("Sign in")
-                    .foregroundColor(!viewModel.isButtonValid ? AppColors.lightGray5 : .black)
+                    .foregroundColor(viewModel.isButtonValid ? .white : .secondary)
                 switch viewModel.buttonState {
                 case .normal, .success, .failure:
                     AppImages.iconArrowRight
@@ -203,7 +192,7 @@ struct LoginView: View {
                         .scaledToFit()
                         .bold()
                         .frame(width: 20, height: 20)
-                        .foregroundColor(!viewModel.isButtonValid ? AppColors.lightGray5 : .red)
+                        .foregroundColor(viewModel.isButtonValid ? .white : .secondary)
                 case .loading:
                     ProgressView()
                         .frame(width: 20, height: 20)
@@ -213,9 +202,8 @@ struct LoginView: View {
             .bold()
             .padding(12)
             .padding(.horizontal)
-            .background(!viewModel.isButtonValid ? AppColors.gradient5 : AppColors.gradient4)
+            .background(viewModel.isButtonValid ? .green : AppColors.lightGray5)
             .clipShape(Capsule())
-            .shadow(color: .black.opacity(0.2), radius: 10, x: 0, y: 5)
         }
         .disabled(!viewModel.isButtonValid)
         .padding()
@@ -259,7 +247,6 @@ struct LoginView: View {
         }
     }
 
-    
     private func focusNextField() {
         switch focusedField {
         case .email:

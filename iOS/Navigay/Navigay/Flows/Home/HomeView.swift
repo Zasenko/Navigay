@@ -54,10 +54,27 @@ struct HomeView: View {
                             .toolbarBackground(AppColors.background)
                             .toolbarTitleDisplayMode(.inline)
                             .toolbar {
-                                ToolbarItem(placement: .principal) {
-                                    VStack(spacing: 0) {
+                                ToolbarItem(placement: .topBarLeading) {
                                         Text("Around you")
-                                            .font(.headline).bold()
+                                        .font(.title2).bold()
+                                }
+                                
+                                ToolbarItem(placement: .topBarTrailing) {
+                                    HStack(spacing: 0) {
+                                        Text("Show\non map")
+                                            .font(.caption2)
+                                            .foregroundStyle(.secondary)
+                                            .multilineTextAlignment(.trailing)
+                                        Button {
+                                        } label: {
+                                            AppImages.iconLocation
+                                                .resizable()
+                                                .scaledToFit()
+                                                .frame(width: 30, height: 30, alignment: .leading)
+                                                .bold()
+                                        }
+                                        .tint(.primary)
+                                        
                                     }
                                 }
                             }
