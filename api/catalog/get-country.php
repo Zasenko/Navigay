@@ -22,9 +22,9 @@ $sql = "SELECT id, isoCountryCode, name_$language, about, flag_emoji, photo, sho
 $params = [$country_id];
 $types = "i";
 $stmt = executeQuery($conn, $sql, $params, $types);
-$result = $stmt->get_result();
+$country_result = $stmt->get_result();
 $stmt->close();
-$row = $result->fetch_assoc();
+$row = $country_result->fetch_assoc();
 
 //about
 $about_data = json_decode($row['about'], true);
@@ -68,11 +68,11 @@ $sql = "SELECT id, name_$language, photo, is_active, updated_at FROM Region WHER
 $params = [$country_id];
 $types = "i";
 $stmt = executeQuery($conn, $sql, $params, $types);
-$result = $stmt->get_result();
+$regions_result = $stmt->get_result();
 $stmt->close();
 
 $regions = array();
-while ($row = $result->fetch_assoc()) {
+while ($row = $regions_result->fetch_assoc()) {
 
     //is_active
     $is_active = (bool)$row['is_active'];
@@ -91,15 +91,14 @@ while ($row = $result->fetch_assoc()) {
     );
 
     $sql = "SELECT id, name_$language, photo, is_active, updated_at FROM City WHERE region_id = ?";
-
     $params = [$region_id];
     $types = "i";
     $stmt = executeQuery($conn, $sql, $params, $types);
-    $result = $stmt->get_result();
+    $cities_result = $stmt->get_result();
     $stmt->close();
 
     $cities = array();
-    while ($row = $result->fetch_assoc()) {
+    while ($row = $cities_result->fetch_assoc()) {
 
         //is_active
         $is_active = (bool)$row['is_active'];
