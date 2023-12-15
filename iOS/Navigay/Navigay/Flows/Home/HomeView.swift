@@ -7,81 +7,73 @@
 
 import SwiftUI
 import SwiftData
-import CoreLocation
 
 struct HomeView: View {
     
-    @ObservedObject var locationManager: LocationManager
-    @Environment(\.modelContext) private var context
+    @ObservedObject private var locationManager: LocationManager
+    @State private var viewModel: HomeViewModel
     
-    @Query(filter: #Predicate<Place>{ $0.isActive == true }, animation: .snappy)
-    private var allPlaces: [Place]
-    @Query(filter: #Predicate<Event>{ $0.isActive == true }, animation: .snappy)
-    private var allEvents: [Event]
-    
-    let networkManager: AroundNetworkManagerProtocol
-    let eventNetworkManager: EventNetworkManagerProtocol
-    let placeNetworkManager: PlaceNetworkManagerProtocol
-    let errorManager: ErrorManagerProtocol
-    
-    @State private var groupedPlaces: [PlaceType: [Place]] = [:]
-    @State private var allAroundEvents: [Event] = []
-    @State private var aroundEvents: [Event] = []
-    
-    @State private var showEvent: Bool = false
-    @State private var selectedEvent: Event? = nil
-    @State private var isLoading: Bool = false
-    @State private var gridLayout: [GridItem] = Array(repeating: GridItem(.flexible(), spacing: 20), count: 2)
-   
-    init(networkManager: AroundNetworkManagerProtocol, locationManager: LocationManager, errorManager: ErrorManagerProtocol) {
-        self.networkManager = networkManager
-        self.eventNetworkManager = EventNetworkManager(appSettingsManager: networkManager.appSettingsManager)
-        self.placeNetworkManager = PlaceNetworkManager(appSettingsManager: networkManager.appSettingsManager)
-        self.locationManager = locationManager
-        self.errorManager = errorManager
+    init(modelContext: ModelContext, networkManager: AroundNetworkManagerProtocol, locationManager: LocationManager, errorManager: ErrorManagerProtocol) {
+        let viewModel = HomeViewModel(modelContext: modelContext, networkManager: networkManager, errorManager: errorManager)
+        _viewModel = State(initialValue: viewModel)
+        _locationManager = ObservedObject(wrappedValue: locationManager)
     }
-    
+
     var body: some View {
         ZStack {
-            if isLoading {
+            if viewModel.isLoading {
                 ProgressView()
                     .tint(.blue)
                     .frame(maxHeight: .infinity)
             } else {
-                NavigationStack {
-                    GeometryReader { proxy in
-                        listView(width: proxy.size.width)
-                            .toolbarBackground(AppColors.background)
-                            .toolbarTitleDisplayMode(.inline)
-                            .toolbar {
-                                ToolbarItem(placement: .topBarLeading) {
-                                        Text("Around you")
-                                        .font(.title2).bold()
-                                }
+                if viewModel.showMap {
+                    MapView(events: $viewModel.aroundEvents, places: $viewModel.aroundPlaces, showMap: $viewModel.showMap, categories: $viewModel.sortingCategories, selectedCategory: $viewModel.selectedSortingCategory)
+                } else {
+                    MainView
+                }
+            }
+        }
+        .onChange(of: locationManager.userLocation, initial: true) { _, newValue in
+            guard let userLocation = newValue else { return }
+            viewModel.updateAroundPlacesAndEvents(userLocation: userLocation)
+        }
+    }
+    
+    private var MainView: some View {
+        NavigationStack {
+            GeometryReader { proxy in
+                VStack(spacing: 0) {
+                    Divider()
+                    ListView(width: proxy.size.width)
+                }
+                .toolbarBackground(AppColors.background)
+                .toolbarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .topBarLeading) {
+                        Text("Around you")
+                            .font(.title).bold()
+                    }
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button {
+                            withAnimation {
+                                viewModel.selectedSortingCategory = .all
+                                viewModel.showMap.toggle()
+                            }
+                        } label: {
+                            HStack {
+                                Text("Show\non map")
+                                    .font(.caption2)
+                                    .foregroundStyle(.secondary)
+                                    .multilineTextAlignment(.trailing)
                                 
-                                ToolbarItem(placement: .topBarTrailing) {
-                                    HStack(spacing: 0) {
-                                        Text("Show\non map")
-                                            .font(.caption2)
-                                            .foregroundStyle(.secondary)
-                                            .multilineTextAlignment(.trailing)
-                                        Button {
-                                        } label: {
-                                            AppImages.iconLocation
-                                                .resizable()
-                                                .scaledToFit()
-                                                .frame(width: 30, height: 30, alignment: .leading)
-                                                .bold()
-                                        }
-                                        .tint(.primary)
-                                        
-                                    }
-                                }
+                                AppImages.iconLocation
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 30, height: 30, alignment: .leading)
+                                   // .bold()
                             }
-                            .onChange(of: locationManager.userLocation, initial: true) { oldValue, newValue in
-                                guard let userLocation = newValue else { return }
-                                updateAroundPlacesAndEvents(userLocation: userLocation)
-                            }
+                            .tint(.primary)
+                        }
                     }
                 }
             }
@@ -89,9 +81,31 @@ struct HomeView: View {
     }
     
     @ViewBuilder
-    private func listView(width: CGFloat) -> some View {
+    private func ListView(width: CGFloat) -> some View {
         List {
-            if aroundEvents.count > 0 {
+            if !viewModel.foundAround {
+                VStack {
+                    AppImages.iconSearchLocation
+                        .font(.largeTitle)
+                        .padding(.vertical)
+                    Text("Unfortunately, we could not find any locations around you.")
+                    
+//                    Text("Ты можешь помочь сообществу и добавить места в базу")
+//                        .padding(.vertical)
+//                        .font(.headline)
+                    Text("These are the list of locations nearest to you:")
+                        .padding(.vertical)
+                }
+                .font(.title)
+                .fontWeight(.light)
+                .multilineTextAlignment(.center)
+                .foregroundStyle(.secondary)
+                .padding(.vertical)
+                .listRowSeparator(.hidden)
+            }
+            
+            
+            if viewModel.aroundEvents.count > 0 {
                 Section {
                     Text("Upcoming events".uppercased())
                         .foregroundColor(.white)
@@ -102,9 +116,9 @@ struct HomeView: View {
                         .padding(.top)
                         .padding()
                         .padding(.bottom)
-                    LazyVGrid(columns: gridLayout, spacing: 20) {
-                        ForEach(aroundEvents.sorted(by: { $0.startDate < $1.startDate } )) { event in
-                            EventCell(event: event, width: (width / 2) - 30, networkManager: eventNetworkManager, errorManager: errorManager, placeNetworkManager: placeNetworkManager)
+                    LazyVGrid(columns: viewModel.gridLayout, spacing: 20) {
+                        ForEach(viewModel.aroundEvents) { event in
+                            EventCell(event: event, width: (width / 2) - 30, networkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeNetworkManager: viewModel.placeNetworkManager)
                         }
                     }
                     .padding(.horizontal, 20)
@@ -112,8 +126,8 @@ struct HomeView: View {
                 .listRowSeparator(.hidden)
                 .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
             }
-
-            ForEach(groupedPlaces.keys.sorted(), id: \.self) { key in
+            
+            ForEach(viewModel.groupedPlaces.keys.sorted(), id: \.self) { key in
                 Section {
                     Text(key.getPluralName().uppercased())
                         .foregroundColor(.white)
@@ -123,9 +137,9 @@ struct HomeView: View {
                         .frame(maxWidth: .infinity)
                         .padding(.top)
                     
-                    ForEach(groupedPlaces[key] ?? []) { place in
+                    ForEach(viewModel.groupedPlaces[key] ?? []) { place in
                         NavigationLink {
-                            PlaceView(place: place, networkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager)
+                            PlaceView(place: place, networkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager)
                         } label: {
                             PlaceCell(place: place)
                         }
@@ -141,195 +155,13 @@ struct HomeView: View {
         .listStyle(.plain)
         .scrollIndicators(.hidden)
     }
-    
-    private func updateAroundPlacesAndEvents(userLocation: CLLocation) {
-            let radius: Double = 20000
-            let aroundPlaces = allPlaces.filter { userLocation.distance(from: CLLocation(latitude: $0.latitude, longitude: $0.longitude)) <= radius }
-            createGroupedPlaces(places: aroundPlaces)
-            
-        allAroundEvents = allEvents.filter { event in
-            let distance = userLocation.distance(from: CLLocation(latitude: event.latitude, longitude: event.longitude))
-            return distance <= radius
-        }
-        aroundEvents = allEvents.filter { event in
-            let distance = userLocation.distance(from: CLLocation(latitude: event.latitude, longitude: event.longitude))
-            let lastDayOfWeek = Calendar.current.date(byAdding: .day, value: 7, to: Date()) ?? Date()
-            let weekDays = Date().getAllDatesBetween(finishDate: lastDayOfWeek)
-            var bool = false
-            for day in weekDays {
-                if day.isSameDayWithOtherDate(event.startDate) {
-                    bool = true
-                }
-            }
-            if !bool {
-                if let finishDate = event.finishDate {
-                    let allEventsDate = event.startDate.getAllDatesBetween(finishDate: finishDate)
-                    for eventDay in allEventsDate {
-                        for day in weekDays {
-                            if day.isSameDayWithOtherDate(eventDay) {
-                                if finishDate.isToday {
-                                    if let finishTime = event.finishTime {
-                                        if finishTime.isFutureHour(of: Date()) {
-                                            bool = true
-                                            break
-                                        } else {
-                                            bool = false
-                                            break
-                                        }
-                                    } else {
-                                        bool = true
-                                        break
-                                    }
-                                } else {
-                                    bool = true
-                                    break
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            return distance <= radius && bool
-        }
-            if allAroundEvents.isEmpty && groupedPlaces.isEmpty {
-                isLoading = true
-            }
-            if !networkManager.userLocations.contains(where: { $0 == userLocation }) {
-                load(location: userLocation)
-            }
-        }
-    
-    private func load(location: CLLocation) {
-        Task {
-            let errorModel = ErrorModel(massage: "Something went wrong. The information has not been updated. Please try again later.", img: nil, color: nil)
-            let latitude: Double = location.coordinate.latitude
-            let longitude: Double = location.coordinate.longitude
-            do {
-                let decodedResult = try await networkManager.fetchLocations(latitude: latitude, longitude: longitude)
-                guard decodedResult.result else {
-                    debugPrint("ERROR - getAdminInfo API:", decodedResult.error?.message ?? "---")
-                    errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: errorModel)
-                    throw NetworkErrors.apiError
-                }
-                if let decodedPlaces = decodedResult.places {
-                    await MainActor.run {
-                        for decodedPlace in decodedPlaces {
-                            if let place = allPlaces.first(where: { $0.id == decodedPlace.id} ) {
-                                let lastUpdate = decodedPlace.lastUpdate.dateFromString(format: "yyyy-MM-dd HH:mm:ss")
-                                if place.lastUpdateIncomplete != lastUpdate {
-                                    place.updatePlaceIncomplete(decodedPlace: decodedPlace)
-                                    let timetable = place.timetable
-                                    place.timetable.removeAll()
-                                    timetable.forEach( { context.delete($0) })
-                                    if let timetable = decodedPlace.timetable {
-                                        for day in timetable {
-                                            let workingDay = WorkDay(workDay: day)
-                                            place.timetable.append(workingDay)
-                                        }
-                                    }
-                                }
-                            } else if decodedPlace.isActive {
-                                let place = Place(decodedPlace: decodedPlace)
-                                context.insert(place)
-                                if let timetable = decodedPlace.timetable {
-                                    for day in timetable {
-                                        let workingDay = WorkDay(workDay: day)
-                                        place.timetable.append(workingDay)
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                if let decodedEvents = decodedResult.events {
-                    await MainActor.run {
-                        for decodeEvent in decodedEvents {
-                            if let event = allEvents.first(where: { $0.id == decodeEvent.id} ) {
-                                event.updateEventIncomplete(decodedEvent: decodeEvent)
-                            } else if decodeEvent.isActive {
-                                let event = Event(decodedEvent: decodeEvent)
-                                context.insert(event)
-                            }
-                        }
-                    }
-                }
-                networkManager.addToUserLocations(location: location)
-                
-                await MainActor.run {
-                    let userLocation = CLLocation(latitude: latitude, longitude: longitude)
-                    let radius: Double = 20000 // Радиус в метрах
-                    let aroundPlaces  = allPlaces.filter { place in
-                        let distance = userLocation.distance(from: CLLocation(latitude: place.latitude, longitude: place.longitude))
-                        return distance <= radius
-                    }
-                    createGroupedPlaces(places: aroundPlaces)
-                    allAroundEvents = allEvents.filter { event in
-                        let distance = userLocation.distance(from: CLLocation(latitude: event.latitude, longitude: event.longitude))
-                        return distance <= radius
-                    }
-                    aroundEvents = allEvents.filter { event in
-                        let distance = userLocation.distance(from: CLLocation(latitude: event.latitude, longitude: event.longitude))
-                        let lastDayOfWeek = Calendar.current.date(byAdding: .day, value: 7, to: Date()) ?? Date()
-                        let weekDays = Date().getAllDatesBetween(finishDate: lastDayOfWeek)
-                        var bool = false
-                        for day in weekDays {
-                            if day.isSameDayWithOtherDate(event.startDate) {
-                                bool = true
-                            }
-                        }
-                        if !bool {
-                            if let finishDate = event.finishDate {
-                                let allEventsDate = event.startDate.getAllDatesBetween(finishDate: finishDate)
-                                for eventDay in allEventsDate {
-                                    for day in weekDays {
-                                        if day.isSameDayWithOtherDate(eventDay) {
-                                            if finishDate.isToday {
-                                                if let finishTime = event.finishTime {
-                                                    if finishTime.isFutureHour(of: Date()) {
-                                                        bool = true
-                                                        break
-                                                    } else {
-                                                        bool = false
-                                                        break
-                                                    }
-                                                } else {
-                                                    bool = true
-                                                    break
-                                                }
-                                            } else {
-                                                bool = true
-                                                break
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        return distance <= radius && bool
-                    }
-                    isLoading = false
-                }
-            } catch {
-                isLoading = false
-                debugPrint(error)
-                errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
-            }
-        }
-    }
-
-    private func createGroupedPlaces(places: [Place]) {
-        let updatedPlaces = Dictionary(grouping: places.filter { $0.isActive }) { $0.type }
-        withAnimation(.spring()) {
-            self.groupedPlaces = updatedPlaces
-        }
-    }
 }
 
-#Preview {
-    let appSettingsManager = AppSettingsManager()
-    let networkManager = AroundNetworkManager(appSettingsManager: appSettingsManager)
-    let locationManager = LocationManager()
-    let errorManager = ErrorManager()
-    return HomeView(networkManager: networkManager, locationManager: locationManager, errorManager: errorManager)
-        .modelContainer(for: [Place.self, Event.self], inMemory: false)
-}
+//#Preview {
+//    let appSettingsManager = AppSettingsManager()
+//    let networkManager = AroundNetworkManager(appSettingsManager: appSettingsManager)
+//    let locationManager = LocationManager()
+//    let errorManager = ErrorManager()
+//    return HomeView(networkManager: networkManager, locationManager: locationManager, errorManager: errorManager)
+//        .modelContainer(for: [Place.self, Event.self], inMemory: false)
+//}

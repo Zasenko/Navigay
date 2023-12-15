@@ -22,7 +22,7 @@ struct NewEventInfoView: View {
                     EventRequiredFieldsView(name: $viewModel.name, type: $viewModel.type, isoCountryCode: $viewModel.isoCountryCode, countryOrigin: $viewModel.countryOrigin, countryEnglish: $viewModel.countryEnglish, regionOrigin: $viewModel.regionOrigin, regionEnglish: $viewModel.regionEnglish, cityOrigin: $viewModel.cityOrigin, cityEnglish: $viewModel.cityEnglish, addressOrigin: $viewModel.addressOrigin, latitude: $viewModel.latitude, longitude: $viewModel.longitude)
                         .padding(.bottom, 40)
                     NavigationLink {
-                        EditTextFieldView(text: viewModel.location, characterLimit: 30, minHaracters: 2, title: "Event location", placeholder: "Location's title") { string in
+                        EditTextFieldView(text: viewModel.location, characterLimit: 255, minHaracters: 2, title: "Event location", placeholder: "Location's title") { string in
                             viewModel.location = string
                         }
                     } label: {

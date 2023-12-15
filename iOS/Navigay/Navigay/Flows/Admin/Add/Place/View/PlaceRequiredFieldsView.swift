@@ -25,7 +25,7 @@ struct PlaceRequiredFieldsView: View {
                 LazyVStack(spacing: 0) {
                     VStack(spacing: 0) {
                         NavigationLink {
-                            EditTextFieldView(text: viewModel.name, characterLimit: 50, minHaracters: 2, title: "Title", placeholder: "Title") { string in
+                            EditTextFieldView(text: viewModel.name, characterLimit: 255, minHaracters: 2, title: "Title", placeholder: "Title") { string in
                                 viewModel.name = string
                             }
                         } label: {
@@ -39,7 +39,7 @@ struct PlaceRequiredFieldsView: View {
                     .cornerRadius(10)
                     .padding(.bottom, 40)
                     NavigationLink {
-                        EditTextFieldView(text: viewModel.addressOrigin, characterLimit: 50, minHaracters: 5, title: "Address", placeholder: "Address") { string in
+                        EditTextFieldView(text: viewModel.addressOrigin, characterLimit: 255, minHaracters: 5, title: "Address", placeholder: "Address") { string in
                             viewModel.addressOrigin = string
                         }
                     } label: {

@@ -122,6 +122,8 @@
 		0FA6C8B82AD94C7500F30B4A /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FA6C8B72AD94C7500F30B4A /* MapView.swift */; };
 		0FA8FFB72B15EDCC001886D0 /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FA8FFB62B15EDCC001886D0 /* HomeViewModel.swift */; };
 		0FAA79A82AE7D331003BB224 /* NewWorkingDay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FAA79A72AE7D331003BB224 /* NewWorkingDay.swift */; };
+		0FBABB8A2B2B590900A2B4FE /* ItemsResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FBABB892B2B590900A2B4FE /* ItemsResult.swift */; };
+		0FBABB8C2B2C5C9900A2B4FE /* MapSortingMenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FBABB8B2B2C5C9900A2B4FE /* MapSortingMenuView.swift */; };
 		0FC7B4D32B07CD910077E555 /* PlaceResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FC7B4D22B07CD910077E555 /* PlaceResult.swift */; };
 		0FC9652D2ADD2E2500108443 /* PlaceCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FC9652C2ADD2E2500108443 /* PlaceCell.swift */; };
 		0FC9652F2ADD329100108443 /* EventCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FC9652E2ADD329100108443 /* EventCell.swift */; };
@@ -270,6 +272,8 @@
 		0FA6C8B72AD94C7500F30B4A /* MapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
 		0FA8FFB62B15EDCC001886D0 /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
 		0FAA79A72AE7D331003BB224 /* NewWorkingDay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewWorkingDay.swift; sourceTree = "<group>"; };
+		0FBABB892B2B590900A2B4FE /* ItemsResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemsResult.swift; sourceTree = "<group>"; };
+		0FBABB8B2B2C5C9900A2B4FE /* MapSortingMenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapSortingMenuView.swift; sourceTree = "<group>"; };
 		0FC7B4D22B07CD910077E555 /* PlaceResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceResult.swift; sourceTree = "<group>"; };
 		0FC9652C2ADD2E2500108443 /* PlaceCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceCell.swift; sourceTree = "<group>"; };
 		0FC9652E2ADD329100108443 /* EventCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventCell.swift; sourceTree = "<group>"; };
@@ -384,6 +388,7 @@
 				0FC7B4D22B07CD910077E555 /* PlaceResult.swift */,
 				0F2765642B03780C0084B5DD /* PosterResult.swift */,
 				0F80E9E02B0696DC006ABBF0 /* AroundResult.swift */,
+				0FBABB892B2B590900A2B4FE /* ItemsResult.swift */,
 			);
 			path = Results;
 			sourceTree = "<group>";
@@ -750,6 +755,7 @@
 			isa = PBXGroup;
 			children = (
 				0FA6C8B72AD94C7500F30B4A /* MapView.swift */,
+				0FBABB8B2B2C5C9900A2B4FE /* MapSortingMenuView.swift */,
 			);
 			path = Map;
 			sourceTree = "<group>";
@@ -794,8 +800,8 @@
 		0FC965322ADD55B300108443 /* Home */ = {
 			isa = PBXGroup;
 			children = (
-				0F7E57E72AE129A40091A0F8 /* HomeView.swift */,
 				0FA8FFB62B15EDCC001886D0 /* HomeViewModel.swift */,
+				0F7E57E72AE129A40091A0F8 /* HomeView.swift */,
 			);
 			path = Home;
 			sourceTree = "<group>";
@@ -1074,9 +1080,11 @@
 				0F741A352ACD501800A7759E /* KeychainManager.swift in Sources */,
 				0F354CD02AFF789600594AE0 /* EditField.swift in Sources */,
 				0F2765442B0234250084B5DD /* EventRequiredFieldsView.swift in Sources */,
+				0FBABB8C2B2C5C9900A2B4FE /* MapSortingMenuView.swift in Sources */,
 				0FA8FFB72B15EDCC001886D0 /* HomeViewModel.swift in Sources */,
 				0F80E9DF2B068499006ABBF0 /* AroundNetworkManager.swift in Sources */,
 				0F741A852ACDAACF00A7759E /* ImageLoader.swift in Sources */,
+				0FBABB8A2B2B590900A2B4FE /* ItemsResult.swift in Sources */,
 				0F741A792ACD644D00A7759E /* DecodedCountry.swift in Sources */,
 				0F79B2662AF26E5800FCAED2 /* DayOfWeek.swift in Sources */,
 				0FAA79A82AE7D331003BB224 /* NewWorkingDay.swift in Sources */,

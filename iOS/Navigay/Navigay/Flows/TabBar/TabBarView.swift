@@ -8,45 +8,52 @@
 import SwiftUI
 
 enum TabBarRouter {
-    case home, map, search, user, admin
+    case home, search, user, admin
 }
 
 struct TabBarView: View {
     
-    @State private var userImage: Image? = nil
-    
-    @StateObject private var locationManager = LocationManager()
-    @ObservedObject var authenticationManager: AuthenticationManager
-    let appSettingsManager: AppSettingsManagerProtocol
-    
-    let homeButton = TabBarButton(title: "Around Me", img: AppImages.iconHome, page: .home)
-    let mapButton = TabBarButton(title: "Map", img: AppImages.iconMap, page: .map)
-    let searchButton = TabBarButton(title: "Catalog", img: AppImages.iconSearch, page: .search)
-    let userButton = TabBarButton(title: "Around Me", img: AppImages.iconPerson, page: .user)
-    let adminButton = TabBarButton(title: "Admin Panel", img: AppImages.iconAdmin, page: .admin)
+    @Environment(\.modelContext) var modelContext
     
     @State private var selectedPage: TabBarRouter = TabBarRouter.home
     
+    private let homeButton = TabBarButton(title: "Around Me", img: AppImages.iconHome, page: .home)
+    private let searchButton = TabBarButton(title: "Catalog", img: AppImages.iconSearch, page: .search)
+    private let userButton = TabBarButton(title: "Around Me", img: AppImages.iconPerson, page: .user)
+    private let adminButton = TabBarButton(title: "Admin Panel", img: AppImages.iconAdmin, page: .admin)
+    
+    @State private var userImage: Image? = nil
+
+    @StateObject private var locationManager: LocationManager
+    @ObservedObject private var authenticationManager: AuthenticationManager
+
+    private let appSettingsManager: AppSettingsManagerProtocol
+    private let errorManager: ErrorManagerProtocol
+    private let aroundNetworkManager: AroundNetworkManagerProtocol
+    private let catalogNetworkManager: CatalogNetworkManagerProtocol
+    
+    init(locationManager: LocationManager = LocationManager(), authenticationManager: AuthenticationManager, appSettingsManager: AppSettingsManagerProtocol, errorManager: ErrorManagerProtocol) {
+        _locationManager = StateObject(wrappedValue: locationManager)
+        _authenticationManager = ObservedObject(wrappedValue: authenticationManager)
+        self.authenticationManager = authenticationManager
+        self.errorManager = errorManager
+        self.appSettingsManager = appSettingsManager
+        self.aroundNetworkManager = AroundNetworkManager(appSettingsManager: appSettingsManager, errorManager: errorManager)
+        self.catalogNetworkManager = CatalogNetworkManager(appSettingsManager: appSettingsManager)
+    }
+    
     var body: some View {
-//        GeometryReader {
-//            let safeArea = $0.safeAreaInsets //EdgeInsets
-//            let windowSize = $0.size // CGSize
-            
             VStack(spacing: 0) {
                 switch selectedPage {
                 case .home:
-                    HomeView(networkManager: AroundNetworkManager(appSettingsManager: appSettingsManager), locationManager: locationManager, errorManager: authenticationManager.errorManager)
-                case .map:
-                    Color.red
-                    //MapView(locationManager: locationManager)
+                    HomeView(modelContext: modelContext, networkManager: aroundNetworkManager, locationManager: locationManager, errorManager: errorManager)
                 case .search:
-                    Color.red
-                   // SearchView(networkManager: CatalogNetworkManager(appSettingsManager: appSettingsManager))
+                    SearchView(networkManager: catalogNetworkManager)
                 case .user:
                     AppUserView(authenticationManager: authenticationManager)
                 case .admin:
                     if let user = authenticationManager.appUser {
-                        AdminView(viewModel: AdminViewModel(user: user, errorManager: authenticationManager.errorManager, networkManager: AdminNetworkManager()))
+                        AdminView(viewModel: AdminViewModel(user: user, errorManager: errorManager, networkManager: AdminNetworkManager()))
                     } else {
                         EmptyView()
                     }
@@ -113,8 +120,6 @@ struct TabBarView: View {
                 if locationManager.authorizationStatus != .denied {
                     TabBarButtonView(selectedPage: $selectedPage,
                                      button: homeButton)
-                    TabBarButtonView(selectedPage: $selectedPage,
-                                     button: mapButton)
                 }
                 TabBarButtonView(selectedPage: $selectedPage,
                                  button: searchButton)
@@ -149,6 +154,6 @@ struct TabBarView: View {
     }
 }
 
-#Preview {
-    TabBarView(authenticationManager: AuthenticationManager(keychainManager: KeychainManager(), networkManager: AuthNetworkManager(appSettingsManager: AppSettingsManager()), errorManager: ErrorManager()), appSettingsManager: AppSettingsManager())
-}
+//#Preview {
+//    TabBarView(authenticationManager: AuthenticationManager(keychainManager: KeychainManager(), networkManager: AuthNetworkManager(appSettingsManager: AppSettingsManager()), errorManager: ErrorManager()), appSettingsManager: AppSettingsManager())
+//}
