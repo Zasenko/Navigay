@@ -11,6 +11,7 @@ import SwiftData
 struct CountryView: View {
     
     private let country: Country
+    
     @State private var image: Image = AppImages.iconAdmin
     
     @Environment(\.dismiss) private var dismiss
@@ -26,16 +27,21 @@ struct CountryView: View {
         NavigationStack {
             GeometryReader { geometry in
                 List {
-                    Section {
-                        image
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: geometry.size.width, height: geometry.size.width)
-                            .clipped()
+//                    Section {
+//                        image
+//                            .resizable()
+//                            .scaledToFill()
+//                            .frame(width: geometry.size.width, height: geometry.size.width)
+//                            .clipped()
+//                    }
+                    if let url = country.photo {
+                        ImageLoadingView(url: url, width: geometry.size.width, height: (geometry.size.width / 4) * 5, contentMode: .fill) {
+                            AppColors.lightGray6 // TODO: animation
+                        }
+                        .clipped()
+                        .listRowSeparator(.hidden)
+                        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                     }
-                    .listRowSeparator(.hidden)
-                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                    
                     if country.showRegions {
                         ForEach(country.regions.filter( { $0.isActive == true } )) { region in
                             RegionView(region: region, networkManager: networkManager)
@@ -64,10 +70,13 @@ struct CountryView: View {
                     }
                     ToolbarItem(placement: .topBarLeading) {
                         Button {
-                            dismiss()
+                            withAnimation {
+                                dismiss()
+                            }
                         } label: {
                             AppImages.iconLeft
                                 .bold()
+                                .frame(width: 30, height: 30, alignment: .leading)
                         }
                         .tint(.primary)
                     }
@@ -102,13 +111,16 @@ struct CountryView: View {
                     return
                 }
                 await MainActor.run {
+                    
+                    //TODO!!!!
+                    
                     if country.isDeleted {
                         print("isDeleted")
                     }
                     if country.hasChanges {
                         print("hasChanges")
                     }
-                    country.updateCountry(decodedCountry: decodedCountry)
+                    country.updateCountryComplite(decodedCountry: decodedCountry)
                     updateRegions(decodedRegions: decodedCountry.regions)
                 }
                 
@@ -123,7 +135,7 @@ struct CountryView: View {
         if let decodedRegions = decodedRegions, !decodedRegions.isEmpty {
             for decodedRegion in decodedRegions {
                 if let region = country.regions.first(where: { $0.id == decodedRegion.id} ) {
-                    region.updateRegion(decodedRegion: decodedRegion)
+                    region.lastUpdateIncomplete(decodedRegion: decodedRegion)
                     updateCities(decodedCities: decodedRegion.cities, for: region)
                 } else if decodedRegion.isActive {
                     let region = Region(decodedRegion: decodedRegion)
@@ -198,7 +210,7 @@ struct CitiesView: View {
         }
     }
 }
-
-#Preview {
-    CountryView(country: Country(decodedCountry: DecodedCountry(id: 1, isoCountryCode: "RUS", name: "Russia", flagEmoji: "🇷🇺", photo: "https://thumbs.dreamstime.com/b/церковь-pokrovsky-3476006.jpg", showRegions: true, isActive: true, about: "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text.", regions: [])), networkManager: CatalogNetworkManager(appSettingsManager: AppSettingsManager()))
-}
+//
+//#Preview {
+//    CountryView(country: Country(decodedCountry: DecodedCountry(id: 1, isoCountryCode: "RUS", name: "Russia", flagEmoji: "🇷🇺", photo: "https://thumbs.dreamstime.com/b/церковь-pokrovsky-3476006.jpg", showRegions: true, isActive: true, about: "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text.", regions: [])), networkManager: CatalogNetworkManager(appSettingsManager: AppSettingsManager()))
+//}

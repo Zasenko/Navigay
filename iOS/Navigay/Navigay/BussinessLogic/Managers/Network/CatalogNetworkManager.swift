@@ -82,8 +82,8 @@ extension CatalogNetworkManager: CatalogNetworkManagerProtocol {
     }
     
     func fetchCountry(id: Int) async throws -> CountryResult {
-        debugPrint("--- fetchCountry()")
-        let path = "/api/catalog/get-country-by-id.php"
+        debugPrint("--- fetchCountry() id: ", id)
+        let path = "/api/catalog/get-country.php"
         var urlComponents: URLComponents {
             var components = URLComponents()
             components.scheme = scheme
@@ -119,8 +119,8 @@ extension CatalogNetworkManager: CatalogNetworkManagerProtocol {
     }
     
     func fetchCity(id: Int) async throws -> CityResult {
-        debugPrint("--- fetchCity()")
-        let path = "/api/catalog/get-city-by-id.php"
+        debugPrint("--- fetchCity() id: ", id)
+        let path = "/api/catalog/get-city.php"
         var urlComponents: URLComponents {
             var components = URLComponents()
             components.scheme = scheme

@@ -35,15 +35,14 @@ struct CityView: View {
         NavigationStack {
             GeometryReader { geometry in
                 List {
-                    Section {
-                        image
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: geometry.size.width, height: geometry.size.width)
-                            .clipped()
+                    if let url = city.photo {
+                        ImageLoadingView(url: url, width: geometry.size.width, height: (geometry.size.width / 4) * 5, contentMode: .fill) {
+                            AppColors.lightGray6 // TODO: animation
+                        }
+                        .clipped()
+                        .listRowSeparator(.hidden)
+                        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                     }
-                    .listRowSeparator(.hidden)
-                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                     
 //                    if city.events.count > 0 {
 //                        Section {
@@ -102,10 +101,13 @@ struct CityView: View {
                     }
                     ToolbarItem(placement: .topBarLeading) {
                         Button {
-                            dismiss()
+                            withAnimation {
+                                dismiss()
+                            }
                         } label: {
                             AppImages.iconLeft
                                 .bold()
+                                .frame(width: 30, height: 30, alignment: .leading)
                         }
                         .tint(.primary)
                     }

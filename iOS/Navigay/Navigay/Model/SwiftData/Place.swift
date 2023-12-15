@@ -36,9 +36,7 @@ final class Place {
     var city: City? = nil
     var lastUpdateIncomplete: Date? = nil
     var lastUpdateComplite: Date? = nil
-    
-    var isActive: Bool = true
-    
+    var isActive: Bool = false
     var isLiked: Bool = false
 
     @Transient lazy var coordinate: CLLocationCoordinate2D = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
@@ -50,34 +48,40 @@ final class Place {
     }
     
     func updatePlaceIncomplete(decodedPlace: DecodedPlace) {
-        name = decodedPlace.name
-        type = decodedPlace.type
-        avatar = decodedPlace.avatar
-        mainPhoto = decodedPlace.mainPhoto
-        address = decodedPlace.address
-        latitude = decodedPlace.latitude
-        longitude = decodedPlace.longitude
-        isActive = decodedPlace.isActive
-        lastUpdateIncomplete = decodedPlace.lastUpdate.dateFromString(format: "yyyy-MM-dd HH:mm:ss")
-        tags.removeAll()
-        if let dacodedTags = decodedPlace.tags {
-            for tag in dacodedTags {
-                tags.append(tag)
+        let lastUpdate = decodedPlace.lastUpdate.dateFromString(format: "yyyy-MM-dd HH:mm:ss")
+        if lastUpdateIncomplete != lastUpdate {
+            name = decodedPlace.name
+            type = decodedPlace.type
+            avatar = decodedPlace.avatar
+            mainPhoto = decodedPlace.mainPhoto
+            address = decodedPlace.address
+            latitude = decodedPlace.latitude
+            longitude = decodedPlace.longitude
+            isActive = decodedPlace.isActive
+            tags.removeAll()
+            if let dacodedTags = decodedPlace.tags {
+                for tag in dacodedTags {
+                    tags.append(tag)
+                }
             }
+            lastUpdateIncomplete = lastUpdate
         }
     }
     
     func updatePlaceComplite(decodedPlace: DecodedPlace) {
-        updatePlaceIncomplete(decodedPlace: decodedPlace)
-        about = decodedPlace.about
-        photos = decodedPlace.photos ?? []//?.map( { $0.url} ) ?? []
-        otherInfo = decodedPlace.otherInfo
-        phone = decodedPlace.phone
-        www = decodedPlace.www
-        facebook = decodedPlace.facebook
-        instagram = decodedPlace.instagram
-        isActive = decodedPlace.isActive
-        lastUpdateComplite = decodedPlace.lastUpdate.dateFromString(format: "yyyy-MM-dd HH:mm:ss")
+        let lastUpdate = decodedPlace.lastUpdate.dateFromString(format: "yyyy-MM-dd HH:mm:ss")
+        if lastUpdateComplite != lastUpdate {
+            updatePlaceIncomplete(decodedPlace: decodedPlace)
+            about = decodedPlace.about
+            photos = decodedPlace.photos ?? []
+            otherInfo = decodedPlace.otherInfo
+            phone = decodedPlace.phone
+            www = decodedPlace.www
+            facebook = decodedPlace.facebook
+            instagram = decodedPlace.instagram
+            isActive = decodedPlace.isActive
+            lastUpdateComplite = lastUpdate
+        }
     }
     
     func getAllPhotos() -> [String] {
