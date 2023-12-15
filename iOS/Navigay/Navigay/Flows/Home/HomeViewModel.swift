@@ -139,9 +139,16 @@ extension HomeView {
                 let distance1 = userLocation.distance(from: location1)
                 let distance2 = userLocation.distance(from: location2)
                 return distance1 < distance2
+            }            
+            var closestPlaces: [Place] = []
+            var count: Int = 0
+            for place in sortedPlaces {
+                closestPlaces.append(place)
+                count += 1
+                if count == 5 {
+                    break
+                }
             }
-            print(sortedPlaces.count)
-            let closestPlaces: [Place] = Array(sortedPlaces[0..<5])
             aroundPlaces = closestPlaces
             createGroupedPlaces(places: closestPlaces)
         }
