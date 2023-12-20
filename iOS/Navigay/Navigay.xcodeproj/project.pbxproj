@@ -116,6 +116,8 @@
 		0F97BEDE2AFD361900DE645D /* ApiResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F97BEDD2AFD361900DE645D /* ApiResult.swift */; };
 		0F9915282ACC6C5E008416D6 /* AuthenticationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F9915262ACC6C5E008416D6 /* AuthenticationManager.swift */; };
 		0F99152B2ACC6CE6008416D6 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0F99152A2ACC6CE6008416D6 /* Launch Screen.storyboard */; };
+		0F9C320B2B306B3100CAB3D3 /* Sequence+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F9C320A2B306B3100CAB3D3 /* Sequence+Ext.swift */; };
+		0F9C320D2B307BF800CAB3D3 /* CalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F9C320C2B307BF800CAB3D3 /* CalendarView.swift */; };
 		0FA010F22AFA8BA0003CF485 /* EditPlacePhotosViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FA010F12AFA8B9F003CF485 /* EditPlacePhotosViewModel.swift */; };
 		0FA010F42AFA8DED003CF485 /* ImageResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FA010F32AFA8DED003CF485 /* ImageResult.swift */; };
 		0FA6C8B52AD7E6CD00F30B4A /* Test.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FA6C8B42AD7E6CD00F30B4A /* Test.swift */; };
@@ -266,6 +268,8 @@
 		0F97BEDD2AFD361900DE645D /* ApiResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApiResult.swift; sourceTree = "<group>"; };
 		0F9915262ACC6C5E008416D6 /* AuthenticationManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AuthenticationManager.swift; sourceTree = "<group>"; };
 		0F99152A2ACC6CE6008416D6 /* Launch Screen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
+		0F9C320A2B306B3100CAB3D3 /* Sequence+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Sequence+Ext.swift"; sourceTree = "<group>"; };
+		0F9C320C2B307BF800CAB3D3 /* CalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarView.swift; sourceTree = "<group>"; };
 		0FA010F12AFA8B9F003CF485 /* EditPlacePhotosViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditPlacePhotosViewModel.swift; sourceTree = "<group>"; };
 		0FA010F32AFA8DED003CF485 /* ImageResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageResult.swift; sourceTree = "<group>"; };
 		0FA6C8B42AD7E6CD00F30B4A /* Test.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Test.swift; sourceTree = "<group>"; };
@@ -578,6 +582,7 @@
 			isa = PBXGroup;
 			children = (
 				0F741A7C2ACD664D00A7759E /* Date+Ext.swift */,
+				0F9C320A2B306B3100CAB3D3 /* Sequence+Ext.swift */,
 				0FFB3A492AF23DE0001CF946 /* Bundle+Ext.swift */,
 				0F151F432AE90E8B0049C60F /* View+Ext.swift */,
 				0F151F412AE90E680049C60F /* UIImage+Ext.swift */,
@@ -802,6 +807,7 @@
 			children = (
 				0FA8FFB62B15EDCC001886D0 /* HomeViewModel.swift */,
 				0F7E57E72AE129A40091A0F8 /* HomeView.swift */,
+				0F9C320C2B307BF800CAB3D3 /* CalendarView.swift */,
 			);
 			path = Home;
 			sourceTree = "<group>";
@@ -1026,12 +1032,14 @@
 				0F151F482AE92AC10049C60F /* NewPlaceAbout.swift in Sources */,
 				0FFB3A4A2AF23DE0001CF946 /* Bundle+Ext.swift in Sources */,
 				0F47347D2B03B73900C9B509 /* EditCountryView.swift in Sources */,
+				0F9C320B2B306B3100CAB3D3 /* Sequence+Ext.swift in Sources */,
 				0F2765652B03780C0084B5DD /* PosterResult.swift in Sources */,
 				0F79B2602AF26D7A00FCAED2 /* PlaceRequiredInfo.swift in Sources */,
 				0F151F402AE90DBC0049C60F /* Language.swift in Sources */,
 				0F741A742ACD644D00A7759E /* DecodedCity.swift in Sources */,
 				0F27654D2B025BC10084B5DD /* EditDateView.swift in Sources */,
 				0FF5C7272B1F44B900D9EA57 /* LoginViewModel.swift in Sources */,
+				0F9C320D2B307BF800CAB3D3 /* CalendarView.swift in Sources */,
 				0FFB3A482AF16310001CF946 /* AddPhotoFromUrlView.swift in Sources */,
 				0F741A7A2ACD644D00A7759E /* DecodedEvent.swift in Sources */,
 				0FD617B12ACC443F00877C70 /* RegistrationViewModel.swift in Sources */,

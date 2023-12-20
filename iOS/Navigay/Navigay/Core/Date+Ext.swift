@@ -35,15 +35,13 @@ extension Date {
         return Calendar.current.isDateInWeekend(self)
     }
     
-//    /// Checking if the date is Today Same Day
-//    var isSameDay: Bool {
-//        return Calendar.current.compare(self, to: .init(), toGranularity: .day) == .orderedSame
-//    }
-
-    
     /// Checking if the date is Past Day form Today
     var isPastDate: Bool {
         return Calendar.current.compare(self, to: .init(), toGranularity: .day) == .orderedAscending
+    }
+    
+    var isFutureDay: Bool {
+        return Calendar.current.compare(self, to: Date(), toGranularity: .day) == .orderedDescending
     }
     
     func getAllDatesBetween(finishDate: Date) -> [Date] {
@@ -68,13 +66,14 @@ extension Date {
         let calendar = Calendar.current
         let components1 = calendar.dateComponents([.hour], from: self)
         let components2 = calendar.dateComponents([.hour], from: otherDate)
-        return components1.hour! < components2.hour!
+        return components1.hour! < components2.hour!//TODO:  components1.hour!
     }
+    
     func isFutureHour(of otherDate: Date) -> Bool {
         let calendar = Calendar.current
         let components1 = calendar.dateComponents([.hour], from: self)
         let components2 = calendar.dateComponents([.hour], from: otherDate)
-        return components1.hour! > components2.hour!
+        return components1.hour! > components2.hour!//TODO:  components1.hour!
     }
     
     /// next day from date

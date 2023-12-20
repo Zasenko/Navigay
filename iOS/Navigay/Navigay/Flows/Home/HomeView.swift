@@ -15,7 +15,7 @@ struct HomeView: View {
     
     init(modelContext: ModelContext, networkManager: AroundNetworkManagerProtocol, locationManager: LocationManager, errorManager: ErrorManagerProtocol) {
         let viewModel = HomeViewModel(modelContext: modelContext, networkManager: networkManager, errorManager: errorManager)
-        _viewModel = State(initialValue: viewModel)
+        _viewModel = State(wrappedValue: viewModel)
         _locationManager = ObservedObject(wrappedValue: locationManager)
     }
 
@@ -36,6 +36,10 @@ struct HomeView: View {
         .onChange(of: locationManager.userLocation, initial: true) { _, newValue in
             guard let userLocation = newValue else { return }
             viewModel.updateAroundPlacesAndEvents(userLocation: userLocation)
+        }
+        .onChange(of: viewModel.selectedDate, initial: false) { oldValue, newValue in
+            guard let date = newValue else {return}
+            viewModel.getEvents(for: date)
         }
     }
     
@@ -62,17 +66,14 @@ struct HomeView: View {
                         } label: {
                             HStack {
                                 Text("Show\non map")
-                                    .font(.caption2)
-                                    .foregroundStyle(.secondary)
+                                    .font(.caption2).bold()
                                     .multilineTextAlignment(.trailing)
-                                
                                 AppImages.iconLocation
                                     .resizable()
                                     .scaledToFit()
-                                    .frame(width: 30, height: 30, alignment: .leading)
-                                   // .bold()
+                                    .frame(width: 30, height: 30)
                             }
-                            .tint(.primary)
+                            .tint(.blue)
                         }
                     }
                 }
@@ -104,18 +105,45 @@ struct HomeView: View {
                 .listRowSeparator(.hidden)
             }
             
-            
             if viewModel.aroundEvents.count > 0 {
                 Section {
-                    Text("Upcoming events".uppercased())
-                        .foregroundColor(.white)
-                        .font(.caption)
-                        .bold()
-                        .modifier(CapsuleSmall(background: .red, foreground: .white))
-                        .frame(maxWidth: .infinity)
-                        .padding(.top)
-                        .padding()
-                        .padding(.bottom)
+//                    Text("Upcoming events".uppercased())
+//                        .foregroundColor(.white)
+//                        .font(.caption)
+//                        .bold()
+//                        .modifier(CapsuleSmall(background: .red, foreground: .white))
+//                        .frame(maxWidth: .infinity)
+//                        .padding(.top)
+//                        .padding()
+//                        .padding(.bottom)
+//                    
+                    HStack {
+                        Text("Upcoming events")
+                            .font(.title3).bold()
+                            .foregroundStyle(.secondary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        Button {
+                            viewModel.showCalendar = true
+                        } label: {
+                            HStack {
+                                Text("Select\ndate")
+                                    .font(.caption2)
+                                AppImages.iconCalendar
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 30, height: 30, alignment: .leading)
+                            }
+                        }
+                        .tint(.blue)
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 30)
+                    if viewModel.showCalendar {
+                      //  Section {
+                            CalendarView(selectedDate: $viewModel.selectedDate, activeDates: $viewModel.aroundEventsDates)
+                            .transition(.move(edge: .top).combined(with: .opacity))
+                     //   }
+                    }
                     LazyVGrid(columns: viewModel.gridLayout, spacing: 20) {
                         ForEach(viewModel.aroundEvents) { event in
                             EventCell(event: event, width: (width / 2) - 30, networkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeNetworkManager: viewModel.placeNetworkManager)
@@ -154,14 +182,16 @@ struct HomeView: View {
         .listSectionSeparator(.hidden)
         .listStyle(.plain)
         .scrollIndicators(.hidden)
+        .buttonStyle(PlainButtonStyle())
     }
 }
 
 //#Preview {
 //    let appSettingsManager = AppSettingsManager()
-//    let networkManager = AroundNetworkManager(appSettingsManager: appSettingsManager)
-//    let locationManager = LocationManager()
 //    let errorManager = ErrorManager()
+//    let networkManager = AroundNetworkManager(appSettingsManager: appSettingsManager, errorManager: errorManager)
+//    let locationManager = LocationManager()
+//    
 //    return HomeView(networkManager: networkManager, locationManager: locationManager, errorManager: errorManager)
 //        .modelContainer(for: [Place.self, Event.self], inMemory: false)
 //}
