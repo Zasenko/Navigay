@@ -27,20 +27,20 @@ struct EventView: View {
     @State private var image: Image? = nil
     private let networkManager: EventNetworkManagerProtocol
     private let errorManager: ErrorManagerProtocol
-    private let placeNetworkManager: PlaceNetworkManagerProtocol //??
+    //private let placeNetworkManager: PlaceNetworkManagerProtocol //??
     @State private var position: MapCameraPosition = .automatic
     @State private var isPosterLoaded: Bool = false
     @State private var isShowPlace: Bool = true
     @State private var place: Place? = nil
     
     // MARK: - Inits
-    init(isPresented: Binding<Bool>, event: Event, networkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol, placeNetworkManager: PlaceNetworkManagerProtocol) {
+    init(isPresented: Binding<Bool>, event: Event, networkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol) {//}, placeNetworkManager: PlaceNetworkManagerProtocol) {
         print("init event view id: \(event.id)")
         _isPresented = isPresented
         self.event = event
         self.networkManager = networkManager
         self.errorManager = errorManager
-        self.placeNetworkManager = placeNetworkManager
+     //   self.placeNetworkManager = placeNetworkManager
 //        if let image = event.image {
 //            self.image = event.image
 //        }
@@ -506,34 +506,34 @@ struct EventView: View {
 //    EventView()
 //}
 
-private struct OffsetPreferenceKey: PreferenceKey {
-  static var defaultValue: CGFloat = .zero
-  static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {}
-}
-
-struct ScrollViewOffset<Content: View>: View {
-  let content: () -> Content
-
-  init(@ViewBuilder content: @escaping () -> Content) {
-    self.content = content
-  }
-
-  var body: some View {
-    ScrollView {
-      offsetReader
-      content()
-    }
-    .coordinateSpace(name: "frameLayer")
-  }
-
-  var offsetReader: some View {
-    GeometryReader { proxy in
-      Color.clear
-        .preference(
-          key: OffsetPreferenceKey.self,
-          value: proxy.frame(in: .named("frameLayer")).minY
-        )
-    }
-    .frame(height: 0) // 👈🏻 make sure that the reader doesn't affect the content height
-  }
-}
+//private struct OffsetPreferenceKey: PreferenceKey {
+//  static var defaultValue: CGFloat = .zero
+//  static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {}
+//}
+//
+//struct ScrollViewOffset<Content: View>: View {
+//  let content: () -> Content
+//
+//  init(@ViewBuilder content: @escaping () -> Content) {
+//    self.content = content
+//  }
+//
+//  var body: some View {
+//    ScrollView {
+//      offsetReader
+//      content()
+//    }
+//    .coordinateSpace(name: "frameLayer")
+//  }
+//
+//  var offsetReader: some View {
+//    GeometryReader { proxy in
+//      Color.clear
+//        .preference(
+//          key: OffsetPreferenceKey.self,
+//          value: proxy.frame(in: .named("frameLayer")).minY
+//        )
+//    }
+//    .frame(height: 0) // 👈🏻 make sure that the reader doesn't affect the content height
+//  }
+//}

@@ -10,15 +10,24 @@ import SwiftData
 
 struct HomeView: View {
     
+    // MARK: - Private Properties
+    
     @ObservedObject private var locationManager: LocationManager
     @State private var viewModel: HomeViewModel
     
-    init(modelContext: ModelContext, networkManager: AroundNetworkManagerProtocol, locationManager: LocationManager, errorManager: ErrorManagerProtocol) {
+    // MARK: - Init
+    
+    init(modelContext: ModelContext,
+         networkManager: AroundNetworkManagerProtocol,
+         locationManager: LocationManager,
+         errorManager: ErrorManagerProtocol) {
         let viewModel = HomeViewModel(modelContext: modelContext, networkManager: networkManager, errorManager: errorManager)
         _viewModel = State(wrappedValue: viewModel)
         _locationManager = ObservedObject(wrappedValue: locationManager)
     }
 
+    // MARK: - Body
+    
     var body: some View {
         ZStack {
             if viewModel.isLoading {
@@ -27,7 +36,7 @@ struct HomeView: View {
                     .frame(maxHeight: .infinity)
             } else {
                 if viewModel.showMap {
-                    MapView(events: $viewModel.aroundEvents, places: $viewModel.aroundPlaces, showMap: $viewModel.showMap, categories: $viewModel.sortingCategories, selectedCategory: $viewModel.selectedSortingCategory)
+                    MapView(events: $viewModel.todayAndTomorrowEvents, places: $viewModel.aroundPlaces, showMap: $viewModel.showMap, categories: $viewModel.sortingCategories, selectedCategory: $viewModel.selectedSortingCategory)
                 } else {
                     MainView
                 }
@@ -37,11 +46,9 @@ struct HomeView: View {
             guard let userLocation = newValue else { return }
             viewModel.updateAroundPlacesAndEvents(userLocation: userLocation)
         }
-        .onChange(of: viewModel.selectedDate, initial: false) { oldValue, newValue in
-            guard let date = newValue else {return}
-            viewModel.getEvents(for: date)
-        }
     }
+    
+    // MARK: - Views
     
     private var MainView: some View {
         NavigationStack {
@@ -66,14 +73,15 @@ struct HomeView: View {
                         } label: {
                             HStack {
                                 Text("Show\non map")
-                                    .font(.caption2).bold()
+                                    .font(.caption).bold()
                                     .multilineTextAlignment(.trailing)
+                                    .lineSpacing(-10)
                                 AppImages.iconLocation
                                     .resizable()
                                     .scaledToFit()
                                     .frame(width: 30, height: 30)
                             }
-                            .tint(.blue)
+                            .tint(.primary)
                         }
                     }
                 }
@@ -106,75 +114,10 @@ struct HomeView: View {
             }
             
             if viewModel.aroundEvents.count > 0 {
-                Section {
-//                    Text("Upcoming events".uppercased())
-//                        .foregroundColor(.white)
-//                        .font(.caption)
-//                        .bold()
-//                        .modifier(CapsuleSmall(background: .red, foreground: .white))
-//                        .frame(maxWidth: .infinity)
-//                        .padding(.top)
-//                        .padding()
-//                        .padding(.bottom)
-//                    
-                    HStack {
-                        Text("Upcoming events")
-                            .font(.title3).bold()
-                            .foregroundStyle(.secondary)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                        Button {
-                            viewModel.showCalendar = true
-                        } label: {
-                            HStack {
-                                Text("Select\ndate")
-                                    .font(.caption2)
-                                AppImages.iconCalendar
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 30, height: 30, alignment: .leading)
-                            }
-                        }
-                        .tint(.blue)
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 30)
-                    if viewModel.showCalendar {
-                      //  Section {
-                            CalendarView(selectedDate: $viewModel.selectedDate, activeDates: $viewModel.aroundEventsDates)
-                            .transition(.move(edge: .top).combined(with: .opacity))
-                     //   }
-                    }
-                    LazyVGrid(columns: viewModel.gridLayout, spacing: 20) {
-                        ForEach(viewModel.aroundEvents) { event in
-                            EventCell(event: event, width: (width / 2) - 30, networkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeNetworkManager: viewModel.placeNetworkManager)
-                        }
-                    }
-                    .padding(.horizontal, 20)
-                }
-                .listRowSeparator(.hidden)
-                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                EventsView(width: width)
             }
+            PlacesView
             
-            ForEach(viewModel.groupedPlaces.keys.sorted(), id: \.self) { key in
-                Section {
-                    Text(key.getPluralName().uppercased())
-                        .foregroundColor(.white)
-                        .font(.caption)
-                        .bold()
-                        .modifier(CapsuleSmall(background: key.getColor(), foreground: .white))
-                        .frame(maxWidth: .infinity)
-                        .padding(.top)
-                    
-                    ForEach(viewModel.groupedPlaces[key] ?? []) { place in
-                        NavigationLink {
-                            PlaceView(place: place, networkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager)
-                        } label: {
-                            PlaceCell(place: place)
-                        }
-                    }
-                }
-                .listRowSeparator(.hidden)
-            }
             Color.clear
                 .frame(height: 50)
                 .listSectionSeparator(.hidden)
@@ -183,6 +126,81 @@ struct HomeView: View {
         .listStyle(.plain)
         .scrollIndicators(.hidden)
         .buttonStyle(PlainButtonStyle())
+    }
+    
+    @ViewBuilder
+    private func EventsView(width: CGFloat) -> some View {
+        Section {
+            HStack {
+                Text("Upcoming events")
+                    .font(.title3).bold()
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                Button {
+                    viewModel.showCalendar = true
+                } label: {
+                    HStack {
+                        Text("Select\ndate")
+                            .font(.caption)
+                            .multilineTextAlignment(.trailing)
+                            .lineSpacing(-10)
+                        AppImages.iconCalendar
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 25, height: 25)
+                    }
+                }
+                .foregroundStyle(.blue)
+            }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 30)
+            LazyVGrid(columns: viewModel.gridLayout, spacing: 20) {
+                ForEach(viewModel.displayedEvents) { event in
+                    EventCell(event: event, width: (width / 2) - 30, networkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager)
+                }
+            }
+            .padding(.horizontal, 20)
+        }
+        .listRowSeparator(.hidden)
+        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+        .onChange(of: viewModel.selectedDate, initial: false) { oldValue, newValue in
+            viewModel.showCalendar = false
+            if let date = newValue {
+                viewModel.getEvents(for: date)
+            } else {
+                viewModel.getUpcomingEvents()
+            }
+            
+        }
+        .sheet(isPresented:  $viewModel.showCalendar) {} content: {
+            CalendarView(selectedDate: $viewModel.selectedDate, eventsDates: $viewModel.eventsDates)
+                .presentationDetents([.medium])
+                .presentationDragIndicator(.visible)
+                .presentationCornerRadius(25)
+        }
+    }
+    
+    private var PlacesView: some View {
+        ForEach(viewModel.groupedPlaces.keys.sorted(), id: \.self) { key in
+            Section {
+                Text(key.getPluralName().uppercased())
+                    .foregroundColor(.white)
+                    .font(.caption)
+                    .bold()
+                    .modifier(CapsuleSmall(background: key.getColor(), foreground: .white))
+                    .frame(maxWidth: .infinity)
+                    .padding(.top)
+                
+                ForEach(viewModel.groupedPlaces[key] ?? []) { place in
+                    NavigationLink {
+                        PlaceView(place: place, networkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager)
+                    } label: {
+                        PlaceCell(place: place)
+                    }
+                }
+            }
+            .listRowSeparator(.hidden)
+        }
     }
 }
 

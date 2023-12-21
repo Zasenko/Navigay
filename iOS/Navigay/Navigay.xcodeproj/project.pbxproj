@@ -109,6 +109,7 @@
 		0F7E57E82AE129A40091A0F8 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F7E57E72AE129A40091A0F8 /* HomeView.swift */; };
 		0F7E57EB2AE15B550091A0F8 /* AdminView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F7E57EA2AE15B550091A0F8 /* AdminView.swift */; };
 		0F7E57ED2AE15BB50091A0F8 /* NewPlaceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F7E57EC2AE15BB50091A0F8 /* NewPlaceView.swift */; };
+		0F7F25B52B333712004F6C75 /* CalendarDay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F7F25B42B333712004F6C75 /* CalendarDay.swift */; };
 		0F80E9DF2B068499006ABBF0 /* AroundNetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F80E9DE2B068499006ABBF0 /* AroundNetworkManager.swift */; };
 		0F80E9E12B0696DC006ABBF0 /* AroundResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F80E9E02B0696DC006ABBF0 /* AroundResult.swift */; };
 		0F89545D2AF420B900CE46EC /* PlaceAdditionalInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F89545C2AF420B900CE46EC /* PlaceAdditionalInfo.swift */; };
@@ -261,6 +262,7 @@
 		0F7E57E72AE129A40091A0F8 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		0F7E57EA2AE15B550091A0F8 /* AdminView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdminView.swift; sourceTree = "<group>"; };
 		0F7E57EC2AE15BB50091A0F8 /* NewPlaceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewPlaceView.swift; sourceTree = "<group>"; };
+		0F7F25B42B333712004F6C75 /* CalendarDay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarDay.swift; sourceTree = "<group>"; };
 		0F80E9DE2B068499006ABBF0 /* AroundNetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AroundNetworkManager.swift; sourceTree = "<group>"; };
 		0F80E9E02B0696DC006ABBF0 /* AroundResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AroundResult.swift; sourceTree = "<group>"; };
 		0F89545C2AF420B900CE46EC /* PlaceAdditionalInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceAdditionalInfo.swift; sourceTree = "<group>"; };
@@ -734,6 +736,31 @@
 			path = Admin;
 			sourceTree = "<group>";
 		};
+		0F7F25B32B333701004F6C75 /* Calendar */ = {
+			isa = PBXGroup;
+			children = (
+				0F7F25B62B333726004F6C75 /* Model */,
+				0F7F25B72B33372B004F6C75 /* View */,
+			);
+			path = Calendar;
+			sourceTree = "<group>";
+		};
+		0F7F25B62B333726004F6C75 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				0F7F25B42B333712004F6C75 /* CalendarDay.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		0F7F25B72B33372B004F6C75 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				0F9C320C2B307BF800CAB3D3 /* CalendarView.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
 		0F9915242ACC6C16008416D6 /* Managers */ = {
 			isa = PBXGroup;
 			children = (
@@ -807,7 +834,7 @@
 			children = (
 				0FA8FFB62B15EDCC001886D0 /* HomeViewModel.swift */,
 				0F7E57E72AE129A40091A0F8 /* HomeView.swift */,
-				0F9C320C2B307BF800CAB3D3 /* CalendarView.swift */,
+				0F7F25B32B333701004F6C75 /* Calendar */,
 			);
 			path = Home;
 			sourceTree = "<group>";
@@ -1130,6 +1157,7 @@
 				0F741A732ACD644D00A7759E /* DecodedPlace.swift in Sources */,
 				0F741A652ACD642200A7759E /* City.swift in Sources */,
 				0F741A5F2ACD641800A7759E /* Event.swift in Sources */,
+				0F7F25B52B333712004F6C75 /* CalendarDay.swift in Sources */,
 				0F2765482B0242430084B5DD /* EventTimeFieldsView.swift in Sources */,
 				0F741A772ACD644D00A7759E /* CountryResult.swift in Sources */,
 				0FE13D9F2AD023D500ADB8F0 /* UserNetworkManager.swift in Sources */,

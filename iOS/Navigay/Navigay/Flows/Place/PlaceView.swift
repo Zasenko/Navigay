@@ -271,7 +271,7 @@ struct PlaceView: View {
                         .padding(.bottom)
                     LazyVGrid(columns: gridLayoutEvents, spacing: 50) {
                         ForEach(place.events.sorted(by: { $0.startDate < $1.startDate } )) { event in
-                            EventCell(event: event, width: (width - 50) / 2, networkManager: eventNetworkManager, errorManager: errorManager, placeNetworkManager: networkManager)
+                            EventCell(event: event, width: (width - 50) / 2, networkManager: eventNetworkManager, errorManager: errorManager)
                         }
                     }
                 }

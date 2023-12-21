@@ -24,15 +24,15 @@ struct EventCell: View {
     @State private var isShowEvent: Bool = false
     private let networkManager: EventNetworkManagerProtocol
     private let errorManager: ErrorManagerProtocol
-    private let placeNetworkManager: PlaceNetworkManagerProtocol
+   // private let placeNetworkManager: PlaceNetworkManagerProtocol
     
-    init(event: Event, image: Image? = nil, width: CGFloat, networkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol, placeNetworkManager: PlaceNetworkManagerProtocol) {
+    init(event: Event, image: Image? = nil, width: CGFloat, networkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol) {//, placeNetworkManager: PlaceNetworkManagerProtocol) {
         self.event = event
         _image = State(initialValue: image)
         self.width = width
         self.networkManager = networkManager
         self.errorManager = errorManager
-        self.placeNetworkManager = placeNetworkManager
+     //   self.placeNetworkManager = placeNetworkManager
     }
     
     var body: some View {
@@ -116,8 +116,9 @@ struct EventCell: View {
             }
         }
         .sheet(isPresented:  $isShowEvent) {
+            
         } content: {
-            EventView(isPresented: $isShowEvent, event: event, networkManager: networkManager, errorManager: errorManager, placeNetworkManager: placeNetworkManager)
+            EventView(isPresented: $isShowEvent, event: event, networkManager: networkManager, errorManager: errorManager)
                 .presentationDragIndicator(.hidden)
                 .presentationDetents([.large])
                 .presentationCornerRadius(25)
@@ -130,9 +131,9 @@ struct EventCell: View {
 #Preview {
     let appSettingsManager = AppSettingsManager()
     let eventNetworkManager = EventNetworkManager(appSettingsManager: appSettingsManager)
-    let placeNetworkManager = PlaceNetworkManager(appSettingsManager: appSettingsManager)
+  //  let placeNetworkManager = PlaceNetworkManager(appSettingsManager: appSettingsManager)
     let errorManager = ErrorManager()
     let decodedEvent = DecodedEvent(id: 0, name: "HARD ON party", type: .party, startDate: "2023-12-02", startTime: "00:00:00", finishDate: "2023-12-03", finishTime: "06:00:00", address: "", latitude: 16.25566, longitude: 48.655885, poster: "https://www.navigay.me/images/events/AT/12/1700152341132_227.jpg", smallPoster: "https://www.navigay.me/images/events/AT/12/1700152341132_684.jpg", isFree: true, tags: nil, isActive: true, location: nil, lastUpdate: "2023-11-16 17:26:12", about: nil, fee: nil, tickets: nil, www: nil, facebook: nil, instagram: nil, phone: nil, place: nil)
     let event = Event(decodedEvent: decodedEvent)
-    return EventCell(event: event, image: nil, width: 200, networkManager: eventNetworkManager, errorManager: errorManager, placeNetworkManager: placeNetworkManager)
+    return EventCell(event: event, image: nil, width: 200, networkManager: eventNetworkManager, errorManager: errorManager)
 }
