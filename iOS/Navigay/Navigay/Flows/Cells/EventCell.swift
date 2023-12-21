@@ -12,6 +12,8 @@ struct EventCell: View {
     private let event: Event
     
     @State private var image: Image?
+    @State private var selectedEvent: Event? = nil
+    
     let width: CGFloat
     var formattedDate: AttributedString {
         var formattedDate: AttributedString = event.startDate.formatted(Date.FormatStyle().day().month(.abbreviated).weekday(.wide).attributed)
@@ -62,8 +64,6 @@ struct EventCell: View {
                                     .frame(width: width, height: width)
                             }
                         }
-                           .shadow(color: Color.gray.opacity(0.3), radius: 5, x: 0, y: 3)
-                           .shadow(color: Color.gray.opacity(0.3), radius: 10, x: 0, y: 10)
                         .onAppear() {
                             Task {
                                 if let image = await ImageLoader.shared.loadImage(urlString: url) {
@@ -111,12 +111,13 @@ struct EventCell: View {
             }
         }
         .onTapGesture {
+            selectedEvent = event
             withAnimation(.spring()) {
                 isShowEvent = true
             }
         }
-        .sheet(isPresented:  $isShowEvent) {
-            
+        .sheet(isPresented: $isShowEvent) {
+            selectedEvent = nil
         } content: {
             EventView(isPresented: $isShowEvent, event: event, networkManager: networkManager, errorManager: errorManager)
                 .presentationDragIndicator(.hidden)
