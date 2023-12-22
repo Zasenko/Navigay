@@ -38,7 +38,7 @@ struct MapEventPin: View {
             image
                 .resizable()
                 .scaledToFill()
-                .frame(width: event.tag == selectedTag ? 70 : 40, height: event.tag == selectedTag ? 70 : 40)
+                .frame(width: event.tag == selectedTag ? 100 : 40, height: event.tag == selectedTag ? 100 : 40)
                 .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                 .padding(event.tag == selectedTag ? 5 : 2)
                 .background(AppColors.background)
@@ -57,7 +57,7 @@ struct MapEventPin: View {
             image2
                 .resizable()
                 .scaledToFill()
-                .frame(width: event.tag == selectedTag ? 70 : 40, height: event.tag == selectedTag ? 70 : 40)
+                .frame(width: event.tag == selectedTag ? 100 : 40, height: event.tag == selectedTag ? 100 : 40)
                 .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                 .padding(event.tag == selectedTag ? 5 : 2)
                 .background(AppColors.background)
