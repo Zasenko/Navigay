@@ -89,6 +89,7 @@ extension HomeView {
                     allPlaces.append(place)
                 }
             }
+            
         }
         
         private func updateEvents(decodedEvents: [DecodedEvent]?) {
@@ -174,115 +175,178 @@ extension HomeView {
             do {
                 let eventDescriptor = FetchDescriptor<Event>()
                 allEvents = try modelContext.fetch(eventDescriptor)
-                let unsortedEvents = allEvents.filter { event in
+                let allAroundEvents = allEvents.filter { event in
                     let distance = userLocation.distance(from: CLLocation(latitude: event.latitude, longitude: event.longitude))
-   
-                    if let finishDate = event.finishDate {
-                        return distance <= radius && (finishDate.isToday || finishDate.isFutureDay)
-                    } else {
-                        return distance <= radius && (event.startDate.isToday || event.startDate.isFutureDay)
+                    return distance <= radius && (event.startDate.isToday || event.startDate.isFutureDay)
+                }
+                let unsortedEvents = allAroundEvents.filter { event in
+                    guard event.startDate.isToday || event.startDate.isFutureDay else {
+                        if let finishDate = event.finishDate, finishDate.isFutureDay {
+                            return true
+                        }
+                        guard let finishDate = event.finishDate,
+                              finishDate.isToday,
+                              let finishTime = event.finishTime,
+                              finishTime.isFutureHour(of: Date())
+                        else {
+                            return false
+                        }
+                        return true
                     }
+                    return true
                 }
                 aroundEvents = unsortedEvents.sorted(by: { $0.startDate < $1.startDate } )
                 getUpcomingEvents()
                 updateEventsDates()
+                getEventsForMap()
             } catch {
                 debugPrint(error)
             }
         }
         
         func getUpcomingEvents() {
-            let lastDayOfWeek = Calendar.current.date(byAdding: .day, value: 7, to: Date()) ?? Date()
-            let weekDays = Date().getAllDatesBetween(finishDate: lastDayOfWeek)
-            let upcomingEvents = aroundEvents.filter { event in
-                var isShow: Bool = false
-                for day in weekDays {
-                    if event.startDate.isSameDayWithOtherDate(day) {
-                        isShow = true
+            Task {
+                let lastDayOfWeek = Calendar.current.date(byAdding: .day, value: 7, to: Date()) ?? Date()
+                let sevenDaydFromNow = Date().getAllDatesBetween(finishDate: lastDayOfWeek)
+                let upcomingEvents = aroundEvents.filter { event in
+                    if event.startDate.isToday {
+                        return true
                     }
-                }
-                if !isShow {
-                    if let finishDate = event.finishDate {
-                        let eventDates = event.startDate.getAllDatesBetween(finishDate: finishDate)
-                        for eventDay in eventDates {
-                            for weekDay in weekDays {
-                                if eventDay.isSameDayWithOtherDate(weekDay) {
-                                    if finishDate.isToday {
-                                        if let finishTime = event.finishTime {
-                                            isShow = finishTime.isFutureHour(of: Date()) ? true : false
-                                            break
-                                        } else {
-                                            isShow = true
-                                            break
-                                        }
-                                    } else {
-                                        isShow = true
-                                        break
-                                    }
-                                }
+                    if event.startDate.isFutureDay {
+                        var isShow: Bool = false
+                        for day in sevenDaydFromNow {
+                            if event.startDate.isSameDayWithOtherDate(day) {
+                                isShow = true
+                                break
+                            } else {
+                                isShow = false
                             }
                         }
+                        return isShow
+                    }
+                    guard let finishDate = event.finishDate else {
+                        return false
+                    }
+                    if finishDate.isFutureDay {
+                        return true
+                    }
+                    guard finishDate.isToday,
+                          let finishTime = event.finishTime,
+                          finishTime.isFutureHour(of: Date())
+                    else {
+                        return false
+                    }
+                    return true
+                }
+                await MainActor.run {
+                    if upcomingEvents.count > 0 {
+                        displayedEvents = upcomingEvents
+                    } else {
+                        displayedEvents = Array(aroundEvents.prefix(4))
                     }
                 }
-                return isShow
-            }
-            if upcomingEvents.count > 0 {
-                displayedEvents = upcomingEvents
-            } else {
-                displayedEvents = Array(aroundEvents.prefix(4))
             }
         }
         
         func getEvents(for date: Date) {
-            let unsortedWeekEvents = aroundEvents.filter { event in
-                guard let finishDate = event.finishDate else {
-                    return event.startDate.isSameDayWithOtherDate(date)
-                }
-                guard !finishDate.isSameDayWithOtherDate(event.startDate) else {
-                    return event.startDate.isSameDayWithOtherDate(date)
-                }
-                var dates = event.startDate.getAllDatesBetween(finishDate: finishDate)
-                if let finishTime = event.finishTime {
-                    if let elevenAM = Calendar.current.date(bySettingHour: 11, minute: 0, second: 0, of: Date()) {
-                        if finishTime.isPastHour(of: elevenAM) {
-                            dates.removeLast()
-                        }
-                    } else {
-                        dates.removeLast()
+            Task {
+                let events = aroundEvents.filter { event in
+                    if event.startDate.isSameDayWithOtherDate(date) {
+                        return true
                     }
-                } else {
-                    dates.removeLast()
+                    if event.startDate.isFutureDay(of: date) {
+                        return false
+                    }
+                    guard let finishDate = event.finishDate else {
+                        return false
+                    }
+                    
+                    if finishDate.isFutureDay(of: date) {
+                        return true
+                    }
+                    if finishDate.isSameDayWithOtherDate(date) {
+                        guard let finishTime = event.finishTime,
+                              let elevenAM = Calendar.current.date(bySettingHour: 11, minute: 0, second: 0, of: Date())
+                        else {
+                            return false
+                        }
+                        if finishTime.isPastHour(of: elevenAM) {
+                            return false
+                        } else {
+                            return true
+                        }
+                    }
+                    return false
                 }
-                return dates.contains(where: { $0 == date } )
+                await MainActor.run {
+                    displayedEvents = events
+                }
             }
-            displayedEvents = unsortedWeekEvents
+        }
+        
+        func getEventsForMap() {
+            Task {
+                let events = aroundEvents.filter { event in
+                    if event.startDate.isToday {
+                        return true
+                    }
+                    if event.startDate.isFutureDay {
+                        guard event.startDate.isTomorrow else {
+                            return false
+                        }
+                        return true
+                    }
+                    
+                    guard let finishTime = event.finishTime else {
+                        return false
+                    }
+                    if finishTime.isFutureDay {
+                        return true
+                    }
+                    
+                    if finishTime.isToday {
+                        guard let finishTime = event.finishTime,
+                              finishTime.isFutureHour(of: Date())
+                        else {
+                            return false
+                        }
+                        return true
+                    }
+                    return false
+                }
+                await MainActor.run {
+                    todayAndTomorrowEvents = events
+                }
+            }
         }
         
         private func updateEventsDates() {
             Task {
                 var activeDates: [Date] = []
+                
                 aroundEvents.forEach { event in
-                    if let finishDate = event.finishDate {
-                        if finishDate.isSameDayWithOtherDate(event.startDate) {
-                            activeDates.append(event.startDate)
-                        } else {
-                            var dates = event.startDate.getAllDatesBetween(finishDate: finishDate)
-                            if let finishTime = event.finishTime {
-                                if let elevenAM = Calendar.current.date(bySettingHour: 11, minute: 0, second: 0, of: Date()) {
-                                    if finishTime.isPastHour(of: elevenAM) {
-                                        dates.removeLast()
-                                    }
-                                } else {
-                                    dates.removeLast()
-                                }
-                            } else {
+                    guard let finishDate = event.finishDate else {
+                        activeDates.append(event.startDate)
+                        return
+                    }
+                    guard !finishDate.isSameDayWithOtherDate(event.startDate) else {
+                        activeDates.append(event.startDate)
+                        return
+                    }
+                    
+                    var dates = event.startDate.getAllDatesBetween(finishDate: finishDate)
+                    if let finishTime = event.finishTime {
+                        if let elevenAM = Calendar.current.date(bySettingHour: 11, minute: 0, second: 0, of: Date()) {
+                            if finishTime.isPastHour(of: elevenAM) {
                                 dates.removeLast()
                             }
-                            activeDates.append(contentsOf: dates)
+                        } else {
+                            dates.removeLast()
                         }
                     } else {
-                        activeDates.append(event.startDate)
+                        dates.removeLast()
                     }
+                    activeDates.append(contentsOf: dates)
                 }
                 let eventsDates = activeDates.uniqued().filter { !$0.isPastDate }.sorted()
                 await MainActor.run {

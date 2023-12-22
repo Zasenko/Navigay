@@ -40,6 +40,7 @@ extension Date {
         return Calendar.current.compare(self, to: .init(), toGranularity: .day) == .orderedAscending
     }
     
+    /// Checking if the date is Future Day form Today
     var isFutureDay: Bool {
         return Calendar.current.compare(self, to: Date(), toGranularity: .day) == .orderedDescending
     }
@@ -81,6 +82,13 @@ extension Date {
         let components1 = calendar.dateComponents([.hour], from: self)
         let components2 = calendar.dateComponents([.hour], from: otherDate)
         return components1.hour! > components2.hour!//TODO:  components1.hour!
+    }
+    
+    func isFutureDay(of otherDate: Date) -> Bool {
+        let calendar = Calendar.current
+        let components1 = calendar.dateComponents([.day], from: self)
+        let components2 = calendar.dateComponents([.day], from: otherDate)
+        return components1.day! > components2.day!//TODO:  components1.hour!
     }
     
     /// next day from date

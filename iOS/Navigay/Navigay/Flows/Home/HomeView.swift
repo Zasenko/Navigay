@@ -132,7 +132,7 @@ struct HomeView: View {
     private func EventsView(width: CGFloat) -> some View {
         Section {
             HStack {
-                Text("Upcoming events")
+                Text(viewModel.selectedDate?.formatted(date: .long, time: .omitted) ?? "Upcoming events")
                     .font(.title3).bold()
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, alignment: .leading)
