@@ -12,7 +12,7 @@ import MapKit
 struct MapView: View {
     
     @Binding var showMap: Bool
-        
+    
     @Binding var events: [Event]
     @Binding var places: [Place]
     
@@ -21,16 +21,15 @@ struct MapView: View {
     
     @State private var filteredPlaces: [Place] = []
     @State private var filteredEvents: [Event] = []
-//
-//    @State private var selectedResult: MKMapItem?
-//    
-//    @State private var selectedPlace: Place?
-//    @State private var selectedEvent: Event?
-//    
-    @State private var selectedTag: UUID? = nil
+    //    @State private var selectedResult: MKMapItem?
+    //
+    @State private var selectedPlace: Place?
+    @State private var selectedEvent: Event?
+    //
+    @State private var selectedTag: UUID? = nil //!!!!!!!!!!!!!!!
     @State private var position: MapCameraPosition = .automatic
-//
-//    @State private var route: MKRoute?
+    //
+    //    @State private var route: MKRoute?
     
     init(events: Binding<[Event]>, places: Binding<[Place]>, showMap: Binding<Bool>, categories: Binding<[SortingMapCategory]>, selectedCategory: Binding<SortingMapCategory>) {
         _events = events
@@ -49,22 +48,17 @@ struct MapView: View {
                         .tag($0.tag)
                 }
                 .annotationTitles(.hidden)
-                
                 ForEach(filteredEvents) { event in
-//                    Annotation(event.name, coordinate: event.coordinate, anchor: .bottom) {
-//                        MapEventPin(event: event, selectedTag: $selectedTag)
-//                        VStack(spacing: 0) {
-//                            Image("7x5")
-//                                .resizable()
-//                                .scaledToFit()
-//                                .frame(width: event.tag == selectedTag ? 50 : 30, height: event.tag == selectedTag ? 50 : 30)
-//                                .clipped()
-//                            Image(systemName: "triangle.fill")
-//                        }
-//                    }
-                    Marker(event.name, monogram: Text(""), coordinate: event.coordinate)
-                    .annotationTitles(.hidden)
-                    .tag(event.tag)
+                    if let url = event.smallPoster {
+                        Annotation(event.name, coordinate: event.coordinate, anchor: .bottom) {
+                            MapEventPin(event: event, url: url, selectedTag: $selectedTag)
+                        }
+                        .tag(event.tag)
+                    } else {
+                        Marker(event.name, monogram: Text("🎉"), coordinate: event.coordinate)
+                            .tint(Color.black)
+                            .tag(event.tag)
+                    }
                 }
                 .annotationTitles(.hidden)
                 
@@ -77,6 +71,59 @@ struct MapView: View {
             }
             .mapStyle(.standard(elevation: .flat, pointsOfInterest: .including([.publicTransport])))
             .mapControlVisibility(.hidden)
+            .safeAreaInset(edge: .bottom) {
+                if let selectedEvent {
+                    Text(selectedEvent.name)
+                        .padding()
+                        .background(AppColors.background)
+                        .clipShape(RoundedRectangle(cornerRadius: 20))
+                        .padding([.horizontal, .bottom])
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                } else if let selectedPlace {
+                    PlaceCell(place: selectedPlace)
+                        .padding()
+                        .background(selectedPlace.type.getColor())
+                        .clipShape(RoundedRectangle(cornerRadius: 20))
+                        .padding([.horizontal, .bottom])
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+
+                } else {
+                    EmptyView()
+                        .frame(width: 1, height: 1)
+                }
+            }
+                //
+                //                HStack {
+                //                    //                if let selectedResult {
+                //                    //                    ItemInfoView(selectedResult: $selectedResult, route: $route)
+                //                    //                        .frame(height: 128)
+                //                    //                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                //                    //                        .padding([.top, .horizontal])
+                //                    //                }
+                //
+                //                    if let selectedEvent {
+                //                        Text(selectedEvent.name)
+                //                    }
+                //
+                //                    if let selectedPlace {
+                //                        NavigationLink {
+                //                            //TODO!!!! networkManager errorManager appSettingsManager
+                //                            PlaceView(place: selectedPlace, networkManager: PlaceNetworkManager(appSettingsManager: AppSettingsManager()), errorManager: ErrorManagerProtocol())
+                //                        } label: {
+                //                            PlaceCell(place: selectedPlace)
+                //                                .padding()
+                //                                .background(selectedPlace.type.getColor())
+                //
+                //                                .clipShape(RoundedRectangle(cornerRadius: 20))
+                //                                .padding([.horizontal, .bottom])
+                //                                .transition(.move(edge: .bottom).combined(with: .opacity))
+                //                        }
+                //
+                //
+                //                    }
+                //                }
+                //
+         //   }
             .toolbarBackground(.hidden, for: .navigationBar)
             .toolbarTitleDisplayMode(.inline)
             .toolbar {
@@ -100,68 +147,32 @@ struct MapView: View {
             .onChange(of: selectedCategory, initial: true) { _, newValue in
                 filterLocations(category: newValue)
             }
-            
-            
-            
-            
-            
-//            .onChange(of: selectedTag) { oldValue, newValue in
-//                if newValue == nil {
-//                    selectedEvent = nil
-//                    selectedPlace = nil
-//                    withAnimation {
-//                        position = .automatic
-//                    }
-//                } else if let p = filteredPlaces.first(where: { $0.tag == newValue}) {
-//                    selectedEvent = nil
-//                    selectedPlace = p
-//                    withAnimation {
-//                        position = .camera(MapCamera(centerCoordinate: p.coordinate, distance: 500))
-//                    }
-//                } else if let e = allEvents.first(where: { $0.tag == newValue}) {
-//                    selectedPlace = nil
-//                    selectedEvent = e
-//                    withAnimation {
-//                        position = .camera(MapCamera(centerCoordinate: e.coordinate, distance: 500))
-//                    }
-//                }
-//            }
-//            .safeAreaInset(edge: .bottom) {
-//                
-//                HStack {
-//                    //                if let selectedResult {
-//                    //                    ItemInfoView(selectedResult: $selectedResult, route: $route)
-//                    //                        .frame(height: 128)
-//                    //                        .clipShape(RoundedRectangle(cornerRadius: 10))
-//                    //                        .padding([.top, .horizontal])
-//                    //                }
-//                    
-//                    if let selectedEvent {
-//                        Text(selectedEvent.name)
-//                    }
-//                    
-//                    if let selectedPlace {
-//                        NavigationLink {
-//                            //TODO!!!! networkManager errorManager appSettingsManager
-//                            PlaceView(place: selectedPlace, networkManager: PlaceNetworkManager(appSettingsManager: AppSettingsManager()), errorManager: ErrorManagerProtocol())
-//                        } label: {
-//                            PlaceCell(place: selectedPlace)
-//                                .padding()
-//                                .background(selectedPlace.type.getColor())
-//                            
-//                                .clipShape(RoundedRectangle(cornerRadius: 20))
-//                                .padding([.horizontal, .bottom])
-//                                .transition(.move(edge: .bottom).combined(with: .opacity))
-//                        }
-//                        
-//                        
-//                    }
-//                }
-//                
-//            }
+            .onChange(of: selectedTag) { _, newValue in
+                if newValue == nil {
+                    selectedEvent = nil
+                    selectedPlace = nil
+                    withAnimation(.spring()) {
+                        position = .automatic
+                    }
+                } else if let place = filteredPlaces.first(where: { $0.tag == newValue}) {
+                    selectedEvent = nil
+                    selectedPlace = place
+                    withAnimation(.spring()) {
+                        position = .camera(MapCamera(centerCoordinate: place.coordinate, distance: 500))
+                    }
+                } else if let event = filteredEvents.first(where: { $0.tag == newValue}) {
+                    selectedPlace = nil
+                    selectedEvent = event
+                    withAnimation(.spring()) {
+                        position = .camera(MapCamera(centerCoordinate: event.coordinate, distance: 500))
+                    }
+                }
+            }
         }
     }
-//    
+    
+
+//
 //    func getDirections() {
 //        route = nil
 //        guard let selectedResult else { return }
@@ -177,17 +188,10 @@ struct MapView: View {
 //        }
 //    }
     
-    
-    
-    
-    
     func filterLocations(category: SortingMapCategory) {
-        withAnimation {
-//            selectedAnnotation = nil
-//            selectedPlace = nil
-//            selectedEvent = nil
-        }
-        withAnimation {
+        selectedPlace = nil
+        selectedEvent = nil
+        selectedTag = nil
         switch category {
         case .bar:
             filteredPlaces = places.filter( { $0.type == .bar } )
@@ -241,15 +245,20 @@ struct MapView: View {
             filteredPlaces = places
             filteredEvents = events
         }
-            
-            
-            position  = .automatic
+        withAnimation(.spring()) {
+            if filteredPlaces.count == 1, let place = filteredPlaces.first {
+                selectedTag = place.tag
+            } else if filteredPlaces.isEmpty, filteredEvents.count == 1, let event = filteredEvents.first {
+                selectedTag = event.tag
+            } else {
+                position  = .automatic
+            }
         }
     }
 }
 
 //#Preview {
-//    MapView(showMap: .constant(true))
+//    MapView(events: <#T##Binding<[Event]>#>, places: <#T##Binding<[Place]>#>, showMap: <#T##Binding<Bool>#>, categories: <#T##Binding<[SortingMapCategory]>#>, selectedCategory: <#T##Binding<SortingMapCategory>#>)
 //}
 
 struct ItemInfoView: View {
@@ -297,46 +306,3 @@ struct ItemInfoView: View {
         }
     }
 }
-
-//struct MapEventPin: View {
-//    
-//    //MARK: - Properties
-//    
-//    let event: Event
-//    @Binding var selectedTag: UUID?
-//    
-//    //MARK: - Private Properties
-//    
-//    @State private var image: Image = AppImages.iconAdmin
-//    
-//    //MARK: - Body
-//    
-//    var body: some View {
-//            image
-//                .resizable()
-//                .scaledToFill()
-//                .frame(width: 100, height: 100)
-//                .scaleEffect(event.tag == selectedTag ? 1 : 0.3, anchor: .bottom)
-//                .clipShape(RoundedRectangle(cornerRadius: 10))
-//                .animation(.default, value: selectedTag)
-//                .overlay(alignment: .bottom) {
-//                    Image(systemName: "arrowtriangle.left.fill")
-//                        .rotationEffect (Angle(degrees: 270))
-//                        .foregroundColor(.white)
-//                        .offset(y: 10)
-//                }
-//        
-//        .onAppear() {
-//            if let url = event.smallPoster {
-//                Task {
-//                    if let image = await ImageLoader.shared.loadImage(urlString: url) {
-//                        await MainActor.run {
-//                            self.image = image
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//        
-//    }
-//}

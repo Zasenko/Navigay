@@ -120,10 +120,12 @@ struct MapSortingMenuView: View {
         VStack {
             Menu {
                 ForEach(categories, id: \.self) { category in
-                    Button {
-                        selectedCategory = category
-                    } label: {
-                        Text(category.getName())
+                    if category != selectedCategory {
+                        Button {
+                            selectedCategory = category
+                        } label: {
+                            Text(category.getName())
+                        }
                     }
                 }
             } label: {
