@@ -14,12 +14,16 @@ struct SearchView: View {
     @Query(filter: #Predicate<Country>{ $0.isActive == true }, sort: \Country.name, order: .forward, animation: .snappy)
     private var countries: [Country]
     
-    private let networkManager: CatalogNetworkManagerProtocol
+    private let catalogNetworkManager: CatalogNetworkManagerProtocol
+    private let placeNetworkManager: PlaceNetworkManagerProtocol
+    private let eventNetworkManager: EventNetworkManagerProtocol
     
     @State private var searchText: String = ""
     
-    init(networkManager: CatalogNetworkManagerProtocol) {
-        self.networkManager = networkManager
+    init(catalogNetworkManager: CatalogNetworkManagerProtocol, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol) {
+        self.catalogNetworkManager = catalogNetworkManager
+        self.eventNetworkManager = eventNetworkManager
+        self.placeNetworkManager = placeNetworkManager
     }
     
     var body: some View {
@@ -76,7 +80,7 @@ struct SearchView: View {
     private var ListView: some View {
         List(countries) { country in
             NavigationLink {
-                CountryView(country: country, networkManager: networkManager)
+                CountryView(country: country, catalogNetworkManager: catalogNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager)
             } label: {
                 HStack(alignment: .center, spacing: 20) {
                     Text(country.flagEmoji)
@@ -106,10 +110,10 @@ struct SearchView: View {
     }
     
     func fetch() {
-        if !networkManager.isCountriesLoaded {
+        if !catalogNetworkManager.isCountriesLoaded {
             Task {
                 do {
-                    let result = try await networkManager.fetchCountries()
+                    let result = try await catalogNetworkManager.fetchCountries()
                     guard
                         result.result,
                         let decodedCountries = result.countries
@@ -137,8 +141,8 @@ struct SearchView: View {
     }
 }
 
-#Preview {
-    SearchView(networkManager: CatalogNetworkManager(appSettingsManager: AppSettingsManager()))
-        .modelContainer(for: [
-            Country.self, Region.self, City.self], inMemory: false)
-}
+//#Preview {
+//    SearchView(networkManager: CatalogNetworkManager(appSettingsManager: AppSettingsManager()))
+//        .modelContainer(for: [
+//            Country.self, Region.self, City.self], inMemory: false)
+//}

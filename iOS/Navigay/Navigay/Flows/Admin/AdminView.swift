@@ -146,10 +146,10 @@ struct AdminView: View {
                 }
                 Section {
                     NavigationLink("Add new place") {
-                        NewPlaceView(viewModel: AddNewPlaceViewModel(user: viewModel.user, networkManager: PlaceNetworkManager(appSettingsManager: AppSettingsManager()), errorManager: viewModel.errorManager))
+                        NewPlaceView(viewModel: AddNewPlaceViewModel(user: viewModel.user, networkManager: PlaceNetworkManager(appSettingsManager: AppSettingsManager(), errorManager: viewModel.errorManager), errorManager: viewModel.errorManager))
                     }
                     NavigationLink("Add new event") {
-                        NewEventView(viewModel: NewEventViewModel(user: viewModel.user, place: nil, networkManager: EventNetworkManager(appSettingsManager: AppSettingsManager()), errorManager: viewModel.errorManager))
+                        NewEventView(viewModel: NewEventViewModel(user: viewModel.user, place: nil, networkManager: EventNetworkManager(appSettingsManager: AppSettingsManager(), errorManager: viewModel.errorManager), errorManager: viewModel.errorManager))
                     }
                 }
             }

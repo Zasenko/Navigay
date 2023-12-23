@@ -80,7 +80,8 @@ struct EditEventCoverView: View {
 
 #Preview {
     let appSettingsManager = AppSettingsManager()
-    let networkManager = EventNetworkManager(appSettingsManager: appSettingsManager)
     let errorManager = ErrorManager()
+    let networkManager = EventNetworkManager(appSettingsManager: appSettingsManager, errorManager: errorManager)
+    
     return EditEventCoverView(viewModel: EditEventCoverViewModel(poster: nil, eventId: 1, networkManager: networkManager, errorManager: errorManager))
 }

@@ -203,11 +203,11 @@ struct PlaceAdditionalFieldsView: View {
     }
 }
 
-#Preview {
-    let decodetUser = DecodedAppUser(id: 0, name: "Test", email: "test@test.com", status: .admin, bio: nil, photo: nil, instagram: nil, likedPlacesId: nil)
-    let user = AppUser(decodedUser: decodetUser)
-    let errorManager = ErrorManager()
-    let appSettingsManager = AppSettingsManager()
-    let networkManage = PlaceNetworkManager(appSettingsManager: appSettingsManager)
-    return PlaceAdditionalFieldsView(viewModel: AddNewPlaceViewModel(user: user, networkManager: networkManage, errorManager: errorManager))
-}
+//#Preview {
+//    let decodetUser = DecodedAppUser(id: 0, name: "Test", email: "test@test.com", status: .admin, bio: nil, photo: nil, instagram: nil, likedPlacesId: nil)
+//    let user = AppUser(decodedUser: decodetUser)
+//    let errorManager = ErrorManager()
+//    let appSettingsManager = AppSettingsManager()
+//    let networkManage = PlaceNetworkManager(appSettingsManager: appSettingsManager)
+//    return PlaceAdditionalFieldsView(viewModel: AddNewPlaceViewModel(user: user, networkManager: networkManage, errorManager: errorManager))
+//}

@@ -149,6 +149,7 @@ struct MapView: View {
     
     @ViewBuilder
     private func makePlaceInfoView(place: Place) -> some View {
+        // todo get fuul info (placeNetworkManager)
         ScrollView {
             HStack {
                 if let url = place.avatar {
@@ -208,6 +209,7 @@ struct MapView: View {
     
     @ViewBuilder
     private func makeEventInfoView(event: Event) -> some View {
+        // todo get fuul info (EventnetworkManager)
         ScrollView {
             VStack(alignment: .leading, spacing: 4) {
                 Text(event.name)

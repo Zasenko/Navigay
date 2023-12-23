@@ -28,7 +28,7 @@ struct EventAdditionalFieldsView: View {
             ScrollView(showsIndicators: false) {
                 LazyVStack(spacing: 0) {
                     AboutEditView(languages: $languages, about: $about)
-                    TagsView
+                    TagsEditView
                     VStack(spacing: 0) {
                         NavigationLink {
                             EditEmailView(email: email) { email in
@@ -84,7 +84,7 @@ struct EventAdditionalFieldsView: View {
         }
     }
 
-    private var TagsView: some View {
+    private var TagsEditView: some View {
         VStack {
             Text("Tags")
                 .font(.callout)

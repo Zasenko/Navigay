@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct EventCell: View {
     
@@ -14,7 +15,7 @@ struct EventCell: View {
     private let event: Event
     
     @State private var image: Image? = nil
-    @State private var selectedEvent: Event? = nil
+   // @State private var selectedEvent: Event? = nil
     @State private var isShowEvent: Bool = false
     
     private let width: CGFloat
@@ -26,15 +27,19 @@ struct EventCell: View {
         return formattedDate
     }
     
-    private let networkManager: EventNetworkManagerProtocol
-    private let errorManager: ErrorManagerProtocol
+    var modelContext: ModelContext
+    let placeNetworkManager: PlaceNetworkManagerProtocol
+    let eventNetworkManager: EventNetworkManagerProtocol
+    let errorManager: ErrorManagerProtocol
     
     // MARK: - Init
     
-    init(event: Event, width: CGFloat, networkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol) {
+    init(event: Event, width: CGFloat, modelContext: ModelContext, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol) {
         self.event = event
         self.width = width
-        self.networkManager = networkManager
+        self.modelContext = modelContext
+        self.eventNetworkManager = eventNetworkManager
+        self.placeNetworkManager = placeNetworkManager
         self.errorManager = errorManager
     }
     
@@ -42,7 +47,7 @@ struct EventCell: View {
     
     var body: some View {
         Button {
-            selectedEvent = event
+            //selectedEvent = event
             withAnimation(.spring()) {
                 isShowEvent = true
             }
@@ -50,13 +55,11 @@ struct EventCell: View {
             EventPosterLable
         }
         .sheet(isPresented: $isShowEvent) {
-            selectedEvent = nil
+            //selectedEvent = nil
         } content: {
-            EventView(isPresented: $isShowEvent, event: event, networkManager: networkManager, errorManager: errorManager)
-                .presentationDragIndicator(.hidden)
+            EventView(isEventViewPresented: $isShowEvent, event: event, modelContext: modelContext, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager).presentationDragIndicator(.hidden)
                 .presentationDetents([.large])
                 .presentationCornerRadius(25)
-            
         }
     }
     
@@ -119,11 +122,11 @@ struct EventCell: View {
     
 }
 
-#Preview {
-    let appSettingsManager = AppSettingsManager()
-    let eventNetworkManager = EventNetworkManager(appSettingsManager: appSettingsManager)
-    let errorManager = ErrorManager()
-    let decodedEvent = DecodedEvent(id: 0, name: "HARD ON party", type: .party, startDate: "2023-12-02", startTime: "00:00:00", finishDate: "2023-12-03", finishTime: "06:00:00", address: "", latitude: 16.25566, longitude: 48.655885, poster: "https://www.navigay.me/images/events/AT/12/1700152341132_227.jpg", smallPoster: "https://www.navigay.me/images/events/AT/12/1700152341132_684.jpg", isFree: true, tags: nil, isActive: true, location: nil, lastUpdate: "2023-11-16 17:26:12", about: nil, fee: nil, tickets: nil, www: nil, facebook: nil, instagram: nil, phone: nil, place: nil)
-    let event = Event(decodedEvent: decodedEvent)
-    return EventCell(event: event, width: 200, networkManager: eventNetworkManager, errorManager: errorManager)
-}
+//#Preview {
+//    let appSettingsManager = AppSettingsManager()
+//    let eventNetworkManager = EventNetworkManager(appSettingsManager: appSettingsManager)
+//    let errorManager = ErrorManager()
+//    let decodedEvent = DecodedEvent(id: 0, name: "HARD ON party", type: .party, startDate: "2023-12-02", startTime: "00:00:00", finishDate: "2023-12-03", finishTime: "06:00:00", address: "", latitude: 16.25566, longitude: 48.655885, poster: "https://www.navigay.me/images/events/AT/12/1700152341132_227.jpg", smallPoster: "https://www.navigay.me/images/events/AT/12/1700152341132_684.jpg", isFree: true, tags: nil, isActive: true, location: nil, lastUpdate: "2023-11-16 17:26:12", about: nil, fee: nil, tickets: nil, www: nil, facebook: nil, instagram: nil, phone: nil, place: nil)
+//    let event = Event(decodedEvent: decodedEvent)
+//    return EventCell(event: event, width: 200, networkManager: eventNetworkManager, errorManager: errorManager)
+//}

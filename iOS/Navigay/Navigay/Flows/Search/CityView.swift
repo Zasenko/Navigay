@@ -14,7 +14,8 @@ struct CityView: View {
     
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
-    let networkManager: CatalogNetworkManagerProtocol
+    
+    let catalogNetworkManager: CatalogNetworkManagerProtocol
     let eventNetworkManager: EventNetworkManagerProtocol
     let placeNetworkManager: PlaceNetworkManagerProtocol
     
@@ -24,11 +25,11 @@ struct CityView: View {
     @Namespace var namespace
     
     
-    init(city: City, networkManager: CatalogNetworkManagerProtocol) {
+    init(city: City, catalogNetworkManager: CatalogNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, placeNetworkManager: PlaceNetworkManagerProtocol) {
         self.city = city
-        self.networkManager = networkManager
-        self.eventNetworkManager = EventNetworkManager(appSettingsManager: networkManager.appSettingsManager)
-        self.placeNetworkManager = PlaceNetworkManager(appSettingsManager: networkManager.appSettingsManager)
+        self.catalogNetworkManager = catalogNetworkManager
+        self.eventNetworkManager = eventNetworkManager
+        self.placeNetworkManager = placeNetworkManager
     }
     
     var body: some View {
@@ -113,7 +114,7 @@ struct CityView: View {
                     }
                 }
                 .onAppear() {
-                    if !networkManager.loadedCities.contains(where: { $0 == city.id}) {
+                    if !catalogNetworkManager.loadedCities.contains(where: { $0 == city.id}) {
                         fetch()
                     }
                     if let url = city.photo {
@@ -137,7 +138,7 @@ struct CityView: View {
     func fetch() {
         Task {
             do {
-                let result = try await networkManager.fetchCity(id: city.id)
+                let result = try await catalogNetworkManager.fetchCity(id: city.id)
                 guard
                     result.result,
                     let decodedCity = result.city

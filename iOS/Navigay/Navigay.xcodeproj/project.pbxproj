@@ -46,6 +46,9 @@
 		0F47347A2B03A13100C9B509 /* ImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F4734792B03A13100C9B509 /* ImagePicker.swift */; };
 		0F47347D2B03B73900C9B509 /* EditCountryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F47347C2B03B73900C9B509 /* EditCountryView.swift */; };
 		0F47347F2B03DE2C00C9B509 /* EditCountryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F47347E2B03DE2C00C9B509 /* EditCountryViewModel.swift */; };
+		0F4997032B36DC5A003E4E2B /* PlaceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F4997022B36DC5A003E4E2B /* PlaceViewModel.swift */; };
+		0F4997062B36F216003E4E2B /* PhotosTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F4997052B36F216003E4E2B /* PhotosTabView.swift */; };
+		0F49970A2B36F31B003E4E2B /* EventViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F4997092B36F31B003E4E2B /* EventViewModel.swift */; };
 		0F5DE38A2B04D155007D5238 /* EditRegionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F5DE3892B04D155007D5238 /* EditRegionView.swift */; };
 		0F5DE38C2B04D15F007D5238 /* EditRegionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F5DE38B2B04D15F007D5238 /* EditRegionViewModel.swift */; };
 		0F5DE38F2B04E4FE007D5238 /* EditCityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F5DE38E2B04E4FE007D5238 /* EditCityView.swift */; };
@@ -199,6 +202,9 @@
 		0F4734792B03A13100C9B509 /* ImagePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePicker.swift; sourceTree = "<group>"; };
 		0F47347C2B03B73900C9B509 /* EditCountryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditCountryView.swift; sourceTree = "<group>"; };
 		0F47347E2B03DE2C00C9B509 /* EditCountryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditCountryViewModel.swift; sourceTree = "<group>"; };
+		0F4997022B36DC5A003E4E2B /* PlaceViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceViewModel.swift; sourceTree = "<group>"; };
+		0F4997052B36F216003E4E2B /* PhotosTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotosTabView.swift; sourceTree = "<group>"; };
+		0F4997092B36F31B003E4E2B /* EventViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventViewModel.swift; sourceTree = "<group>"; };
 		0F5DE3892B04D155007D5238 /* EditRegionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditRegionView.swift; sourceTree = "<group>"; };
 		0F5DE38B2B04D15F007D5238 /* EditRegionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditRegionViewModel.swift; sourceTree = "<group>"; };
 		0F5DE38E2B04E4FE007D5238 /* EditCityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditCityView.swift; sourceTree = "<group>"; };
@@ -477,6 +483,14 @@
 			path = Country;
 			sourceTree = "<group>";
 		};
+		0F4997042B36F1FD003E4E2B /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				0F4997052B36F216003E4E2B /* PhotosTabView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
 		0F5DE3882B04D135007D5238 /* Region */ = {
 			isa = PBXGroup;
 			children = (
@@ -535,6 +549,7 @@
 			isa = PBXGroup;
 			children = (
 				0F741A8B2ACDB66900A7759E /* EventView.swift */,
+				0F4997092B36F31B003E4E2B /* EventViewModel.swift */,
 			);
 			path = Event;
 			sourceTree = "<group>";
@@ -542,6 +557,7 @@
 		0F6500C42ACE9B0500A58E77 /* Place */ = {
 			isa = PBXGroup;
 			children = (
+				0F4997022B36DC5A003E4E2B /* PlaceViewModel.swift */,
 				0F741A8C2ACDB66900A7759E /* PlaceView.swift */,
 			);
 			path = Place;
@@ -898,6 +914,7 @@
 				0F6500C22ACE9AEE00A58E77 /* User */,
 				0FC9652B2ADD2E1900108443 /* Cells */,
 				0F7E57E92AE15B430091A0F8 /* Admin */,
+				0F4997042B36F1FD003E4E2B /* Views */,
 			);
 			path = Flows;
 			sourceTree = "<group>";
@@ -1062,6 +1079,7 @@
 				0F741A932ACDB68500A7759E /* CatalogNetworkManager.swift in Sources */,
 				0F151F482AE92AC10049C60F /* NewPlaceAbout.swift in Sources */,
 				0FFB3A4A2AF23DE0001CF946 /* Bundle+Ext.swift in Sources */,
+				0F49970A2B36F31B003E4E2B /* EventViewModel.swift in Sources */,
 				0F47347D2B03B73900C9B509 /* EditCountryView.swift in Sources */,
 				0F9C320B2B306B3100CAB3D3 /* Sequence+Ext.swift in Sources */,
 				0F2765652B03780C0084B5DD /* PosterResult.swift in Sources */,
@@ -1108,6 +1126,7 @@
 				0FD617A42ACC3AF500877C70 /* DecodedUser.swift in Sources */,
 				0F741A7B2ACD644D00A7759E /* CityResult.swift in Sources */,
 				0F741A912ACDB66900A7759E /* PlaceView.swift in Sources */,
+				0F4997062B36F216003E4E2B /* PhotosTabView.swift in Sources */,
 				0FA010F42AFA8DED003CF485 /* ImageResult.swift in Sources */,
 				0FA6C8B82AD94C7500F30B4A /* MapView.swift in Sources */,
 				0F47347A2B03A13100C9B509 /* ImagePicker.swift in Sources */,
@@ -1155,6 +1174,7 @@
 				0FFB3A372AF0FB56001CF946 /* EditTextFieldView.swift in Sources */,
 				0F354CBB2AFE81F300594AE0 /* DecodedPhoto.swift in Sources */,
 				0FFB3A422AF14F66001CF946 /* PlaceRequiredFieldsView.swift in Sources */,
+				0F4997032B36DC5A003E4E2B /* PlaceViewModel.swift in Sources */,
 				0F741A782ACD644D00A7759E /* DecodedRegion.swift in Sources */,
 				0F741A332ACD500800A7759E /* AppSettingsManager.swift in Sources */,
 				0FFB3A462AF16190001CF946 /* EditPlacePhotosView.swift in Sources */,

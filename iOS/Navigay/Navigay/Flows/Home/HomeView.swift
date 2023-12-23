@@ -18,10 +18,12 @@ struct HomeView: View {
     // MARK: - Init
     
     init(modelContext: ModelContext,
-         networkManager: AroundNetworkManagerProtocol,
+         aroundNetworkManager: AroundNetworkManagerProtocol,
+         placeNetworkManager: PlaceNetworkManagerProtocol,
+         eventNetworkManager: EventNetworkManagerProtocol,
          locationManager: LocationManager,
          errorManager: ErrorManagerProtocol) {
-        let viewModel = HomeViewModel(modelContext: modelContext, networkManager: networkManager, errorManager: errorManager)
+        let viewModel = HomeViewModel(modelContext: modelContext, aroundNetworkManager: aroundNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager)
         _viewModel = State(wrappedValue: viewModel)
         _locationManager = ObservedObject(wrappedValue: locationManager)
     }
@@ -156,7 +158,7 @@ struct HomeView: View {
             .padding(.vertical, 30)
             LazyVGrid(columns: viewModel.gridLayout, spacing: 20) {
                 ForEach(viewModel.displayedEvents) { event in
-                    EventCell(event: event, width: (width / 2) - 30, networkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager)
+                    EventCell(event: event, width: (width / 2) - 30, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager)
                 }
             }
             .padding(.horizontal, 20)
@@ -193,7 +195,7 @@ struct HomeView: View {
                 
                 ForEach(viewModel.groupedPlaces[key] ?? []) { place in
                     NavigationLink {
-                        PlaceView(place: place, networkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager)
+                        PlaceView(place: place, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager)
                     } label: {
                         PlaceCell(place: place)
                     }

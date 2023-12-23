@@ -38,16 +38,16 @@ extension HomeView {
         var sortingCategories: [SortingMapCategory] = [] /// for Map
         var selectedSortingCategory: SortingMapCategory = .all /// for Map
         
-        let networkManager: AroundNetworkManagerProtocol
+        let aroundNetworkManager: AroundNetworkManagerProtocol
         let eventNetworkManager: EventNetworkManagerProtocol
         let placeNetworkManager: PlaceNetworkManagerProtocol
         let errorManager: ErrorManagerProtocol
         
-        init(modelContext: ModelContext, networkManager: AroundNetworkManagerProtocol, errorManager: ErrorManagerProtocol) {
+        init(modelContext: ModelContext, aroundNetworkManager: AroundNetworkManagerProtocol, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol) {
             self.modelContext = modelContext
-            self.networkManager = networkManager
-            self.eventNetworkManager = EventNetworkManager(appSettingsManager: networkManager.appSettingsManager)
-            self.placeNetworkManager = PlaceNetworkManager(appSettingsManager: networkManager.appSettingsManager)
+            self.aroundNetworkManager = aroundNetworkManager
+            self.eventNetworkManager = eventNetworkManager
+            self.placeNetworkManager = placeNetworkManager
             self.errorManager = errorManager
         }
         
@@ -62,7 +62,7 @@ extension HomeView {
                 }
             }
             
-            if !networkManager.userLocations.contains(where: { $0 == userLocation }) {
+            if !aroundNetworkManager.userLocations.contains(where: { $0 == userLocation }) {
                 fetch(location: userLocation)
             } else {
                 if isLoading {
@@ -119,7 +119,7 @@ extension HomeView {
         
         private func fetch(location: CLLocation) {
             Task {
-                guard let decodedResult = await networkManager.fetchLocations(location: location) else {
+                guard let decodedResult = await aroundNetworkManager.fetchLocations(location: location) else {
                     return
                 }
                 await MainActor.run {

@@ -31,6 +31,8 @@ struct TabBarView: View {
     private let errorManager: ErrorManagerProtocol
     private let aroundNetworkManager: AroundNetworkManagerProtocol
     private let catalogNetworkManager: CatalogNetworkManagerProtocol
+    private let placeNetworkManager: PlaceNetworkManagerProtocol
+    private let eventNetworkManager: EventNetworkManagerProtocol
     
     init(locationManager: LocationManager = LocationManager(), authenticationManager: AuthenticationManager, appSettingsManager: AppSettingsManagerProtocol, errorManager: ErrorManagerProtocol) {
         _locationManager = StateObject(wrappedValue: locationManager)
@@ -40,15 +42,17 @@ struct TabBarView: View {
         self.appSettingsManager = appSettingsManager
         self.aroundNetworkManager = AroundNetworkManager(appSettingsManager: appSettingsManager, errorManager: errorManager)
         self.catalogNetworkManager = CatalogNetworkManager(appSettingsManager: appSettingsManager)
+        self.eventNetworkManager = EventNetworkManager(appSettingsManager: appSettingsManager, errorManager: errorManager)
+        self.placeNetworkManager = PlaceNetworkManager(appSettingsManager: appSettingsManager, errorManager: errorManager)
     }
     
     var body: some View {
             VStack(spacing: 0) {
                 switch selectedPage {
                 case .home:
-                    HomeView(modelContext: modelContext, networkManager: aroundNetworkManager, locationManager: locationManager, errorManager: errorManager)
+                    HomeView(modelContext: modelContext, aroundNetworkManager: aroundNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, locationManager: locationManager, errorManager: errorManager)
                 case .search:
-                    SearchView(networkManager: catalogNetworkManager)
+                    SearchView(catalogNetworkManager: catalogNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager)
                 case .user:
                     AppUserView(authenticationManager: authenticationManager)
                 case .admin:

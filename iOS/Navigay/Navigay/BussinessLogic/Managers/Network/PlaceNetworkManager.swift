@@ -15,7 +15,7 @@ protocol PlaceNetworkManagerProtocol {
     func updateMainPhoto(placeId: Int, uiImage: UIImage) async throws -> ImageResult
     func updateLibraryPhoto(placeId: Int, photoId: UUID, uiImage: UIImage) async throws -> ImageResult
     func deleteLibraryPhoto(placeId: Int, photoId: UUID) async throws -> ApiResult
-    func getPlace(id: Int) async throws -> PlaceResult
+    func getPlace(id: Int) async -> DecodedPlace?
    // func addAdditionalInfoToPlace(place: PlaceAdditionalInfo) async throws -> NewPlaceResult
     //func addNewPlace(place: NewPlace, uiImageSmall: UIImage?, uiImageBig: UIImage?) async throws -> DecodedPlace
 }
@@ -32,11 +32,13 @@ final class PlaceNetworkManager {
     private let host = "www.navigay.me"
     
     private let appSettingsManager: AppSettingsManagerProtocol
+    private let errorManager: ErrorManagerProtocol
     
     //MARK: - Inits
     
-    init(appSettingsManager: AppSettingsManagerProtocol) {
+    init(appSettingsManager: AppSettingsManagerProtocol, errorManager: ErrorManagerProtocol) {
         self.appSettingsManager = appSettingsManager
+        self.errorManager = errorManager
     }
     
 }
@@ -49,8 +51,10 @@ extension PlaceNetworkManager: PlaceNetworkManagerProtocol {
         loadedPlaces.append(id)
     }
     
-    func getPlace(id: Int) async throws -> PlaceResult {
+    func getPlace(id: Int) async -> DecodedPlace? {
+        let errorModel = ErrorModel(massage: "Something went wrong. The information has not been updated. Please try again later.", img: nil, color: nil)
         debugPrint("--- getPlace id: ", id)
+        
         let path = "/api/place/get-place.php"
         var urlComponents: URLComponents {
             var components = URLComponents()
@@ -63,12 +67,12 @@ extension PlaceNetworkManager: PlaceNetworkManagerProtocol {
             ]
             return components
         }
-        guard let url = urlComponents.url else {
-            throw NetworkErrors.bedUrl
-        }
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
         do {
+            guard let url = urlComponents.url else {
+                throw NetworkErrors.bedUrl
+            }
+            var request = URLRequest(url: url)
+            request.httpMethod = "GET"
             let (data, response) = try await URLSession.shared.data(for: request)
             guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
                 throw NetworkErrors.invalidData
@@ -78,12 +82,19 @@ extension PlaceNetworkManager: PlaceNetworkManagerProtocol {
             guard let decodedResult = try? JSONDecoder().decode(PlaceResult.self, from: data) else {
                 throw NetworkErrors.decoderError
             }
-            
-            return decodedResult
+            guard decodedResult.result, let decodedPlace = decodedResult.place else {
+                errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: errorModel)
+                debugPrint("API ERROR - PlaceNetworkManager getPlace(id: \(id)) - ", decodedResult.error?.message ?? "")
+                return nil
+            }
+            return decodedPlace
         } catch {
-            throw error
+            errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
+            debugPrint("ERROR - PlaceNetworkManager getPlace(id: \(id)) - ", error)
+            return nil
         }
     }
+    
     func addNewPlace(place: NewPlace) async throws -> NewPlaceResult {
         let path = "/api/place/add-new-place.php"
         var urlComponents: URLComponents {
