@@ -8,22 +8,69 @@
 import SwiftUI
 import SwiftData
 
+extension SearchView {
+    @Observable
+    class SearchViewModel {
+        
+        var modelContext: ModelContext
+        
+        var countries: [Country] = []
+        
+        var searchText: String = ""
+        
+        let catalogNetworkManager: CatalogNetworkManagerProtocol
+        let placeNetworkManager: PlaceNetworkManagerProtocol
+        let eventNetworkManager: EventNetworkManagerProtocol
+        
+        init(modelContext: ModelContext, catalogNetworkManager: CatalogNetworkManagerProtocol, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol) {
+            self.modelContext = modelContext
+            self.catalogNetworkManager = catalogNetworkManager
+            self.eventNetworkManager = eventNetworkManager
+            self.placeNetworkManager = placeNetworkManager
+        }
+        
+        func fetch() {
+            if !catalogNetworkManager.isCountriesLoaded {
+                Task {
+                    guard let decodedCountries = await catalogNetworkManager.fetchCountries() else {
+                        return
+                    }
+                    await MainActor.run {
+                        for decodedCountry in decodedCountries {
+                            if let country = countries.first(where: { $0.id == decodedCountry.id} ) {
+                                country.updateCountryIncomplete(decodedCountry: decodedCountry)
+                            } else if decodedCountry.isActive {
+                                let country = Country(decodedCountry: decodedCountry)
+                                modelContext.insert(country)
+                                countries.append(country)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        func getCountriesFromDB() {
+            do {
+                let descriptor = FetchDescriptor<Country>(sortBy: [SortDescriptor(\.name)])
+                countries = try modelContext.fetch(descriptor)
+            } catch {
+                debugPrint(error)
+            }
+        }
+    }
+}
+
 struct SearchView: View {
     
-    @Environment(\.modelContext) private var context
-    @Query(filter: #Predicate<Country>{ $0.isActive == true }, sort: \Country.name, order: .forward, animation: .snappy)
-    private var countries: [Country]
+    @State private var viewModel: SearchViewModel
     
-    private let catalogNetworkManager: CatalogNetworkManagerProtocol
-    private let placeNetworkManager: PlaceNetworkManagerProtocol
-    private let eventNetworkManager: EventNetworkManagerProtocol
-    
-    @State private var searchText: String = ""
-    
-    init(catalogNetworkManager: CatalogNetworkManagerProtocol, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol) {
-        self.catalogNetworkManager = catalogNetworkManager
-        self.eventNetworkManager = eventNetworkManager
-        self.placeNetworkManager = placeNetworkManager
+    init(modelContext: ModelContext, catalogNetworkManager: CatalogNetworkManagerProtocol, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol) {
+        
+        _viewModel = State(initialValue: SearchViewModel(modelContext: modelContext, catalogNetworkManager: catalogNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager))
+        
+        viewModel.getCountriesFromDB()
+        viewModel.fetch()
     }
     
     var body: some View {
@@ -45,15 +92,15 @@ struct SearchView: View {
                 }
                 .toolbarBackground(AppColors.background)
                 //.searchable(text: $searchText)
-                .onAppear() {
-                    fetch()
-                }
+//                .onAppear() {
+//                    fetch()
+//                }
         }
     }
     
     var SearchView: some View {
      //   HStack {
-                TextField("", text: $searchText) {
+        TextField("", text: $viewModel.searchText) {
                   //  authenticationManager.checkEmail(email: viewModel.email)
                 }
                 .textInputAutocapitalization(.never)
@@ -78,9 +125,9 @@ struct SearchView: View {
     }
     
     private var ListView: some View {
-        List(countries) { country in
+        List(viewModel.countries) { country in
             NavigationLink {
-                CountryView(country: country, catalogNetworkManager: catalogNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager)
+                CountryView(country: country, catalogNetworkManager: viewModel.catalogNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager)
             } label: {
                 HStack(alignment: .center, spacing: 20) {
                     Text(country.flagEmoji)
@@ -107,37 +154,6 @@ struct SearchView: View {
         }
         .listStyle(.plain)
        // .scrollContentBackground(.hidden)
-    }
-    
-    func fetch() {
-        if !catalogNetworkManager.isCountriesLoaded {
-            Task {
-                do {
-                    let result = try await catalogNetworkManager.fetchCountries()
-                    guard
-                        result.result,
-                        let decodedCountries = result.countries
-                    else {
-                        //    errorManager.showApiError(error: result.error)
-                        return
-                    }
-                    
-                    await MainActor.run {
-                        for decodedCountry in decodedCountries {
-                            if let country = countries.first(where: { $0.id == decodedCountry.id} ) {
-                                country.updateCountryIncomplete(decodedCountry: decodedCountry)
-                            } else if decodedCountry.isActive {
-                                let country = Country(decodedCountry: decodedCountry)
-                                context.insert(country)
-                            }
-                        }
-                    }
-                } catch {
-                    print(error)
-                    //  errorManager.showError(error: error)
-                }
-            }
-        }
     }
 }
 

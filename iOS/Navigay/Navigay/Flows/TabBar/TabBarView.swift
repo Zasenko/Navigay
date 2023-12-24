@@ -41,7 +41,7 @@ struct TabBarView: View {
         self.errorManager = errorManager
         self.appSettingsManager = appSettingsManager
         self.aroundNetworkManager = AroundNetworkManager(appSettingsManager: appSettingsManager, errorManager: errorManager)
-        self.catalogNetworkManager = CatalogNetworkManager(appSettingsManager: appSettingsManager)
+        self.catalogNetworkManager = CatalogNetworkManager(appSettingsManager: appSettingsManager, errorManager: errorManager)
         self.eventNetworkManager = EventNetworkManager(appSettingsManager: appSettingsManager, errorManager: errorManager)
         self.placeNetworkManager = PlaceNetworkManager(appSettingsManager: appSettingsManager, errorManager: errorManager)
     }
@@ -54,7 +54,7 @@ struct TabBarView: View {
                     
                     HomeView(modelContext: modelContext, aroundNetworkManager: aroundNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, locationManager: locationManager, errorManager: errorManager)
                 case .search:
-                    SearchView(catalogNetworkManager: catalogNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager)
+                    SearchView(modelContext: modelContext, catalogNetworkManager: catalogNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager)
                 case .user:
                     AppUserView(authenticationManager: authenticationManager)
                 case .admin:
