@@ -13,38 +13,57 @@ struct EventView: View {
     
     // MARK: - Properties
     
-    @Binding var isPresented: Bool
+    @Binding var isEventViewPresented: Bool
     
     // MARK: - Private Properties
     
-    @Environment(\.openURL) private var openURL
-    @EnvironmentObject private var authenticationManager: AuthenticationManager
-  //  @Environment(\.dismiss) private var dismiss
-    @Environment(\.modelContext) private var context
-    @Query(animation: .snappy)
-    private var allPlaces: [Place]
-    private let event: Event
-    @State private var image: Image? = nil
-    private let networkManager: EventNetworkManagerProtocol
-    private let errorManager: ErrorManagerProtocol
-    private let placeNetworkManager: PlaceNetworkManagerProtocol //??
-    @State private var position: MapCameraPosition = .automatic
-    @State private var isPosterLoaded: Bool = false
-    @State private var isShowPlace: Bool = true
-    @State private var place: Place? = nil
+  //  @Environment(\.openURL) private var openURL
+ //   @EnvironmentObject private var authenticationManager: AuthenticationManager
+    @Environment(\.dismiss) private var dismiss
+    @State private var viewModel: EventViewModel
+    
+    init(isEventViewPresented: Binding<Bool>, event: Event, modelContext: ModelContext, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol) {
+        
+        let viewModel = EventViewModel(event: event, modelContext: modelContext, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager)
+        
+        _viewModel = State(wrappedValue: viewModel)
+        _isEventViewPresented = isEventViewPresented
+    }
+  //  @Environment(\.modelContext) private var context
+  //  @Query(animation: .snappy)
+    
+    
+   // private var allPlaces: [Place]
+    
+    
+    
+    
+  //  @State private var image: Image? = nil
+  //  private let networkManager: EventNetworkManagerProtocol
+  //  private let errorManager: ErrorManagerProtocol
+    //private let placeNetworkManager: PlaceNetworkManagerProtocol //??
+   // @State private var position: MapCameraPosition = .automatic
+   // @State private var isPosterLoaded: Bool = false
+   // @State private var isShowPlace: Bool = true
+   // @State private var place: Place? = nil
+    
+    
+    
+    
+  //  private let event: Event
     
     // MARK: - Inits
-    init(isPresented: Binding<Bool>, event: Event, networkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol, placeNetworkManager: PlaceNetworkManagerProtocol) {
-        print("init event view id: \(event.id)")
-        _isPresented = isPresented
-        self.event = event
-        self.networkManager = networkManager
-        self.errorManager = errorManager
-        self.placeNetworkManager = placeNetworkManager
-//        if let image = event.image {
-//            self.image = event.image
-//        }
-    }
+//    init(isPresented: Binding<Bool>, event: Event, networkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol) {//}, placeNetworkManager: PlaceNetworkManagerProtocol) {
+//        print("init event view id: \(event.id)")
+//        _isPresented = isPresented
+//        self.event = event
+//        self.networkManager = networkManager
+//        self.errorManager = errorManager
+//     //   self.placeNetworkManager = placeNetworkManager
+////        if let image = event.image {
+////            self.image = event.image
+////        }
+//    }
     
     // MARK: - Body
     
@@ -57,7 +76,7 @@ struct EventView: View {
                       //     }
                 .toolbar(.hidden, for: .navigationBar)
                 .onAppear() {
-                    loadEvent()
+                    viewModel.loadEvent()
                 }
             }
         }
@@ -69,9 +88,9 @@ struct EventView: View {
     private func createList(width: CGFloat) -> some View {
         List {
             ZStack(alignment: .topTrailing) {
-                if event.poster != nil {
-                    if !isPosterLoaded {
-                        if let image = event.image  {
+                if viewModel.event.poster != nil {
+                    if !viewModel.isPosterLoaded {
+                        if let image = viewModel.event.image  {
                             image
                                 .resizable()
                                 .scaledToFit()
@@ -82,7 +101,7 @@ struct EventView: View {
                                 .frame(width: width, height: (width / 4) * 3)
                         }
                     } else {
-                        if let image = image  {
+                        if let image = viewModel.image  {
                             image
                                 .resizable()
                                 .scaledToFit()
@@ -92,7 +111,7 @@ struct EventView: View {
                     }
                 }
                 Button {
-                    isPresented.toggle()
+                    isEventViewPresented.toggle()
                 } label: {
                     AppImages.iconX
                         .bold()
@@ -107,13 +126,16 @@ struct EventView: View {
             .ignoresSafeArea(.all, edges: .top)
             .listRowSeparator(.hidden)
             .onAppear() {
+                
+                // TODO!!!!!!!!!!!!!!!!!
+                // убрать во вью модель
                 Task {
-                    if let url = event.poster {
+                    if let url = viewModel.event.poster {
                         if let image = await ImageLoader.shared.loadImage(urlString: url) {
                             await MainActor.run {
-                                self.image = image
-                                self.event.image = image
-                                self.isPosterLoaded = true
+                                viewModel.image = image
+                                viewModel.event.image = image
+                                viewModel.isPosterLoaded = true
                             }
                         }
                     }
@@ -122,10 +144,10 @@ struct EventView: View {
                 
             Section {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text(event.name)
+                        Text(viewModel.event.name)
                             .font(.largeTitle).bold()
                             .foregroundColor(.primary)
-                        Text(event.address)
+                        Text(viewModel.event.address)
                             .font(.body)
                             .foregroundColor(.secondary)
                             .frame(maxWidth: .infinity, alignment: .leading)
@@ -149,10 +171,10 @@ struct EventView: View {
                             .scaledToFit()
                             .foregroundStyle(AppColors.lightGray5)
                             .frame(width: 20, height: 20, alignment: .leading)
-                        Text(event.startDate.formatted(date: .abbreviated, time: .omitted))
+                        Text(viewModel.event.startDate.formatted(date: .abbreviated, time: .omitted))
                             .font(.callout)
                     }
-                    if let startTime = event.startTime {
+                    if let startTime = viewModel.event.startTime {
                         HStack {
                             AppImages.iconClock
                                 .resizable()
@@ -168,7 +190,7 @@ struct EventView: View {
                 .foregroundColor(.black)
                 .frame(maxWidth: .infinity, alignment: .center)
                 
-                if let finishDate = event.finishDate {
+                if let finishDate = viewModel.event.finishDate {
                     VStack(alignment: .leading) {
                         Text("Finish")
                             .font(.title2)
@@ -183,7 +205,7 @@ struct EventView: View {
                             Text(finishDate.formatted(date: .abbreviated, time: .omitted))
                                 .font(.callout)
                         }
-                        if let finishTime = event.finishTime {
+                        if let finishTime = viewModel.event.finishTime {
                             HStack {
                                 AppImages.iconClock
                                     .resizable()
@@ -204,12 +226,12 @@ struct EventView: View {
             .listRowSeparator(.hidden)
             .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
             
-            TagsView(tags: event.tags)
+            TagsView(tags: viewModel.event.tags)
                 .padding(.bottom)
                 .listRowSeparator(.hidden)
                 .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
             
-            if let about = event.about {
+            if let about = viewModel.event.about {
                 Text(about)
                     .font(.callout)
                     .padding()
@@ -218,7 +240,7 @@ struct EventView: View {
                 //    .listRowSeparator(.hidden)
             }
             
-            if event.isFree {
+            if viewModel.event.isFree {
                 //todo
                 Text("Free event")
                     .padding()
@@ -226,7 +248,7 @@ struct EventView: View {
                     .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
             } else {
                 Section {
-                    if let fee = event.fee {
+                    if let fee = viewModel.event.fee {
                         Text(fee)
                             .font(.caption)
                             .foregroundStyle(.secondary)
@@ -239,9 +261,9 @@ struct EventView: View {
             }
             
             VStack(spacing: 10) {
-                if let phone = event.phone {
+                if let phone = viewModel.event.phone {
                     Button {
-                        call(phone: phone)
+                        viewModel.call(phone: phone)
                     } label: {
                         HStack {
                             AppImages.iconPhoneFill
@@ -260,9 +282,9 @@ struct EventView: View {
                     .buttonStyle(.borderless)
                 }
                 HStack {
-                    if let tickets = event.tickets {
+                    if let tickets = viewModel.event.tickets {
                         Button {
-                            goToWebSite(url: tickets)
+                            viewModel.goToWebSite(url: tickets)
                         } label: {
                             HStack {
                                 AppImages.iconWallet
@@ -280,9 +302,9 @@ struct EventView: View {
                         .clipShape(Capsule(style: .continuous))
                         .buttonStyle(.borderless)
                     }
-                    if let www = event.www {
+                    if let www = viewModel.event.www {
                         Button {
-                            goToWebSite(url: www)
+                            viewModel.goToWebSite(url: www)
                         } label: {
                             HStack {
                                 AppImages.iconGlobe
@@ -300,9 +322,9 @@ struct EventView: View {
                         .background(AppColors.lightGray6)
                         .clipShape(Capsule(style: .continuous))
                     }
-                    if let facebook = event.facebook {
+                    if let facebook = viewModel.event.facebook {
                         Button {
-                            goToWebSite(url: facebook)
+                            viewModel.goToWebSite(url: facebook)
                         } label: {
                             AppImages.iconFacebook
                                 .resizable()
@@ -316,9 +338,9 @@ struct EventView: View {
                         .clipShape(.circle)
                     }
                     
-                    if let instagram = event.instagram {
+                    if let instagram = viewModel.event.instagram {
                         Button {
-                            goToWebSite(url: instagram)
+                            viewModel.goToWebSite(url: instagram)
                         } label: {
                             AppImages.iconInstagram
                                 .resizable()
@@ -339,7 +361,7 @@ struct EventView: View {
             .listSectionSeparator(.hidden)
            // .listRowBackground(Color.orange)
             
-            if let place = event.place {
+            if let place = viewModel.event.place {
                     VStack( alignment: .leading, spacing: 0) {
                         Text("Location:")
                             .bold()
@@ -400,8 +422,8 @@ struct EventView: View {
     
     private var map: some View {
         VStack {
-            Map(position: $position, interactionModes: []) {
-                Marker("", monogram: Text("🎉"), coordinate: event.coordinate)
+            Map(position: $viewModel.position, interactionModes: []) {
+                Marker("", monogram: Text("🎉"), coordinate: viewModel.event.coordinate)
                     .tint(.red)
             }
             .mapStyle(.standard(elevation: .flat, pointsOfInterest: .including([.publicTransport])))
@@ -409,14 +431,14 @@ struct EventView: View {
             .frame(height: 300)
             .clipShape(RoundedRectangle(cornerRadius: 0))
             .onAppear {
-                position = .camera(MapCamera(centerCoordinate: event.coordinate, distance: 500))
+                viewModel.position = .camera(MapCamera(centerCoordinate: viewModel.event.coordinate, distance: 500))
             }
-            Text(event.address)
+            Text(viewModel.event.address)
                 .font(.callout)
                 .foregroundColor(.secondary)
                 .padding()
             Button {
-                goToMaps(coordinate: event.coordinate)
+                viewModel.goToMaps()
             } label: {
                 HStack {
                     AppImages.iconLocation
@@ -441,99 +463,99 @@ struct EventView: View {
     
     // MARK: - Private Functions
     
-    private func loadEvent() {
-        Task {
-            if networkManager.loadedEvents.contains(where: { $0 == event.id}) {
-                return
-            }
-            let errorModel = ErrorModel(massage: "Something went wrong. The information has not been updated. Please try again later.", img: nil, color: nil)
-            do {
-                let decodedResult = try await networkManager.fetchEvent(id: event.id)
-                guard decodedResult.result, let decodedEvent = decodedResult.event else {
-                    debugPrint("ERROR - getAdminInfo API:", decodedResult.error?.message ?? "---")
-                    errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: errorModel)
-                    return
-                }
-                networkManager.addToLoadedEvents(id: decodedEvent.id)
-                await MainActor.run {
-                    updateEvent(decodedEvent: decodedEvent)
-                }
-            } catch {
-                debugPrint("ERROR - get place: ", error)
-                errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
-            }
-        }
-    }
+//    private func loadEvent() {
+//        Task {
+//            if networkManager.loadedEvents.contains(where: { $0 == event.id}) {
+//                return
+//            }
+//            let errorModel = ErrorModel(massage: "Something went wrong. The information has not been updated. Please try again later.", img: nil, color: nil)
+//            do {
+//                let decodedResult = try await networkManager.fetchEvent(id: event.id)
+//                guard decodedResult.result, let decodedEvent = decodedResult.event else {
+//                    debugPrint("ERROR - getAdminInfo API:", decodedResult.error?.message ?? "---")
+//                    errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: errorModel)
+//                    return
+//                }
+//                networkManager.addToLoadedEvents(id: decodedEvent.id)
+//                await MainActor.run {
+//                    updateEvent(decodedEvent: decodedEvent)
+//                }
+//            } catch {
+//                debugPrint("ERROR - get place: ", error)
+//                errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
+//            }
+//        }
+//    }
 
-    private func updateEvent(decodedEvent: DecodedEvent) {
-        let lastUpdate = decodedEvent.lastUpdate.dateFromString(format: "yyyy-MM-dd HH:mm:ss")
-        if event.lastUpdateComplite != lastUpdate {
-            event.updateEventComplete(decodedEvent: decodedEvent)
-        }
-        if let decodePlace = decodedEvent.place {
-            var newPlace: Place?
-            if let place = allPlaces.first(where: { $0.id == decodePlace.id} ) {
-                place.updatePlaceIncomplete(decodedPlace: decodePlace)
-                newPlace = place
-            } else if decodePlace.isActive {
-                let place = Place(decodedPlace: decodePlace)
-                newPlace = place
-            }
-            event.place = newPlace
-        }
-    }
+//    private func updateEvent(decodedEvent: DecodedEvent) {
+//        let lastUpdate = decodedEvent.lastUpdate.dateFromString(format: "yyyy-MM-dd HH:mm:ss")
+//        if event.lastUpdateComplite != lastUpdate {
+//            event.updateEventComplete(decodedEvent: decodedEvent)
+//        }
+//        if let decodePlace = decodedEvent.place {
+//            var newPlace: Place?
+//            if let place = allPlaces.first(where: { $0.id == decodePlace.id} ) {
+//                place.updatePlaceIncomplete(decodedPlace: decodePlace)
+//                newPlace = place
+//            } else if decodePlace.isActive {
+//                let place = Place(decodedPlace: decodePlace)
+//                newPlace = place
+//            }
+//            event.place = newPlace
+//        }
+//    }
     
-    private func call(phone: String) {
-        let api = "tel://"
-        let stringUrl = api + phone
-        guard let url = URL(string: stringUrl) else { return }
-        UIApplication.shared.open(url)
-    }
-    
-    private func goToWebSite(url: String) {
-        guard let url = URL(string: url) else { return }
-        openURL(url)
-    }
-    
-    private func goToMaps(coordinate: CLLocationCoordinate2D) {
-        let stringUrl = "maps://?saddr=&daddr=\(coordinate.latitude),\(coordinate.longitude)"
-        guard let url = URL(string: stringUrl) else { return }
-        openURL(url)
-    }
+//    private func call(phone: String) {
+//        let api = "tel://"
+//        let stringUrl = api + phone
+//        guard let url = URL(string: stringUrl) else { return }
+//        UIApplication.shared.open(url)
+//    }
+//    
+//    private func goToWebSite(url: String) {
+//        guard let url = URL(string: url) else { return }
+//        openURL(url)
+//    }
+//    
+//    private func goToMaps(coordinate: CLLocationCoordinate2D) {
+//        let stringUrl = "maps://?saddr=&daddr=\(coordinate.latitude),\(coordinate.longitude)"
+//        guard let url = URL(string: stringUrl) else { return }
+//        openURL(url)
+//    }
 }
 
 //#Preview {
 //    EventView()
 //}
 
-private struct OffsetPreferenceKey: PreferenceKey {
-  static var defaultValue: CGFloat = .zero
-  static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {}
-}
-
-struct ScrollViewOffset<Content: View>: View {
-  let content: () -> Content
-
-  init(@ViewBuilder content: @escaping () -> Content) {
-    self.content = content
-  }
-
-  var body: some View {
-    ScrollView {
-      offsetReader
-      content()
-    }
-    .coordinateSpace(name: "frameLayer")
-  }
-
-  var offsetReader: some View {
-    GeometryReader { proxy in
-      Color.clear
-        .preference(
-          key: OffsetPreferenceKey.self,
-          value: proxy.frame(in: .named("frameLayer")).minY
-        )
-    }
-    .frame(height: 0) // 👈🏻 make sure that the reader doesn't affect the content height
-  }
-}
+//private struct OffsetPreferenceKey: PreferenceKey {
+//  static var defaultValue: CGFloat = .zero
+//  static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {}
+//}
+//
+//struct ScrollViewOffset<Content: View>: View {
+//  let content: () -> Content
+//
+//  init(@ViewBuilder content: @escaping () -> Content) {
+//    self.content = content
+//  }
+//
+//  var body: some View {
+//    ScrollView {
+//      offsetReader
+//      content()
+//    }
+//    .coordinateSpace(name: "frameLayer")
+//  }
+//
+//  var offsetReader: some View {
+//    GeometryReader { proxy in
+//      Color.clear
+//        .preference(
+//          key: OffsetPreferenceKey.self,
+//          value: proxy.frame(in: .named("frameLayer")).minY
+//        )
+//    }
+//    .frame(height: 0) // 👈🏻 make sure that the reader doesn't affect the content height
+//  }
+//}

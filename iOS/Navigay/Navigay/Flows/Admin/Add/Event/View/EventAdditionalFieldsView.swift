@@ -28,7 +28,7 @@ struct EventAdditionalFieldsView: View {
             ScrollView(showsIndicators: false) {
                 LazyVStack(spacing: 0) {
                     AboutEditView(languages: $languages, about: $about)
-                    TagsView
+                    TagsEditView
                     VStack(spacing: 0) {
                         NavigationLink {
                             EditEmailView(email: email) { email in
@@ -49,7 +49,7 @@ struct EventAdditionalFieldsView: View {
                         Divider()
                             .padding(.horizontal)
                         NavigationLink {
-                            EditTextFieldView(text: www, characterLimit: 100, minHaracters: 0, title: "Web page", placeholder: "www") { string in
+                            EditTextFieldView(text: www, characterLimit: 255, minHaracters: 0, title: "Web page", placeholder: "www") { string in
                                 www = string
                             }
                         } label: {
@@ -58,7 +58,7 @@ struct EventAdditionalFieldsView: View {
                         Divider()
                             .padding(.horizontal)
                         NavigationLink {
-                            EditTextFieldView(text: facebook, characterLimit: 50, minHaracters: 0, title: "Facebook", placeholder: "Facebook") { string in
+                            EditTextFieldView(text: facebook, characterLimit: 255, minHaracters: 0, title: "Facebook", placeholder: "Facebook") { string in
                                 facebook = string
                             }
                         } label: {
@@ -67,7 +67,7 @@ struct EventAdditionalFieldsView: View {
                         Divider()
                             .padding(.horizontal)
                         NavigationLink {
-                            EditTextFieldView(text: instagram, characterLimit: 50, minHaracters: 0, title: "Instagram", placeholder: "Instagram") { instagram in
+                            EditTextFieldView(text: instagram, characterLimit: 255, minHaracters: 0, title: "Instagram", placeholder: "Instagram") { instagram in
                                 self.instagram = instagram
                             }
                         } label: {
@@ -84,7 +84,7 @@ struct EventAdditionalFieldsView: View {
         }
     }
 
-    private var TagsView: some View {
+    private var TagsEditView: some View {
         VStack {
             Text("Tags")
                 .font(.callout)

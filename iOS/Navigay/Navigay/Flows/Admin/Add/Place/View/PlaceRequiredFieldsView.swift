@@ -25,7 +25,7 @@ struct PlaceRequiredFieldsView: View {
                 LazyVStack(spacing: 0) {
                     VStack(spacing: 0) {
                         NavigationLink {
-                            EditTextFieldView(text: viewModel.name, characterLimit: 50, minHaracters: 2, title: "Title", placeholder: "Title") { string in
+                            EditTextFieldView(text: viewModel.name, characterLimit: 255, minHaracters: 2, title: "Title", placeholder: "Title") { string in
                                 viewModel.name = string
                             }
                         } label: {
@@ -39,7 +39,7 @@ struct PlaceRequiredFieldsView: View {
                     .cornerRadius(10)
                     .padding(.bottom, 40)
                     NavigationLink {
-                        EditTextFieldView(text: viewModel.addressOrigin, characterLimit: 50, minHaracters: 5, title: "Address", placeholder: "Address") { string in
+                        EditTextFieldView(text: viewModel.addressOrigin, characterLimit: 255, minHaracters: 5, title: "Address", placeholder: "Address") { string in
                             viewModel.addressOrigin = string
                         }
                     } label: {
@@ -122,11 +122,11 @@ struct PlaceRequiredFieldsView: View {
     }
 }
 
-#Preview {
-    let decodetUser = DecodedAppUser(id: 0, name: "Test", email: "test@test.com", status: .admin, bio: nil, photo: nil, instagram: nil, likedPlacesId: nil)
-    let user = AppUser(decodedUser: decodetUser)
-    let errorManager = ErrorManager()
-    let appSettingsManager = AppSettingsManager()
-    let networkManage = PlaceNetworkManager(appSettingsManager: appSettingsManager)
-    return PlaceRequiredFieldsView(viewModel: AddNewPlaceViewModel(user: user, networkManager: networkManage, errorManager: errorManager))
-}
+//#Preview {
+//    let decodetUser = DecodedAppUser(id: 0, name: "Test", email: "test@test.com", status: .admin, bio: nil, photo: nil, instagram: nil, likedPlacesId: nil)
+//    let user = AppUser(decodedUser: decodetUser)
+//    let errorManager = ErrorManager()
+//    let appSettingsManager = AppSettingsManager()
+//    let networkManage = PlaceNetworkManager(appSettingsManager: appSettingsManager)
+//    return PlaceRequiredFieldsView(viewModel: AddNewPlaceViewModel(user: user, networkManager: networkManage, errorManager: errorManager))
+//}

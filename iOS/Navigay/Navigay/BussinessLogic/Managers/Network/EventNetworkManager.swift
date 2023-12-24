@@ -10,7 +10,7 @@ import SwiftUI
 protocol EventNetworkManagerProtocol {
     var loadedEvents: [Int] { get set }
     func addToLoadedEvents(id: Int)
-    func fetchEvent(id: Int) async throws -> EventResult
+    func fetchEvent(id: Int) async -> DecodedEvent?
     func addNewEvent(event: NewEvent) async throws -> NewEventResult
     func updatePoster(eventId: Int, poster: UIImage, smallPoster: UIImage) async throws -> PosterResult
 }
@@ -25,12 +25,15 @@ final class EventNetworkManager {
     
     private let scheme = "https"
     private let host = "www.navigay.me"
-    let appSettingsManager: AppSettingsManagerProtocol
+    
+    private let appSettingsManager: AppSettingsManagerProtocol
+    private let errorManager: ErrorManagerProtocol
     
     // MARK: - Inits
     
-    init(appSettingsManager: AppSettingsManagerProtocol) {
+    init(appSettingsManager: AppSettingsManagerProtocol, errorManager: ErrorManagerProtocol) {
         self.appSettingsManager = appSettingsManager
+        self.errorManager = errorManager
     }
 }
 
@@ -38,12 +41,15 @@ final class EventNetworkManager {
 
 extension EventNetworkManager: EventNetworkManagerProtocol {
     
+    // todo private
     func addToLoadedEvents(id: Int) {
         loadedEvents.append(id)
     }
     
-    func fetchEvent(id: Int) async throws -> EventResult {
+    func fetchEvent(id: Int) async -> DecodedEvent? {
+        let errorModel = ErrorModel(massage: "Something went wrong. The information has not been updated. Please try again later.", img: nil, color: nil)
         debugPrint("--- fetchEvent(id: \(id)")
+        
         let path = "/api/event/get-event.php"
         var urlComponents: URLComponents {
             var components = URLComponents()
@@ -56,12 +62,12 @@ extension EventNetworkManager: EventNetworkManagerProtocol {
             ]
             return components
         }
-        guard let url = urlComponents.url else {
-            throw NetworkErrors.bedUrl
-        }
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
         do {
+            guard let url = urlComponents.url else {
+                throw NetworkErrors.bedUrl
+            }
+            var request = URLRequest(url: url)
+            request.httpMethod = "GET"
             let (data, response) = try await URLSession.shared.data(for: request)
             guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
                 throw NetworkErrors.invalidData
@@ -69,9 +75,18 @@ extension EventNetworkManager: EventNetworkManagerProtocol {
             guard let decodedResult = try? JSONDecoder().decode(EventResult.self, from: data) else {
                 throw NetworkErrors.decoderError
             }
-            return decodedResult
+            
+            guard decodedResult.result, let decodedEvent = decodedResult.event else {
+                errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: errorModel)
+                debugPrint("API ERROR - EventNetworkManager fetchEvent(id: \(id)) - ", decodedResult.error?.message ?? "")
+                return nil
+            }
+            addToLoadedEvents(id: decodedEvent.id)
+            return decodedEvent
         } catch {
-            throw error
+            errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
+            debugPrint("ERROR - EventNetworkManager fetchEvent(id: \(id)) - ", error)
+            return nil
         }
     }
     

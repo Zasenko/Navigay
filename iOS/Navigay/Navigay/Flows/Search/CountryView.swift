@@ -16,11 +16,16 @@ struct CountryView: View {
     
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var context
-    private let networkManager: CatalogNetworkManagerProtocol
     
-    init(country: Country, networkManager: CatalogNetworkManagerProtocol) {
+    private let catalogNetworkManager: CatalogNetworkManagerProtocol
+    private let eventNetworkManager: EventNetworkManagerProtocol
+    private let placeNetworkManager: PlaceNetworkManagerProtocol
+    
+    init(country: Country, catalogNetworkManager: CatalogNetworkManagerProtocol, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol) {
         self.country = country
-        self.networkManager = networkManager
+        self.catalogNetworkManager = catalogNetworkManager
+        self.eventNetworkManager = eventNetworkManager
+        self.placeNetworkManager = placeNetworkManager
     }
     
     var body: some View {
@@ -44,10 +49,10 @@ struct CountryView: View {
                     }
                     if country.showRegions {
                         ForEach(country.regions.filter( { $0.isActive == true } )) { region in
-                            RegionView(region: region, networkManager: networkManager)
+                            RegionView(region: region, catalogNetworkManager: catalogNetworkManager, eventNetworkManager: eventNetworkManager, placeNetworkManager: placeNetworkManager)
                         }
                     } else {
-                        CitiesView(cities: country.regions.flatMap( { $0.cities.filter { $0.isActive == true } } ), networkManager: networkManager)
+                        CitiesView(cities: country.regions.flatMap( { $0.cities.filter { $0.isActive == true } } ), catalogNetworkManager: catalogNetworkManager, eventNetworkManager: eventNetworkManager, placeNetworkManager: placeNetworkManager)
                     }
                     
                     Section {
@@ -82,7 +87,7 @@ struct CountryView: View {
                     }
                 }
                 .onAppear() {
-                    if !networkManager.loadedCountries.contains(where: { $0 == country.id}) {
+                    if !catalogNetworkManager.loadedCountries.contains(where: { $0 == country.id}) {
                         fetch()
                     }
                     if let url = country.photo {
@@ -102,7 +107,7 @@ struct CountryView: View {
     func fetch() {
         Task {
             do {
-                let result = try await networkManager.fetchCountry(id: country.id)
+                let result = try await catalogNetworkManager.fetchCountry(id: country.id)
                 guard
                     result.result,
                     let decodedCountry = result.country
@@ -167,18 +172,22 @@ struct CountryView: View {
 struct RegionView: View {
     
     private let region: Region
-    let networkManager: CatalogNetworkManagerProtocol
+    private let catalogNetworkManager: CatalogNetworkManagerProtocol
+    private let eventNetworkManager: EventNetworkManagerProtocol
+    private let placeNetworkManager: PlaceNetworkManagerProtocol
     
-    init(region: Region, networkManager: CatalogNetworkManagerProtocol) {
+    init(region: Region, catalogNetworkManager: CatalogNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, placeNetworkManager: PlaceNetworkManagerProtocol) {
         self.region = region
-        self.networkManager = networkManager
+        self.catalogNetworkManager = catalogNetworkManager
+        self.eventNetworkManager = eventNetworkManager
+        self.placeNetworkManager = placeNetworkManager
     }
     
     var body: some View {
         Section {
             ForEach(region.cities.filter( { $0.isActive == true } )) { city in
                 NavigationLink {
-                    CityView(city: city, networkManager: networkManager)
+                    CityView(city: city, catalogNetworkManager: catalogNetworkManager, eventNetworkManager: eventNetworkManager, placeNetworkManager: placeNetworkManager)
                 } label: {
                     Text(city.name)
                 }
@@ -191,18 +200,24 @@ struct RegionView: View {
 }
 
 struct CitiesView: View {
+    
     private var cities: [City]
-    let networkManager: CatalogNetworkManagerProtocol
-    init(cities: [City], networkManager: CatalogNetworkManagerProtocol) {
+    private let catalogNetworkManager: CatalogNetworkManagerProtocol
+    private let eventNetworkManager: EventNetworkManagerProtocol
+    private let placeNetworkManager: PlaceNetworkManagerProtocol
+    
+    init(cities: [City], catalogNetworkManager: CatalogNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, placeNetworkManager: PlaceNetworkManagerProtocol) {
         self.cities = cities
-        self.networkManager = networkManager
+        self.catalogNetworkManager = catalogNetworkManager
+        self.eventNetworkManager = eventNetworkManager
+        self.placeNetworkManager = placeNetworkManager
     }
     
     var body: some View {
         Section {
             ForEach(cities.filter( { $0.isActive == true } )) { city in
                 NavigationLink {
-                    CityView(city: city, networkManager: networkManager)
+                    CityView(city: city, catalogNetworkManager: catalogNetworkManager, eventNetworkManager: eventNetworkManager, placeNetworkManager: placeNetworkManager)
                 } label: {
                     Text(city.name)
                 }

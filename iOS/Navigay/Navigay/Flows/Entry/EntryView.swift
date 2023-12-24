@@ -32,7 +32,7 @@ struct EntryView: View {
         self.appSettingsManager = appSettingsManager
         self.errorManager = errorManager
         _authenticationManager = StateObject(wrappedValue: authenticationManager)
-        _router = State(initialValue: EntryViewRouter.welcomeView)
+        _router = State(wrappedValue: EntryViewRouter.welcomeView)
         let id = authenticationManager.lastLoginnedUserId
         if id != 0 {
             _appUsers = Query(filter: #Predicate<AppUser>{ $0.id == id })
@@ -50,7 +50,7 @@ struct EntryView: View {
                     }
                 }
             case .tabView:
-                TabBarView(authenticationManager: authenticationManager, appSettingsManager: appSettingsManager)
+                TabBarView(authenticationManager: authenticationManager, appSettingsManager: appSettingsManager, errorManager: errorManager)
             }
             ErrorView(viewModel: ErrorViewModel(errorManager: errorManager))
         }

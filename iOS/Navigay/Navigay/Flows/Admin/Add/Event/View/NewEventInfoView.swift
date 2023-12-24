@@ -22,7 +22,7 @@ struct NewEventInfoView: View {
                     EventRequiredFieldsView(name: $viewModel.name, type: $viewModel.type, isoCountryCode: $viewModel.isoCountryCode, countryOrigin: $viewModel.countryOrigin, countryEnglish: $viewModel.countryEnglish, regionOrigin: $viewModel.regionOrigin, regionEnglish: $viewModel.regionEnglish, cityOrigin: $viewModel.cityOrigin, cityEnglish: $viewModel.cityEnglish, addressOrigin: $viewModel.addressOrigin, latitude: $viewModel.latitude, longitude: $viewModel.longitude)
                         .padding(.bottom, 40)
                     NavigationLink {
-                        EditTextFieldView(text: viewModel.location, characterLimit: 30, minHaracters: 2, title: "Event location", placeholder: "Location's title") { string in
+                        EditTextFieldView(text: viewModel.location, characterLimit: 255, minHaracters: 2, title: "Event location", placeholder: "Location's title") { string in
                             viewModel.location = string
                         }
                     } label: {
@@ -47,11 +47,11 @@ struct NewEventInfoView: View {
     }
 }
 
-#Preview {
-    let decodetUser = DecodedAppUser(id: 0, name: "Test", email: "test@test.com", status: .user, bio: nil, photo: nil, instagram: nil, likedPlacesId: nil)
-    let user = AppUser(decodedUser: decodetUser)
-    let errorManager = ErrorManager()
-    let appSettingsManager = AppSettingsManager()
-    let networkManager = EventNetworkManager(appSettingsManager: appSettingsManager)
-    return NewEventInfoView(viewModel: NewEventViewModel(user: user, place: nil, networkManager: networkManager, errorManager: errorManager))
-}
+//#Preview {
+//    let decodetUser = DecodedAppUser(id: 0, name: "Test", email: "test@test.com", status: .user, bio: nil, photo: nil, instagram: nil, likedPlacesId: nil)
+//    let user = AppUser(decodedUser: decodetUser)
+//    let errorManager = ErrorManager()
+//    let appSettingsManager = AppSettingsManager()
+//    let networkManager = EventNetworkManager(appSettingsManager: appSettingsManager)
+//    return NewEventInfoView(viewModel: NewEventViewModel(user: user, place: nil, networkManager: networkManager, errorManager: errorManager))
+//}

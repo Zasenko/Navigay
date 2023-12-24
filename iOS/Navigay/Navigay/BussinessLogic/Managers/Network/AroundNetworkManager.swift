@@ -13,7 +13,7 @@ protocol AroundNetworkManagerProtocol {
     func addToUserLocations(location: CLLocation)
     
     var appSettingsManager: AppSettingsManagerProtocol { get }
-    func fetchLocations(latitude: Double, longitude: Double) async throws -> AroundResult
+    func fetchLocations(location: CLLocation) async -> ItemsResult?
 }
 
 final class AroundNetworkManager {
@@ -27,9 +27,11 @@ final class AroundNetworkManager {
     
     private let scheme = "https"
     private let host = "www.navigay.me"
+    private let errorManager: ErrorManagerProtocol
     
-    init(appSettingsManager: AppSettingsManagerProtocol) {
+    init(appSettingsManager: AppSettingsManagerProtocol, errorManager: ErrorManagerProtocol) {
         self.appSettingsManager = appSettingsManager
+        self.errorManager = errorManager
     }
 }
 
@@ -41,8 +43,10 @@ extension AroundNetworkManager: AroundNetworkManagerProtocol {
         userLocations.append(location)
     }
     
-    func fetchLocations(latitude: Double, longitude: Double) async throws -> AroundResult {
+    func fetchLocations(location: CLLocation) async -> ItemsResult? {
+        let errorModel = ErrorModel(massage: "Something went wrong. Failed to upload data. Please try again later.", img: nil, color: nil)
         debugPrint("--- fetchLocations around()")
+        
         let path = "/api/around/get-locations-around.php"
         var urlComponents: URLComponents {
             var components = URLComponents()
@@ -50,17 +54,17 @@ extension AroundNetworkManager: AroundNetworkManagerProtocol {
             components.host = host
             components.path = path
             components.queryItems = [
-                URLQueryItem(name: "latitude", value: "\(latitude)"),
-                URLQueryItem(name: "longitude", value: "\(longitude)"),
+                URLQueryItem(name: "latitude", value: "\(location.coordinate.latitude)"),
+                URLQueryItem(name: "longitude", value: "\(location.coordinate.longitude)"),
             ]
             return components
         }
-        guard let url = urlComponents.url else {
-            throw NetworkErrors.bedUrl
-        }
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
         do {
+            guard let url = urlComponents.url else {
+                throw NetworkErrors.bedUrl
+            }
+            var request = URLRequest(url: url)
+            request.httpMethod = "GET"
             let (data, response) = try await URLSession.shared.data(for: request)
             guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
                 throw NetworkErrors.invalidData
@@ -68,9 +72,17 @@ extension AroundNetworkManager: AroundNetworkManagerProtocol {
             guard let decodedResult = try? JSONDecoder().decode(AroundResult.self, from: data) else {
                 throw NetworkErrors.decoderError
             }
-            return decodedResult
+            guard decodedResult.result, let decodedItems = decodedResult.items else {
+                errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: errorModel)
+                debugPrint("API ERROR - fetchLocations: location \(location) - ", decodedResult.error?.message ?? "")
+                return nil
+            }
+            addToUserLocations(location: location)
+            return decodedItems
         } catch {
-            throw error
+            errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
+            debugPrint("ERROR - fetchLocations: location \(location) - ", error)
+            return nil
         }
     }
     

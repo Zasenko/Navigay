@@ -10,6 +10,5 @@ import Foundation
 struct AroundResult: Codable {
     let result: Bool
     let error: ApiError?
-    let places: [DecodedPlace]?
-    let events: [DecodedEvent]?
+    let items: ItemsResult?
 }
