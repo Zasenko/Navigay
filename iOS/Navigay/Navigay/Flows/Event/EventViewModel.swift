@@ -90,17 +90,17 @@ extension EventView {
                 do {
                     let descriptor = FetchDescriptor<Place>()
                     let allPlaces = try modelContext.fetch(descriptor)
-                    var newPlace: Place?
+                    var eventPlace: Place?
                     if let place = allPlaces.first(where: { $0.id == decodedPlace.id} ) {
                         place.updatePlaceIncomplete(decodedPlace: decodedPlace)
                         updateTimeTable(timetable: decodedPlace.timetable, for: place)
-                        newPlace = place
+                        eventPlace = place
                     } else if decodedPlace.isActive {
                         let place = Place(decodedPlace: decodedPlace)
                         updateTimeTable(timetable: decodedPlace.timetable, for: place)
-                        newPlace = place
+                        eventPlace = place
                     }
-                    event.place = newPlace
+                    event.place = eventPlace
                 } catch {
                     debugPrint("ERROR - EventViewModel updatePlace id \(decodedPlace.id): ", error)
                 }

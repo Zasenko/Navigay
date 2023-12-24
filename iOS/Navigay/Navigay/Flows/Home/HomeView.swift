@@ -23,8 +23,7 @@ struct HomeView: View {
          eventNetworkManager: EventNetworkManagerProtocol,
          locationManager: LocationManager,
          errorManager: ErrorManagerProtocol) {
-        let viewModel = HomeViewModel(modelContext: modelContext, aroundNetworkManager: aroundNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager)
-        _viewModel = State(wrappedValue: viewModel)
+        _viewModel = State(wrappedValue: HomeViewModel(modelContext: modelContext, aroundNetworkManager: aroundNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager))
         _locationManager = ObservedObject(wrappedValue: locationManager)
     }
 
@@ -38,7 +37,7 @@ struct HomeView: View {
                     .frame(maxHeight: .infinity)
             } else {
                 if viewModel.showMap {
-                    MapView(events: $viewModel.todayAndTomorrowEvents, places: $viewModel.aroundPlaces, showMap: $viewModel.showMap, categories: $viewModel.sortingCategories, selectedCategory: $viewModel.selectedSortingCategory)
+                    MapView(viewModel: MapViewModel(showMap: $viewModel.showMap, events: $viewModel.todayAndTomorrowEvents, places: $viewModel.aroundPlaces, categories: $viewModel.sortingCategories, selectedCategory: $viewModel.selectedSortingCategory))
                 } else {
                     MainView
                 }

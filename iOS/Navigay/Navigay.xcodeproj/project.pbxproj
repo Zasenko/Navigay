@@ -150,6 +150,7 @@
 		0FD617B12ACC443F00877C70 /* RegistrationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FD617B02ACC443F00877C70 /* RegistrationViewModel.swift */; };
 		0FE13D9F2AD023D500ADB8F0 /* UserNetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FE13D9E2AD023D500ADB8F0 /* UserNetworkManager.swift */; };
 		0FF5C7272B1F44B900D9EA57 /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FF5C7262B1F44B900D9EA57 /* LoginViewModel.swift */; };
+		0FF7B8EA2B3820AA003A4B6A /* MapViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FF7B8E92B3820AA003A4B6A /* MapViewModel.swift */; };
 		0FFB3A352AF0FAC0001CF946 /* EditEmailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FFB3A342AF0FAC0001CF946 /* EditEmailView.swift */; };
 		0FFB3A372AF0FB56001CF946 /* EditTextFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FFB3A362AF0FB56001CF946 /* EditTextFieldView.swift */; };
 		0FFB3A3B2AF102A2001CF946 /* Test2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FFB3A392AF102A2001CF946 /* Test2.swift */; };
@@ -308,6 +309,7 @@
 		0FD617B02ACC443F00877C70 /* RegistrationViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RegistrationViewModel.swift; sourceTree = "<group>"; };
 		0FE13D9E2AD023D500ADB8F0 /* UserNetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserNetworkManager.swift; sourceTree = "<group>"; };
 		0FF5C7262B1F44B900D9EA57 /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
+		0FF7B8E92B3820AA003A4B6A /* MapViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewModel.swift; sourceTree = "<group>"; };
 		0FFB3A342AF0FAC0001CF946 /* EditEmailView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditEmailView.swift; sourceTree = "<group>"; };
 		0FFB3A362AF0FB56001CF946 /* EditTextFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditTextFieldView.swift; sourceTree = "<group>"; };
 		0FFB3A392AF102A2001CF946 /* Test2.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Test2.swift; sourceTree = "<group>"; };
@@ -548,8 +550,8 @@
 		0F6500C32ACE9AFE00A58E77 /* Event */ = {
 			isa = PBXGroup;
 			children = (
-				0F741A8B2ACDB66900A7759E /* EventView.swift */,
 				0F4997092B36F31B003E4E2B /* EventViewModel.swift */,
+				0F741A8B2ACDB66900A7759E /* EventView.swift */,
 			);
 			path = Event;
 			sourceTree = "<group>";
@@ -804,6 +806,7 @@
 		0FA6C8B62AD94C6200F30B4A /* Map */ = {
 			isa = PBXGroup;
 			children = (
+				0FF7B8E92B3820AA003A4B6A /* MapViewModel.swift */,
 				0FA6C8B72AD94C7500F30B4A /* MapView.swift */,
 				0FBABB8B2B2C5C9900A2B4FE /* MapSortingMenuView.swift */,
 				0FA03D9B2B35C23000756049 /* MapEventPin.swift */,
@@ -1167,6 +1170,7 @@
 				0F741A902ACDB66900A7759E /* EventView.swift in Sources */,
 				0F741A292ACD4D4200A7759E /* ErrorViewModel.swift in Sources */,
 				0F27654F2B026C810084B5DD /* EditTimeView.swift in Sources */,
+				0FF7B8EA2B3820AA003A4B6A /* MapViewModel.swift in Sources */,
 				0F27655F2B02A7FA0084B5DD /* EditEventCoverView.swift in Sources */,
 				0F79B25E2AF26CB300FCAED2 /* PlaceNetworkManager.swift in Sources */,
 				0F741A752ACD644D00A7759E /* CountriesResult.swift in Sources */,

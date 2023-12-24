@@ -31,7 +31,7 @@ struct PlaceView: View {
                 GeometryReader { geometry in
                     VStack(spacing: 0) {
                         Divider()
-                        createList(width: geometry.size.width, geom: geometry.size)
+                        createList(width: geometry.size.width, geometry: geometry.size)
                     }
                     .navigationBarBackButtonHidden()
                     .toolbarBackground(AppColors.background)
@@ -81,7 +81,7 @@ struct PlaceView: View {
     // MARK: - Views
     
     @ViewBuilder
-    private func createList(width: CGFloat, geom: CGSize) -> some View {
+    private func createList(width: CGFloat, geometry: CGSize) -> some View {
         List {
             if !viewModel.allPhotos.isEmpty {
                 PhotosTabView(allPhotos: $viewModel.allPhotos, width: width)
@@ -231,16 +231,11 @@ struct PlaceView: View {
             .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
             .listSectionSeparator(.hidden)
             
-            map
+            createMap(geometry: geometry)
             
             if !viewModel.place.events.isEmpty {
                 Section {
-                    Text("Upcoming events".uppercased())
-//                        .foregroundColor(.white)
-//                        .font(.caption)
-//                        .bold()
-//                        .modifier(CapsuleSmall(background: .red, foreground: .white))
-//                        .frame(maxWidth: .infinity)
+                    Text("Upcoming events")//.uppercased())
                         .font(.title3).bold()
                         .foregroundStyle(.secondary)
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -286,15 +281,19 @@ struct PlaceView: View {
         .buttonStyle(PlainButtonStyle())
     }
     
-    private var map: some View {
+    
+    @ViewBuilder
+    private func createMap(geometry: CGSize) -> some View {
         VStack {
-            Map(position: $viewModel.position, interactionModes: []) {
-                Marker("", monogram: Text(viewModel.place.type.getImage()), coordinate: viewModel.place.coordinate)
+            Map(position: $viewModel.position, interactionModes: [], selection: $viewModel.selectedTag) {
+                Marker(viewModel.place.name, monogram: Text(viewModel.place.type.getImage()), coordinate: viewModel.place.coordinate)
                     .tint(viewModel.place.type.getColor())
+                    .tag(viewModel.place.tag)
+                    .annotationTitles(.hidden)
             }
             .mapStyle(.standard(elevation: .flat, pointsOfInterest: .including([.publicTransport])))
             .mapControlVisibility(.hidden)
-            .frame(height: 300)
+            .frame(height: geometry.width)
             .clipShape(RoundedRectangle(cornerRadius: 0))
             .onAppear {
                 viewModel.position = .camera(MapCamera(centerCoordinate: viewModel.place.coordinate, distance: 500))
