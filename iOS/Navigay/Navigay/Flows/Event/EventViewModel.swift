@@ -30,7 +30,7 @@ extension EventView {
         let eventNetworkManager: EventNetworkManagerProtocol
         let errorManager: ErrorManagerProtocol
         
-        
+     //   var isLoading: Bool = false //todo если event.complite == nil
      //   var allPlaces: [Place] = []// обновление ?????????
 
         //MARK: - Inits
@@ -46,8 +46,9 @@ extension EventView {
         //MARK: - Functions
         
         func loadEvent() {
+            print("loadEvent()")
             Task {
-                if eventNetworkManager.loadedEvents.contains(where: { $0 == event.id}) {
+                guard !eventNetworkManager.loadedEvents.contains(where: { $0 == event.id}) else {
                     return
                 }
                 guard let decodedEvent = await eventNetworkManager.fetchEvent(id: event.id) else {

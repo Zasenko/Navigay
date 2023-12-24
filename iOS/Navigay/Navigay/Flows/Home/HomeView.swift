@@ -23,7 +23,7 @@ struct HomeView: View {
          eventNetworkManager: EventNetworkManagerProtocol,
          locationManager: LocationManager,
          errorManager: ErrorManagerProtocol) {
-        _viewModel = State(wrappedValue: HomeViewModel(modelContext: modelContext, aroundNetworkManager: aroundNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager))
+        _viewModel = State(initialValue: HomeViewModel(modelContext: modelContext, aroundNetworkManager: aroundNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager))
         _locationManager = ObservedObject(wrappedValue: locationManager)
     }
 
