@@ -12,7 +12,7 @@ import CoreLocation
 extension HomeView {
     
     @Observable
-    class HomeViewModel {
+     class HomeViewModel {
         
         var modelContext: ModelContext
         

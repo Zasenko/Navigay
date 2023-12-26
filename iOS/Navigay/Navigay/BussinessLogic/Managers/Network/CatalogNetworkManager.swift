@@ -18,8 +18,8 @@ protocol CatalogNetworkManagerProtocol {
     var loadedCountries: [Int] { get }
     var loadedCities: [Int] { get }
     func fetchCountries() async -> [DecodedCountry]?
-    func fetchCountry(id: Int) async throws -> CountryResult
-    func fetchCity(id: Int) async throws -> CityResult
+    func fetchCountry(id: Int) async -> DecodedCountry?
+    func fetchCity(id: Int) async -> DecodedCity?
 }
 
 final class CatalogNetworkManager {
@@ -50,6 +50,7 @@ final class CatalogNetworkManager {
 // MARK: - AuthNetworkManagerProtocol
 
 extension CatalogNetworkManager: CatalogNetworkManagerProtocol {
+    
     func fetchCountries() async -> [DecodedCountry]? {
         let errorModel = ErrorModel(massage: "Something went wrong. The information has not been updated. Please try again later.", img: nil, color: nil)
         debugPrint("--- fetchCountries()")
@@ -93,8 +94,10 @@ extension CatalogNetworkManager: CatalogNetworkManagerProtocol {
         }
     }
     
-    func fetchCountry(id: Int) async throws -> CountryResult {
+    func fetchCountry(id: Int) async -> DecodedCountry? {
+        let errorModel = ErrorModel(massage: "Something went wrong. The information has not been updated. Please try again later.", img: nil, color: nil)
         debugPrint("--- fetchCountry() id: ", id)
+        
         let path = "/api/catalog/get-country.php"
         var urlComponents: URLComponents {
             var components = URLComponents()
@@ -107,12 +110,13 @@ extension CatalogNetworkManager: CatalogNetworkManagerProtocol {
             ]
             return components
         }
-        guard let url = urlComponents.url else {
-            throw NetworkErrors.bedUrl
-        }
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
+       
         do {
+            guard let url = urlComponents.url else {
+                throw NetworkErrors.bedUrl
+            }
+            var request = URLRequest(url: url)
+            request.httpMethod = "GET"
             let (data, response) = try await URLSession.shared.data(for: request)
             guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
                 throw NetworkErrors.invalidData
@@ -120,18 +124,26 @@ extension CatalogNetworkManager: CatalogNetworkManagerProtocol {
             guard let decodedResult = try? JSONDecoder().decode(CountryResult.self, from: data) else {
                 throw NetworkErrors.decoderError
             }
-            guard let countryId = decodedResult.country?.id else {
-                throw CatalogNetworkManagerErrors.noCountry
+            
+            guard decodedResult.result, let decodedCountry = decodedResult.country else {
+                errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: errorModel)
+                debugPrint("API ERROR - CatalogNetworkManager fetchCountry id: \(id) - ", decodedResult.error?.message ?? "")
+                return nil
             }
-            loadedCountries.append(countryId)
-            return decodedResult
+            
+            loadedCountries.append(decodedCountry.id)
+            return decodedCountry
         } catch {
-            throw error
+            errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
+            debugPrint("ERROR - CatalogNetworkManager fetchCountry id: \(id) - ", error)
+            return nil
         }
     }
     
-    func fetchCity(id: Int) async throws -> CityResult {
+    func fetchCity(id: Int) async -> DecodedCity? {
+        let errorModel = ErrorModel(massage: "Something went wrong. The information has not been updated. Please try again later.", img: nil, color: nil)
         debugPrint("--- fetchCity() id: ", id)
+        
         let path = "/api/catalog/get-city.php"
         var urlComponents: URLComponents {
             var components = URLComponents()
@@ -144,12 +156,12 @@ extension CatalogNetworkManager: CatalogNetworkManagerProtocol {
             ]
             return components
         }
-        guard let url = urlComponents.url else {
-            throw NetworkErrors.bedUrl
-        }
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
         do {
+            guard let url = urlComponents.url else {
+                throw NetworkErrors.bedUrl
+            }
+            var request = URLRequest(url: url)
+            request.httpMethod = "GET"
             let (data, response) = try await URLSession.shared.data(for: request)
             guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
                 throw NetworkErrors.invalidData
@@ -157,13 +169,18 @@ extension CatalogNetworkManager: CatalogNetworkManagerProtocol {
             guard let decodedResult = try? JSONDecoder().decode(CityResult.self, from: data) else {
                 throw NetworkErrors.decoderError
             }
-            guard let cityId = decodedResult.city?.id else {
-                throw CatalogNetworkManagerErrors.noCity
+            
+            guard decodedResult.result, let decodedCity = decodedResult.city else {
+                errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: errorModel)
+                debugPrint("API ERROR - CatalogNetworkManager fetchCity id: \(id) - ", decodedResult.error?.message ?? "")
+                return nil
             }
-            loadedCities.append(cityId)
-            return decodedResult
+            loadedCities.append(decodedCity.id)
+            return decodedCity
         } catch {
-            throw error
+            errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
+            debugPrint("ERROR - CatalogNetworkManager fetchCity id: \(id) - ", error)
+            return nil
         }
     }
 }

@@ -23,7 +23,7 @@ struct EventView: View {
     // MARK: - Init
     
     init(isEventViewPresented: Binding<Bool>, event: Event, modelContext: ModelContext, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol) {
-        
+        debugPrint("init EventView, event id: ", event.id)
         let viewModel = EventViewModel(event: event, modelContext: modelContext, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager)
         
         _viewModel = State(wrappedValue: viewModel)

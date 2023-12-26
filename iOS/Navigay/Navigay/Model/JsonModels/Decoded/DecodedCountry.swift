@@ -26,7 +26,7 @@ struct DecodedCountry: Identifiable, Codable {
     let isoCountryCode: String
     let name: String
     let flagEmoji: String
-    let photo: String
+    let photo: String?
     let showRegions: Bool
     let isActive: Bool
     let lastUpdate: String

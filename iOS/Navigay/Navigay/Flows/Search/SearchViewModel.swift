@@ -18,15 +18,19 @@ extension SearchView {
         
         var searchText: String = ""
         
+        var isLoading: Bool = false
+        
         let catalogNetworkManager: CatalogNetworkManagerProtocol
         let placeNetworkManager: PlaceNetworkManagerProtocol
         let eventNetworkManager: EventNetworkManagerProtocol
+        let errorManager: ErrorManagerProtocol
         
-        init(modelContext: ModelContext, catalogNetworkManager: CatalogNetworkManagerProtocol, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol) {
+        init(modelContext: ModelContext, catalogNetworkManager: CatalogNetworkManagerProtocol, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol) {
             self.modelContext = modelContext
             self.catalogNetworkManager = catalogNetworkManager
             self.eventNetworkManager = eventNetworkManager
             self.placeNetworkManager = placeNetworkManager
+            self.errorManager = errorManager
         }
         
         func fetch() {
@@ -45,6 +49,7 @@ extension SearchView {
                                 countries.append(country)
                             }
                         }
+                        isLoading = false
                     }
                 }
             }
@@ -54,6 +59,9 @@ extension SearchView {
             do {
                 let descriptor = FetchDescriptor<Country>(sortBy: [SortDescriptor(\.name)])
                 countries = try modelContext.fetch(descriptor)
+                if countries.isEmpty {
+                    isLoading = true
+                }
             } catch {
                 debugPrint(error)
             }

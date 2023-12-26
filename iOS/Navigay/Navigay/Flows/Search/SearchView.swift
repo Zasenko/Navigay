@@ -12,15 +12,21 @@ struct SearchView: View {
     
     @State private var viewModel: SearchViewModel
     
-    init(modelContext: ModelContext, catalogNetworkManager: CatalogNetworkManagerProtocol, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol) {
+    init(modelContext: ModelContext, catalogNetworkManager: CatalogNetworkManagerProtocol, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol) {
         
-        _viewModel = State(initialValue: SearchViewModel(modelContext: modelContext, catalogNetworkManager: catalogNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager))
+        _viewModel = State(initialValue: SearchViewModel(modelContext: modelContext, catalogNetworkManager: catalogNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager))
         
         viewModel.getCountriesFromDB()
         viewModel.fetch()
     }
     
     var body: some View {
+        if viewModel.isLoading {
+            ProgressView()
+                .tint(.blue)
+                .frame(maxHeight: .infinity)
+        } else {
+            
         NavigationStack {
             VStack(spacing: 0) {
                 Divider()
@@ -43,6 +49,7 @@ struct SearchView: View {
 //                    fetch()
 //                }
         }
+    }
     }
     
     var SearchView: some View {
@@ -74,7 +81,7 @@ struct SearchView: View {
     private var ListView: some View {
         List(viewModel.countries) { country in
             NavigationLink {
-                CountryView(country: country, catalogNetworkManager: viewModel.catalogNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager)
+                CountryView(modelContext: viewModel.modelContext, country: country, catalogNetworkManager: viewModel.catalogNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager)
             } label: {
                 HStack(alignment: .center, spacing: 20) {
                     Text(country.flagEmoji)

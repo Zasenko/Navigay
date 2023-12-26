@@ -39,10 +39,12 @@ final class City {
         }
     }
     
-    func updateCity(decodedCity: DecodedCity) {
-        name = decodedCity.name
-        photo = decodedCity.photo
-        about = decodedCity.about
-        isActive = decodedCity.isActive
+    func updateCityComplite(decodedCity: DecodedCity) {
+        let lastUpdate = decodedCity.lastUpdate.dateFromString(format: "yyyy-MM-dd HH:mm:ss")
+        if lastUpdateComplite != lastUpdate {
+            updateCityIncomplete(decodedCity: decodedCity)
+            about = decodedCity.about
+            photos = decodedCity.photos ?? []
+        }
     }
 }
