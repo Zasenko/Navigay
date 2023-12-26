@@ -117,9 +117,9 @@ struct EditRegionView: View {
     }
 }
 
-#Preview {
-    let errorManager = ErrorManager()
-    let networkManager = AdminNetworkManager()
-    let region = AdminRegion(id: 0, countryId: 0, nameOrigin: nil, nameEn: nil, nameFr: nil, nameDe: nil, nameRu: nil, nameIt: nil, nameEs: nil, namePt: nil, photo: nil, isActive: false, isChecked: false)
-    return EditRegionView(viewModel: EditRegionViewModel(region: region, errorManager: errorManager, networkManager: networkManager))
-}
+//#Preview {
+//    let errorManager = ErrorManager()
+//    let networkManager = AdminNetworkManager()
+//    let region = AdminRegion(id: 0, countryId: 0, nameOrigin: nil, nameEn: nil, nameFr: nil, nameDe: nil, nameRu: nil, nameIt: nil, nameEs: nil, namePt: nil, photo: nil, isActive: false, isChecked: false)
+//    return EditRegionView(viewModel: EditRegionViewModel(region: region, errorManager: errorManager, networkManager: networkManager))
+//}

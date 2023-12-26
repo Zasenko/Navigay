@@ -15,15 +15,9 @@ struct CityView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel: CityViewModel
     
-   // @Namespace var namespace
-    // @State private var groupedExpenses: [GroupedExpenses] = []
-    // @State private var originalGroupedPlaces: [PlaceType: [Place]] = [:]
-    
-    
     init(modelContext: ModelContext, city: City, catalogNetworkManager: CatalogNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, placeNetworkManager: PlaceNetworkManagerProtocol, errorManager: ErrorManagerProtocol) {
         debugPrint("init CityView, city id: ", city.id)
         _viewModel = State(initialValue: CityViewModel(modelContext: modelContext, city: city, catalogNetworkManager: catalogNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager))
-        
     }
     
     var body: some View {
@@ -31,16 +25,21 @@ struct CityView: View {
             GeometryReader { geometry in
                 VStack(spacing: 0) {
                     Divider()
-                    ListView(width: geometry.size.width)
-                    
+                    listView(width: geometry.size.width)
                 }
                 .toolbarTitleDisplayMode(.inline)
                 .toolbarBackground(AppColors.background)
                 .navigationBarBackButtonHidden()
                 .toolbar {
                     ToolbarItem(placement: .principal) {
-                        Text(viewModel.city.name)
-                            .font(.title2.bold())
+                        HStack(spacing: 10) {
+                            if viewModel.isLoading {
+                                ProgressView()
+                                    .tint(.blue)
+                            }
+                            Text(viewModel.city.name)
+                                .font(.title2.bold())
+                        }
                     }
                     ToolbarItem(placement: .topBarLeading) {
                         Button {
@@ -54,8 +53,18 @@ struct CityView: View {
                         }
                         .tint(.primary)
                     }
+//                    
+//                    ToolbarItem(placement: .topBarTrailing) {
+//                        Button("Edit") {
+//                            guard let region = viewModel.city.region , let country = region.country else {
+//                                return
+//                            }
+//                            let adminCity = AdminCity(id: viewModel.city.id, countryId: country.id, regionId: region.id, nameOrigin: nil, nameEn: nil, nameFr: nil, nameDe: nil, nameRu: nil, nameIt: nil, nameEs: nil, namePt: nil, about: nil, photo: nil, photos: nil, isActive: viewModel.city.isActive, isChecked: false)
+//                            viewModel.adminCity = adminCity
+//                        }
+//                    }
                 }
-                
+                //todo проверить вариант вместо viewModel обновлять каждый раз после обновления из интернета
 //                .onChange(of: viewModel.city.places, initial: true) { oldValue, newValue in
 //                    viewModel.createGrouppedExpenses(newValue)
 //                }
@@ -64,7 +73,7 @@ struct CityView: View {
     }
     
     @ViewBuilder
-    private func ListView(width: CGFloat) -> some View {
+    private func listView(width: CGFloat) -> some View {
         List {
             // TODO: Photo tab view
             if let url = viewModel.city.photo {
@@ -77,13 +86,38 @@ struct CityView: View {
             }
             
             if viewModel.displayedEvents.count > 0 {
-                EventsView(width: width)
+                eventsView(width: width)
             }
             placesView
+            
+            if let about = viewModel.city.about {
+                Text(about)
+                    .padding(.vertical, 20)
+                    .listRowSeparator(.hidden)
+                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+            }
             Color.clear
                 .frame(height: 50)
                 .listSectionSeparator(.hidden)
+            
+
+//            if let region = viewModel.city.region,
+//               let country = region.country,
+//               let adminCity = AdminCity(id: viewModel.city.id, countryId: country.id, regionId: region.id, nameOrigin: nil, nameEn: nil, nameFr: nil, nameDe: nil, nameRu: nil, nameIt: nil, nameEs: nil, namePt: nil, about: nil, photo: nil, photos: nil, isActive: viewModel.city.isActive, isChecked: false) {
+//                NavigationLink("Edit", value: adminCity)
+//            }
+            Button("Edit") {
+                guard let region = viewModel.city.region , let country = region.country else {
+                    return
+                }
+                let adminCity = AdminCity(id: viewModel.city.id, countryId: country.id, regionId: region.id, nameOrigin: nil, nameEn: nil, nameFr: nil, nameDe: nil, nameRu: nil, nameIt: nil, nameEs: nil, namePt: nil, about: nil, photo: nil, photos: nil, isActive: viewModel.city.isActive, isChecked: false)
+                viewModel.adminCity = adminCity
+            }
+            .navigationDestination(item: $viewModel.adminCity) { adminCity in
+                EditCityView(viewModel: EditCityViewModel(city: adminCity, errorManager: viewModel.errorManager, networkManager: AdminNetworkManager(errorManager: viewModel.errorManager)))
+            }
         }
+        
         .listSectionSeparator(.hidden)
         .listStyle(.plain)
         .scrollIndicators(.hidden)
@@ -91,10 +125,13 @@ struct CityView: View {
         .onAppear() {
             viewModel.getPlacesAndEventsFromDB()
         }
+//        .navigationDestination(for: AdminCity.self) { adminCity in
+//            EditCityView(viewModel: EditCityViewModel(city: adminCity, errorManager: viewModel.errorManager, networkManager: AdminNetworkManager(errorManager: viewModel.errorManager)))
+//            }
     }
     
     @ViewBuilder
-    private func EventsView(width: CGFloat) -> some View {
+    private func eventsView(width: CGFloat) -> some View {
         Section {
             HStack {
                 Text(viewModel.selectedDate?.formatted(date: .long, time: .omitted) ?? "Upcoming events")

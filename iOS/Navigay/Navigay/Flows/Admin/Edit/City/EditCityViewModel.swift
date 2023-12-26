@@ -73,6 +73,7 @@ final class EditCityViewModel: ObservableObject {
     // MARK: - Inits
     
     init(city: AdminCity, errorManager: ErrorManagerProtocol, networkManager: AdminNetworkManagerProtocol) {
+        debugPrint("init EditCityViewModel city id: \(city.id)")
         self.errorManager = errorManager
         self.networkManager = networkManager
         self.id = city.id
@@ -93,17 +94,49 @@ final class EditCityViewModel: ObservableObject {
         self.isChecked = city.isChecked
         self.photo = AdminPhoto(id: UUID().uuidString, image: nil, url: city.photo)
         if let photos = city.photos, !photos.isEmpty {
-            let a = photos.compactMap( { AdminPhoto(id: $0.id, image: nil, url: $0.url)})
-            self.photos = a
+            let adminPhotos = photos.compactMap( { AdminPhoto(id: $0.id, image: nil, url: $0.url)})
+            self.photos = adminPhotos
         } else {
             self.photos = []
         }
+        fetchCity()
     }
 }
 
 extension EditCityViewModel {
     
     //MARK: - Functions
+    
+    func fetchCity() {
+        Task {
+            guard let decodedCity = await networkManager.fetchCity(id: id) else {
+                //TODO!!!!!!!!!!!! на вью назад
+                return
+            }
+            await MainActor.run {
+                self.nameOrigin = decodedCity.nameOrigin ?? ""
+                self.nameEn = decodedCity.nameEn ?? ""
+                self.nameFr = decodedCity.nameFr ?? ""
+                self.nameDe = decodedCity.nameDe ?? ""
+                self.nameRu = decodedCity.nameRu ?? ""
+                self.nameIt = decodedCity.nameIt ?? ""
+                self.nameEs = decodedCity.nameEs ?? ""
+                self.namePt = decodedCity.namePt ?? ""
+                self.about = decodedCity.about?.map({ NewPlaceAbout(language: $0.language, about: $0.about) }) ?? []
+                let existingLanguages = decodedCity.about?.map( { $0.language } ) ?? []
+                self.languages = Language.allCases.filter { !existingLanguages.contains($0) }
+                self.isActive = decodedCity.isActive
+                self.isChecked = decodedCity.isChecked
+                self.photo = AdminPhoto(id: UUID().uuidString, image: nil, url: decodedCity.photo)
+                if let photos = decodedCity.photos, !photos.isEmpty {
+                    let adminPhotos = photos.compactMap( { AdminPhoto(id: $0.id, image: nil, url: $0.url)})
+                    self.photos = adminPhotos
+                } else {
+                    self.photos = []
+                }
+            }
+        }
+    }
     
     func updateInfo() async -> Bool {
         let errorModel = ErrorModel(massage: "Something went wrong. The city didn't update in database. Please try again later.", img: nil, color: nil)

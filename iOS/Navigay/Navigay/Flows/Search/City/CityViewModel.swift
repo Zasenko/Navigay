@@ -14,7 +14,7 @@ extension CityView {
         
         var modelContext: ModelContext
         let city: City
-        var isLoading: Bool = true // TODO: isLoading
+        var isLoading: Bool = false // TODO: isLoading
         
         var groupedPlaces: [PlaceType: [Place]] = [:]
         
@@ -30,6 +30,9 @@ extension CityView {
         let eventNetworkManager: EventNetworkManagerProtocol
         let errorManager: ErrorManagerProtocol
         
+        var showEditCityView: Bool = false
+        var adminCity: AdminCity? = nil
+        
         init(modelContext: ModelContext, city: City, catalogNetworkManager: CatalogNetworkManagerProtocol, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol) {
             debugPrint("init CityViewModel, city id: ", city.id)
             self.modelContext = modelContext
@@ -38,12 +41,12 @@ extension CityView {
             self.eventNetworkManager = eventNetworkManager
             self.placeNetworkManager = placeNetworkManager
             self.errorManager = errorManager
-            if city.lastUpdateComplite == nil {
-                isLoading = true
-            }
         }
         
         func getPlacesAndEventsFromDB() {
+            if city.lastUpdateComplite == nil {
+                isLoading = true
+            }
             Task {
                 await createGroupedPlaces(places: city.places)
                 await getEventsForCity()
@@ -52,19 +55,20 @@ extension CityView {
         }
         
         private func fetch() async {
-            if !catalogNetworkManager.loadedCities.contains(where: { $0 == city.id}) {
-                guard let decodedCity = await catalogNetworkManager.fetchCity(id: city.id) else {
-                    isLoading = false
-                    return
-                }
-                
+            guard !catalogNetworkManager.loadedCities.contains(where: { $0 == city.id}),
+                  let decodedCity = await catalogNetworkManager.fetchCity(id: city.id) else {
                 await MainActor.run {
-                    city.updateCityComplite(decodedCity: decodedCity)
-                    updatePlaces(decodedPlaces: decodedCity.places)
-                    updateEvents(decodedEvents: decodedCity.events)
                     isLoading = false
                 }
+                return
             }
+            await MainActor.run {
+                city.updateCityComplite(decodedCity: decodedCity)
+                updatePlaces(decodedPlaces: decodedCity.places)
+                updateEvents(decodedEvents: decodedCity.events)
+                isLoading = false
+            }
+            
         }
         
         private func getEventsForCity() async {
