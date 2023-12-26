@@ -130,12 +130,13 @@ struct CityView: View {
         .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
         .onChange(of: viewModel.selectedDate, initial: false) { oldValue, newValue in
             viewModel.showCalendar = false
-            if let date = newValue {
-                viewModel.getEvents(for: date)
-            } else {
-                viewModel.getUpcomingEvents(for: viewModel.city.events)
+            Task {
+                if let date = newValue {
+                    await viewModel.getEvents(for: date)
+                } else {
+                    await viewModel.getUpcomingEvents(for: viewModel.city.events)
+                }
             }
-            
         }
         .sheet(isPresented:  $viewModel.showCalendar) {
             CalendarView(selectedDate: $viewModel.selectedDate, eventsDates: $viewModel.eventsDates)
