@@ -40,7 +40,7 @@ struct PlaceAdditionalFieldsView: View {
                         Divider()
                             .padding(.horizontal)
                         NavigationLink {
-                            EditTextFieldView(text: viewModel.www, characterLimit: 100, minHaracters: 0, title: "Web page", placeholder: "www") { string in
+                            EditTextFieldView(text: viewModel.www, characterLimit: 255, minHaracters: 0, title: "Web page", placeholder: "www") { string in
                                 viewModel.www = string
                             }
                         } label: {
@@ -49,7 +49,7 @@ struct PlaceAdditionalFieldsView: View {
                         Divider()
                             .padding(.horizontal)
                         NavigationLink {
-                            EditTextFieldView(text: viewModel.facebook, characterLimit: 100, minHaracters: 0, title: "Facebook", placeholder: "Facebook") { string in
+                            EditTextFieldView(text: viewModel.facebook, characterLimit: 255, minHaracters: 0, title: "Facebook", placeholder: "Facebook") { string in
                                 viewModel.facebook = string
                             }
                         } label: {
@@ -58,7 +58,7 @@ struct PlaceAdditionalFieldsView: View {
                         Divider()
                             .padding(.horizontal)
                         NavigationLink {
-                            EditTextFieldView(text: viewModel.instagram, characterLimit: 100, minHaracters: 0, title: "Instagram", placeholder: "Instagram") { string in
+                            EditTextFieldView(text: viewModel.instagram, characterLimit: 255, minHaracters: 0, title: "Instagram", placeholder: "Instagram") { string in
                                 viewModel.instagram = string
                             }
                         } label: {
@@ -82,7 +82,7 @@ struct PlaceAdditionalFieldsView: View {
                         workdays
                     }
                     NavigationLink {
-                        EditTextEditorView(title: "Other information", text: "Information", characterLimit: 255) { string in
+                        EditTextEditorView(title: "Other information", text: viewModel.otherInfo, characterLimit: 255) { string in
                             viewModel.otherInfo = string
                         }
                     } label: {
@@ -203,11 +203,11 @@ struct PlaceAdditionalFieldsView: View {
     }
 }
 
-#Preview {
-    let decodetUser = DecodedAppUser(id: 0, name: "Test", email: "test@test.com", status: .admin, bio: nil, photo: nil, instagram: nil, likedPlacesId: nil)
-    let user = AppUser(decodedUser: decodetUser)
-    let errorManager = ErrorManager()
-    let appSettingsManager = AppSettingsManager()
-    let networkManage = PlaceNetworkManager(appSettingsManager: appSettingsManager)
-    return PlaceAdditionalFieldsView(viewModel: AddNewPlaceViewModel(user: user, networkManager: networkManage, errorManager: errorManager))
-}
+//#Preview {
+//    let decodetUser = DecodedAppUser(id: 0, name: "Test", email: "test@test.com", status: .admin, bio: nil, photo: nil, instagram: nil, likedPlacesId: nil)
+//    let user = AppUser(decodedUser: decodetUser)
+//    let errorManager = ErrorManager()
+//    let appSettingsManager = AppSettingsManager()
+//    let networkManage = PlaceNetworkManager(appSettingsManager: appSettingsManager)
+//    return PlaceAdditionalFieldsView(viewModel: AddNewPlaceViewModel(user: user, networkManager: networkManage, errorManager: errorManager))
+//}

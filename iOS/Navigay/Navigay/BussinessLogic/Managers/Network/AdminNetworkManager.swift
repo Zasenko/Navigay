@@ -8,6 +8,10 @@
 import SwiftUI
 
 protocol AdminNetworkManagerProtocol {
+    
+    func getCountries() async  -> [AdminCountry]?
+    func fetchCity(id: Int) async  -> AdminCity?
+    
     func getAdminInfo() async throws -> AdminInfoResult
     func updateCountry(country: AdminCountry) async throws -> ApiResult
     func updateCountryPhoto(countryId: Int, uiImage: UIImage) async throws -> ImageResult
@@ -25,11 +29,95 @@ final class AdminNetworkManager {
     
     private let scheme = "https"
     private let host = "www.navigay.me"
+    
+    private let errorManager: ErrorManagerProtocol
+    
+    init(errorManager: ErrorManagerProtocol) {
+        self.errorManager = errorManager
+    }
 }
 
 // MARK: - AuthNetworkManagerProtocol
 
 extension AdminNetworkManager: AdminNetworkManagerProtocol {
+    
+    func fetchCity(id: Int) async -> AdminCity? {
+        let errorModel = ErrorModel(massage: "Something went wrong. The information has not been updated. Please try again later.", img: nil, color: nil)
+        debugPrint("--- AdminNetworkManager fetchCity id \(id)")
+        let path = "/api/admin/get-city.php"
+        var urlComponents: URLComponents {
+            var components = URLComponents()
+            components.scheme = scheme
+            components.host = host
+            components.path = path
+            components.queryItems = [
+                URLQueryItem(name: "id", value: String(id)),
+            ]
+            return components
+        }
+        do {
+            guard let url = urlComponents.url else {
+                throw NetworkErrors.bedUrl
+            }
+            var request = URLRequest(url: url)
+            request.httpMethod = "GET"
+            let (data, response) = try await URLSession.shared.data(for: request)
+            guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
+                throw NetworkErrors.invalidData
+            }
+            guard let decodedResult = try? JSONDecoder().decode(AdminCityResult.self, from: data) else {
+                throw NetworkErrors.decoderError
+            }
+            guard decodedResult.result, let decodedCity = decodedResult.city else {
+                errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: errorModel)
+                debugPrint("-API ERROR- AdminNetworkManager fetchCity id \(id) : ", decodedResult.error?.message ?? "")
+                return nil
+            }
+            return decodedCity
+        } catch {
+            errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
+            debugPrint("-ERROR- AdminNetworkManager fetchCity id \(id) : ", error)
+            return nil
+        }
+    }
+    
+    
+    func getCountries() async  -> [AdminCountry]? {
+        let errorModel = ErrorModel(massage: "Something went wrong. The information has not been updated. Please try again later.", img: nil, color: nil)
+        debugPrint("--- AdminNetworkManager getCountries()")
+        let path = "/api/admin/get-countries.php"
+        var urlComponents: URLComponents {
+            var components = URLComponents()
+            components.scheme = scheme
+            components.host = host
+            components.path = path
+            return components
+        }
+        do {
+            guard let url = urlComponents.url else {
+                throw NetworkErrors.bedUrl
+            }
+            var request = URLRequest(url: url)
+            request.httpMethod = "GET"
+            let (data, response) = try await URLSession.shared.data(for: request)
+            guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
+                throw NetworkErrors.invalidData
+            }
+            guard let decodedResult = try? JSONDecoder().decode(AdminCountriesResult.self, from: data) else {
+                throw NetworkErrors.decoderError
+            }
+            guard decodedResult.result, let decodedCountries = decodedResult.countries else {
+                errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: errorModel)
+                debugPrint("-API ERROR- AdminNetworkManager getCountries: ", decodedResult.error?.message ?? "")
+                return nil
+            }
+            return decodedCountries
+        } catch {
+            errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
+            debugPrint("-ERROR- AdminNetworkManager getCountries : ", error)
+            return nil
+        }
+    }
     
     func getAdminInfo() async throws -> AdminInfoResult {
         debugPrint("--- getAdminInfo()")

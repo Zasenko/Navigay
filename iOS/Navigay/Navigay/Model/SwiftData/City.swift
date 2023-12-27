@@ -5,6 +5,7 @@
 //  Created by Dmitry Zasenko on 02.10.23.
 //
 
+import Foundation
 import SwiftData
 
 @Model
@@ -12,11 +13,16 @@ final class City {
     let id: Int
     var name: String = ""
     var photo: String? = nil
+    var photos: [String] = []
     var about: String? = nil
-    var isActive: Bool = true
+    var isActive: Bool = false
     var region: Region? = nil
+    
     @Relationship(deleteRule: .cascade, inverse: \Place.city) var places: [Place] = []
     @Relationship(deleteRule: .cascade, inverse: \Event.city) var events: [Event] = []
+    
+    var lastUpdateIncomplete: Date? = nil
+    var lastUpdateComplite: Date? = nil
         
     init(decodedCity: DecodedCity) {
         self.id = decodedCity.id
@@ -24,15 +30,30 @@ final class City {
     }
     
     func updateCityIncomplete(decodedCity: DecodedCity) {
-        name = decodedCity.name
-        photo = decodedCity.photo
-        isActive = decodedCity.isActive
+        let lastUpdate = decodedCity.lastUpdate.dateFromString(format: "yyyy-MM-dd HH:mm:ss")
+        if lastUpdateIncomplete != lastUpdate {
+            name = decodedCity.name
+            photo = decodedCity.photo
+            isActive = decodedCity.isActive
+            lastUpdateIncomplete = lastUpdate
+        }
     }
     
-    func updateCity(decodedCity: DecodedCity) {
-        name = decodedCity.name
-        photo = decodedCity.photo
-        about = decodedCity.about
-        isActive = decodedCity.isActive
+    func updateCityComplite(decodedCity: DecodedCity) {
+        let lastUpdate = decodedCity.lastUpdate.dateFromString(format: "yyyy-MM-dd HH:mm:ss")
+        if lastUpdateComplite != lastUpdate {
+            updateCityIncomplete(decodedCity: decodedCity)
+            about = decodedCity.about
+            photos = decodedCity.photos ?? []
+        }
+    }
+    
+    func getAllPhotos() -> [String] {
+        var allPhotos: [String] = []
+        if let photo {
+            allPhotos.append(photo)
+        }
+        photos.forEach( { allPhotos.append($0) } )
+        return allPhotos
     }
 }

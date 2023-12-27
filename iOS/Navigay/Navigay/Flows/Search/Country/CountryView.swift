@@ -1,0 +1,92 @@
+//
+//  CountryView.swift
+//  Navigay
+//
+//  Created by Dmitry Zasenko on 02.10.23.
+//
+
+import SwiftUI
+import SwiftData
+
+struct CountryView: View {
+    
+    @State private var viewModel: CountryViewModel
+    @Environment(\.dismiss) private var dismiss
+    @ObservedObject var authenticationManager: AuthenticationManager // TODO: убрать юзера из вью модели так как он в authenticationManager
+    
+    init(modelContext: ModelContext,
+         country: Country,
+         catalogNetworkManager: CatalogNetworkManagerProtocol,
+         placeNetworkManager: PlaceNetworkManagerProtocol,
+         eventNetworkManager: EventNetworkManagerProtocol,
+         errorManager: ErrorManagerProtocol,
+         user: AppUser?,
+         authenticationManager: AuthenticationManager) {
+        _viewModel = State(initialValue: CountryViewModel(modelContext: modelContext, country: country, catalogNetworkManager: catalogNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, user: user))
+        _authenticationManager = ObservedObject(wrappedValue: authenticationManager)
+    }
+    
+    var body: some View {
+        NavigationStack {
+            GeometryReader { geometry in
+                List {
+                    if let url = viewModel.country.photo {
+                        ImageLoadingView(url: url, width: geometry.size.width, height: (geometry.size.width / 4) * 5, contentMode: .fill) {
+                            AppColors.lightGray6 // TODO: animation in ImageLoadingView
+                        }
+                        .clipped()
+                        .listRowSeparator(.hidden)
+                        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                    }
+                    if viewModel.country.showRegions {
+                        ForEach(viewModel.country.regions.filter( { $0.isActive == true } )) { region in
+                            RegionView(modelContext: viewModel.modelContext, region: region, catalogNetworkManager: viewModel.catalogNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, errorManager: viewModel.errorManager, user: viewModel.user, authenticationManager: authenticationManager)
+                        }
+                    } else {
+                        CitiesView(modelContext: viewModel.modelContext, cities: viewModel.country.regions.flatMap( { $0.cities.filter { $0.isActive == true } } ), catalogNetworkManager: viewModel.catalogNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, errorManager: viewModel.errorManager, user: viewModel.user, authenticationManager: authenticationManager)
+                    }
+                    
+                    Section {
+                        if let about = viewModel.country.about {
+                            Text(about)
+                                .font(.callout)
+                                .foregroundStyle(.secondary)
+                                .padding(.vertical, 50)
+                                .listRowSeparator(.hidden)
+                        }
+                    }
+                }
+                .listStyle(.plain)
+                .navigationBarBackButtonHidden()
+                .toolbarBackground(AppColors.background)
+                .toolbarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .principal) {
+                        Text("\(viewModel.country.flagEmoji) \(viewModel.country.name)")
+                            .font(.title2.bold())
+                    }
+                    ToolbarItem(placement: .topBarLeading) {
+                        Button {
+                            withAnimation {
+                                dismiss()
+                            }
+                        } label: {
+                            AppImages.iconLeft
+                                .bold()
+                                .frame(width: 30, height: 30, alignment: .leading)
+                        }
+                        .tint(.primary)
+                    }
+                }
+                .onAppear() {
+                    viewModel.fetch()
+                }
+            }
+        }
+    }
+}
+
+//
+//#Preview {
+//    CountryView(country: Country(decodedCountry: DecodedCountry(id: 1, isoCountryCode: "RUS", name: "Russia", flagEmoji: "🇷🇺", photo: "https://thumbs.dreamstime.com/b/церковь-pokrovsky-3476006.jpg", showRegions: true, isActive: true, about: "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text.", regions: [])), networkManager: CatalogNetworkManager(appSettingsManager: AppSettingsManager()))
+//}

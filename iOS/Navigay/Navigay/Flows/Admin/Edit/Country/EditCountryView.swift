@@ -129,9 +129,9 @@ struct EditCountryView: View {
     }
 }
 
-#Preview {
-    let errorManager = ErrorManager()
-    let networkManager = AdminNetworkManager()
-    let country = AdminCountry(id: 0, isoCountryCode: "AT", nameOrigin: nil, nameEn: nil, nameFr: nil, nameDe: nil, nameRu: nil, nameIt: nil, nameEs: nil, namePt: nil, about: nil, flagEmoji: nil, photo: nil, showRegions: true, isActive: true, isChecked: true)
-    return EditCountryView(viewModel: EditCountryViewModel(country: country, errorManager: errorManager, networkManager: networkManager))
-}
+//#Preview {
+//    let errorManager = ErrorManager()
+//    let networkManager = AdminNetworkManager()
+//    let country = AdminCountry(id: 0, isoCountryCode: "AT", nameOrigin: nil, nameEn: nil, nameFr: nil, nameDe: nil, nameRu: nil, nameIt: nil, nameEs: nil, namePt: nil, about: nil, flagEmoji: nil, photo: nil, showRegions: true, isActive: true, isChecked: true)
+//    return EditCountryView(viewModel: EditCountryViewModel(country: country, errorManager: errorManager, networkManager: networkManager))
+//}

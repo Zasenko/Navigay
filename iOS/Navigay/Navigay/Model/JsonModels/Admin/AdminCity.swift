@@ -7,7 +7,8 @@
 
 import Foundation
 
-struct AdminCity: Identifiable, Codable {
+struct AdminCity: Identifiable, Codable, Hashable  {
+    
     let id: Int
     let countryId: Int
     let regionId: Int
@@ -39,5 +40,13 @@ struct AdminCity: Identifiable, Codable {
         case namePt = "name_pt"
         case isActive = "is_active"
         case isChecked = "is_checked"
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+    
+    static func == (lhs: AdminCity, rhs: AdminCity) -> Bool {
+        return lhs.id == rhs.id
     }
 }

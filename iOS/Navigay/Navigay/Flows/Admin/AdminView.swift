@@ -10,7 +10,7 @@ import SwiftUI
 final class AdminViewModel: ObservableObject {
     
     let user: AppUser
-    let errorManager: ErrorManagerProtocol
+    let errorManager: ErrorManagerProtocol //todo  убрать
     let networkManager: AdminNetworkManagerProtocol
     
     @Published var uncheckedPlaces: [AdminPlace] = []
@@ -66,6 +66,20 @@ struct AdminView: View {
     var body: some View {
         NavigationStack {
             List {
+                Section {
+                    NavigationLink("Add new place") {
+                        NewPlaceView(viewModel: AddNewPlaceViewModel(user: viewModel.user, networkManager: PlaceNetworkManager(appSettingsManager: AppSettingsManager(), errorManager: viewModel.errorManager), errorManager: viewModel.errorManager))
+                    }
+                    NavigationLink("Add new event") {
+                        NewEventView(viewModel: NewEventViewModel(user: viewModel.user, place: nil, networkManager: EventNetworkManager(appSettingsManager: AppSettingsManager(), errorManager: viewModel.errorManager), errorManager: viewModel.errorManager))
+                    }
+                }
+                
+                Section {
+                    NavigationLink("Countries") {
+                        AdminCountriesView(viewModel: AdminCountriesViewModel(errorManager: viewModel.errorManager, networkManager: viewModel.networkManager))
+                    }
+                }
 //                Section("Unchecked Places") {
 //                    ForEach(viewModel.uncheckedPlaces) { place in
 //                        VStack {
@@ -144,16 +158,7 @@ struct AdminView: View {
                         }
                     }
                 }
-                Section {
-                    NavigationLink("Add new place") {
-                        NewPlaceView(viewModel: AddNewPlaceViewModel(user: viewModel.user, networkManager: PlaceNetworkManager(appSettingsManager: AppSettingsManager()), errorManager: viewModel.errorManager))
-                    }
-                    NavigationLink("Add new event") {
-                        NewEventView(viewModel: NewEventViewModel(user: viewModel.user, place: nil, networkManager: EventNetworkManager(appSettingsManager: AppSettingsManager()), errorManager: viewModel.errorManager))
-                    }
-                }
             }
-            .navigationTitle("Admin panel")
             .navigationBarBackButtonHidden()
             .toolbarBackground(AppColors.background)
             .toolbarTitleDisplayMode(.inline)
@@ -173,10 +178,10 @@ struct AdminView: View {
     }
 }
 
-#Preview {
-    let decodeduser = DecodedAppUser(id: 0, name: "Dima", email: "test@test.com", status: .admin, bio: nil, photo: nil, instagram: nil, likedPlacesId: nil)
-    let user = AppUser(decodedUser: decodeduser)
-    let errorManager = ErrorManager()
-    let networkManager = AdminNetworkManager()
-    return AdminView(viewModel: AdminViewModel(user: user, errorManager: errorManager, networkManager: networkManager))
-}
+//#Preview {
+//    let decodeduser = DecodedAppUser(id: 0, name: "Dima", email: "test@test.com", status: .admin, bio: nil, photo: nil, instagram: nil, likedPlacesId: nil)
+//    let user = AppUser(decodedUser: decodeduser)
+//    let errorManager = ErrorManager()
+//    let networkManager = AdminNetworkManager()
+//    return AdminView(viewModel: AdminViewModel(user: user, errorManager: errorManager, networkManager: networkManager))
+//}

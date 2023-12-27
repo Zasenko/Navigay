@@ -35,15 +35,14 @@ extension Date {
         return Calendar.current.isDateInWeekend(self)
     }
     
-//    /// Checking if the date is Today Same Day
-//    var isSameDay: Bool {
-//        return Calendar.current.compare(self, to: .init(), toGranularity: .day) == .orderedSame
-//    }
-
-    
     /// Checking if the date is Past Day form Today
     var isPastDate: Bool {
         return Calendar.current.compare(self, to: .init(), toGranularity: .day) == .orderedAscending
+    }
+    
+    /// Checking if the date is Future Day form Today
+    var isFutureDay: Bool {
+        return Calendar.current.compare(self, to: Date(), toGranularity: .day) == .orderedDescending
     }
     
     func getAllDatesBetween(finishDate: Date) -> [Date] {
@@ -64,17 +63,32 @@ extension Date {
         return components1.hour == components2.hour
     }
     
+    func isSameMonth(with otherDate: Date) -> Bool {
+        let calendar = Calendar.current
+        let components1 = calendar.dateComponents([.month], from: self)
+        let components2 = calendar.dateComponents([.month], from: otherDate)
+        return components1.month == components2.month
+    }
+    
     func isPastHour(of otherDate: Date) -> Bool {
         let calendar = Calendar.current
         let components1 = calendar.dateComponents([.hour], from: self)
         let components2 = calendar.dateComponents([.hour], from: otherDate)
-        return components1.hour! < components2.hour!
+        return components1.hour! < components2.hour!//TODO:  components1.hour!
     }
+    
     func isFutureHour(of otherDate: Date) -> Bool {
         let calendar = Calendar.current
         let components1 = calendar.dateComponents([.hour], from: self)
         let components2 = calendar.dateComponents([.hour], from: otherDate)
-        return components1.hour! > components2.hour!
+        return components1.hour! > components2.hour!//TODO:  components1.hour!
+    }
+    
+    func isFutureDay(of otherDate: Date) -> Bool {
+        let calendar = Calendar.current
+        let components1 = calendar.dateComponents([.day], from: self)
+        let components2 = calendar.dateComponents([.day], from: otherDate)
+        return components1.day! > components2.day!//TODO:  components1.hour!
     }
     
     /// next day from date
@@ -109,41 +123,13 @@ extension Date {
         }
     }
     
-//    /// Fetching week based on given date
-//    func fetchWeek(_ date: Date = .init()) -> [CalendarWeekDay] {
-//        let calendar = Calendar.current
-//        let startDate = calendar.startOfDay(for: date)
-//        
-//        var week: [CalendarWeekDay] = []
-//        let weekForDate = calendar.dateInterval(of: .weekOfMonth, for: startDate)
-//        guard let startOfWeek = weekForDate?.start else {
-//            return []
-//        }
-//        (0..<7).forEach { index in
-//            if let weekDay = calendar.date(byAdding: .day, value: index, to: startOfWeek) {
-//                week.append(.init(date: weekDay))
-//            }
-//        }
-//        return week
-//    }
-//    
-//    /// Creating Next Week, based on the Last Current Week's Date
-//    func createNextWeek() -> [CalendarWeekDay] {
-//        let calendar = Calendar.current
-//        let startOfLastDate = calendar.startOfDay(for: self)
-//        guard let nextDate = calendar.date (byAdding: .day, value: 1, to: startOfLastDate) else {
-//            return []
-//        }
-//        return fetchWeek(nextDate)
-//    }
-//    
-//    /// Creating Previous Week, based on the First Current Week's Date
-//    func createPreviousWeek() -> [CalendarWeekDay] {
-//        let calendar = Calendar.current
-//        let startOfFirstDate = calendar.startOfDay(for: self)
-//        guard let previousDate = calendar.date(byAdding: .day, value: -1, to: startOfFirstDate) else {
-//            return []
-//        }
-//        return fetchWeek(previousDate)
-//    }
+    /// for Calendar
+    func getAllMonthDates()-> [Date] {
+        let calendar = Calendar.current
+        let startDate = calendar.date(from: Calendar.current.dateComponents([.year, .month], from: self))!
+        let range = calendar.range(of: .day, in: .month, for: startDate)!
+        return range.compactMap { day -> Date in
+            return calendar.date (byAdding: .day, value: day - 1, to: startDate)!
+        }
+    }
 }

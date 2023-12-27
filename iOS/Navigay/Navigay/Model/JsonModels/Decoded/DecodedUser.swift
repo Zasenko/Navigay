@@ -14,8 +14,7 @@ struct DecodedAppUser: Codable, Identifiable {
     let status: UserAccessRights
     let bio: String?
     let photo: String?
-    let instagram: String?
-    let likedPlacesId: [Int]?
+    //let likedPlacesId: [Int]?
 }
 
 struct DecodedUser: Codable, Identifiable {
@@ -23,5 +22,4 @@ struct DecodedUser: Codable, Identifiable {
     let name: String
     let bio: String?
     let photo: String?
-    let instagram: String?
 }
