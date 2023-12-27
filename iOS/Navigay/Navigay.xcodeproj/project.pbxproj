@@ -43,6 +43,11 @@
 		0F354CCE2AFF713800594AE0 /* ActivationModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F354CCD2AFF713800594AE0 /* ActivationModel.swift */; };
 		0F354CD02AFF789600594AE0 /* EditField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F354CCF2AFF789600594AE0 /* EditField.swift */; };
 		0F354CD22AFF7F0400594AE0 /* NewEventViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F354CD12AFF7F0400594AE0 /* NewEventViewModel.swift */; };
+		0F459E1D2B3B43A200D7E843 /* RegionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F459E1C2B3B43A200D7E843 /* RegionView.swift */; };
+		0F459E1F2B3B43CC00D7E843 /* CitiesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F459E1E2B3B43CC00D7E843 /* CitiesView.swift */; };
+		0F459E212B3B55F800D7E843 /* DecodedComment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F459E202B3B55F800D7E843 /* DecodedComment.swift */; };
+		0F459E232B3B59F900D7E843 /* CommentsResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F459E222B3B59F900D7E843 /* CommentsResult.swift */; };
+		0F459E252B3B69A900D7E843 /* AddCommentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F459E242B3B69A900D7E843 /* AddCommentView.swift */; };
 		0F47347A2B03A13100C9B509 /* ImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F4734792B03A13100C9B509 /* ImagePicker.swift */; };
 		0F47347D2B03B73900C9B509 /* EditCountryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F47347C2B03B73900C9B509 /* EditCountryView.swift */; };
 		0F47347F2B03DE2C00C9B509 /* EditCountryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F47347E2B03DE2C00C9B509 /* EditCountryViewModel.swift */; };
@@ -131,6 +136,7 @@
 		0FAA79A82AE7D331003BB224 /* NewWorkingDay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FAA79A72AE7D331003BB224 /* NewWorkingDay.swift */; };
 		0FBABB8A2B2B590900A2B4FE /* ItemsResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FBABB892B2B590900A2B4FE /* ItemsResult.swift */; };
 		0FBABB8C2B2C5C9900A2B4FE /* MapSortingMenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FBABB8B2B2C5C9900A2B4FE /* MapSortingMenuView.swift */; };
+		0FC4BD8B2B3C25F60031DD4D /* AddCommentResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FC4BD8A2B3C25F60031DD4D /* AddCommentResult.swift */; };
 		0FC7B4D32B07CD910077E555 /* PlaceResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FC7B4D22B07CD910077E555 /* PlaceResult.swift */; };
 		0FC9652D2ADD2E2500108443 /* PlaceCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FC9652C2ADD2E2500108443 /* PlaceCell.swift */; };
 		0FC9652F2ADD329100108443 /* EventCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FC9652E2ADD329100108443 /* EventCell.swift */; };
@@ -206,6 +212,11 @@
 		0F354CCD2AFF713800594AE0 /* ActivationModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivationModel.swift; sourceTree = "<group>"; };
 		0F354CCF2AFF789600594AE0 /* EditField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditField.swift; sourceTree = "<group>"; };
 		0F354CD12AFF7F0400594AE0 /* NewEventViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewEventViewModel.swift; sourceTree = "<group>"; };
+		0F459E1C2B3B43A200D7E843 /* RegionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegionView.swift; sourceTree = "<group>"; };
+		0F459E1E2B3B43CC00D7E843 /* CitiesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CitiesView.swift; sourceTree = "<group>"; };
+		0F459E202B3B55F800D7E843 /* DecodedComment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecodedComment.swift; sourceTree = "<group>"; };
+		0F459E222B3B59F900D7E843 /* CommentsResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentsResult.swift; sourceTree = "<group>"; };
+		0F459E242B3B69A900D7E843 /* AddCommentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCommentView.swift; sourceTree = "<group>"; };
 		0F4734792B03A13100C9B509 /* ImagePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePicker.swift; sourceTree = "<group>"; };
 		0F47347C2B03B73900C9B509 /* EditCountryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditCountryView.swift; sourceTree = "<group>"; };
 		0F47347E2B03DE2C00C9B509 /* EditCountryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditCountryViewModel.swift; sourceTree = "<group>"; };
@@ -295,6 +306,7 @@
 		0FAA79A72AE7D331003BB224 /* NewWorkingDay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewWorkingDay.swift; sourceTree = "<group>"; };
 		0FBABB892B2B590900A2B4FE /* ItemsResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemsResult.swift; sourceTree = "<group>"; };
 		0FBABB8B2B2C5C9900A2B4FE /* MapSortingMenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapSortingMenuView.swift; sourceTree = "<group>"; };
+		0FC4BD8A2B3C25F60031DD4D /* AddCommentResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCommentResult.swift; sourceTree = "<group>"; };
 		0FC7B4D22B07CD910077E555 /* PlaceResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceResult.swift; sourceTree = "<group>"; };
 		0FC9652C2ADD2E2500108443 /* PlaceCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceCell.swift; sourceTree = "<group>"; };
 		0FC9652E2ADD329100108443 /* EventCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventCell.swift; sourceTree = "<group>"; };
@@ -413,6 +425,8 @@
 				0F741A6E2ACD644D00A7759E /* CountryResult.swift */,
 				0F741A6D2ACD644D00A7759E /* EventResult.swift */,
 				0FC7B4D22B07CD910077E555 /* PlaceResult.swift */,
+				0F459E222B3B59F900D7E843 /* CommentsResult.swift */,
+				0FC4BD8A2B3C25F60031DD4D /* AddCommentResult.swift */,
 				0F2765642B03780C0084B5DD /* PosterResult.swift */,
 				0F80E9E02B0696DC006ABBF0 /* AroundResult.swift */,
 				0FBABB892B2B590900A2B4FE /* ItemsResult.swift */,
@@ -435,6 +449,7 @@
 				0F354CB52AFE5F2A00594AE0 /* Results */,
 				0F741A302ACD4DCE00A7759E /* ApiError.swift */,
 				0FD617A32ACC3AF500877C70 /* DecodedUser.swift */,
+				0F459E202B3B55F800D7E843 /* DecodedComment.swift */,
 				0F741A6B2ACD644D00A7759E /* DecodedCity.swift */,
 				0F354CBA2AFE81F300594AE0 /* DecodedPhoto.swift */,
 				0F741A702ACD644D00A7759E /* DecodedCountry.swift */,
@@ -576,6 +591,7 @@
 			children = (
 				0F4997022B36DC5A003E4E2B /* PlaceViewModel.swift */,
 				0F741A8C2ACDB66900A7759E /* PlaceView.swift */,
+				0F459E242B3B69A900D7E843 /* AddCommentView.swift */,
 			);
 			path = Place;
 			sourceTree = "<group>";
@@ -971,6 +987,8 @@
 			children = (
 				0FF7B8ED2B3AC826003A4B6A /* CountryViewModel.swift */,
 				0F741A8A2ACDB66900A7759E /* CountryView.swift */,
+				0F459E1C2B3B43A200D7E843 /* RegionView.swift */,
+				0F459E1E2B3B43CC00D7E843 /* CitiesView.swift */,
 			);
 			path = Country;
 			sourceTree = "<group>";
@@ -1120,11 +1138,14 @@
 				0FFB3A4A2AF23DE0001CF946 /* Bundle+Ext.swift in Sources */,
 				0F49970A2B36F31B003E4E2B /* EventViewModel.swift in Sources */,
 				0F47347D2B03B73900C9B509 /* EditCountryView.swift in Sources */,
+				0F459E252B3B69A900D7E843 /* AddCommentView.swift in Sources */,
 				0F9C320B2B306B3100CAB3D3 /* Sequence+Ext.swift in Sources */,
 				0F2765652B03780C0084B5DD /* PosterResult.swift in Sources */,
+				0FC4BD8B2B3C25F60031DD4D /* AddCommentResult.swift in Sources */,
 				0F79B2602AF26D7A00FCAED2 /* PlaceRequiredInfo.swift in Sources */,
 				0F151F402AE90DBC0049C60F /* Language.swift in Sources */,
 				0F741A742ACD644D00A7759E /* DecodedCity.swift in Sources */,
+				0F459E232B3B59F900D7E843 /* CommentsResult.swift in Sources */,
 				0F27654D2B025BC10084B5DD /* EditDateView.swift in Sources */,
 				0FF7B8F42B3B0D47003A4B6A /* AdminCountriesView.swift in Sources */,
 				0FF5C7272B1F44B900D9EA57 /* LoginViewModel.swift in Sources */,
@@ -1136,6 +1157,7 @@
 				0FD6179F2ACC3A1900877C70 /* EntryView.swift in Sources */,
 				0F741A2F2ACD4DB600A7759E /* ErrorManager.swift in Sources */,
 				0F741A822ACD705D00A7759E /* TabBarView.swift in Sources */,
+				0F459E1F2B3B43CC00D7E843 /* CitiesView.swift in Sources */,
 				0F27655B2B029AB10084B5DD /* NewEventResult.swift in Sources */,
 				0FC965342ADE882B00108443 /* Double+Ext.swift in Sources */,
 				0FFB3A3D2AF12596001CF946 /* TagsView.swift in Sources */,
@@ -1173,6 +1195,7 @@
 				0F47347A2B03A13100C9B509 /* ImagePicker.swift in Sources */,
 				0F741A9A2ACDB7CE00A7759E /* TabBarButtonView.swift in Sources */,
 				0F89545D2AF420B900CE46EC /* PlaceAdditionalInfo.swift in Sources */,
+				0F459E1D2B3B43A200D7E843 /* RegionView.swift in Sources */,
 				0F741A7F2ACD664D00A7759E /* String+Ext.swift in Sources */,
 				0FF7B8F62B3B1396003A4B6A /* AdminCountriesResult.swift in Sources */,
 				0F354CC02AFE958E00594AE0 /* AdminCountry.swift in Sources */,
@@ -1226,6 +1249,7 @@
 				0F741A652ACD642200A7759E /* City.swift in Sources */,
 				0F741A5F2ACD641800A7759E /* Event.swift in Sources */,
 				0F7F25B52B333712004F6C75 /* CalendarDay.swift in Sources */,
+				0F459E212B3B55F800D7E843 /* DecodedComment.swift in Sources */,
 				0F2765482B0242430084B5DD /* EventTimeFieldsView.swift in Sources */,
 				0F741A772ACD644D00A7759E /* CountryResult.swift in Sources */,
 				0FE13D9F2AD023D500ADB8F0 /* UserNetworkManager.swift in Sources */,
@@ -1382,7 +1406,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = Zasenko.NaviGay;
+				PRODUCT_BUNDLE_IDENTIFIER = Zasenko.Navigay;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -1418,7 +1442,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = Zasenko.NaviGay;
+				PRODUCT_BUNDLE_IDENTIFIER = Zasenko.Navigay;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;

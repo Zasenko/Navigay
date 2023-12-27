@@ -19,9 +19,10 @@ extension PlaceView {
         //MARK: - Properties
         
         var modelContext: ModelContext
-        
+        let user: AppUser?
         let place: Place
         var allPhotos: [String] = []
+        var comments: [DecodedComment] = []
         
         var selectedTag: UUID? = nil /// for Map (big Pin)
         
@@ -36,13 +37,14 @@ extension PlaceView {
         
         //MARK: - Inits
         
-        init(place: Place, modelContext: ModelContext, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol) {
+        init(place: Place, modelContext: ModelContext, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol, user: AppUser?) {
             self.place = place
             self.selectedTag = place.tag
             self.modelContext = modelContext
             self.eventNetworkManager = eventNetworkManager
             self.placeNetworkManager = placeNetworkManager
             self.errorManager = errorManager
+            self.user = user
         }
         
         //MARK: - Functions
@@ -67,6 +69,21 @@ extension PlaceView {
                         }
                     }
                     updateEvents(decodedEvents: decodedPlace.events)
+                }
+            }
+        }
+        
+        func fetchComments() {
+            Task {
+//                if placeNetworkManager.loadedPlaces.contains(where: { $0 == place.id}) {
+//                    return
+//                }
+                guard let decodedComments = await placeNetworkManager.fetchComments(placeID: place.id) else {
+                    return
+                }
+                let activeComments = decodedComments.filter( { $0.isActive } )
+                await MainActor.run {
+                    comments = activeComments
                 }
             }
         }

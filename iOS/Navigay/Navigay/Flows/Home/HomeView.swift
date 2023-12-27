@@ -14,6 +14,7 @@ struct HomeView: View {
     
     @ObservedObject private var locationManager: LocationManager
     @State private var viewModel: HomeViewModel
+    @ObservedObject var authenticationManager: AuthenticationManager // TODO: убрать юзера из вью модели так как он в authenticationManager
     
     // MARK: - Init
     
@@ -22,9 +23,12 @@ struct HomeView: View {
          placeNetworkManager: PlaceNetworkManagerProtocol,
          eventNetworkManager: EventNetworkManagerProtocol,
          locationManager: LocationManager,
-         errorManager: ErrorManagerProtocol) {
-        _viewModel = State(initialValue: HomeViewModel(modelContext: modelContext, aroundNetworkManager: aroundNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager))
+         errorManager: ErrorManagerProtocol,
+         user: AppUser?,
+         authenticationManager: AuthenticationManager) {
+        _viewModel = State(initialValue: HomeViewModel(modelContext: modelContext, aroundNetworkManager: aroundNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, user: user))
         _locationManager = ObservedObject(wrappedValue: locationManager)
+        _authenticationManager = ObservedObject(wrappedValue: authenticationManager)
     }
 
     // MARK: - Body
@@ -194,7 +198,7 @@ struct HomeView: View {
                 
                 ForEach(viewModel.groupedPlaces[key] ?? []) { place in
                     NavigationLink {
-                        PlaceView(place: place, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager)
+                        PlaceView(place: place, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, user: viewModel.user, authenticationManager: authenticationManager)
                     } label: {
                         PlaceCell(place: place)
                     }

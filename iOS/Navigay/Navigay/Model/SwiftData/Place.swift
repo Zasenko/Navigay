@@ -89,9 +89,7 @@ final class Place {
         if let mainPhoto {
             allPhotos.append(mainPhoto)
         }
-        if !photos.isEmpty {
-            photos.forEach( { allPhotos.append($0) } )
-        }
+        photos.forEach( { allPhotos.append($0) } )
         return allPhotos
     }
     

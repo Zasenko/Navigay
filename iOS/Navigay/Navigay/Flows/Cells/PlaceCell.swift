@@ -23,7 +23,6 @@ struct PlaceCell: View {
                     ImageLoadingView(url: url, width: 50, height: 50, contentMode: .fill) {
                         Text(place.type.getImage())
                     }
-                    .background(.regularMaterial)
                     .clipShape(.circle)
                     .overlay(Circle().stroke(AppColors.lightGray5, lineWidth: 1))
                 } else {

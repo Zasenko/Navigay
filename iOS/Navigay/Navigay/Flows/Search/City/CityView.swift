@@ -14,10 +14,19 @@ struct CityView: View {
     
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel: CityViewModel
+    @ObservedObject var authenticationManager: AuthenticationManager // TODO: убрать юзера из вью модели так как он в authenticationManager
     
-    init(modelContext: ModelContext, city: City, catalogNetworkManager: CatalogNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, placeNetworkManager: PlaceNetworkManagerProtocol, errorManager: ErrorManagerProtocol) {
+    init(modelContext: ModelContext,
+         city: City,
+         catalogNetworkManager: CatalogNetworkManagerProtocol,
+         eventNetworkManager: EventNetworkManagerProtocol,
+         placeNetworkManager: PlaceNetworkManagerProtocol,
+         errorManager: ErrorManagerProtocol,
+         user: AppUser?,
+         authenticationManager: AuthenticationManager) {
         debugPrint("init CityView, city id: ", city.id)
-        _viewModel = State(initialValue: CityViewModel(modelContext: modelContext, city: city, catalogNetworkManager: catalogNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager))
+        _viewModel = State(initialValue: CityViewModel(modelContext: modelContext, city: city, catalogNetworkManager: catalogNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, user: user))
+        _authenticationManager = ObservedObject(wrappedValue: authenticationManager)
     }
     
     var body: some View {
@@ -53,21 +62,19 @@ struct CityView: View {
                         }
                         .tint(.primary)
                     }
-//                    
-//                    ToolbarItem(placement: .topBarTrailing) {
-//                        Button("Edit") {
-//                            guard let region = viewModel.city.region , let country = region.country else {
-//                                return
-//                            }
-//                            let adminCity = AdminCity(id: viewModel.city.id, countryId: country.id, regionId: region.id, nameOrigin: nil, nameEn: nil, nameFr: nil, nameDe: nil, nameRu: nil, nameIt: nil, nameEs: nil, namePt: nil, about: nil, photo: nil, photos: nil, isActive: viewModel.city.isActive, isChecked: false)
-//                            viewModel.adminCity = adminCity
-//                        }
-//                    }
+                    // TODO: только для АДМИНИСТРАТОРА
+                    if let user = viewModel.user, user.status == .admin {
+                        ToolbarItem(placement: .topBarTrailing) {
+                            Button("Edit") {
+                                guard let region = viewModel.city.region , let country = region.country else {
+                                    return
+                                }
+                                let adminCity = AdminCity(id: viewModel.city.id, countryId: country.id, regionId: region.id, nameOrigin: nil, nameEn: nil, nameFr: nil, nameDe: nil, nameRu: nil, nameIt: nil, nameEs: nil, namePt: nil, about: nil, photo: nil, photos: nil, isActive: viewModel.city.isActive, isChecked: false)
+                                viewModel.adminCity = adminCity
+                            }
+                        }
+                    }
                 }
-                //todo проверить вариант вместо viewModel обновлять каждый раз после обновления из интернета
-//                .onChange(of: viewModel.city.places, initial: true) { oldValue, newValue in
-//                    viewModel.createGrouppedExpenses(newValue)
-//                }
             }
         }
     }
@@ -75,14 +82,12 @@ struct CityView: View {
     @ViewBuilder
     private func listView(width: CGFloat) -> some View {
         List {
-            // TODO: Photo tab view
-            if let url = viewModel.city.photo {
-                ImageLoadingView(url: url, width: width, height: (width / 4) * 5, contentMode: .fill) {
-                    AppColors.lightGray6 // TODO: animation
-                }
-                .clipped()
-                .listRowSeparator(.hidden)
-                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+            if !viewModel.allPhotos.isEmpty {
+                PhotosTabView(allPhotos: $viewModel.allPhotos, width: width)
+                    .frame(width: width, height: (width / 4) * 5)
+                    .listRowSeparator(.hidden)
+                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                    .padding(.bottom)
             }
             
             if viewModel.displayedEvents.count > 0 {
@@ -90,34 +95,19 @@ struct CityView: View {
             }
             placesView
             
-            if let about = viewModel.city.about {
-                Text(about)
-                    .padding(.vertical, 20)
-                    .listRowSeparator(.hidden)
-                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+            Section {
+                if let about = viewModel.city.about {
+                    Text(about)
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                        .padding(.vertical, 50)
+                        .listRowSeparator(.hidden)
+                }
             }
             Color.clear
                 .frame(height: 50)
                 .listSectionSeparator(.hidden)
-            
-
-//            if let region = viewModel.city.region,
-//               let country = region.country,
-//               let adminCity = AdminCity(id: viewModel.city.id, countryId: country.id, regionId: region.id, nameOrigin: nil, nameEn: nil, nameFr: nil, nameDe: nil, nameRu: nil, nameIt: nil, nameEs: nil, namePt: nil, about: nil, photo: nil, photos: nil, isActive: viewModel.city.isActive, isChecked: false) {
-//                NavigationLink("Edit", value: adminCity)
-//            }
-            Button("Edit") {
-                guard let region = viewModel.city.region , let country = region.country else {
-                    return
-                }
-                let adminCity = AdminCity(id: viewModel.city.id, countryId: country.id, regionId: region.id, nameOrigin: nil, nameEn: nil, nameFr: nil, nameDe: nil, nameRu: nil, nameIt: nil, nameEs: nil, namePt: nil, about: nil, photo: nil, photos: nil, isActive: viewModel.city.isActive, isChecked: false)
-                viewModel.adminCity = adminCity
-            }
-            .navigationDestination(item: $viewModel.adminCity) { adminCity in
-                EditCityView(viewModel: EditCityViewModel(city: adminCity, errorManager: viewModel.errorManager, networkManager: AdminNetworkManager(errorManager: viewModel.errorManager)))
-            }
         }
-        
         .listSectionSeparator(.hidden)
         .listStyle(.plain)
         .scrollIndicators(.hidden)
@@ -125,9 +115,9 @@ struct CityView: View {
         .onAppear() {
             viewModel.getPlacesAndEventsFromDB()
         }
-//        .navigationDestination(for: AdminCity.self) { adminCity in
-//            EditCityView(viewModel: EditCityViewModel(city: adminCity, errorManager: viewModel.errorManager, networkManager: AdminNetworkManager(errorManager: viewModel.errorManager)))
-//            }
+        .navigationDestination(item: $viewModel.adminCity) { adminCity in
+            EditCityView(viewModel: EditCityViewModel(city: adminCity, errorManager: viewModel.errorManager, networkManager: AdminNetworkManager(errorManager: viewModel.errorManager)))
+        }
     }
     
     @ViewBuilder
@@ -196,7 +186,7 @@ struct CityView: View {
                 
                 ForEach(viewModel.groupedPlaces[key] ?? []) { place in
                     NavigationLink {
-                        PlaceView(place: place, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager)
+                        PlaceView(place: place, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, user: viewModel.user, authenticationManager: authenticationManager)
                     } label: {
                         PlaceCell(place: place)
                     }

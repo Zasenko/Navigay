@@ -15,8 +15,6 @@ final class User {
     var bio: String? = nil
     var photo: String? = nil
     var photoData: Data? = nil
-    var instagram: String? = nil
-    var likedPlacesId: [Place] = []
     
     init(decodedUser: DecodedUser) {
         self.id = decodedUser.id
@@ -32,6 +30,5 @@ final class User {
         name = decodedUser.name
         bio = decodedUser.bio
         photo = decodedUser.photo
-        instagram = decodedUser.instagram
     }
 }

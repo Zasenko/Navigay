@@ -12,10 +12,9 @@ import CoreLocation
 extension HomeView {
     
     @Observable
-     class HomeViewModel {
-        
+    class HomeViewModel {
         var modelContext: ModelContext
-        
+        let user: AppUser?
         var allEvents: [Event] = []
         var aroundEvents: [Event] = []
         var todayAndTomorrowEvents: [Event] = [] /// for Map
@@ -43,12 +42,13 @@ extension HomeView {
         let placeNetworkManager: PlaceNetworkManagerProtocol
         let errorManager: ErrorManagerProtocol
         
-        init(modelContext: ModelContext, aroundNetworkManager: AroundNetworkManagerProtocol, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol) {
+        init(modelContext: ModelContext, aroundNetworkManager: AroundNetworkManagerProtocol, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol, user: AppUser?) {
             self.modelContext = modelContext
             self.aroundNetworkManager = aroundNetworkManager
             self.eventNetworkManager = eventNetworkManager
             self.placeNetworkManager = placeNetworkManager
             self.errorManager = errorManager
+            self.user = user
         }
         
         func updateAroundPlacesAndEvents(userLocation: CLLocation) {
@@ -145,7 +145,7 @@ extension HomeView {
                 let distance1 = userLocation.distance(from: location1)
                 let distance2 = userLocation.distance(from: location2)
                 return distance1 < distance2
-            }            
+            }
             var closestPlaces: [Place] = []
             var count: Int = 0
             for place in sortedPlaces {

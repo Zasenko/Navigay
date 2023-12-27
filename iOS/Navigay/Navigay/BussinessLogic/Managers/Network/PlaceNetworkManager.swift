@@ -8,14 +8,18 @@
 import SwiftUI
 
 protocol PlaceNetworkManagerProtocol {
+    
     var loadedPlaces: [Int] { get set }
     func addToLoadedPlaces(id: Int)
+    
     func addNewPlace(place: NewPlace) async throws -> NewPlaceResult
     func updateAvatar(placeId: Int, uiImage: UIImage) async throws -> ImageResult
     func updateMainPhoto(placeId: Int, uiImage: UIImage) async throws -> ImageResult
     func updateLibraryPhoto(placeId: Int, photoId: UUID, uiImage: UIImage) async throws -> ImageResult
     func deleteLibraryPhoto(placeId: Int, photoId: UUID) async throws -> ApiResult
     func getPlace(id: Int) async -> DecodedPlace?
+    func fetchComments(placeID: Int) async -> [DecodedComment]?
+    func addComment(comment: NewComment) async -> Bool
    // func addAdditionalInfoToPlace(place: PlaceAdditionalInfo) async throws -> NewPlaceResult
     //func addNewPlace(place: NewPlace, uiImageSmall: UIImage?, uiImageBig: UIImage?) async throws -> DecodedPlace
 }
@@ -46,6 +50,92 @@ final class PlaceNetworkManager {
 // MARK: - AuthNetworkManagerProtocol
 
 extension PlaceNetworkManager: PlaceNetworkManagerProtocol {
+    
+    func addComment(comment: NewComment) async -> Bool {
+        // TODO: error text!
+        let errorModel = ErrorModel(massage: "Something went wrong. Your comment has not been upload. Please try again later.", img: nil, color: nil)
+        debugPrint("--- PlaceNetworkManager addComment")
+        
+        let path = "/api/place/add-comment.php"
+        var urlComponents: URLComponents {
+            var components = URLComponents()
+            components.scheme = scheme
+            components.host = host
+            components.path = path
+            return components
+        }
+        do {
+            guard let url = urlComponents.url else {
+                throw NetworkErrors.bedUrl
+            }
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            let jsonData = try JSONEncoder().encode(comment)
+            request.httpBody = jsonData
+            let (data, response) = try await URLSession.shared.data(for: request)
+            guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
+                throw NetworkErrors.invalidData
+            }
+            guard let decodedResult = try? JSONDecoder().decode(ApiResult.self, from: data) else {
+                throw NetworkErrors.decoderError
+            }
+            guard decodedResult.result else {
+                errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: errorModel)
+                debugPrint("-API ERROR- PlaceNetworkManager addComment: ", decodedResult.error?.message ?? "")
+                return false
+            }
+            return true
+        } catch {
+            errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
+            debugPrint("ERROR - PlaceNetworkManager addComment: ", error)
+            return false
+        }
+    }
+    
+    func fetchComments(placeID: Int) async -> [DecodedComment]? {
+        let errorModel = ErrorModel(massage: "Something went wrong. The information has not been updated. Please try again later.", img: nil, color: nil)
+        debugPrint("--- fetchComments for Place id: ", placeID)
+        
+        let path = "/api/place/get-comments.php"
+        var urlComponents: URLComponents {
+            var components = URLComponents()
+            components.scheme = scheme
+            components.host = host
+            components.path = path
+            components.queryItems = [
+                URLQueryItem(name: "place_id", value: "\(placeID)"),
+            ]
+            return components
+        }
+        do {
+            guard let url = urlComponents.url else {
+                throw NetworkErrors.bedUrl
+            }
+            var request = URLRequest(url: url)
+            request.httpMethod = "GET"
+            let (data, response) = try await URLSession.shared.data(for: request)
+            guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
+                throw NetworkErrors.invalidData
+            }
+//            let json = try JSONSerialization.jsonObject(with: data, options: JSONSerialization.ReadingOptions.allowFragments)
+//            // выводим в консоль
+            guard let decodedResult = try? JSONDecoder().decode(CommentsResult.self, from: data) else {
+                throw NetworkErrors.decoderError
+            }
+            guard decodedResult.result, let decodedComments = decodedResult.comments else {
+                errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: errorModel)
+                debugPrint("-API ERROR- PlaceNetworkManager fetchComments for Place id \(placeID) : ", decodedResult.error?.message ?? "")
+                return nil
+            }
+            return decodedComments
+        } catch {
+            errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
+            debugPrint("ERROR - PlaceNetworkManager fetchComments for Place id \(placeID) : ", error)
+            return nil
+        }
+    }
+    
     
     func addToLoadedPlaces(id: Int) {
         loadedPlaces.append(id)

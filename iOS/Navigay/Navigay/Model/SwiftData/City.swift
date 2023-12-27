@@ -47,4 +47,13 @@ final class City {
             photos = decodedCity.photos ?? []
         }
     }
+    
+    func getAllPhotos() -> [String] {
+        var allPhotos: [String] = []
+        if let photo {
+            allPhotos.append(photo)
+        }
+        photos.forEach( { allPhotos.append($0) } )
+        return allPhotos
+    }
 }

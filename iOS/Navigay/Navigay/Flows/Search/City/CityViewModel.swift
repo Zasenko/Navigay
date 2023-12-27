@@ -13,8 +13,12 @@ extension CityView {
     class CityViewModel {
         
         var modelContext: ModelContext
+        
+        var user: AppUser?
         let city: City
         var isLoading: Bool = false // TODO: isLoading
+        
+        var allPhotos: [String] = []
         
         var groupedPlaces: [PlaceType: [Place]] = [:]
         
@@ -33,7 +37,7 @@ extension CityView {
         var showEditCityView: Bool = false
         var adminCity: AdminCity? = nil
         
-        init(modelContext: ModelContext, city: City, catalogNetworkManager: CatalogNetworkManagerProtocol, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol) {
+        init(modelContext: ModelContext, city: City, catalogNetworkManager: CatalogNetworkManagerProtocol, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol, user: AppUser?) {
             debugPrint("init CityViewModel, city id: ", city.id)
             self.modelContext = modelContext
             self.city = city
@@ -41,6 +45,9 @@ extension CityView {
             self.eventNetworkManager = eventNetworkManager
             self.placeNetworkManager = placeNetworkManager
             self.errorManager = errorManager
+            let newPhotosLinks = city.getAllPhotos()
+            allPhotos = newPhotosLinks
+            self.user = user
         }
         
         func getPlacesAndEventsFromDB() {
@@ -64,11 +71,16 @@ extension CityView {
             }
             await MainActor.run {
                 city.updateCityComplite(decodedCity: decodedCity)
+                let newPhotosLinks = city.getAllPhotos()
+                for links in newPhotosLinks {
+                    if !allPhotos.contains(where:  { $0 == links } ) {
+                        allPhotos.append(links)
+                    }
+                }
                 updatePlaces(decodedPlaces: decodedCity.places)
                 updateEvents(decodedEvents: decodedCity.events)
                 isLoading = false
             }
-            
         }
         
         private func getEventsForCity() async {

@@ -50,11 +50,9 @@ struct TabBarView: View {
             VStack(spacing: 0) {
                 switch selectedPage {
                 case .home:
-                    
-                    
-                    HomeView(modelContext: modelContext, aroundNetworkManager: aroundNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, locationManager: locationManager, errorManager: errorManager)
+                    HomeView(modelContext: modelContext, aroundNetworkManager: aroundNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, locationManager: locationManager, errorManager: errorManager, user: authenticationManager.appUser, authenticationManager: authenticationManager)
                 case .search:
-                    SearchView(modelContext: modelContext, catalogNetworkManager: catalogNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager)
+                    SearchView(modelContext: modelContext, catalogNetworkManager: catalogNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, user: authenticationManager.appUser, authenticationManager: authenticationManager)
                 case .user:
                     AppUserView(authenticationManager: authenticationManager)
                 case .admin:

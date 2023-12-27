@@ -20,14 +20,16 @@ extension CountryView {
         let placeNetworkManager: PlaceNetworkManagerProtocol
         let eventNetworkManager: EventNetworkManagerProtocol
         let errorManager: ErrorManagerProtocol
+        let user: AppUser?
         
-        init(modelContext: ModelContext, country: Country, catalogNetworkManager: CatalogNetworkManagerProtocol, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol) {
+        init(modelContext: ModelContext, country: Country, catalogNetworkManager: CatalogNetworkManagerProtocol, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol, user: AppUser?) {
             self.modelContext = modelContext
             self.country = country
             self.catalogNetworkManager = catalogNetworkManager
             self.eventNetworkManager = eventNetworkManager
             self.placeNetworkManager = placeNetworkManager
             self.errorManager = errorManager
+            self.user = user
         }
         
         func fetch() {

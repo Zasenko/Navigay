@@ -13,11 +13,11 @@ extension SearchView {
     class SearchViewModel {
         
         var modelContext: ModelContext
+        let user: AppUser?
         
         var countries: [Country] = []
         
         var searchText: String = ""
-        
         var isLoading: Bool = false
         
         let catalogNetworkManager: CatalogNetworkManagerProtocol
@@ -25,12 +25,13 @@ extension SearchView {
         let eventNetworkManager: EventNetworkManagerProtocol
         let errorManager: ErrorManagerProtocol
         
-        init(modelContext: ModelContext, catalogNetworkManager: CatalogNetworkManagerProtocol, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol) {
+        init(modelContext: ModelContext, catalogNetworkManager: CatalogNetworkManagerProtocol, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol, user: AppUser?) {
             self.modelContext = modelContext
             self.catalogNetworkManager = catalogNetworkManager
             self.eventNetworkManager = eventNetworkManager
             self.placeNetworkManager = placeNetworkManager
             self.errorManager = errorManager
+            self.user = user
         }
         
         func fetch() {

@@ -15,12 +15,13 @@ struct PlaceView: View {
     
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel: PlaceViewModel
-
+    @ObservedObject var authenticationManager: AuthenticationManager // TODO: убрать юзера из вью модели так как он в authenticationManager
     // MARK: - Inits
     
-    init(place: Place, modelContext: ModelContext, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol) {
-        let viewModel = PlaceViewModel(place: place, modelContext: modelContext, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager)
+    init(place: Place, modelContext: ModelContext, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol, user: AppUser?, authenticationManager: AuthenticationManager) {
+        let viewModel = PlaceViewModel(place: place, modelContext: modelContext, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, user: user)
         _viewModel = State(wrappedValue: viewModel)
+        _authenticationManager = ObservedObject(wrappedValue: authenticationManager)
     }
     
     // MARK: - Body
@@ -90,26 +91,28 @@ struct PlaceView: View {
                     .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                     .padding(.bottom)
             }
+            
             Section {
                 HStack {
                     if let url = viewModel.place.avatar {
-                        ImageLoadingView(url: url, width: 80, height: 80, contentMode: .fill) {
+                        ImageLoadingView(url: url, width: 70, height: 70, contentMode: .fill) {
                             Color.orange
                         }
                         .clipShape(Circle())
-                        .padding()
+                        .overlay(Circle().stroke(AppColors.lightGray5, lineWidth: 1))
+                        .padding(.trailing)
                     }
                     VStack(alignment: .leading, spacing: 4) {
                         Text(viewModel.place.name)
-                            .font(.largeTitle).bold()
+                            .font(.title).bold()
                             .foregroundColor(.primary)
                         Text(viewModel.place.address)
                             .font(.body)
                             .foregroundColor(.secondary)
-                            .frame(maxWidth: .infinity, alignment: .leading)
+                            //.frame(maxWidth: .infinity, alignment: .leading)
                     }
+                    .frame(maxWidth: .infinity)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
             }
             .padding()
             .listRowSeparator(.hidden)
@@ -255,12 +258,15 @@ struct PlaceView: View {
                 
             }
             
-            Text(viewModel.place.about ?? "")
-                .font(.callout)
-                .padding()
-                .padding(.vertical, 40)
-                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                .listRowSeparator(.hidden)
+            Section {
+                if let about = viewModel.place.about {
+                    Text(about)
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                        .padding(.vertical, 50)
+                        .listRowSeparator(.hidden)
+                }
+            }
             
             //todo фотографии должны открываться
             Section {
@@ -272,9 +278,83 @@ struct PlaceView: View {
                         .clipped()
                     }
                 }
+                .padding(.vertical, 50)
             }
             .listRowSeparator(.hidden)
             .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+            
+            Section {
+                NavigationLink {
+                    if let user = viewModel.user, user.status != .blocked {
+                        AddCommentView(text: "", characterLimit: 1000, user: user, placeId: viewModel.place.id, placeNetworkManager: viewModel.placeNetworkManager) { comment in
+                            viewModel.comments.insert(comment, at: 0)
+                        }
+                    } else {
+                        RegistrationView(authenticationManager: authenticationManager) {
+                            print("Dismiss")
+                        }
+                    }
+                } label: {
+                    Text("add comment")
+                        .padding()
+                        .background(.red)
+                }
+            }
+            .padding(.top, 50)
+         //   .listRowSeparator(.hidden)
+            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+            .onAppear {
+                viewModel.fetchComments()
+            }
+            
+            Section {
+                ForEach(viewModel.comments) { comment in
+                    VStack(spacing: 0) {
+                        VStack(spacing: 10) {
+                            if let rating = comment.rating {
+                                HStack {
+                                    ForEach(1..<6) { int in
+                                        Image(systemName: "star.fill")
+                                            .foregroundStyle(int <= rating ? .yellow : .secondary)
+                                    }
+                                }
+                            }
+                            if let comment = comment.comment {
+                                Text(comment)
+                                    .frame(maxWidth: .infinity)
+                                    
+                            }
+                        }
+                        .padding()
+
+                        .background(AppColors.lightGray6)
+                        .clipShape(RoundedRectangle(cornerRadius: 20))
+                        HStack {
+                            if let url = comment.user.photo {
+                                ImageLoadingView(url: url, width: 50, height: 50, contentMode: .fill) {
+                                    AppColors.lightGray6 // TODO: animation in ImageLoadingView
+                                }
+                                .clipped()
+                                .listRowSeparator(.hidden)
+                                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                            } else {
+                                AppImages.iconPerson
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 20, height: 20)
+                            }
+                            Text(comment.user.name)
+                                .bold()
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            Text(comment.createdAt)
+                        }
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .padding(.horizontal)
+                    }
+                    .padding()
+                }
+            }
         }
         .listStyle(.plain)
         .scrollIndicators(.hidden)
@@ -336,40 +416,6 @@ struct PlaceView: View {
 //    return PlaceView(place: place, networkManager: networkManager, errorManager: errorManager)
 //      //  .modelContainer(for: [Place.self], inMemory: false)
 //}
-
-struct PhotosTabView: View {
-    @Binding var allPhotos: [String]
-    @State private var selectedPhotoIndex: Int = 0
-    let width: CGFloat
-    var body: some View {
-        VStack {
-            TabView(selection: $selectedPhotoIndex) {
-                ForEach(allPhotos.indices, id: \.self) { index in
-                    ImageLoadingView(url: allPhotos[index], width: width, height: (width / 4) * 5, contentMode: .fill) {
-                        AppColors.lightGray6 // TODO: animation
-                    }
-                    .clipped()
-                    .tag(index)
-                }
-            }
-            .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
-            .frame(width: width, height: (width / 4) * 5)
-            
-            HStack(spacing: 10) {
-                ForEach(0..<allPhotos.count, id: \.self) { index in
-                    Circle()
-                        .foregroundStyle(index == selectedPhotoIndex ? .gray : AppColors.lightGray6)
-                        .frame(width: 6, height: 6)
-                        .onTapGesture {
-                            selectedPhotoIndex = index
-                        }
-                }
-            }
-            .padding(5)
-            .frame(maxWidth: .infinity)
-        }
-    }
-}
 
 struct TagsView: View {
     

@@ -11,11 +11,17 @@ import SwiftData
 struct SearchView: View {
     
     @State private var viewModel: SearchViewModel
+    @ObservedObject var authenticationManager: AuthenticationManager // TODO: убрать юзера из вью модели так как он в authenticationManager
     
-    init(modelContext: ModelContext, catalogNetworkManager: CatalogNetworkManagerProtocol, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol) {
-        
-        _viewModel = State(initialValue: SearchViewModel(modelContext: modelContext, catalogNetworkManager: catalogNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager))
-        
+    init(modelContext: ModelContext,
+         catalogNetworkManager: CatalogNetworkManagerProtocol,
+         placeNetworkManager: PlaceNetworkManagerProtocol,
+         eventNetworkManager: EventNetworkManagerProtocol,
+         errorManager: ErrorManagerProtocol,
+         user: AppUser?,
+         authenticationManager: AuthenticationManager) {
+        _viewModel = State(initialValue: SearchViewModel(modelContext: modelContext, catalogNetworkManager: catalogNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, user: user))
+        _authenticationManager = ObservedObject(wrappedValue: authenticationManager)
         viewModel.getCountriesFromDB()
         viewModel.fetch()
     }
@@ -81,7 +87,7 @@ struct SearchView: View {
     private var ListView: some View {
         List(viewModel.countries) { country in
             NavigationLink {
-                CountryView(modelContext: viewModel.modelContext, country: country, catalogNetworkManager: viewModel.catalogNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager)
+                CountryView(modelContext: viewModel.modelContext, country: country, catalogNetworkManager: viewModel.catalogNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, user: viewModel.user, authenticationManager: authenticationManager)
             } label: {
                 HStack(alignment: .center, spacing: 20) {
                     Text(country.flagEmoji)
