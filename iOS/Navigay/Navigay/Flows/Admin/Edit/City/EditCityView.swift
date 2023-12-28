@@ -27,7 +27,7 @@ struct EditCityView: View {
                 VStack(spacing: 0) {
                     Divider()
                     ScrollView(showsIndicators: false) {
-                        PhotoEditView(canDelete: false) {
+                        PhotoEditView(canDelete: false, canAddFromUrl: true) {
                             ZStack {
                                 if let photo = viewModel.photo {
                                     if let image = photo.image {

@@ -45,7 +45,6 @@ struct CountryView: View {
                     } else {
                         CitiesView(modelContext: viewModel.modelContext, cities: viewModel.country.regions.flatMap( { $0.cities.filter { $0.isActive == true } } ), catalogNetworkManager: viewModel.catalogNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, errorManager: viewModel.errorManager, user: viewModel.user, authenticationManager: authenticationManager)
                     }
-                    
                     Section {
                         if let about = viewModel.country.about {
                             Text(about)

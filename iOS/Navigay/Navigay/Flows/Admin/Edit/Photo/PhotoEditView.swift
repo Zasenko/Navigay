@@ -18,16 +18,18 @@ struct PhotoEditView<Content: View>: View {
     //MARK: - Private Properties
     
     private let canDelete: Bool
+    private let canAddFromUrl: Bool
     @State private var showPicker: Bool = false
     @State var pickerImage: UIImage?
     
     //MARK: - Inits
     
-    init(canDelete: Bool, @ViewBuilder content: @escaping () -> Content, onSave: @escaping (UIImage) -> Void, onDelete: @escaping () -> Void) {
+    init(canDelete: Bool, canAddFromUrl: Bool, @ViewBuilder content: @escaping () -> Content, onSave: @escaping (UIImage) -> Void, onDelete: @escaping () -> Void) {
         self.content = content
         self.onSave = onSave
         self.onDelete = onDelete
         self.canDelete = canDelete
+        self.canAddFromUrl = canAddFromUrl
 
     }
     
@@ -40,9 +42,11 @@ struct PhotoEditView<Content: View>: View {
                     Button("Select from library") {
                         showPicker.toggle()
                     }
-                    NavigationLink("Add from url") {
-                        AddPhotoFromUrlView { uiImage in
-                            pickerImage = uiImage
+                    if canAddFromUrl {
+                        NavigationLink("Add from url") {
+                            AddPhotoFromUrlView { uiImage in
+                                pickerImage = uiImage
+                            }
                         }
                     }
                 }

@@ -43,7 +43,7 @@ struct EditLibraryView: View {
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 if photos.count < 9 {
-                    PhotoEditView(canDelete: false) {
+                    PhotoEditView(canDelete: false, canAddFromUrl: true) {
                         Text("Add photo")
                     } onSave: { uiImage in
                         photoId = UUID().uuidString
@@ -54,7 +54,7 @@ struct EditLibraryView: View {
             .padding()
             LazyVGrid(columns: gridLayout, spacing: 2) {
                 ForEach(photos) { photo in
-                    PhotoEditView(canDelete: true) {
+                    PhotoEditView(canDelete: true, canAddFromUrl: true) {
                         ZStack {
                             if let image = photo.image {
                                 image

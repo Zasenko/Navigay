@@ -41,4 +41,11 @@ extension UIImage {
         }
         return scaledImage
     }
+    
+    func toData() -> Data? {
+        guard let data = self.jpegData(compressionQuality: 0.8) else {
+            return nil
+        }
+        return data
+    }
 }

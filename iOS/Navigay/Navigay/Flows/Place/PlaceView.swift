@@ -109,7 +109,7 @@ struct PlaceView: View {
                         Text(viewModel.place.address)
                             .font(.body)
                             .foregroundColor(.secondary)
-                            //.frame(maxWidth: .infinity, alignment: .leading)
+                        //.frame(maxWidth: .infinity, alignment: .leading)
                     }
                     .frame(maxWidth: .infinity)
                 }
@@ -244,12 +244,12 @@ struct PlaceView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal, 20)
                         .padding(.vertical, 30)
-                        LazyVGrid(columns: viewModel.gridLayoutEvents, spacing: 20) {
-                            ForEach(viewModel.place.events) { event in
-                                EventCell(event: event, width: (width / 2) - 30, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager)
-                            }
+                    LazyVGrid(columns: viewModel.gridLayoutEvents, spacing: 20) {
+                        ForEach(viewModel.place.events) { event in
+                            EventCell(event: event, width: (width / 2) - 30, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager)
                         }
-                        .padding(.horizontal, 20)
+                    }
+                    .padding(.horizontal, 20)
                     
                 }
                 .listRowSeparator(.hidden)
@@ -284,29 +284,38 @@ struct PlaceView: View {
             .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
             
             Section {
-                NavigationLink {
-                    if let user = viewModel.user, user.status != .blocked {
-                        AddCommentView(text: "", characterLimit: 1000, user: user, placeId: viewModel.place.id, placeNetworkManager: viewModel.placeNetworkManager) { comment in
-                            viewModel.comments.insert(comment, at: 0)
+                
+                if let user = authenticationManager.appUser, user.status != .blocked {
+                    NavigationLink {
+                        AddCommentView(text: "", characterLimit: 1000, placeId: viewModel.place.id, placeNetworkManager: viewModel.placeNetworkManager, authenticationManager: authenticationManager) { comment in
+                            //viewModel.comments.insert(comment, at: 0)
                         }
-                    } else {
+                    } label: {
+                        
+                        Text("add comment")
+                            .padding()
+                            .background(.red)
+                        
+                    }
+                    
+                } else {
+                    NavigationLink {
                         RegistrationView(authenticationManager: authenticationManager) {
                             print("Dismiss")
                         }
+                    } label: {
+                        Text("Register")
+                            .padding()
+                            .background(.red)
                     }
-                } label: {
-                    Text("add comment")
-                        .padding()
-                        .background(.red)
                 }
             }
             .padding(.top, 50)
-         //   .listRowSeparator(.hidden)
+            .listRowSeparator(.hidden)
             .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
             .onAppear {
                 viewModel.fetchComments()
             }
-            
             Section {
                 ForEach(viewModel.comments) { comment in
                     VStack(spacing: 0) {
@@ -321,12 +330,24 @@ struct PlaceView: View {
                             }
                             if let comment = comment.comment {
                                 Text(comment)
-                                    .frame(maxWidth: .infinity)
-                                    
+                                    .font(.callout)
+                                    .foregroundStyle(.secondary)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .padding(.vertical)
+                            }
+                            if let photos = comment.photos {
+                                HStack {
+                                    ForEach(photos, id: \.self) { photo in
+                                        ImageLoadingView(url: photo, width: width / 4, height: width / 4, contentMode: .fill) {
+                                            Color.orange
+                                        }
+                                        .clipShape(RoundedRectangle(cornerRadius: 20))
+                                        .overlay(RoundedRectangle(cornerRadius: 20).stroke(AppColors.lightGray5, lineWidth: 1))
+                                    }
+                                }
                             }
                         }
                         .padding()
-
                         .background(AppColors.lightGray6)
                         .clipShape(RoundedRectangle(cornerRadius: 20))
                         HStack {
@@ -351,10 +372,14 @@ struct PlaceView: View {
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .padding(.horizontal)
+                        .padding(.top, 10)
                     }
                     .padding()
+                    .padding(.vertical)
                 }
             }
+            .listRowSeparator(.hidden)
+            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
         }
         .listStyle(.plain)
         .scrollIndicators(.hidden)

@@ -52,10 +52,20 @@ struct NewComment: Codable {
         case userId = "user_id"
         case comment
         case rating
+        case photos
     }
     
     let placeId: Int
     let userId: Int
     let comment: String?
     let rating: Int?
+    var photos: [Data]?
+    
+    init(placeId: Int, userId: Int, comment: String?, rating: Int?, photos: [Data]?) {
+        self.placeId = placeId
+        self.userId = userId
+        self.comment = comment
+        self.rating = rating
+        self.photos = photos
+    }
 }

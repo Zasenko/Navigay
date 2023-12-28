@@ -19,9 +19,14 @@ extension PlaceView {
         //MARK: - Properties
         
         var modelContext: ModelContext
+        
+        
         let user: AppUser?
+        
         let place: Place
         var allPhotos: [String] = []
+        
+        var showAddCommentButton: Bool = false
         var comments: [DecodedComment] = []
         
         var selectedTag: UUID? = nil /// for Map (big Pin)

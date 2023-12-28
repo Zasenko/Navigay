@@ -73,6 +73,7 @@ extension PlaceNetworkManager: PlaceNetworkManagerProtocol {
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
             let jsonData = try JSONEncoder().encode(comment)
             request.httpBody = jsonData
+            
             let (data, response) = try await URLSession.shared.data(for: request)
             guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
                 throw NetworkErrors.invalidData
@@ -94,7 +95,8 @@ extension PlaceNetworkManager: PlaceNetworkManagerProtocol {
     }
     
     func fetchComments(placeID: Int) async -> [DecodedComment]? {
-        let errorModel = ErrorModel(massage: "Something went wrong. The information has not been updated. Please try again later.", img: nil, color: nil)
+        // TODO: error text!
+        let errorModel = ErrorModel(massage: "Something went wrong. The reviews has not been upload. Please try again later.", img: nil, color: nil)
         debugPrint("--- fetchComments for Place id: ", placeID)
         
         let path = "/api/place/get-comments.php"
@@ -118,8 +120,6 @@ extension PlaceNetworkManager: PlaceNetworkManagerProtocol {
             guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
                 throw NetworkErrors.invalidData
             }
-//            let json = try JSONSerialization.jsonObject(with: data, options: JSONSerialization.ReadingOptions.allowFragments)
-//            // выводим в консоль
             guard let decodedResult = try? JSONDecoder().decode(CommentsResult.self, from: data) else {
                 throw NetworkErrors.decoderError
             }

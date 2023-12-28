@@ -7,8 +7,6 @@
 
 import SwiftUI
 
-import SwiftUI
-
 struct AdminPhoto: Identifiable, Equatable {
     
     let id: String
