@@ -7,80 +7,64 @@
 
 import SwiftUI
 
-final class AddCommentViewModel: ObservableObject {
-    @Published var isAdded: Bool = false
-}
-
 struct AddCommentView: View {
     
     var onSave: (DecodedComment) -> Void
     
-    @State private var text: String = ""
-    @State private var rating: Int = 0
-    
-    private let characterLimit: Int
+    @StateObject private var viewModel: AddCommentViewModel
     @FocusState private var focused: Bool
     @Environment(\.dismiss) private var dismiss
     
-    private let user: AppUser
-    private let placeId: Int
-    private let placeNetworkManager: PlaceNetworkManagerProtocol
-    
-    @State private var isAdded: Bool = false
-    
     init(text: String, characterLimit: Int, user: AppUser, placeId: Int, placeNetworkManager: PlaceNetworkManagerProtocol, onSave: @escaping (DecodedComment) -> Void) {
-        _text = State(initialValue: text)
-        self.characterLimit = characterLimit
-        self.placeNetworkManager = placeNetworkManager
-        self.user = user
-        self.placeId = placeId
+        _viewModel = StateObject(wrappedValue: AddCommentViewModel(user: user, placeId: placeId, placeNetworkManager: placeNetworkManager))
         self.onSave = onSave
     }
-    
-   // @StateObject private var viewModel: AddCommentViewModel = AddCommentViewModel()
     
     var body: some View {
         NavigationStack {
             GeometryReader { geometry in
                 VStack(alignment: .leading) {
                     Divider()
-                    if !isAdded {
+                    if !viewModel.isAdded {
                         VStack {
                             Text("Add rating to place")
+                                .font(.caption)
                                 .foregroundStyle(.secondary)
                                 .padding(.top)
-                                .padding(.bottom, 8)
-                            HStack {
-                                Image(systemName: "star.fill")
-                                Image(systemName: "star.fill")
-                                Image(systemName: "star.fill")
-                                Image(systemName: "star.fill")
-                                Image(systemName: "star.fill")
-                            }
+                            RatingView(rating: $viewModel.rating)
                             .foregroundStyle(.secondary)
                             .padding(.bottom)
                             Divider()
-                            TextEditor(text: $text)
+                            TextEditor(text: $viewModel.text)
                                 .font(.body)
                                 .lineSpacing(5)
                                 .padding(.horizontal, 10)
                                 .focused($focused)
-                                .onChange(of: text, initial: true) { oldValue, newValue in
-                                    text = String(newValue.prefix(characterLimit))
+                                .onChange(of: viewModel.text, initial: true) { oldValue, newValue in
+                                    viewModel.text = String(newValue.prefix(viewModel.characterLimit))
                                 }
                             Divider()
-                            Text(String(characterLimit - text.count))
+                            Text(String(viewModel.characterLimit - viewModel.text.count))
                                 .foregroundStyle(.secondary)
                                 .frame(maxWidth: .infinity, alignment: .trailing)
                                 .padding(.horizontal)
                                 .padding(.bottom)
                         }
                     } else {
-                        Text("Add photos to your comment")
+                        VStack {
+                            Text("Add photos to your comment")
+                                .font(.title3)
+                                .padding()
+                            
+                            library(width: geometry.size.width)
+                            
+                            Spacer()
+                        }
                     }
                 }
-                .frame(height: geometry.size.width)
+                //.frame(height: geometry.size.width)
             }
+            .disabled(viewModel.isLoading)
             .navigationBarBackButtonHidden()
             .toolbarBackground(AppColors.background)
             .toolbarTitleDisplayMode(.inline)
@@ -99,14 +83,13 @@ struct AddCommentView: View {
                     }
                     .tint(.primary)
                 }
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Add") {
-                       // onSave(text)
-                       // dismiss()
-                        loadPlace()
+                if !viewModel.isAdded {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button("Add") {
+                            viewModel.addComment()
+                        }
+                        .bold()
                     }
-                    .bold()
-                   // .disabled(text.isEmpty || text.count < 10)
                 }
             }
             .onAppear {
@@ -115,157 +98,99 @@ struct AddCommentView: View {
         }
     }
     
-    func loadPlace() {
-        Task {
-            let comment = NewComment(placeId: placeId, userId: user.id, comment: text, rating: rating)
-            
-            let result = await placeNetworkManager.addComment(comment: comment)
-            
-            if result {
-                await MainActor.run {
-                    isAdded = true
-                    
-    //                updatePlace(decodedPlace: decodedPlace)
-    //                /// чтобы фотографии не загружались несколько раз
-    //                /// todo! проверить и изменить логику
-    //                let newPhotosLinks = place.getAllPhotos()
-    //                for links in newPhotosLinks {
-    //                    if !allPhotos.contains(where:  { $0 == links } ) {
-    //                        allPhotos.append(links)
-    //                    }
-    //                }
-    //                updateEvents(decodedEvents: decodedPlace.events)
+    @ViewBuilder
+    private func library(width: CGFloat) -> some View {
+        VStack {
+            if viewModel.photos.count < 9 {
+                Menu {
+                    Button("Select from library") {
+                        viewModel.libraryPhotoId = UUID()
+                        viewModel.showLibraryPhotoPicker.toggle()
+                    }
+                    //                        Button("Add from camera") {
+                    //                            viewModel.libraryPhotoId = UUID()
+                    //                        }
+//                    NavigationLink("Add from url") {
+//                        AddPhotoFromUrlView { uiImage in
+//
+//                        }
+//                    }
+                } label: {
+                    Text("Add photo")
+                        .padding()
                 }
-            } else {
-                //massage
             }
             
-
-        }
-    }
-}
-
-//#Preview {
-//    AddCommentView(text: "", characterLimit: 255) { string in
-//        print(string)
-//    }
-//}
-
-
-
-struct RatingStar: View {
-    var rating: CGFloat
-    var color: Color
-    var index: Int
-    
-    
-    var maskRatio: CGFloat {
-        let mask = rating - CGFloat(index)
-        switch mask {
-        case 1...: return 1
-        case ..<0: return 0
-        default: return mask
-        }
-    }
-
-
-    init(rating: Decimal, color: Color, index: Int) {
-        // Why decimal? Decoding floats and doubles is not accurate.
-        self.rating = CGFloat(Double(rating.description) ?? 0)
-        self.color = color
-        self.index = index
-    }
-
-
-    var body: some View {
-        GeometryReader { star in
-            Image(systemName: "star.fill")
-                .foregroundColor(self.color)
-                .mask(
-                    Rectangle()
-                        .size (
-                            width: star.size.width * self.maskRatio,
-                            height: star.size.width
-                        )
-                    
-                )
-                .background(.gray)
-        }
-    }
-}
-
-public struct FiveStarView: View {
-    var rating: Decimal
-    var color: Color
-    var backgroundColor: Color
-
-    public init(
-        rating: Decimal,
-        color: Color = .red,
-        backgroundColor: Color = .gray
-    ) {
-        self.rating = rating
-        self.color = color
-        self.backgroundColor = backgroundColor
-    }
-
-    public var body: some View {
-        ZStack {
-            BackgroundStars(backgroundColor)
-                .background(.red)
-            ForegroundStars(rating: rating, color: color)
-                .background(.blue)
-        }
-    }
-}
-
-
-private struct StarImage: View {
-
-    var body: some View {
-        Image(systemName: "star.fill")
-            .resizable()
-            .aspectRatio(contentMode: .fit)
-    }
-}
-
-
-private struct BackgroundStars: View {
-    var color: Color
-
-    init(_ color: Color) {
-        self.color = color
-    }
-
-    var body: some View {
-        HStack {
-            ForEach(0..<5) { _ in
-                StarImage()
+            switch viewModel.photos.count {
+            case 1:
+                viewModel.photos[0]
+            case 2:
+                HStack {
+                    viewModel.photos[0]
+                    viewModel.photos[1]
+                }
+            case 3...:
+                HStack {
+                    viewModel.photos[0]
+                    viewModel.photos[1]
+                    viewModel.photos[2]
+                }
+            default:
+                EmptyView()
             }
-        }.foregroundColor(color)
+            
+            
+//            LazyVGrid(columns: viewModel.gridLayout, spacing: 2) {
+//                ForEach(viewModel.photos) { photo in
+//                    Menu {
+//                        Section("Change photo") {
+//                            Button("Select from library") {
+//                                viewModel.libraryPhotoId = photo.id
+//                                viewModel.showLibraryPhotoPicker.toggle()
+//                            }
+////                            Button("Add from camera") {
+////                                viewModel.libraryPhotoId = photo.id
+////                            }
+//                            NavigationLink("Add from url") {
+//                                AddPhotoFromUrlView { uiImage in
+//                                    viewModel.libraryPhotoId = photo.id
+//                                    viewModel.loadLibraryPhoto(uiImage: uiImage)
+//                                }
+//                            }
+//                        }
+//                        Section {
+//                            Button("Delete", systemImage: "trash", role: .destructive) {
+//                                viewModel.libraryPhotoId = photo.id
+//                                viewModel.deleteLibraryPhoto()
+//                            }
+//                        }
+//                    } label: {
+//                        ZStack {
+//                            photo.image
+//                                .resizable()
+//                                .scaledToFill()
+//                                .frame(width: (width - 4) / 3,
+//                                       height: (width - 4) / 3)
+//                                .clipped()
+//                                .opacity(viewModel.libraryPhotoLoading && viewModel.libraryPhotoId == photo.id ? 0.2 : 1)
+//                            if viewModel.libraryPhotoLoading && viewModel.libraryPhotoId == photo.id {
+//                                ProgressView()
+//                                    .tint(.blue)
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+        }
+       // .disabled(viewModel.libraryPhotoLoading)
+        .sheet(isPresented: $viewModel.showLibraryPhotoPicker) {
+            ImagePicker(selectedImage: $viewModel.libraryPickerImage)
+        }
     }
 }
 
-
-private struct ForegroundStars: View {
-    var rating: Decimal
-    var color: Color
-
-    init(rating: Decimal, color: Color) {
-        self.rating = rating
-        self.color = color
-    }
-
-    var body: some View {
-        HStack {
-            ForEach(0..<5) { index in
-                RatingStar(
-                    rating: self.rating,
-                    color: self.color,
-                    index: index
-                )
-                .background(.green)
-            }
-        }
+#Preview {
+    AddCommentView(text: "", characterLimit: 1000, user: AppUser(decodedUser: DecodedAppUser(id: 0, name: "Tom Finland", email: "", status: .user, bio: nil, photo: nil)), placeId: 0, placeNetworkManager: PlaceNetworkManager(appSettingsManager: AppSettingsManager(), errorManager: ErrorManager())) { comment in
+        print(comment)
     }
 }
