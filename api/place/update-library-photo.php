@@ -128,6 +128,7 @@ $json_data = [
 $photos_json[] = $json_data;
 
 $updated_photos_json = json_encode(array_values($photos_json), JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
+
 $sql = "UPDATE Place SET photos = ? WHERE id = ?";
 $params = [$updated_photos_json, $place_id];
 $types = "si";

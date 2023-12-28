@@ -16,7 +16,22 @@ if ($place_id <= 0) {
 
 require_once('../dbconfig.php');
 
-$sql = "SELECT pc.id, pc.comment, pc.rating, pc.photos, pc.created_at, pc.is_active, u.id AS user_id, u.name AS user_name, u.bio AS user_bio, u.photo AS user_photo, pcr.id AS reply_id, pcr.comment AS reply_text, pcr.created_at AS reply_created_at, pc.is_active AS reply_is_active
+$sql = "SELECT
+pc.id,
+pc.comment,
+pc.rating,
+pc.photos,
+pc.created_at,
+pc.is_active,
+u.id AS user_id,
+u.name AS user_name,
+u.bio AS user_bio,
+u.photo AS user_photo,
+pcr.id AS reply_id,
+pcr.comment AS reply_text,
+pcr.created_at AS
+reply_created_at,
+pc.is_active AS reply_is_active
 FROM PlaceComment pc
     LEFT JOIN User u ON pc.user_id = u.id
     LEFT JOIN PlaceCommentReply pcr ON pc.id = pcr.comment_id
@@ -32,18 +47,18 @@ $stmt->close();
 $comments = array();
 
 while ($row = $result->fetch_assoc()) {
+
+    
     //todo на проверку
     $is_active = (bool)$row['is_active'];
 
-    $photos_data = json_decode($row['photos'], true);
+    $photos_path = json_decode($row['photos'], true);
     $photos_urls = array();
-    foreach ($photos_data as $photoItem) {
-        $url_data = $photoItem['url'];
-        if (isset($url_data) && is_string($url_data)) {
-            $url = "https://www.navigay.me/" . $url_data;
-            array_push($photos_urls, $url);
-        }
+    foreach ($photos_path as $photo_path) {
+        $url = "https://www.navigay.me/" . $photo_path;
+        array_push($photos_urls, $url);
     }
+    
     $comment = array(
         "id" => $row['id'],
         'comment' => $row["comment"],
@@ -52,6 +67,7 @@ while ($row = $result->fetch_assoc()) {
         'created_at' => $row['created_at'],
         'is_active' => $is_active,
     );
+
     $reply_id = $row['reply_id'];
     $reply_text = $row['reply_id'];
     $reply_created_at = $row['reply_created_at'];
@@ -79,5 +95,5 @@ while ($row = $result->fetch_assoc()) {
 }
 $conn->close();
 $json = ['result' => true, 'comments' => $comments];
-echo json_encode($json, JSON_NUMERIC_CHECK);
+echo json_encode($json, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
 exit;
