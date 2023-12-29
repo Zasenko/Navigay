@@ -163,7 +163,11 @@ extension HomeView {
             do {
                 let descriptor = FetchDescriptor<Place>(sortBy: [SortDescriptor(\.name)])
                 allPlaces = try modelContext.fetch(descriptor)
-                let aroundPlaces = allPlaces.filter { userLocation.distance(from: CLLocation(latitude: $0.latitude, longitude: $0.longitude)) <= radius }
+                let aroundPlaces = allPlaces.filter { place in
+                    let distance = userLocation.distance(from: CLLocation(latitude: place.latitude, longitude: place.longitude))
+                    place.getDistanceText(distance: distance, inKm: true)
+                    return distance <= radius
+                }
                 self.aroundPlaces = aroundPlaces
                 createGroupedPlaces(places: aroundPlaces)
             } catch {

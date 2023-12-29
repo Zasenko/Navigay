@@ -124,13 +124,11 @@ extension CatalogNetworkManager: CatalogNetworkManagerProtocol {
             guard let decodedResult = try? JSONDecoder().decode(CountryResult.self, from: data) else {
                 throw NetworkErrors.decoderError
             }
-            
             guard decodedResult.result, let decodedCountry = decodedResult.country else {
                 errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: errorModel)
                 debugPrint("API ERROR - CatalogNetworkManager fetchCountry id: \(id) - ", decodedResult.error?.message ?? "")
                 return nil
             }
-            
             loadedCountries.append(decodedCountry.id)
             return decodedCountry
         } catch {

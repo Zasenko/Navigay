@@ -15,6 +15,7 @@ enum SortingMapCategory {
     case hotel
     case sauna
     case cruiseBar
+    case cruiseClub
     case beach
     case shop
     case gym
@@ -59,6 +60,8 @@ enum SortingMapCategory {
             self = .hostel
         case .medicine:
             self = .medicine
+        case .cruiseClub:
+            self = .cruiseClub
         }
     }
     
@@ -94,6 +97,8 @@ enum SortingMapCategory {
             return "Hostels"
         case .medicine:
             return "Medicine"
+        case .cruiseClub:
+            return "Cruise Clubs"
         case .events:
             return "Events"
         case .all:

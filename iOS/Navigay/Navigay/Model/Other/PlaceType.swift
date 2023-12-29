@@ -22,7 +22,8 @@ enum PlaceType: Int, Codable, CaseIterable, Comparable {
          culture = 11,
          community = 12,
          hostel = 13,
-         medicine = 14
+         medicine = 14,
+         cruiseClub = 15
     
     func getName() -> String {
         switch self {
@@ -56,6 +57,8 @@ enum PlaceType: Int, Codable, CaseIterable, Comparable {
             return "Hostel"
         case .medicine:
             return "Medicine"
+        case .cruiseClub:
+            return "Cruise Club"
         }
     }
     
@@ -91,6 +94,8 @@ enum PlaceType: Int, Codable, CaseIterable, Comparable {
             return "Hostels"
         case .medicine:
             return "Medicine"
+        case .cruiseClub:
+            return "Cruise clubs"
         }
     }
     
@@ -126,6 +131,8 @@ enum PlaceType: Int, Codable, CaseIterable, Comparable {
             return Color.gray
         case .medicine:
             return Color.green
+        case .cruiseClub:
+            return Color.red
         }
     }
     
@@ -161,6 +168,8 @@ enum PlaceType: Int, Codable, CaseIterable, Comparable {
             return "🛏️"
         case .medicine:
             return "😷"
+        case .cruiseClub:
+            return "😈"
         }
     }
     

@@ -56,6 +56,7 @@ struct CountryView: View {
                     }
                 }
                 .listStyle(.plain)
+                .scrollIndicators(.hidden)
                 .navigationBarBackButtonHidden()
                 .toolbarBackground(AppColors.background)
                 .toolbarTitleDisplayMode(.inline)

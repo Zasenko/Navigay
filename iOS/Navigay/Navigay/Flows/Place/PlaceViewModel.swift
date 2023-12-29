@@ -19,18 +19,12 @@ extension PlaceView {
         //MARK: - Properties
         
         var modelContext: ModelContext
-        
-        
-        let user: AppUser?
-        
         let place: Place
         var allPhotos: [String] = []
-        
         var showAddCommentButton: Bool = false
         var comments: [DecodedComment] = []
-        
         var selectedTag: UUID? = nil /// for Map (big Pin)
-        
+
         var gridLayoutPhotos: [GridItem] = Array(repeating: GridItem(.flexible(), spacing: 2), count: 3)
         var gridLayoutEvents: [GridItem] = Array(repeating: GridItem(.flexible(), spacing: 10), count: 2)
         var position: MapCameraPosition = .automatic
@@ -42,14 +36,13 @@ extension PlaceView {
         
         //MARK: - Inits
         
-        init(place: Place, modelContext: ModelContext, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol, user: AppUser?) {
+        init(place: Place, modelContext: ModelContext, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol) {
             self.place = place
             self.selectedTag = place.tag
             self.modelContext = modelContext
             self.eventNetworkManager = eventNetworkManager
             self.placeNetworkManager = placeNetworkManager
             self.errorManager = errorManager
-            self.user = user
         }
         
         //MARK: - Functions

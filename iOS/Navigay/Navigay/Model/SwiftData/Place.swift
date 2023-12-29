@@ -11,10 +11,6 @@ import CoreLocation
 @Model
 final class Place {
     
-//case countryId = "country_id"
-//case regionId = "region_id"
-//case cityId = "city_id"
-    
     let id: Int
     var name: String = ""
     var type: PlaceType = PlaceType.other
@@ -41,6 +37,7 @@ final class Place {
 
     @Transient lazy var coordinate: CLLocationCoordinate2D = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
     @Transient var tag: UUID = UUID()
+    @Transient var distanceText: String = ""
     
     init(decodedPlace: DecodedPlace) {
         self.id = decodedPlace.id
@@ -111,6 +108,19 @@ final class Place {
             }
         } else {
             return false
+        }
+    }
+    
+    func getDistanceText(distance: Double, inKm: Bool = true) {
+        if inKm {
+            let distanceInKilometers = distance / 1000.0
+            
+            let formattedDistanceInKilometers = String(format: "%.2f", distanceInKilometers)
+            distanceText = "\(address)  •  \(formattedDistanceInKilometers) km."
+        } else {
+            let distanceInMiles = distance * 0.000621371 /// Преобразование в мили (1 метр = 0.000621371 миль)
+            let formattedDistanceInKilometers = String(format: "%.2f", distanceInMiles)
+            distanceText = "\(address)  •  \(formattedDistanceInKilometers) m."
         }
     }
 }

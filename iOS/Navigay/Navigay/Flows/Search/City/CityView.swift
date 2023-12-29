@@ -183,12 +183,11 @@ struct CityView: View {
                     .modifier(CapsuleSmall(background: key.getColor(), foreground: .white))
                     .frame(maxWidth: .infinity)
                     .padding(.top)
-                
                 ForEach(viewModel.groupedPlaces[key] ?? []) { place in
                     NavigationLink {
-                        PlaceView(place: place, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, user: viewModel.user, authenticationManager: authenticationManager)
+                        PlaceView(place: place, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, authenticationManager: authenticationManager)
                     } label: {
-                        PlaceCell(place: place)
+                        PlaceCell(place: place, showOpenInfo: false, showDistance: false)
                     }
                 }
             }

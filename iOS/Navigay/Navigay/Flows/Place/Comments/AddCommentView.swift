@@ -9,18 +9,21 @@ import SwiftUI
 
 struct AddCommentView: View {
     
-    var onSave: (DecodedComment) -> Void
+    // MARK: - Private Properties
     
     @ObservedObject private var authenticationManager: AuthenticationManager
     @StateObject private var viewModel: AddCommentViewModel
     @FocusState private var focused: Bool
     @Environment(\.dismiss) private var dismiss
     
-    init(text: String, characterLimit: Int, placeId: Int, placeNetworkManager: PlaceNetworkManagerProtocol, authenticationManager: AuthenticationManager, onSave: @escaping (DecodedComment) -> Void) {
+    // MARK: - Inits
+    
+    init(text: String, characterLimit: Int, placeId: Int, placeNetworkManager: PlaceNetworkManagerProtocol, authenticationManager: AuthenticationManager) {
         _viewModel = StateObject(wrappedValue: AddCommentViewModel(placeId: placeId, placeNetworkManager: placeNetworkManager))
         _authenticationManager = ObservedObject(wrappedValue: authenticationManager)
-        self.onSave = onSave
     }
+    
+    // MARK: - Body
     
     var body: some View {
         NavigationStack {
@@ -28,7 +31,6 @@ struct AddCommentView: View {
                 VStack {
                     if !viewModel.isAdded {
                         Divider()
-                        
                         Text("Rate the place")
                             .font(.caption)
                             .foregroundStyle(.secondary)
@@ -37,7 +39,6 @@ struct AddCommentView: View {
                             .foregroundStyle(.secondary)
                             .padding(.bottom)
                         Divider()
-                        
                         TextEditor(text: $viewModel.text)
                             .font(.body)
                             .lineSpacing(5)
@@ -51,7 +52,6 @@ struct AddCommentView: View {
                                 focused = true
                             }
                         Divider()
-                        
                         Text(String(viewModel.characterLimit - viewModel.text.count))
                             .font(.caption)
                             .foregroundStyle(.secondary)
@@ -113,6 +113,8 @@ struct AddCommentView: View {
             }
         }
     }
+    
+    // MARK: - Views
     
     @ViewBuilder
     private func library(width: CGFloat) -> some View {

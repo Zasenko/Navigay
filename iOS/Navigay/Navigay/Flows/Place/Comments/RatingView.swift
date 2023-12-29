@@ -9,7 +9,11 @@ import SwiftUI
 
 struct RatingView: View {
     
+    // MARK: - Properties
+    
     @Binding var rating: Int
+    
+    // MARK: - Body
     
     var body: some View {
         HStack(spacing: 10) {

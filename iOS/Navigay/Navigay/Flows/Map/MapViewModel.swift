@@ -56,6 +56,8 @@ extension MapViewModel {
             getPlaces(type: .sauna)
         case .cruiseBar:
             getPlaces(type: .cruiseBar)
+        case .cruiseClub:
+            getPlaces(type: .cruiseClub)
         case .beach:
             getPlaces(type: .beach)
         case .shop:

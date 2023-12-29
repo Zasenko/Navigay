@@ -89,9 +89,9 @@ struct AppUserView: View {
                     Text("Liked places")
                         .bold()
                         .font(.title)
-                    ForEach(likedPlaces) { place in
-                        PlaceCell(place: place)
-                    }
+//                    ForEach(likedPlaces) { place in
+//                        PlaceCell(place: place, locationManager: locationManager, showOpenInfo: false, showDistance: false)
+//                    }
                 }
                 
                 Divider()

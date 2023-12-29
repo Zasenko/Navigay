@@ -531,6 +531,7 @@
 		0F4997042B36F1FD003E4E2B /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				0FC9652B2ADD2E1900108443 /* Cells */,
 				0F4997052B36F216003E4E2B /* PhotosTabView.swift */,
 			);
 			path = Views;
@@ -961,7 +962,6 @@
 				0F6500C32ACE9AFE00A58E77 /* Event */,
 				0F6500C42ACE9B0500A58E77 /* Place */,
 				0F6500C22ACE9AEE00A58E77 /* User */,
-				0FC9652B2ADD2E1900108443 /* Cells */,
 				0F7E57E92AE15B430091A0F8 /* Admin */,
 				0F4997042B36F1FD003E4E2B /* Views */,
 			);
