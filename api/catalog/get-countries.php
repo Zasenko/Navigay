@@ -11,7 +11,7 @@ $language = isset($_GET['language']) && in_array($_GET['language'], $languages) 
 
 require_once('../dbconfig.php');
 
-$sql = "SELECT id, isoCountryCode, name_$language, flag_emoji, photo, show_regions, is_active, updated_at FROM Country";
+$sql = "SELECT id, isoCountryCode, name_$language, flag_emoji, photo, show_regions, is_active, updated_at FROM Country WHERE is_checked = true";
 
 $stmt = $conn->prepare($sql);
 if (!$stmt) {

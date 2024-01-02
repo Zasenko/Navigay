@@ -64,7 +64,7 @@ $country = array(
     'updated_at' => $row['updated_at']
 );
 
-$sql = "SELECT id, name_$language, photo, is_active, updated_at FROM Region WHERE country_id = ?";
+$sql = "SELECT id, name_$language, photo, is_active, updated_at FROM Region WHERE country_id = ? AND is_checked = true";
 $params = [$country_id];
 $types = "i";
 $stmt = executeQuery($conn, $sql, $params, $types);
@@ -90,7 +90,7 @@ while ($row = $regions_result->fetch_assoc()) {
         'updated_at' => $row['updated_at']
     );
 
-    $sql = "SELECT id, name_$language, photo, is_active, updated_at FROM City WHERE region_id = ?";
+    $sql = "SELECT id, name_$language, photo, is_active, updated_at FROM City WHERE region_id = ? AND is_checked = true";
     $params = [$region_id];
     $types = "i";
     $stmt = executeQuery($conn, $sql, $params, $types);
