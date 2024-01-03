@@ -107,6 +107,7 @@
 		0F7823D02B04BEDC0080F226 /* PhotoEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F7823CF2B04BEDC0080F226 /* PhotoEditView.swift */; };
 		0F7823D32B04C03A0080F226 /* NamesEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F7823D22B04C03A0080F226 /* NamesEditView.swift */; };
 		0F7823D52B04C0BE0080F226 /* AboutEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F7823D42B04C0BE0080F226 /* AboutEditView.swift */; };
+		0F7981812B443CBF00BFEAE5 /* SearchResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F7981802B443CBF00BFEAE5 /* SearchResult.swift */; };
 		0F79B2532AF24C7800FCAED2 /* EditTimetableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F79B2522AF24C7800FCAED2 /* EditTimetableView.swift */; };
 		0F79B2562AF2608100FCAED2 /* EditTagsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F79B2552AF2608100FCAED2 /* EditTagsView.swift */; };
 		0F79B2582AF265A800FCAED2 /* ActivationFieldsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F79B2572AF265A800FCAED2 /* ActivationFieldsView.swift */; };
@@ -279,6 +280,7 @@
 		0F7823CF2B04BEDC0080F226 /* PhotoEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoEditView.swift; sourceTree = "<group>"; };
 		0F7823D22B04C03A0080F226 /* NamesEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NamesEditView.swift; sourceTree = "<group>"; };
 		0F7823D42B04C0BE0080F226 /* AboutEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutEditView.swift; sourceTree = "<group>"; };
+		0F7981802B443CBF00BFEAE5 /* SearchResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchResult.swift; sourceTree = "<group>"; };
 		0F79B2522AF24C7800FCAED2 /* EditTimetableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditTimetableView.swift; sourceTree = "<group>"; };
 		0F79B2552AF2608100FCAED2 /* EditTagsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditTagsView.swift; sourceTree = "<group>"; };
 		0F79B2572AF265A800FCAED2 /* ActivationFieldsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivationFieldsView.swift; sourceTree = "<group>"; };
@@ -444,6 +446,7 @@
 				0F2765642B03780C0084B5DD /* PosterResult.swift */,
 				0F80E9E02B0696DC006ABBF0 /* AroundResult.swift */,
 				0FBABB892B2B590900A2B4FE /* ItemsResult.swift */,
+				0F7981802B443CBF00BFEAE5 /* SearchResult.swift */,
 			);
 			path = Results;
 			sourceTree = "<group>";
@@ -1127,6 +1130,7 @@
 				0F34DF832AE692BB005D29D0 /* SearchLocationView.swift in Sources */,
 				0FD6178E2ACC398200877C70 /* NavigayApp.swift in Sources */,
 				0F7E57EB2AE15B550091A0F8 /* AdminView.swift in Sources */,
+				0F7981812B443CBF00BFEAE5 /* SearchResult.swift in Sources */,
 				0F7823D52B04C0BE0080F226 /* AboutEditView.swift in Sources */,
 				0F2765612B02B3120084B5DD /* EditEventCoverViewModel.swift in Sources */,
 				0F741A3D2ACD502100A7759E /* AuthNetworkManager.swift in Sources */,

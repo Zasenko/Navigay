@@ -21,10 +21,10 @@ final class Region {
     
     init(decodedRegion: DecodedRegion) {
         self.id = decodedRegion.id
-        lastUpdateIncomplete(decodedRegion: decodedRegion)
+        updateIncomplete(decodedRegion: decodedRegion)
     }
     
-    func lastUpdateIncomplete(decodedRegion: DecodedRegion) {
+    func updateIncomplete(decodedRegion: DecodedRegion) {
         let lastUpdate = decodedRegion.lastUpdate.dateFromString(format: "yyyy-MM-dd HH:mm:ss")
         if lastUpdateIncomplete != lastUpdate {
             name = decodedRegion.name

@@ -19,6 +19,8 @@ struct DecodedCity: Identifiable, Codable {
         case photos
         case places
         case events
+        case region
+        case country
     }
 
     
@@ -32,4 +34,6 @@ struct DecodedCity: Identifiable, Codable {
     let about: String?
     let places: [DecodedPlace]?
     let events: [DecodedEvent]?
+    let region: DecodedRegion?
+    let country: DecodedCountry?
 }

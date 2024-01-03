@@ -77,16 +77,16 @@ struct HomeView: View {
                             }
                         } label: {
                             HStack {
-                                Text("Show\non map")
-                                    .font(.caption).bold()
-                                    .multilineTextAlignment(.trailing)
-                                    .lineSpacing(-10)
                                 AppImages.iconLocation
                                     .resizable()
                                     .scaledToFit()
                                     .frame(width: 30, height: 30)
+                                Text("Show\non map")
+                                    .font(.caption).bold()
+                                    .multilineTextAlignment(.leading)
+                                    .lineSpacing(-10)
                             }
-                            .tint(.primary)
+                            .tint(.blue)
                         }
                     }
                 }
@@ -145,17 +145,22 @@ struct HomeView: View {
                     viewModel.showCalendar = true
                 } label: {
                     HStack {
-                        Text("Select\ndate")
-                            .font(.caption)
-                            .multilineTextAlignment(.trailing)
-                            .lineSpacing(-10)
                         AppImages.iconCalendar
                             .resizable()
                             .scaledToFit()
                             .frame(width: 25, height: 25)
+                        Text("Select date")
+                            .font(.caption)
+                            .multilineTextAlignment(.trailing)
+                            .lineSpacing(-10)
                     }
+                    .padding()
+                    .background(.ultraThinMaterial)
+                    .foregroundStyle(.blue)
+                    .clipShape(Capsule())
                 }
-                .foregroundStyle(.blue)
+               // .buttonStyle(.borderedProminent)
+                //.foregroundStyle(.blue)
             }
             .padding(.horizontal, 20)
             .padding(.vertical, 30)

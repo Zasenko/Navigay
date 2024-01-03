@@ -16,6 +16,7 @@ struct DecodedRegion: Identifiable, Codable {
         case isActive = "is_active"
         case lastUpdate = "updated_at"
         case cities
+        case country
     }
     
     let id: Int
@@ -23,5 +24,6 @@ struct DecodedRegion: Identifiable, Codable {
     let photo: String?
     let isActive: Bool
     let lastUpdate: String
-    let cities: [DecodedCity]
+    let cities: [DecodedCity]?
+    let country: DecodedCountry?
 }

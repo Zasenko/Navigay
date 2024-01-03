@@ -57,7 +57,7 @@ extension CountryView {
             if let decodedRegions = decodedRegions, !decodedRegions.isEmpty {
                 for decodedRegion in decodedRegions {
                     if let region = country.regions.first(where: { $0.id == decodedRegion.id} ) {
-                        region.lastUpdateIncomplete(decodedRegion: decodedRegion)
+                        region.updateIncomplete(decodedRegion: decodedRegion)
                         updateCities(decodedCities: decodedRegion.cities, for: region)
                     } else if decodedRegion.isActive {
                         let region = Region(decodedRegion: decodedRegion)

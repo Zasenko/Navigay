@@ -12,6 +12,8 @@ struct SearchView: View {
     
     @State private var viewModel: SearchViewModel
     @ObservedObject var authenticationManager: AuthenticationManager // TODO: убрать юзера из вью модели так как он в authenticationManager
+    @FocusState private var focused: Bool
+  //  @Namespace var namespace
     
     init(modelContext: ModelContext,
          catalogNetworkManager: CatalogNetworkManagerProtocol,
@@ -32,59 +34,102 @@ struct SearchView: View {
                 .tint(.blue)
                 .frame(maxHeight: .infinity)
         } else {
-            
-        NavigationStack {
-            VStack(spacing: 0) {
-                Divider()
-                ListView
-            }
-              //  .searchable(text: $searchText, placement: .toolbar, prompt: nil)
+            NavigationStack {
+                VStack(spacing: 0) {
+                    Divider()
+                    if viewModel.isSearching {
+                        searchList
+                            .onChange(of: viewModel.searchText, initial: false) { _, newValue in
+                                viewModel.textSubject.send(newValue)
+                            }
+                    } else {
+                        listView
+                    }
+                }
+                .onChange(of: viewModel.searchText, { oldValue, newValue in
+                    viewModel.searchInDB(text: newValue)
+                })
                 .toolbarTitleDisplayMode(.inline)
                 .toolbar {
-                    ToolbarItem(placement: .topBarLeading) {
-                        Text("Catalog")
-                            .font(.title2.bold())
-                    }
-                    ToolbarItem(placement: .principal) {
-                        SearchView
+                    if viewModel.isSearching {
+                        ToolbarItem(placement: .principal) {
+                            searchView
+                        }
+                    } else {
+                        ToolbarItem(placement: .topBarLeading) {
+                            Text("Catalog")
+                                .font(.title2.bold())
+                        }
+                        ToolbarItem(placement: .topBarTrailing) {
+                            searchButton
+                        }
                     }
                 }
                 .toolbarBackground(AppColors.background)
-                //.searchable(text: $searchText)
-//                .onAppear() {
-//                    fetch()
-//                }
+            }
         }
     }
-    }
     
-    var SearchView: some View {
-     //   HStack {
-        TextField("", text: $viewModel.searchText) {
-                  //  authenticationManager.checkEmail(email: viewModel.email)
+    private var searchButton: some View {
+        HStack(spacing: 0) {
+            Button {
+                withAnimation {
+                    viewModel.isSearching = true
+                    focused = true
                 }
-                .textInputAutocapitalization(.never)
-                .lineLimit(1)
-                //.focused($focusedField, equals: .email)
-            
-//            AppImages.iconEnvelope
-//                .font(.callout)
-//                .foregroundColor(.secondary)
-//                .bold()
-      //  }
-      //  .padding()
-       // .padding(.horizontal, 10)
+            } label: {
+                AppImages.iconSearch
+                    .font(.callout)
+                    .foregroundColor(.secondary)
+                    .bold()
+                //    .matchedGeometryEffect(id: "img", in: namespace)
+                    .frame(width: 40, height: 40)
+            }
+        }
+      //  .matchedGeometryEffect(id: "v", in: namespace)
+        .frame(width: 40, height: 40)
         .background(AppColors.lightGray6)
         .cornerRadius(16)
-       // .shadow(color: .black.opacity(0.2), radius: 10, x: 0, y: 5)
-//        .onTapGesture {
-//            focusedField = .email
-//        }
-        .padding(.leading)
+    }
+    
+    private var searchView: some View {
+        HStack {
+            HStack {
+                AppImages.iconSearch
+                        .font(.callout)
+                        .foregroundColor(.secondary)
+                        .bold()
+              //          .matchedGeometryEffect(id: "img", in: namespace)
+                        .frame(height: 40)
+                        
+                TextField("", text: $viewModel.searchText)
+                    .textInputAutocapitalization(.never)
+                    .lineLimit(1)
+                    .focused($focused)
+            }
+            .padding(.horizontal, 10)
+           // .matchedGeometryEffect(id: "v", in: namespace)
+            .frame(maxWidth: .infinity)
+            .background(AppColors.lightGray6)
+            .cornerRadius(16)
+            
+            if viewModel.isSearching {
+                Button("Cancel") {
+                    withAnimation {
+                        viewModel.searchText = ""
+                        viewModel.isSearching = false
+                        focused = false
+                    }
+                }
+            }
+        }
+       // .padding()
+        // .padding(.horizontal, 10)
+        .padding(.leading, viewModel.isSearching ? 0 : 10)
         .frame(maxWidth: .infinity)
     }
     
-    private var ListView: some View {
+    private var listView: some View {
         List(viewModel.countries) { country in
             NavigationLink {
                 CountryView(modelContext: viewModel.modelContext, country: country, catalogNetworkManager: viewModel.catalogNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, user: viewModel.user, authenticationManager: authenticationManager)
@@ -110,10 +155,79 @@ struct SearchView: View {
             }
             .listRowBackground(AppColors.background)
             .listSectionSeparator(.hidden)
-          //  .listRowSeparator(.hidden)
+            //  .listRowSeparator(.hidden)
         }
         .listStyle(.plain)
-       // .scrollContentBackground(.hidden)
+        // .scrollContentBackground(.hidden)
+    }
+    
+    private var searchList: some View {
+        List {
+            Section {
+                ForEach(viewModel.searchCountries) { country in
+                    NavigationLink {
+                        CountryView(modelContext: viewModel.modelContext, country: country, catalogNetworkManager: viewModel.catalogNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, user: viewModel.user, authenticationManager: authenticationManager)
+                    } label: {
+                        HStack(alignment: .center, spacing: 20) {
+                            Text(country.flagEmoji)
+                                .font(.title)
+                                .padding()
+                                .clipShape(Circle())
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(country.name)
+                                    .font(.title2)
+                                //                                    HStack {
+                                //                                        Text("25 мест")
+                                //                                        Text("| ")
+                                //                                        Text("17 мероприятий")
+                                //                                    }
+                                //                                    .foregroundStyle(.secondary)
+                                //                                    .font(.caption2)
+                            }
+                            
+                        }
+                    }
+                }
+            } header: {
+                Text("Countries")
+            }
+            
+            Section {
+                ForEach(viewModel.searchRegions) { region in
+                    Text(region.name ?? "")
+                }
+            } header: {
+                Text("Regions")
+            }
+            
+            Section {
+                ForEach(viewModel.searchCities) { city in
+                    Text(city.name)
+                }
+            } header: {
+                Text("Cities")
+            }
+            
+            
+            Section {
+                ForEach(viewModel.searchEvents) { event in
+                    Text(event.name)
+                }
+            } header: {
+                Text("Events")
+            }
+            
+            Section {
+                ForEach(viewModel.searchPlaces) { place in
+                    Text(place.name)
+                }
+            } header: {
+                Text("Places")
+            }
+
+            
+        }
+        .listStyle(.plain)
     }
 }
 
