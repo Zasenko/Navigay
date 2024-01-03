@@ -27,10 +27,18 @@ City.photo,
 City.is_active, 
 City.updated_at, 
 City.region_id, 
-Region.name_$language AS region_name, 
 City.country_id, 
+Region.name_$language AS region_name, 
+Region.photo AS region_photo, 
+Region.is_active AS region_is_active, 
+Region.updated_at AS region_updated_at, 
+Country.isoCountryCode, 
 Country.name_$language AS country_name, 
-Country.isoCountryCode 
+Country.flag_emoji, 
+Country.photo AS country_photo, 
+Country.show_regions, 
+Country.is_active AS country_is_active, 
+Country.updated_at AS country_updated_at 
 FROM City 
 LEFT JOIN Region ON Region.id = City.region_id 
 LEFT JOIN Country ON Country.id = City.country_id 
@@ -57,6 +65,23 @@ while ($row = $cities_result->fetch_assoc()) {
     $photo = $row['photo'];
     $photo_url = isset($photo) ? "https://www.navigay.me/" . $photo : null;
 
+
+    $region_is_active = (bool)$row['region_is_active'];
+    $region_photo = $row['region_photo'];
+    $region_photo_url = isset($region_photo) ? "https://www.navigay.me/" . $region_photo : null;
+
+    $show_regions = (bool)$row['show_regions'];
+    $country_is_active = (bool)$row['country_is_active'];
+    $country_photo = $row['country_photo'];
+    $country_photo_url = isset($country_photo) ? "https://www.navigay.me/" . $country_photo : null;
+
+    $region = array(
+        'id' => $region_id,
+        'name' => $row["name_$language"],
+        'photo' => $photo_url,
+        'is_active' => $is_active,
+        'updated_at' => $row['updated_at']
+    );
     $city = array(
         'id' => $row['id'],
         'name' => $row["name_$language"],
@@ -66,11 +91,19 @@ while ($row = $cities_result->fetch_assoc()) {
         'region' => array(
             'id' => $row['region_id'],
             'name' => $row["region_name"],
+            'photo' => $region_photo_url,
+            'is_active' => $region_is_active,
+            'updated_at' => $row['region_updated_at']
         ),
         'country' => array(
             'id' => $row['country_id'],
             'name' => $row['country_name'],
             'isoCountryCode' => $row["isoCountryCode"],
+            'flag_emoji' => $row['flag_emoji'],
+            'photo' => $country_photo_url,
+            'show_regions' => $show_regions,
+            'is_active' => $country_is_active,
+            'updated_at' => $row['country_updated_at']
         ),
     );
     array_push($cities, $city);
@@ -85,8 +118,13 @@ Region.photo,
 Region.is_active, 
 Region.updated_at, 
 Region.country_id, 
+Country.isoCountryCode, 
 Country.name_$language AS country_name, 
-Country.isoCountryCode 
+Country.flag_emoji, 
+Country.photo AS country_photo, 
+Country.show_regions, 
+Country.is_active AS country_is_active, 
+Country.updated_at AS country_updated_at 
 FROM Region";
 $sql .= " LEFT JOIN Country ON Country.id = Region.country_id";
 $sql .= " WHERE";
@@ -114,6 +152,11 @@ while ($row = $regions_result->fetch_assoc()) {
     //id
     $region_id = $row['id'];
 
+    $show_regions = (bool)$row['show_regions'];
+    $country_is_active = (bool)$row['country_is_active'];
+    $country_photo = $row['country_photo'];
+    $country_photo_url = isset($country_photo) ? "https://www.navigay.me/" . $country_photo : null;
+
     $region = array(
         'id' => $region_id,
         'name' => $row["name_$language"],
@@ -124,6 +167,11 @@ while ($row = $regions_result->fetch_assoc()) {
             'id' => $row['country_id'],
             'name' => $row['country_name'],
             'isoCountryCode' => $row["isoCountryCode"],
+            'flag_emoji' => $row['flag_emoji'],
+            'photo' => $country_photo_url,
+            'show_regions' => $show_regions,
+            'is_active' => $country_is_active,
+            'updated_at' => $row['country_updated_at']
         ),
     );
 
