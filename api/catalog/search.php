@@ -20,15 +20,29 @@ require_once('../dbconfig.php');
 
 $cities = array();
 
-$sql = "SELECT id, name_$language, photo, is_active, updated_at FROM City WHERE";
-$sql .= " name_origin LIKE ?";
-$sql .= " OR name_en LIKE ?";
-$sql .= " OR name_fr LIKE ?";
-$sql .= " OR name_de LIKE ?";
-$sql .= " OR name_ru LIKE ?";
-$sql .= " OR name_it LIKE ?";
-$sql .= " OR name_es LIKE ?";
-$sql .= " AND is_checked = true";
+$sql = "SELECT
+City.id, 
+City.name_$language, 
+City.photo, 
+City.is_active, 
+City.updated_at, 
+City.region_id, 
+Region.name_$language AS region_name, 
+City.country_id, 
+Country.name_$language AS country_name, 
+Country.isoCountryCode 
+FROM City 
+LEFT JOIN Region ON Region.id = City.region_id 
+LEFT JOIN Country ON Country.id = City.country_id 
+WHERE 
+City.name_origin LIKE ? 
+OR City.name_en LIKE ? 
+OR City.name_fr LIKE ? 
+OR City.name_de LIKE ? 
+OR City.name_ru LIKE ? 
+OR City.name_it LIKE ? 
+OR City.name_es LIKE ? 
+AND City.is_checked = true";
 
 $param = "%" . $search_text . "%";
 $params = [$param, $param, $param, $param, $param, $param, $param];
@@ -48,22 +62,42 @@ while ($row = $cities_result->fetch_assoc()) {
         'name' => $row["name_$language"],
         'photo' => $photo_url,
         'is_active' => $is_active,
-        'updated_at' => $row['updated_at']
+        'updated_at' => $row['updated_at'],
+        'region' => array(
+            'id' => $row['region_id'],
+            'name' => $row["region_name"],
+        ),
+        'country' => array(
+            'id' => $row['country_id'],
+            'name' => $row['country_name'],
+            'isoCountryCode' => $row["isoCountryCode"],
+        ),
     );
     array_push($cities, $city);
 }
 
 $regions = array();
 
-$sql = "SELECT id, name_$language, photo, is_active, updated_at FROM Region WHERE";
-$sql .= " name_origin LIKE ?";
-$sql .= " OR name_en LIKE ?";
-$sql .= " OR name_fr LIKE ?";
-$sql .= " OR name_de LIKE ?";
-$sql .= " OR name_ru LIKE ?";
-$sql .= " OR name_it LIKE ?";
-$sql .= " OR name_es LIKE ?";
-$sql .= " AND is_checked = true";
+$sql = "SELECT 
+Region.id, 
+Region.name_$language, 
+Region.photo, 
+Region.is_active, 
+Region.updated_at, 
+Region.country_id, 
+Country.name_$language AS country_name, 
+Country.isoCountryCode 
+FROM Region";
+$sql .= " LEFT JOIN Country ON Country.id = Region.country_id";
+$sql .= " WHERE";
+$sql .= " Region.name_origin LIKE ?";
+$sql .= " OR Region.name_en LIKE ?";
+$sql .= " OR Region.name_fr LIKE ?";
+$sql .= " OR Region.name_de LIKE ?";
+$sql .= " OR Region.name_ru LIKE ?";
+$sql .= " OR Region.name_it LIKE ?";
+$sql .= " OR Region.name_es LIKE ?";
+$sql .= " AND Region.is_checked = true";
 
 $param = "%" . $search_text . "%";
 $params = [$param, $param, $param, $param, $param, $param, $param];
@@ -85,7 +119,12 @@ while ($row = $regions_result->fetch_assoc()) {
         'name' => $row["name_$language"],
         'photo' => $photo_url,
         'is_active' => $is_active,
-        'updated_at' => $row['updated_at']
+        'updated_at' => $row['updated_at'],
+        'country' => array(
+            'id' => $row['country_id'],
+            'name' => $row['country_name'],
+            'isoCountryCode' => $row["isoCountryCode"],
+        ),
     );
 
     $sql = "SELECT id, name_$language, photo, is_active, updated_at FROM City WHERE region_id = ? AND is_checked = true";
@@ -95,7 +134,7 @@ while ($row = $regions_result->fetch_assoc()) {
     $cities_result = $stmt->get_result();
     $stmt->close();
 
-    $cities = array();
+    $region_cities = array();
     while ($row = $cities_result->fetch_assoc()) {
         //is_active
         $is_active = (bool)$row['is_active'];
@@ -103,20 +142,20 @@ while ($row = $regions_result->fetch_assoc()) {
         $photo = $row['photo'];
         $photo_url = isset($photo) ? "https://www.navigay.me/" . $photo : null;
 
-        $city = array(
+        $region_city = array(
             'id' => $row['id'],
             'name' => $row["name_$language"],
             'photo' => $photo_url,
             'is_active' => $is_active,
             'updated_at' => $row['updated_at']
         );
-        array_push($cities, $city);
+        array_push($region_cities, $region_city);
     }
-    $region += ['cities' => $cities];
+    $region += ['cities' => $region_cities];
     array_push($regions, $region);
 
     //TODO
-    // if (count($cities) > 0) {
+    // if (count($region_cities) > 0) {
     //     array_push($regions, $region);
     // } 
 }

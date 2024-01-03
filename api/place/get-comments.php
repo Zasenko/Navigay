@@ -48,7 +48,7 @@ $comments = array();
 
 while ($row = $result->fetch_assoc()) {
 
-    
+
     //todo на проверку
     $is_active = (bool)$row['is_active'];
 
@@ -58,7 +58,7 @@ while ($row = $result->fetch_assoc()) {
         $url = "https://www.navigay.me/" . $photo_path;
         array_push($photos_urls, $url);
     }
-    
+
     $comment = array(
         "id" => $row['id'],
         'comment' => $row["comment"],
