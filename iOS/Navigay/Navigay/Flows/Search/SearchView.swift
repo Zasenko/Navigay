@@ -41,14 +41,12 @@ struct SearchView: View {
                         searchList
                             .onChange(of: viewModel.searchText, initial: false) { _, newValue in
                                 viewModel.textSubject.send(newValue)
+                                viewModel.searchInDB(text: newValue)
                             }
                     } else {
                         listView
                     }
                 }
-                .onChange(of: viewModel.searchText, { oldValue, newValue in
-                    viewModel.searchInDB(text: newValue)
-                })
                 .toolbarTitleDisplayMode(.inline)
                 .toolbar {
                     if viewModel.isSearching {
@@ -194,7 +192,42 @@ struct SearchView: View {
             
             Section {
                 ForEach(viewModel.searchRegions) { region in
-                    Text(region.name ?? "")
+                    //                    Text("region: ") + Text(region.name ?? "")
+                    //                    Text("region country: ") + Text(region.country?.name ?? "")
+                    //                    ForEach(region.cities) { city in
+                    //                        Text("region city: ") + Text(city.name)
+                    //                    }
+                VStack {
+                    
+                    HStack {
+                        if let url = region.photo {
+                            ImageLoadingView(url: url, width: 50, height: 50, contentMode: .fill) {
+                                AppColors.lightGray6
+                            }
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .overlay(RoundedRectangle(cornerRadius: 10).stroke(AppColors.lightGray5, lineWidth: 1))
+                        }
+                        VStack(alignment: .leading) {
+                            if let name = region.name {
+                                Text(name)
+                                    .bold()
+                            }
+                            if let country = region.country {
+                                Text(country.name)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                        .frame(maxWidth: .infinity)
+                    }
+                    .frame(maxWidth: .infinity)
+                    
+                    CitiesView(modelContext: viewModel.modelContext, cities: region.cities, catalogNetworkManager: viewModel.catalogNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, errorManager: viewModel.errorManager, user: viewModel.user, authenticationManager: authenticationManager)
+                                        
+                    
+                    
+                }
+                    
                 }
             } header: {
                 Text("Regions")
@@ -202,7 +235,29 @@ struct SearchView: View {
             
             Section {
                 ForEach(viewModel.searchCities) { city in
-                    Text(city.name)
+                    HStack {
+                        if let url = city.photo {
+                            ImageLoadingView(url: url, width: 50, height: 50, contentMode: .fill) {
+                                AppColors.lightGray6
+                            }
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .overlay(RoundedRectangle(cornerRadius: 10).stroke(AppColors.lightGray5, lineWidth: 1))
+                        }
+                        VStack(alignment: .leading) {
+                            Text(city.name)
+                                .bold()
+                            if let region = city.region {
+                                HStack(spacing: 20) {
+                                    Text(region.country?.name ?? "")
+                                    Text(region.name ?? "")
+                                }
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                            }
+                        }
+                        .frame(maxWidth: .infinity)
+                    }
+                    .frame(maxWidth: .infinity)
                 }
             } header: {
                 Text("Cities")

@@ -93,17 +93,17 @@ while ($row = $cities_result->fetch_assoc()) {
             'name' => $row["region_name"],
             'photo' => $region_photo_url,
             'is_active' => $region_is_active,
-            'updated_at' => $row['region_updated_at']
-        ),
-        'country' => array(
-            'id' => $row['country_id'],
-            'name' => $row['country_name'],
-            'isoCountryCode' => $row["isoCountryCode"],
-            'flag_emoji' => $row['flag_emoji'],
-            'photo' => $country_photo_url,
-            'show_regions' => $show_regions,
-            'is_active' => $country_is_active,
-            'updated_at' => $row['country_updated_at']
+            'updated_at' => $row['region_updated_at'],
+            'country' => array(
+                'id' => $row['country_id'],
+                'name' => $row['country_name'],
+                'isoCountryCode' => $row["isoCountryCode"],
+                'flag_emoji' => $row['flag_emoji'],
+                'photo' => $country_photo_url,
+                'show_regions' => $show_regions,
+                'is_active' => $country_is_active,
+                'updated_at' => $row['country_updated_at']
+            ),
         ),
     );
     array_push($cities, $city);

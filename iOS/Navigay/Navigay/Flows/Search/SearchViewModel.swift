@@ -49,29 +49,16 @@ extension SearchView {
             self.user = user
             
             cancellable = textSubject
-                        // Устанавливаем задержку в 2 секунды
-                        .debounce(for: .seconds(2), scheduler: DispatchQueue.main)
-                        // Подписываемся на события после задержки
-                        .sink { [weak self] updatedText in
-                            print(updatedText)
-                            guard !updatedText.isEmpty, updatedText != " " else {
-                                return
-                            }
-                            self?.search(text: updatedText)
-                        }
-            
-//            searchText.publisher
-//                .debounce(for: .seconds(1), scheduler: DispatchQueue.main)
-//                .map { String($0) }
-//                .sink { [weak self] newText in
-//                    print(newText)
-//                    guard !newText.isEmpty, newText != " " else {
-//                        return
-//                    }
-//                    self?.search(text: newText)
-//                }
-//                .store(in: &cancellables)
-            
+            // Устанавливаем задержку в 2 секунды
+                .debounce(for: .seconds(2), scheduler: DispatchQueue.main)
+            // Подписываемся на события после задержки
+                .sink { [weak self] updatedText in
+                    print(updatedText)
+                    guard !updatedText.isEmpty, updatedText != " " else {
+                        return
+                    }
+                    self?.search(text: updatedText)
+                }
         }
         
         func fetch() {
@@ -109,40 +96,47 @@ extension SearchView {
         }
         
         func searchInDB(text: String) {
-            do {
-                let countryDescriptor = FetchDescriptor<Country>()
-                let countries = try modelContext.fetch(countryDescriptor)
-                self.searchCountries = countries.filter( { $0.name.lowercased().contains(text.lowercased())})
-                
-                let regionDescriptor = FetchDescriptor<Region>()
-                let regions = try modelContext.fetch(regionDescriptor)
-                self.searchRegions = regions.filter({ region in
-                    if let name = region.name {
-                        return name.lowercased().contains(text.lowercased())
-                    } else {
-                        return false
-                    }
-                })
-                
-                let cityDescriptor = FetchDescriptor<City>()
-                let cities = try modelContext.fetch(cityDescriptor)
-                self.searchCities = cities.filter({ city in
-                    return city.name.lowercased().contains(text.lowercased())
-                })
-                
-                let eventDescriptor = FetchDescriptor<Event>()
-                let events = try modelContext.fetch(eventDescriptor)
-                self.searchEvents = events.filter({ event in
-                    return event.name.lowercased().contains(text.lowercased())
-                })
-                
-                let placeDescriptor = FetchDescriptor<Place>()
-                let places = try modelContext.fetch(placeDescriptor)
-                self.searchPlaces = places.filter({ place in
-                    return place.name.lowercased().contains(text.lowercased())
-                })
-            } catch {
-                debugPrint(error)
+            if catalogNetworkManager.loadedSearchText.keys.contains(where: { $0 == text } ) {
+                guard let result = catalogNetworkManager.loadedSearchText[text] else {
+                    return
+                }
+                updateSearchResult(result: result)
+            } else {
+                do {
+                    let countryDescriptor = FetchDescriptor<Country>()
+                    let countries = try modelContext.fetch(countryDescriptor)
+                    self.searchCountries = countries.filter({ $0.name.lowercased().contains(text.lowercased()) })
+                    
+                    let regionDescriptor = FetchDescriptor<Region>()
+                    let regions = try modelContext.fetch(regionDescriptor)
+                    self.searchRegions = regions.filter({ region in
+                        if let name = region.name {
+                            return name.lowercased().contains(text.lowercased())
+                        } else {
+                            return false
+                        }
+                    })
+                    
+                    let cityDescriptor = FetchDescriptor<City>()
+                    let cities = try modelContext.fetch(cityDescriptor)
+                    self.searchCities = cities.filter({ city in
+                        return city.name.lowercased().contains(text.lowercased())
+                    })
+                    
+                    let eventDescriptor = FetchDescriptor<Event>()
+                    let events = try modelContext.fetch(eventDescriptor)
+                    self.searchEvents = events.filter({ event in
+                        return event.name.lowercased().contains(text.lowercased())
+                    })
+                    
+                    let placeDescriptor = FetchDescriptor<Place>()
+                    let places = try modelContext.fetch(placeDescriptor)
+                    self.searchPlaces = places.filter({ place in
+                        return place.name.lowercased().contains(text.lowercased())
+                    })
+                } catch {
+                    debugPrint(error)
+                }
             }
         }
         
@@ -153,15 +147,18 @@ extension SearchView {
                 }
                 print(result)
                 await MainActor.run {
-                    updateRegions(decodedRegions: result.regions)
+                    updateSearchResult(result: result)
                    // isLoading = false
                 }
             }
         }
         
+        private func updateSearchResult(result: SearchItems) {
+            updateSearchedRegions(decodedRegions: result.regions)
+            updateCities(decodedCities: result.cities)
+        }
         
-        
-        private func updateRegions(decodedRegions: [DecodedRegion]?) {
+        private func updateSearchedRegions(decodedRegions: [DecodedRegion]?) {
             guard let decodedRegions, !decodedRegions.isEmpty else {
                 return
             }
@@ -176,6 +173,14 @@ extension SearchView {
                 for decodedRegion in decodedRegions {
                     if let region = allRegions.first(where: { $0.id == decodedRegion.id} ) {
                         region.updateIncomplete(decodedRegion: decodedRegion)
+                        if let decodedCountry = decodedRegion.country,
+                           let country = allCountries.first(where: { $0.id == decodedCountry.id} ) {
+                            
+                            if !country.regions.contains(where: { $0.id == region.id }) {
+                                country.regions.append(region)
+                            }
+                            region.country = country
+                        }
                         updateCities(decodedCities: decodedRegion.cities, for: region)
                         regions.append(region)
                     } else if decodedRegion.isActive {
@@ -183,6 +188,7 @@ extension SearchView {
                         if let decodedCountry = decodedRegion.country,
                            let country = allCountries.first(where: { $0.id == decodedCountry.id} ) {
                             country.regions.append(region)
+                            region.country = country
                         }
                         updateCities(decodedCities: decodedRegion.cities, for: region)
                         regions.append(region)
@@ -199,13 +205,81 @@ extension SearchView {
                 for decodedCity in decodedCities {
                     if let city = region.cities.first(where: { $0.id == decodedCity.id} ) {
                         city.updateCityIncomplete(decodedCity: decodedCity)
+                        region.cities.append(city)
+                        city.region = region
                     } else if decodedCity.isActive {
                         let city = City(decodedCity: decodedCity)
                         region.cities.append(city)
+                        city.region = region
                     }
                 }
             } else {
                 region.cities.forEach( { modelContext.delete($0) } )
+            }
+        }
+        
+        private func updateCities(decodedCities: [DecodedCity]?) {
+            guard let decodedCities, !decodedCities.isEmpty else {
+                return
+            }
+            do {
+                let citiesDescriptor = FetchDescriptor<City>()
+                let allCities = try modelContext.fetch(citiesDescriptor)
+                
+                let countryDescriptor = FetchDescriptor<Country>()
+                let allCountries = try modelContext.fetch(countryDescriptor)
+                
+                let regionDescriptor = FetchDescriptor<Region>()
+                let allRegions = try modelContext.fetch(regionDescriptor)
+                
+                var cities: [City] = []
+                for decodedCity in decodedCities {
+                    if let city = allCities.first(where: { $0.id == decodedCity.id} ) {
+                        city.updateCityIncomplete(decodedCity: decodedCity)
+                        updateCityRegion(city: city, decodedCity: decodedCity, allRegions: allRegions, allCountries: allCountries)
+                        cities.append(city)
+                    } else if decodedCity.isActive {
+                        let city = City(decodedCity: decodedCity)
+                        modelContext.insert(city)
+                        updateCityRegion(city: city, decodedCity: decodedCity, allRegions: allRegions, allCountries: allCountries)
+                        cities.append(city)
+                    }
+                }
+                searchCities = cities
+            } catch {
+                debugPrint(error)
+            }
+        }
+        
+        private func updateCityRegion(city: City, decodedCity: DecodedCity, allRegions: [Region], allCountries: [Country]) {
+            guard let decodedRegion = decodedCity.region else {
+                return
+            }
+            if let region = allRegions.first(where: { $0.id == decodedRegion.id} ) {
+                region.updateIncomplete(decodedRegion: decodedRegion)
+                city.region = region
+                region.cities.append(city)
+            } else {
+                let region = Region(decodedRegion: decodedRegion)
+                addCountryToRegion(region: region, decodedRegion: decodedRegion, allCountries: allCountries)
+                city.region = region
+                region.cities.append(city)
+            }
+        }
+        
+        private func addCountryToRegion(region: Region, decodedRegion: DecodedRegion, allCountries: [Country]) {
+            guard let decodedCountry = decodedRegion.country else {
+                return
+            }
+            
+            if let country = allCountries.first(where: { $0.id == decodedCountry.id} ) {
+                country.updateCountryIncomplete(decodedCountry: decodedCountry)
+                region.country = country
+                country.regions.append(region)
+            } else {
+                let country = Country(decodedCountry: decodedCountry)
+                region.country = country
+                country.regions.append(region)
             }
         }
         

@@ -20,7 +20,6 @@ struct DecodedCity: Identifiable, Codable {
         case places
         case events
         case region
-        case country
     }
 
     
@@ -35,5 +34,4 @@ struct DecodedCity: Identifiable, Codable {
     let places: [DecodedPlace]?
     let events: [DecodedEvent]?
     let region: DecodedRegion?
-    let country: DecodedCountry?
 }

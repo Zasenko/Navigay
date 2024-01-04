@@ -17,7 +17,7 @@ protocol CatalogNetworkManagerProtocol {
     var isCountriesLoaded: Bool { get }
     var loadedCountries: [Int] { get }
     var loadedCities: [Int] { get }
-    var loadedSearchText: [String] { get }
+    var loadedSearchText: [String:SearchItems] { get }
     func fetchCountries() async -> [DecodedCountry]?
     func fetchCountry(id: Int) async -> DecodedCountry?
     func fetchCity(id: Int) async -> DecodedCity?
@@ -32,7 +32,7 @@ final class CatalogNetworkManager {
     var isCountriesLoaded: Bool = false
     var loadedCountries: [Int] = []
     var loadedCities: [Int] = []
-    var loadedSearchText: [String] = []
+    var loadedSearchText: [String:SearchItems] = [:]
     
     // MARK: - Private Properties
     
@@ -186,8 +186,7 @@ extension CatalogNetworkManager: CatalogNetworkManagerProtocol {
     }
     
     func search(text: String) async -> SearchItems? {
-
-        guard !loadedSearchText.contains(where: { $0 == text } ) else {
+        guard !loadedSearchText.keys.contains(where: { $0 == text } ) else {
             return nil
         }
         
@@ -216,8 +215,6 @@ extension CatalogNetworkManager: CatalogNetworkManagerProtocol {
             guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
                 throw NetworkErrors.invalidData
             }
-                        let json = try JSONSerialization.jsonObject(with: data, options: JSONSerialization.ReadingOptions.allowFragments)
-                        print(json)
             guard let decodedResult = try? JSONDecoder().decode(SearchResult.self, from: data) else {
                 throw NetworkErrors.decoderError
             }
@@ -227,7 +224,7 @@ extension CatalogNetworkManager: CatalogNetworkManagerProtocol {
                 debugPrint("API ERROR - CatalogNetworkManager search text: \(text) - ", decodedResult.error?.message ?? "")
                 return nil
             }
-            loadedSearchText.append(text)
+            loadedSearchText[text] = result
             return result
         } catch {
             errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
