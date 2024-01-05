@@ -191,7 +191,7 @@ extension CatalogNetworkManager: CatalogNetworkManagerProtocol {
         }
         
         let errorModel = ErrorModel(massage: "Something went wrong. The information has not been updated. Please try again later.", img: nil, color: nil)
-        debugPrint("--- search text: ", text)
+        debugPrint("--- fetch search() , text: ", text)
         
         let path = "/api/catalog/search.php"
         var urlComponents: URLComponents {

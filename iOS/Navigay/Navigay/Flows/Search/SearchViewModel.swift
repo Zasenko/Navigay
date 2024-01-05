@@ -20,12 +20,13 @@ extension SearchView {
         var countries: [Country] = []
         
         var isSearching: Bool = false
+        var showLastSearchResult: Bool = false
         var searchText: String = ""
         var searchCountries: [Country] = []
         var searchRegions: [Region] = []
         var searchCities: [City] = []
         var searchEvents: [Event] = []
-        var searchPlaces: [Place] = []
+        var searchGroupedPlaces: [PlaceType: [Place]] = [:]
         
         let catalogNetworkManager: CatalogNetworkManagerProtocol
         let placeNetworkManager: PlaceNetworkManagerProtocol
@@ -49,19 +50,16 @@ extension SearchView {
             self.user = user
             
             cancellable = textSubject
-            // Устанавливаем задержку в 2 секунды
                 .debounce(for: .seconds(2), scheduler: DispatchQueue.main)
-            // Подписываемся на события после задержки
                 .sink { [weak self] updatedText in
-                    print(updatedText)
-                    guard !updatedText.isEmpty, updatedText != " " else {
+                    guard !updatedText.isEmpty, updatedText.first != " ", updatedText.count > 1 else {
                         return
                     }
                     self?.search(text: updatedText)
                 }
         }
         
-        func fetch() {
+        func fetchCountries() {
             if !catalogNetworkManager.isCountriesLoaded {
                 Task {
                     guard let decodedCountries = await catalogNetworkManager.fetchCountries() else {
@@ -96,10 +94,15 @@ extension SearchView {
         }
         
         func searchInDB(text: String) {
-            if catalogNetworkManager.loadedSearchText.keys.contains(where: { $0 == text } ) {
-                guard let result = catalogNetworkManager.loadedSearchText[text] else {
-                    return
-                }
+            guard !text.isEmpty || text == " " else {
+                searchCountries = []
+                searchRegions = []
+                searchCities = []
+                searchEvents = []
+                searchGroupedPlaces = [:]
+                return
+            }
+            if catalogNetworkManager.loadedSearchText.keys.contains(where: { $0 == text } ), let result = catalogNetworkManager.loadedSearchText[text] {
                 updateSearchResult(result: result)
             } else {
                 do {
@@ -130,10 +133,12 @@ extension SearchView {
                     })
                     
                     let placeDescriptor = FetchDescriptor<Place>()
-                    let places = try modelContext.fetch(placeDescriptor)
-                    self.searchPlaces = places.filter({ place in
+                    let allPlaces = try modelContext.fetch(placeDescriptor)
+                    
+                    let places = allPlaces.filter({ place in
                         return place.name.lowercased().contains(text.lowercased())
                     })
+                    createGroupedPlaces(places: places)
                 } catch {
                     debugPrint(error)
                 }
@@ -145,7 +150,6 @@ extension SearchView {
                 guard let result = await catalogNetworkManager.search(text: text) else {
                     return
                 }
-                print(result)
                 await MainActor.run {
                     updateSearchResult(result: result)
                    // isLoading = false
@@ -286,19 +290,24 @@ extension SearchView {
         private func updatePlaces(decodedPlaces: [DecodedPlace]?) {
             guard let decodedPlaces else { return }
             do {
+                
                 let descriptor = FetchDescriptor<Place>()
                 let allPlaces = try modelContext.fetch(descriptor)
+                
+                var places: [Place] = []
                 for decodedPlace in decodedPlaces {
                     if let place = allPlaces.first(where: { $0.id == decodedPlace.id} ) {
                         place.updatePlaceIncomplete(decodedPlace: decodedPlace)
                         updateTimeTable(timetable: decodedPlace.timetable, for: place)
+                        places.append(place)
                     } else if decodedPlace.isActive {
                         let place = Place(decodedPlace: decodedPlace)
                         modelContext.insert(place)
                         updateTimeTable(timetable: decodedPlace.timetable, for: place)
-                       // allPlaces.append(place)
+                        places.append(place)
                     }
                 }
+                createGroupedPlaces(places: places)
             } catch {
                 debugPrint(error)
             }
@@ -332,6 +341,13 @@ extension SearchView {
                     let workingDay = WorkDay(workDay: day)
                     place.timetable.append(workingDay)
                 }
+            }
+        }
+        
+        // TODO: дубликат
+        private func createGroupedPlaces(places: [Place]) {
+            withAnimation {
+                self.searchGroupedPlaces = Dictionary(grouping: places.filter { $0.isActive }) { $0.type }
             }
         }
     }

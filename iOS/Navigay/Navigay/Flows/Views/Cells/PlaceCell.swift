@@ -11,7 +11,7 @@ import CoreLocation
 struct PlaceCell: View {
     
     private let place: Place
-    @State private var image: Image? = nil
+   // @State private var image: Image? = nil
     
     private let showOpenInfo: Bool
     private let showDistance: Bool
@@ -39,6 +39,7 @@ struct PlaceCell: View {
                     EmptyView()
                         .frame(width: 50, height: 50)
                 }
+                
                 VStack(alignment: .leading, spacing: 4) {
                     Text(place.name)
                             .multilineTextAlignment(.leading)
@@ -73,15 +74,15 @@ struct PlaceCell: View {
             Divider()
                 .offset(x: 70)
         }
-        .onAppear() {
-            if let url = place.avatar {
-                Task {
-                    if let image = await ImageLoader.shared.loadImage(urlString: url) {
-                        self.image = image
-                    }
-                }
-            }
-        }
+//        .onAppear() {
+//            if let url = place.avatar {
+//                Task {
+//                    if let image = await ImageLoader.shared.loadImage(urlString: url) {
+//                        self.image = image
+//                    }
+//                }
+//            }
+//        }
     }
 }
 
