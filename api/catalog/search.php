@@ -43,13 +43,13 @@ FROM City
 LEFT JOIN Region ON Region.id = City.region_id 
 LEFT JOIN Country ON Country.id = City.country_id 
 WHERE 
-City.name_origin LIKE ? 
+(City.name_origin LIKE ? 
 OR City.name_en LIKE ? 
 OR City.name_fr LIKE ? 
 OR City.name_de LIKE ? 
 OR City.name_ru LIKE ? 
 OR City.name_it LIKE ? 
-OR City.name_es LIKE ? 
+OR City.name_es LIKE ?) 
 AND City.is_checked = true";
 
 $param = "%" . $search_text . "%";
@@ -128,13 +128,13 @@ Country.updated_at AS country_updated_at
 FROM Region";
 $sql .= " LEFT JOIN Country ON Country.id = Region.country_id";
 $sql .= " WHERE";
-$sql .= " Region.name_origin LIKE ?";
+$sql .= " (Region.name_origin LIKE ?";
 $sql .= " OR Region.name_en LIKE ?";
 $sql .= " OR Region.name_fr LIKE ?";
 $sql .= " OR Region.name_de LIKE ?";
 $sql .= " OR Region.name_ru LIKE ?";
 $sql .= " OR Region.name_it LIKE ?";
-$sql .= " OR Region.name_es LIKE ?";
+$sql .= " OR Region.name_es LIKE ?)";
 $sql .= " AND Region.is_checked = true";
 
 $param = "%" . $search_text . "%";
