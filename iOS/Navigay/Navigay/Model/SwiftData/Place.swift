@@ -114,14 +114,20 @@ final class Place {
     func getDistanceText(distance: Double, inKm: Bool = true) {
         if inKm {
             let distanceInKilometers = distance / 1000.0
-            
             let formattedDistanceInKilometers = String(format: "%.2f", distanceInKilometers)
-            distanceText = "\(address)  •  \(formattedDistanceInKilometers) km."
+            distanceText = "•  \(formattedDistanceInKilometers) km."
         } else {
             let distanceInMiles = distance * 0.000621371 /// Преобразование в мили (1 метр = 0.000621371 миль)
             let formattedDistanceInKilometers = String(format: "%.2f", distanceInMiles)
-            distanceText = "\(address)  •  \(formattedDistanceInKilometers) m."
+            distanceText = "•  \(formattedDistanceInKilometers) m."
         }
+    }
+    func getCountryCityText() -> String? {
+        let countryName = city?.region?.country?.name
+        let countryText = countryName ?? ""
+        let cityName = city?.name
+        let cityText = cityName == nil ? "" : "  •  \(cityName ?? "")"
+        return "\(countryText)\(cityText)"
     }
 }
 

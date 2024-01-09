@@ -13,6 +13,7 @@ struct EventCell: View {
     // MARK: - Private Properties
     
     private let event: Event
+    private let showCountryCity: Bool
     
     @State private var image: Image? = nil
    // @State private var selectedEvent: Event? = nil
@@ -34,13 +35,14 @@ struct EventCell: View {
     
     // MARK: - Init
     
-    init(event: Event, width: CGFloat, modelContext: ModelContext, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol) {
+    init(event: Event, width: CGFloat, modelContext: ModelContext, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol, showCountryCity: Bool) {
         self.event = event
         self.width = width
         self.modelContext = modelContext
         self.eventNetworkManager = eventNetworkManager
         self.placeNetworkManager = placeNetworkManager
         self.errorManager = errorManager
+        self.showCountryCity = showCountryCity
     }
     
     // MARK: - Body
@@ -67,6 +69,17 @@ struct EventCell: View {
     
     private var EventPosterLable: some View {
         VStack(alignment: .center, spacing: 0) {
+            if showCountryCity {
+                Group {
+                    Text(event.city?.region?.country?.name == nil ? "" : "\(event.city?.region?.country?.name ?? "")")
+                        .bold()
+                    + Text(event.city?.name == nil ? "" : "  •  \(event.city?.name ?? "")")
+                }
+                .font(.footnote)
+                .foregroundColor(.secondary)
+                .padding(.bottom, 5)
+            }
+            
             ZStack(alignment: .topTrailing) {
                 if let url = event.smallPoster {
                     Group {
@@ -78,7 +91,7 @@ struct EventCell: View {
                                 .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                                 .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous).stroke(AppColors.lightGray5, lineWidth: 1))
                         } else {
-                            Color.red
+                            AppColors.lightGray6
                                 .frame(width: width, height: width)
                         }
                     }

@@ -24,9 +24,7 @@ struct DecodedPlace: Identifiable, Codable {
         case about
         case www, facebook, instagram, phone
         case otherInfo = "other_info"
-        case countryId = "country_id"
-        case regionId = "region_id"
-        case cityId = "city_id"
+        case city
         case events
     }
 
@@ -50,9 +48,7 @@ struct DecodedPlace: Identifiable, Codable {
     let facebook: String?
     let instagram: String?
     let phone: String?
-    let countryId: Int?
-    let regionId: Int?
-    let cityId: Int?
+    let city: DecodedCity?
     let events: [DecodedEvent]?
 }
 

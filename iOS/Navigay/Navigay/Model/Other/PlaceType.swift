@@ -46,7 +46,7 @@ enum PlaceType: Int, Codable, CaseIterable, Comparable {
         case .shop:
             return "Shop"
         case .gym:
-            return "Gym"
+            return "Sport"
         case .culture:
             return "Cultur"
         case .community:
@@ -83,7 +83,7 @@ enum PlaceType: Int, Codable, CaseIterable, Comparable {
         case .shop:
             return "Shops"
         case .gym:
-            return "Gyms"
+            return "Sport"
         case .culture:
             return "Cultur"
         case .community:

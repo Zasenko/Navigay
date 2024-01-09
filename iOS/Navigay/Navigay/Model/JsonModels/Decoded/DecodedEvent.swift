@@ -37,6 +37,7 @@ struct DecodedEvent: Identifiable, Codable {
         case instagram
         case phone
         case place
+        case city
     }
     
     let id: Int
@@ -65,6 +66,7 @@ struct DecodedEvent: Identifiable, Codable {
     let instagram: String?
     let phone: String?
     let place: DecodedPlace?
+    let city: DecodedCity?
    // let countryId: Int?
    // let regionId: Int?
    // let cityId: Int?

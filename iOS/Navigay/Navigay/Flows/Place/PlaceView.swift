@@ -246,7 +246,7 @@ struct PlaceView: View {
                         .padding(.vertical, 30)
                     LazyVGrid(columns: viewModel.gridLayoutEvents, spacing: 20) {
                         ForEach(viewModel.place.events) { event in
-                            EventCell(event: event, width: (width / 2) - 30, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager)
+                            EventCell(event: event, width: (width / 2) - 30, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, showCountryCity: false)
                         }
                     }
                     .padding(.horizontal, 20)
