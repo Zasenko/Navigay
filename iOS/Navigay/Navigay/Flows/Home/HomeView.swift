@@ -121,7 +121,7 @@ struct HomeView: View {
             if viewModel.aroundEvents.count > 0 {
                 EventsView(width: width)
             }
-            PlacesView
+            placesView
             
             Color.clear
                 .frame(height: 50)
@@ -138,7 +138,7 @@ struct HomeView: View {
         Section {
             HStack {
                 Text(viewModel.selectedDate?.formatted(date: .long, time: .omitted) ?? "Upcoming events")
-                    .font(.title3).bold()
+                    .font(.title2)
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 Button {
@@ -190,16 +190,22 @@ struct HomeView: View {
         }
     }
     
-    private var PlacesView: some View {
+    private var placesView: some View {
         ForEach(viewModel.groupedPlaces.keys.sorted(), id: \.self) { key in
             Section {
-                Text(key.getPluralName().uppercased())
-                    .foregroundColor(.white)
-                    .font(.caption)
-                    .bold()
-                    .modifier(CapsuleSmall(background: key.getColor(), foreground: .white))
-                    .frame(maxWidth: .infinity)
-                    .padding(.top)
+//                Text(key.getPluralName().uppercased())
+//                    .foregroundColor(.white)
+//                    .font(.caption)
+//                    .bold()
+//                    .modifier(CapsuleSmall(background: key.getColor(), foreground: .white))
+//                    .frame(maxWidth: .infinity)
+//                    .padding(.top)
+                Text(key.getPluralName())
+                    .font(.title)
+                    .foregroundStyle(.secondary)
+                    .padding(.top, 50)
+                    .padding(.bottom, 10)
+                    .offset(x: 70)
                 ForEach(viewModel.groupedPlaces[key] ?? []) { place in
                     NavigationLink {
                         PlaceView(place: place, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, authenticationManager: authenticationManager)

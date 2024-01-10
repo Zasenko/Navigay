@@ -38,7 +38,7 @@ struct SearchView: View {
                 listView
                     .toolbarTitleDisplayMode(.inline)
                     .toolbar {
-                        if viewModel.showSearch {
+                        if viewModel.showSearchView {
                             ToolbarItem(placement: .principal) {
                                 searchView
                             }
@@ -55,6 +55,7 @@ struct SearchView: View {
                     .toolbarBackground(AppColors.background)
                     .onChange(of: viewModel.searchText, initial: false) { _, newValue in
                         viewModel.textSubject.send(newValue.lowercased())
+                        viewModel.textSubject2.send(newValue.lowercased())
                     }
                     .onChange(of: viewModel.isSearching) { _, newValue in
                         if newValue {
@@ -68,22 +69,21 @@ struct SearchView: View {
     private var searchButton: some View {
         Button {
             withAnimation {
-                viewModel.showSearch = true
+                viewModel.searchCountries = []
+                viewModel.searchRegions = []
+                viewModel.searchCities = []
+                viewModel.searchEvents = []
+                viewModel.searchGroupedPlaces = [:]
+                
+                viewModel.showSearchView = true
                 focused = true
             }
         } label: {
-            HStack(spacing: 0) {
-                AppImages.iconSearch
-                    .font(.callout)
-                    .foregroundColor(.secondary)
-                    .bold()
-                //    .matchedGeometryEffect(id: "img", in: namespace)
-                    .frame(maxWidth: .infinity)
-            }
-            //  .matchedGeometryEffect(id: "v", in: namespace)
-            .frame(width: 40, height: 40)
-            .background(AppColors.lightGray6)
-            .cornerRadius(16)
+            AppImages.iconSearch
+                .font(.callout)
+                .bold()
+                .frame(width: 40, height: 40)
+                .tint(.blue)
         }
     }
     
@@ -100,7 +100,6 @@ struct SearchView: View {
                         .font(.callout)
                         .foregroundColor(.secondary)
                         .bold()
-                    //          .matchedGeometryEffect(id: "img", in: namespace)
                         .frame(width: 40, height: 40)
                 }
                 TextField("", text: $viewModel.searchText)
@@ -110,31 +109,28 @@ struct SearchView: View {
                     .focused($focused)
             }
             .padding(.horizontal, 10)
-            // .matchedGeometryEffect(id: "v", in: namespace)
             .frame(maxWidth: .infinity)
             .background(AppColors.lightGray6)
             .cornerRadius(16)
             
-            if viewModel.showSearch {
+            if viewModel.showSearchView {
                 Button("Cancel") {
                     withAnimation {
+                        hideKeyboard()
                         viewModel.searchText = ""
-                        viewModel.showSearch = false
-                        focused = false
+                        viewModel.showSearchView = false
                     }
                 }
             }
         }
-        // .padding()
-        // .padding(.horizontal, 10)
-        .padding(.leading, viewModel.showSearch ? 0 : 10)
+        .padding(.leading, viewModel.showSearchView ? 0 : 10)
         .frame(maxWidth: .infinity)
     }
     
     private var listView: some View {
         GeometryReader { proxy in
             List {
-                if viewModel.showSearch {
+                if viewModel.showSearchView {
                     if viewModel.searchText.isEmpty {
                         lastSearchResultsView
                             .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 0))
@@ -145,7 +141,6 @@ struct SearchView: View {
                     }
                 } else {
                     allCountriesView
-                    //.listRowBackground(AppColors.background)
                         .listSectionSeparator(.hidden)
                         .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
                         .listRowSeparator(.hidden)
@@ -173,14 +168,18 @@ struct SearchView: View {
     private var lastSearchResultsView: some View {
         ForEach(viewModel.catalogNetworkManager.loadedSearchText.keys.sorted(), id: \.self) { key in
             Button {
+                hideKeyboard()
                 viewModel.searchText = key
             } label: {
-                Text(key)
-                    .foregroundStyle(.secondary)
-                    .font(.body)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.vertical)
+                HStack {
+                    Text(key)
+                        .font(.body)
+                        .padding(.vertical)
+                        .tint(.secondary)
+                   Spacer()
+                }
             }
+            .buttonStyle(.borderless)
         }
     }
     
@@ -282,18 +281,7 @@ struct SearchView: View {
                 }
                 
                 if !viewModel.searchGroupedPlaces.isEmpty {
-                    Section {
-                        Text("Places")
-                            .font(.title)
-                            .foregroundStyle(.secondary)
-                            .padding(.top, 50)
-                            .padding(.bottom, 10)
-                            .offset(x: 70)
-                        placesView
-                    }
-                    .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
-                    .listRowSeparator(.hidden)
-                    //.listRowSeparator(.hidden)
+                    placesView
                 }
                 
                 if !viewModel.searchEvents.isEmpty {
@@ -323,22 +311,25 @@ struct SearchView: View {
     
     //TODO: дубликат PlacesView
     private var placesView: some View {
-        ForEach(viewModel.searchGroupedPlaces.keys.sorted(), id: \.self) { key in
-            Text(key.getPluralName().uppercased())
-                .foregroundColor(.white)
-                .font(.caption)
-                .bold()
-                .modifier(CapsuleSmall(background: key.getColor(), foreground: .white))
-                .frame(maxWidth: .infinity)
-                .padding(.top)
-            ForEach(viewModel.searchGroupedPlaces[key] ?? []) { place in
-                NavigationLink {
-                    PlaceView(place: place, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, authenticationManager: authenticationManager)
-                } label: {
-                    PlaceCell(place: place, showOpenInfo: false, showDistance: false, showCountryCity: true)
+        Section {
+            ForEach(viewModel.searchGroupedPlaces.keys.sorted(), id: \.self) { key in
+                Text(key.getPluralName())
+                    .font(.title)
+                    .foregroundStyle(.secondary)
+                    .padding(.top, 50)
+                    .padding(.bottom, 10)
+                    .offset(x: 70)
+                ForEach(viewModel.searchGroupedPlaces[key] ?? []) { place in
+                    NavigationLink {
+                        PlaceView(place: place, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, authenticationManager: authenticationManager)
+                    } label: {
+                        PlaceCell(place: place, showOpenInfo: false, showDistance: false, showCountryCity: true)
+                    }
                 }
             }
         }
+        .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
+        .listRowSeparator(.hidden)
     }
     
     @ViewBuilder
@@ -361,16 +352,14 @@ struct SearchView: View {
                         .font(.title3)
                        // .bold()
                     if let region = city.region {
-                        HStack(alignment: .lastTextBaseline, spacing: 10) {
+                        Group {
                             Text(region.country?.name ?? "")
                                 .bold()
-                                .font(.caption)
-                            Text(region.name ?? "")
-                                .font(.caption2)
-                            
-                            
+                            + Text("  •  \(region.name ?? "")")
                         }
-                        .foregroundStyle(.secondary)
+                        .font(.footnote)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.leading)
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)

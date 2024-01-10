@@ -10,10 +10,10 @@ import Foundation
 struct SearchResult: Codable {
     let result: Bool
     let error: ApiError?
-    let items: SearchItems?
+    let items: DecodedSearchItems?
 }
 
-struct SearchItems: Codable {
+struct DecodedSearchItems: Codable {
     let cities: [DecodedCity]?
     let regions: [DecodedRegion]?
     let places: [DecodedPlace]?
