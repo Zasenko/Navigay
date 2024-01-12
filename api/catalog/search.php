@@ -50,7 +50,7 @@ OR City.name_de LIKE ?
 OR City.name_ru LIKE ? 
 OR City.name_it LIKE ? 
 OR City.name_es LIKE ?) 
-AND City.is_checked = true";
+AND City.is_active = true";
 
 $param = "%" . $search_text . "%";
 $params = [$param, $param, $param, $param, $param, $param, $param];
@@ -59,12 +59,10 @@ $stmt = executeQuery($conn, $sql, $params, $types);
 $cities_result = $stmt->get_result();
 $stmt->close();
 while ($row = $cities_result->fetch_assoc()) {
-    //is_active
     $is_active = (bool)$row['is_active'];
-    //photo
+
     $photo = $row['photo'];
     $photo_url = isset($photo) ? "https://www.navigay.me/" . $photo : null;
-
 
     $region_is_active = (bool)$row['region_is_active'];
     $region_photo = $row['region_photo'];
@@ -76,11 +74,21 @@ while ($row = $cities_result->fetch_assoc()) {
     $country_photo_url = isset($country_photo) ? "https://www.navigay.me/" . $country_photo : null;
 
     $region = array(
-        'id' => $region_id,
-        'name' => $row["name_$language"],
-        'photo' => $photo_url,
-        'is_active' => $is_active,
-        'updated_at' => $row['updated_at']
+        'id' => $row['region_id'],
+        'name' => $row["region_name"],
+        'photo' => $region_photo_url,
+        'is_active' => $region_is_active,
+        'updated_at' => $row['region_updated_at']
+    );
+    $country = array(
+        'id' => $row['country_id'],
+        'name' => $row['country_name'],
+        'isoCountryCode' => $row["isoCountryCode"],
+        'flag_emoji' => $row['flag_emoji'],
+        'photo' => $country_photo_url,
+        'show_regions' => $show_regions,
+        'is_active' => $country_is_active,
+        'updated_at' => $row['country_updated_at']
     );
     $city = array(
         'id' => $row['id'],
@@ -88,23 +96,8 @@ while ($row = $cities_result->fetch_assoc()) {
         'photo' => $photo_url,
         'is_active' => $is_active,
         'updated_at' => $row['updated_at'],
-        'region' => array(
-            'id' => $row['region_id'],
-            'name' => $row["region_name"],
-            'photo' => $region_photo_url,
-            'is_active' => $region_is_active,
-            'updated_at' => $row['region_updated_at']
-        ),
-        'country' => array(
-            'id' => $row['country_id'],
-            'name' => $row['country_name'],
-            'isoCountryCode' => $row["isoCountryCode"],
-            'flag_emoji' => $row['flag_emoji'],
-            'photo' => $country_photo_url,
-            'show_regions' => $show_regions,
-            'is_active' => $country_is_active,
-            'updated_at' => $row['country_updated_at']
-        ),
+        'region' => $region,
+        'country' => $country,
     );
     array_push($cities, $city);
 }
@@ -135,7 +128,7 @@ $sql .= " OR Region.name_de LIKE ?";
 $sql .= " OR Region.name_ru LIKE ?";
 $sql .= " OR Region.name_it LIKE ?";
 $sql .= " OR Region.name_es LIKE ?)";
-$sql .= " AND Region.is_checked = true";
+$sql .= " AND Region.is_active = true";
 
 $param = "%" . $search_text . "%";
 $params = [$param, $param, $param, $param, $param, $param, $param];
