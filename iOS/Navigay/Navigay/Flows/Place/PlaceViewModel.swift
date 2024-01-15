@@ -33,7 +33,7 @@ extension PlaceView {
         let eventNetworkManager: EventNetworkManagerProtocol
         let errorManager: ErrorManagerProtocol
         
-        
+        var showRegistrationView: Bool = false
         //MARK: - Inits
         
         init(place: Place, modelContext: ModelContext, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol) {
@@ -49,10 +49,7 @@ extension PlaceView {
         
         func loadPlace() {
             Task {
-                if placeNetworkManager.loadedPlaces.contains(where: { $0 == place.id}) {
-                    return
-                }
-                guard let decodedPlace = await placeNetworkManager.getPlace(id: place.id) else {
+                guard let decodedPlace = await placeNetworkManager.fetchPlace(id: place.id) else {
                     return
                 }
                 
@@ -73,15 +70,11 @@ extension PlaceView {
         
         func fetchComments() {
             Task {
-//                if placeNetworkManager.loadedPlaces.contains(where: { $0 == place.id}) {
-//                    return
-//                }
                 guard let decodedComments = await placeNetworkManager.fetchComments(placeID: place.id) else {
                     return
                 }
-                let activeComments = decodedComments.filter( { $0.isActive } )
                 await MainActor.run {
-                    comments = activeComments
+                    comments = decodedComments.filter( { $0.isActive } )
                 }
             }
         }
@@ -121,26 +114,61 @@ extension PlaceView {
         }
         
         private func updateEvents(decodedEvents: [DecodedEvent]?) {
-            if let decodedEvents {
-                do {
-                    let descriptor = FetchDescriptor<Event>()
-                    let allEvents = try modelContext.fetch(descriptor)
-                    for decodeEvent in decodedEvents {
-                        var newEvent: Event?
-                        if let event = allEvents.first(where: { $0.id == decodeEvent.id} ) {
-                            event.updateEventIncomplete(decodedEvent: decodeEvent)
-                            newEvent = event
-                        } else if decodeEvent.isActive {
-                            let event = Event(decodedEvent: decodeEvent)
-                            newEvent = event
-                        }
-                        if let newEvent = newEvent, !place.events.contains(where: { $0.id == newEvent.id } ) {
-                            place.events.append(newEvent)
+            guard let decodedEvents, !decodedEvents.isEmpty else {
+                // TODO: проверить нужно ли удалять places из city
+                place.events.forEach( { modelContext.delete($0) } )
+                return
+            }
+            
+            let ids = decodedEvents.map( { $0.id } )
+            var eventsToDelete: [Event] = []
+            place.events.forEach { event in
+                if !ids.contains(event.id) {
+                    eventsToDelete.append(event)
+                }
+            }
+            eventsToDelete.forEach( { modelContext.delete($0) } )
+            
+            do {
+                let descriptor = FetchDescriptor<Event>()
+                let allEvents = try modelContext.fetch(descriptor)
+                
+                for decodedEvent in decodedEvents {
+                    if let event = place.events.first(where: { $0.id == decodedEvent.id} ) {
+                        event.updateEventIncomplete(decodedEvent: decodedEvent)
+                    } else {
+                        if let event = allEvents.first(where: { $0.id == decodedEvent.id} ) {
+                            event.updateEventIncomplete(decodedEvent: decodedEvent)
+                            place.events.append(event)
+                            event.place = place
+                        } else {
+                            let event = Event(decodedEvent: decodedEvent)
+                            place.events.append(event)
+                            event.place = place
                         }
                     }
-                } catch {
-                    debugPrint("ERROR - PlaceViewModel updateEvents(): ", error)
                 }
+                //TODO: дубликат кода getEventsFromDB(userLocation: CLLocation, radius: Double) в HomeViewModel
+                let unsortedEvents = place.events.filter { event in
+                    guard event.startDate.isToday || event.startDate.isFutureDay else {
+                        if let finishDate = event.finishDate, finishDate.isFutureDay {
+                            return true
+                        }
+                        guard let finishDate = event.finishDate,
+                              finishDate.isToday,
+                              let finishTime = event.finishTime,
+                              finishTime.isFutureHour(of: Date())
+                        else {
+                            return false
+                        }
+                        return true
+                    }
+                    return true
+                }
+                
+                place.events = unsortedEvents
+            } catch {
+                debugPrint("ERROR - PlaceViewModel updateEvents(): ", error)
             }
         }
     }

@@ -38,7 +38,6 @@ extension CityView {
         var adminCity: AdminCity? = nil
         
         init(modelContext: ModelContext, city: City, catalogNetworkManager: CatalogNetworkManagerProtocol, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol, user: AppUser?) {
-            debugPrint("init CityViewModel, city id: ", city.id)
             self.modelContext = modelContext
             self.city = city
             self.catalogNetworkManager = catalogNetworkManager
@@ -109,34 +108,47 @@ extension CityView {
         // TODO: дубляж
         func getEvents(for date: Date) async {
                 let events = city.events.filter { event in
+                    print("----------------")
+                    print(date.formatted())
+                    print(event.id)
+                    print(event.name)
                     guard event.isActive else {
+                        print("event.isActive false - return false")
                         return false
                     }
                     if event.startDate.isSameDayWithOtherDate(date) {
+                        print("event.startDate.isSameDayWithOtherDate - return true")
                         return true
                     }
                     if event.startDate.isFutureDay(of: date) {
+                        print("event.startDate.isFutureDay(of: date) true - return false")
                         return false
                     }
                     guard let finishDate = event.finishDate else {
+                        print("finishDate nill - return false")
                         return false
                     }
                     
                     if finishDate.isFutureDay(of: date) {
+                        print("finishDate.isFutureDay(of: date) true - return true")
                         return true
                     }
                     if finishDate.isSameDayWithOtherDate(date) {
                         guard let finishTime = event.finishTime,
                               let elevenAM = Calendar.current.date(bySettingHour: 11, minute: 0, second: 0, of: Date())
                         else {
+                            print("event.finishTime nill - return false")
                             return false
                         }
                         if finishTime.isPastHour(of: elevenAM) {
+                            print("finishTime.isPastHour(of: elevenAM) true - return false")
                             return false
                         } else {
+                            print("finishTime.isPastHour(of: elevenAM) false - return true")
                             return true
                         }
                     }
+                    print("return false")
                     return false
                 }
                 await MainActor.run {
@@ -264,6 +276,16 @@ extension CityView {
                 city.events.forEach( { modelContext.delete($0) } )
                 return
             }
+            
+            let ids = decodedEvents.map( { $0.id } )
+            var eventsToDelete: [Event] = []
+            city.events.forEach { event in
+                if !ids.contains(event.id) {
+                    eventsToDelete.append(event)
+                }
+            }
+            eventsToDelete.forEach( { modelContext.delete($0) } )
+
             do {
                 let descriptor = FetchDescriptor<Event>(sortBy: [SortDescriptor(\.startDate)])
                 let allEvents = try modelContext.fetch(descriptor)
@@ -275,9 +297,11 @@ extension CityView {
                         if let event = allEvents.first(where: { $0.id == decodedEvent.id} ) {
                             event.updateEventIncomplete(decodedEvent: decodedEvent)
                             city.events.append(event)
-                        } else if decodedEvent.isActive {
+                            event.city = city
+                        } else {
                             let event = Event(decodedEvent: decodedEvent)
                             city.events.append(event)
+                            event.city = city
                         }
                     }
                 }

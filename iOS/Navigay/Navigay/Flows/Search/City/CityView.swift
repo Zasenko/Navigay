@@ -9,8 +9,6 @@ import SwiftUI
 import SwiftData
 
 struct CityView: View {
-
-   // @State private var image: Image = AppImages.iconAdmin
     
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel: CityViewModel
@@ -24,7 +22,6 @@ struct CityView: View {
          errorManager: ErrorManagerProtocol,
          user: AppUser?,
          authenticationManager: AuthenticationManager) {
-        debugPrint("init CityView, city id: ", city.id)
         _viewModel = State(initialValue: CityViewModel(modelContext: modelContext, city: city, catalogNetworkManager: catalogNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, user: user))
         _authenticationManager = ObservedObject(wrappedValue: authenticationManager)
     }
@@ -100,13 +97,10 @@ struct CityView: View {
                     Text(about)
                         .font(.callout)
                         .foregroundStyle(.secondary)
-                        .padding(.vertical, 50)
+                        .padding(.vertical, 100)
                         .listRowSeparator(.hidden)
                 }
             }
-            Color.clear
-                .frame(height: 50)
-                .listSectionSeparator(.hidden)
         }
         .listSectionSeparator(.hidden)
         .listStyle(.plain)
@@ -176,13 +170,12 @@ struct CityView: View {
     private var placesView: some View {
         ForEach(viewModel.groupedPlaces.keys.sorted(), id: \.self) { key in
             Section {
-                Text(key.getPluralName().uppercased())
-                    .foregroundColor(.white)
-                    .font(.caption)
-                    .bold()
-                    .modifier(CapsuleSmall(background: key.getColor(), foreground: .white))
-                    .frame(maxWidth: .infinity)
-                    .padding(.top)
+                Text(key.getPluralName())
+                    .font(.title)
+                    .foregroundStyle(.secondary)
+                    .padding(.top, 50)
+                    .padding(.bottom, 10)
+                    .offset(x: 70)
                 ForEach(viewModel.groupedPlaces[key] ?? []) { place in
                     NavigationLink {
                         PlaceView(place: place, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, authenticationManager: authenticationManager)
@@ -192,7 +185,7 @@ struct CityView: View {
                 }
             }
             .listRowSeparator(.hidden)
-            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+            .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
         }
     }
     

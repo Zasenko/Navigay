@@ -245,7 +245,7 @@ struct PlaceView: View {
                         .padding(.horizontal, 20)
                         .padding(.vertical, 30)
                     LazyVGrid(columns: viewModel.gridLayoutEvents, spacing: 20) {
-                        ForEach(viewModel.place.events) { event in
+                        ForEach(viewModel.place.events.sorted(by: { $0.startDate < $1.startDate } )) { event in
                             EventCell(event: event, width: (width / 2) - 30, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, showCountryCity: false)
                         }
                     }
@@ -285,105 +285,118 @@ struct PlaceView: View {
             
             Section {
                 
-                if let user = authenticationManager.appUser, user.status != .blocked {
-                    NavigationLink {
-                        AddCommentView(text: "", characterLimit: 1000, placeId: viewModel.place.id, placeNetworkManager: viewModel.placeNetworkManager, authenticationManager: authenticationManager)
-                    } label: {
-                        
-                        Text("add comment")
-                            .padding()
-                            .background(.red)
-                        
-                    }
-                    
-                } else {
-                    NavigationLink {
-                        RegistrationView(authenticationManager: authenticationManager) {
-                            print("Dismiss")
+                HStack {
+                    Text("Reviews")
+                        .font(.title)
+                        .foregroundStyle(.secondary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    if let user = authenticationManager.appUser, user.status != .blocked {
+                        NavigationLink {
+                            AddCommentView(text: "", characterLimit: 1000, placeId: viewModel.place.id, placeNetworkManager: viewModel.placeNetworkManager, authenticationManager: authenticationManager)
+                        } label: {
+                            Text("Add review")
+                                .font(.callout.bold())
+                                .padding()
+                                .foregroundStyle(.blue)
                         }
-                    } label: {
-                        Text("Register")
+                        
+                    } else {
+                        Button {
+                            viewModel.showRegistrationView = true
+                        } label: {
+                            Text("Log in to write a review")
+                                .font(.callout.bold())
+                                .padding()
+                                .multilineTextAlignment(.center)
+                                .foregroundStyle(.blue)
+                        }
+                        .fullScreenCover(isPresented: $viewModel.showRegistrationView) {
+                            RegistrationView(authenticationManager: authenticationManager) {
+                                viewModel.showRegistrationView = false
+                            }
+                        }
+                    }
+                }
+                .padding(.top, 50)
+                .padding(.bottom, 10)
+                .padding(.horizontal)
+              //  .offset(x: 70)
+                
+                if viewModel.comments.isEmpty {
+                    Text("No comments")
+                } else {
+                    ForEach(viewModel.comments) { comment in
+                        VStack(spacing: 0) {
+                            VStack(spacing: 10) {
+                                if let rating = comment.rating {
+                                    HStack {
+                                        ForEach(1..<6) { int in
+                                            Image(systemName: "star.fill")
+                                                .foregroundStyle(int <= rating ? .yellow : .secondary)
+                                        }
+                                    }
+                                }
+                                if let comment = comment.comment {
+                                    Text(comment)
+                                        .font(.callout)
+                                        .foregroundStyle(.secondary)
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                        .padding(.vertical)
+                                }
+                                if let photos = comment.photos {
+                                    HStack {
+                                        ForEach(photos, id: \.self) { photo in
+                                            ImageLoadingView(url: photo, width: width / 4, height: width / 4, contentMode: .fill) {
+                                                Color.orange
+                                            }
+                                            .clipShape(RoundedRectangle(cornerRadius: 20))
+                                            .overlay(RoundedRectangle(cornerRadius: 20).stroke(AppColors.lightGray5, lineWidth: 1))
+                                        }
+                                    }
+                                }
+                            }
                             .padding()
-                            .background(.red)
+                            .background(AppColors.lightGray6)
+                            .clipShape(RoundedRectangle(cornerRadius: 20))
+                            HStack {
+                                if let url = comment.user.photo {
+                                    ImageLoadingView(url: url, width: 50, height: 50, contentMode: .fill) {
+                                        AppColors.lightGray6 // TODO: animation in ImageLoadingView
+                                    }
+                                    .clipped()
+                                    .listRowSeparator(.hidden)
+                                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                                } else {
+                                    AppImages.iconPerson
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 20, height: 20)
+                                }
+                                Text(comment.user.name)
+                                    .bold()
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                Text(comment.createdAt)
+                            }
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .padding(.horizontal)
+                            .padding(.top, 10)
+                        }
+                        .padding()
+                        .padding(.vertical)
                     }
                 }
             }
-            .padding(.top, 50)
             .listRowSeparator(.hidden)
             .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
             .onAppear {
                 viewModel.fetchComments()
             }
-            Section {
-                ForEach(viewModel.comments) { comment in
-                    VStack(spacing: 0) {
-                        VStack(spacing: 10) {
-                            if let rating = comment.rating {
-                                HStack {
-                                    ForEach(1..<6) { int in
-                                        Image(systemName: "star.fill")
-                                            .foregroundStyle(int <= rating ? .yellow : .secondary)
-                                    }
-                                }
-                            }
-                            if let comment = comment.comment {
-                                Text(comment)
-                                    .font(.callout)
-                                    .foregroundStyle(.secondary)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                    .padding(.vertical)
-                            }
-                            if let photos = comment.photos {
-                                HStack {
-                                    ForEach(photos, id: \.self) { photo in
-                                        ImageLoadingView(url: photo, width: width / 4, height: width / 4, contentMode: .fill) {
-                                            Color.orange
-                                        }
-                                        .clipShape(RoundedRectangle(cornerRadius: 20))
-                                        .overlay(RoundedRectangle(cornerRadius: 20).stroke(AppColors.lightGray5, lineWidth: 1))
-                                    }
-                                }
-                            }
-                        }
-                        .padding()
-                        .background(AppColors.lightGray6)
-                        .clipShape(RoundedRectangle(cornerRadius: 20))
-                        HStack {
-                            if let url = comment.user.photo {
-                                ImageLoadingView(url: url, width: 50, height: 50, contentMode: .fill) {
-                                    AppColors.lightGray6 // TODO: animation in ImageLoadingView
-                                }
-                                .clipped()
-                                .listRowSeparator(.hidden)
-                                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                            } else {
-                                AppImages.iconPerson
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 20, height: 20)
-                            }
-                            Text(comment.user.name)
-                                .bold()
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                            Text(comment.createdAt)
-                        }
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .padding(.horizontal)
-                        .padding(.top, 10)
-                    }
-                    .padding()
-                    .padding(.vertical)
-                }
-            }
-            .listRowSeparator(.hidden)
-            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
         }
         .listStyle(.plain)
         .scrollIndicators(.hidden)
         .buttonStyle(PlainButtonStyle())
     }
-    
     
     @ViewBuilder
     private func createMap(geometry: CGSize) -> some View {

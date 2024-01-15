@@ -8,16 +8,12 @@
 import SwiftUI
 
 protocol PlaceNetworkManagerProtocol {
-    
-    var loadedPlaces: [Int] { get set }
-    func addToLoadedPlaces(id: Int)
-    
     func addNewPlace(place: NewPlace) async throws -> NewPlaceResult
     func updateAvatar(placeId: Int, uiImage: UIImage) async throws -> ImageResult
     func updateMainPhoto(placeId: Int, uiImage: UIImage) async throws -> ImageResult
     func updateLibraryPhoto(placeId: Int, photoId: UUID, uiImage: UIImage) async throws -> ImageResult
     func deleteLibraryPhoto(placeId: Int, photoId: UUID) async throws -> ApiResult
-    func getPlace(id: Int) async -> DecodedPlace?
+    func fetchPlace(id: Int) async -> DecodedPlace?
     func fetchComments(placeID: Int) async -> [DecodedComment]?
     func addComment(comment: NewComment) async -> Bool
    // func addAdditionalInfoToPlace(place: PlaceAdditionalInfo) async throws -> NewPlaceResult
@@ -28,9 +24,10 @@ final class PlaceNetworkManager {
     
     // MARK: - Properties
     
-    var loadedPlaces: [Int] = []
-    
     // MARK: - Private Properties
+    
+    private var loadedPlaces: [Int] = []
+    private var loadedComments: [Int:[DecodedComment]] = [:]
     
     private let scheme = "https"
     private let host = "www.navigay.me"
@@ -95,6 +92,11 @@ extension PlaceNetworkManager: PlaceNetworkManagerProtocol {
     }
     
     func fetchComments(placeID: Int) async -> [DecodedComment]? {
+        
+        if loadedComments.keys.contains(where: { $0 == placeID } ),
+           let result = loadedComments[placeID] {
+            return result
+        }
         // TODO: error text!
         let errorModel = ErrorModel(massage: "Something went wrong. The reviews has not been upload. Please try again later.", img: nil, color: nil)
         debugPrint("--- fetchComments for Place id: ", placeID)
@@ -128,6 +130,7 @@ extension PlaceNetworkManager: PlaceNetworkManagerProtocol {
                 debugPrint("-API ERROR- PlaceNetworkManager fetchComments for Place id \(placeID) : ", decodedResult.error?.message ?? "")
                 return nil
             }
+            loadedComments[placeID] = decodedComments
             return decodedComments
         } catch {
             errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
@@ -136,14 +139,12 @@ extension PlaceNetworkManager: PlaceNetworkManagerProtocol {
         }
     }
     
-    
-    func addToLoadedPlaces(id: Int) {
-        loadedPlaces.append(id)
-    }
-    
-    func getPlace(id: Int) async -> DecodedPlace? {
+    func fetchPlace(id: Int) async -> DecodedPlace? {
+        if loadedPlaces.contains(where: { $0 == id}) {
+            return nil
+        }
         let errorModel = ErrorModel(massage: "Something went wrong. The information has not been updated. Please try again later.", img: nil, color: nil)
-        debugPrint("--- getPlace id: ", id)
+        debugPrint("--- fetchPlace id: ", id)
         
         let path = "/api/place/get-place.php"
         var urlComponents: URLComponents {
@@ -177,6 +178,7 @@ extension PlaceNetworkManager: PlaceNetworkManagerProtocol {
                 debugPrint("API ERROR - PlaceNetworkManager getPlace(id: \(id)) - ", decodedResult.error?.message ?? "")
                 return nil
             }
+            loadedPlaces.append(id)
             return decodedPlace
         } catch {
             errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)

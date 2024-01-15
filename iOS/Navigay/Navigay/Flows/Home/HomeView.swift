@@ -57,9 +57,8 @@ struct HomeView: View {
     
     private var mainView: some View {
         NavigationStack {
-            GeometryReader { proxy in
                 VStack(spacing: 0) {
-                    ListView(width: proxy.size.width)
+                    listView
 //                    Divider()
 //                    ScrollView(.horizontal) {
 //                        LazyHStack(spacing: 10, pinnedViews: /*@START_MENU_TOKEN@*/[]/*@END_MENU_TOKEN@*/) {
@@ -102,51 +101,55 @@ struct HomeView: View {
                         }
                     }
                 }
-            }
+            
         }
     }
     
-    @ViewBuilder
-    private func ListView(width: CGFloat) -> some View {
-        List {
-            if !viewModel.foundAround {
-                VStack {
-                    AppImages.iconSearchLocation
-                        .font(.largeTitle)
-                        .padding(.vertical)
-                    Text("Unfortunately, we could not find any locations around you.")
-                    
-//                    Text("Ты можешь помочь сообществу и добавить места в базу")
-//                        .padding(.vertical)
-//                        .font(.headline)
-                    Text("These are the list of locations nearest to you:")
-                        .padding(.vertical)
+    private var listView: some View {
+        GeometryReader { proxy in
+            List {
+                if !viewModel.foundAround {
+                    notFountView
+                        .listRowSeparator(.hidden)
                 }
-                .font(.title)
-                .fontWeight(.light)
-                .multilineTextAlignment(.center)
-                .foregroundStyle(.secondary)
-                .padding(.vertical)
-                .listRowSeparator(.hidden)
+                
+                if viewModel.aroundEvents.count > 0 {
+                    eventsView(width: proxy.size.width)
+                }
+                placesView
+                
+                Color.clear
+                    .frame(height: 50)
+                    .listSectionSeparator(.hidden)
             }
-            
-            if viewModel.aroundEvents.count > 0 {
-                EventsView(width: width)
-            }
-            placesView
-            
-            Color.clear
-                .frame(height: 50)
-                .listSectionSeparator(.hidden)
+            .listSectionSeparator(.hidden)
+            .listStyle(.plain)
+            .scrollIndicators(.hidden)
+            .buttonStyle(PlainButtonStyle())
         }
-        .listSectionSeparator(.hidden)
-        .listStyle(.plain)
-        .scrollIndicators(.hidden)
-        .buttonStyle(PlainButtonStyle())
+    }
+    
+    private var notFountView: some View {
+        VStack {
+            AppImages.iconSearchLocation
+                .font(.largeTitle)
+                .padding(.vertical)
+            Text("Unfortunately, we could not find any locations around you.")
+            //                    Text("Ты можешь помочь сообществу и добавить места в базу")
+            //                        .padding(.vertical)
+            //                        .font(.headline)
+            Text("These are the list of locations nearest to you:")
+                .padding(.vertical)
+        }
+        .font(.title)
+        .fontWeight(.light)
+        .multilineTextAlignment(.center)
+        .foregroundStyle(.secondary)
+        .padding(.vertical)
     }
     
     @ViewBuilder
-    private func EventsView(width: CGFloat) -> some View {
+    private func eventsView(width: CGFloat) -> some View {
         Section {
             HStack {
                 Text(viewModel.selectedDate?.formatted(date: .long, time: .omitted) ?? "Upcoming events")

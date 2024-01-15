@@ -9,8 +9,8 @@ import SwiftUI
 
 struct CityCell: View {
     
-    let city: City
-    let showCountryRegion: Bool
+    private let city: City
+    private let showCountryRegion: Bool
     
     init(city: City, showCountryRegion: Bool) {
         self.city = city
@@ -53,6 +53,7 @@ struct CityCell: View {
         }
     }
 }
+
 //
 //#Preview {
 //    let city: City = City(decodedCity: DecodedCity(id: 0, name: "Vienna", photo: nil, photos: nil, isActive: true, lastUpdate: "2023-12-02 12:00:00", about: nil, places: [], events: [], region: nil))

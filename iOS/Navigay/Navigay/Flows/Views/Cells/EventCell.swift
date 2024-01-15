@@ -16,7 +16,6 @@ struct EventCell: View {
     private let showCountryCity: Bool
     
     @State private var image: Image? = nil
-   // @State private var selectedEvent: Event? = nil
     @State private var isShowEvent: Bool = false
     
     private let width: CGFloat
@@ -49,17 +48,15 @@ struct EventCell: View {
     
     var body: some View {
         Button {
-            //selectedEvent = event
-            withAnimation(.spring()) {
-                isShowEvent = true
-            }
+            isShowEvent = true
         } label: {
             eventPosterLable
         }
         .sheet(isPresented: $isShowEvent) {
-            //selectedEvent = nil
+            isShowEvent = false
         } content: {
-            EventView(isEventViewPresented: $isShowEvent, event: event, modelContext: modelContext, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager).presentationDragIndicator(.hidden)
+            EventView(isEventViewPresented: $isShowEvent, event: event, modelContext: modelContext, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager)
+                .presentationDragIndicator(.hidden)
                 .presentationDetents([.large])
                 .presentationCornerRadius(25)
         }
