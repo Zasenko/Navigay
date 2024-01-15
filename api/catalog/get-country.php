@@ -14,7 +14,6 @@ $country_id = (int)$_GET["id"];
 
 $language = isset($_GET['language']) && in_array($_GET['language'], $languages) ? $_GET['language'] : 'en';
 
-
 require_once('../dbconfig.php');
 
 $sql = "SELECT id, isoCountryCode, name_$language, about, flag_emoji, photo, show_regions, is_active, updated_at FROM Country WHERE id = ?";
@@ -64,7 +63,7 @@ $country = array(
     'updated_at' => $row['updated_at']
 );
 
-$sql = "SELECT id, name_$language, photo, is_active, updated_at FROM Region WHERE country_id = ? AND is_checked = true";
+$sql = "SELECT id, name_$language, photo, is_active, updated_at FROM Region WHERE country_id = ? AND is_active = true";
 $params = [$country_id];
 $types = "i";
 $stmt = executeQuery($conn, $sql, $params, $types);
@@ -90,7 +89,7 @@ while ($row = $regions_result->fetch_assoc()) {
         'updated_at' => $row['updated_at']
     );
 
-    $sql = "SELECT id, name_$language, photo, is_active, updated_at FROM City WHERE region_id = ? AND is_checked = true";
+    $sql = "SELECT id, name_$language, photo, is_active, updated_at FROM City WHERE region_id = ? AND is_active = true";
     $params = [$region_id];
     $types = "i";
     $stmt = executeQuery($conn, $sql, $params, $types);
@@ -116,12 +115,10 @@ while ($row = $regions_result->fetch_assoc()) {
         array_push($cities, $city);
     }
     $region += ['cities' => $cities];
-    array_push($regions, $region);
 
-    //TODO
-    // if (count($cities) > 0) {
-    //     array_push($regions, $region);
-    // } 
+    if (count($cities) > 0) {
+        array_push($regions, $region);
+    }
 }
 
 $country += ['regions' => $regions];
