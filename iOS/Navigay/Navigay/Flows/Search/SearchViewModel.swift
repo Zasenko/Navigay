@@ -92,6 +92,16 @@ extension SearchView {
                     guard let decodedCountries = await catalogNetworkManager.fetchCountries() else {
                         return
                     }
+                    
+                    let ids = decodedCountries.map { $0.id }
+                    var countriseToDelete: [Country] = []
+                    countries.forEach { country in
+                        if !ids.contains(country.id) {
+                            countriseToDelete.append(country)
+                        }
+                    }
+                    countriseToDelete.forEach( { modelContext.delete($0) } )
+
                     await MainActor.run {
                         for decodedCountry in decodedCountries {
                             if let country = countries.first(where: { $0.id == decodedCountry.id} ) {
@@ -99,10 +109,13 @@ extension SearchView {
                             } else if decodedCountry.isActive {
                                 let country = Country(decodedCountry: decodedCountry)
                                 modelContext.insert(country)
-                                countries.append(country)
+                               // countries.append(country)
                             }
                         }
-                        isLoading = false
+                        withAnimation {
+                            getCountriesFromDB()
+                            isLoading = false
+                        }
                     }
                 }
             }

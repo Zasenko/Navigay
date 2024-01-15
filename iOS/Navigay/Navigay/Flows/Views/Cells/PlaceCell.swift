@@ -11,7 +11,6 @@ import CoreLocation
 struct PlaceCell: View {
     
     private let place: Place
-   // @State private var image: Image? = nil
     
     private let showOpenInfo: Bool
     private let showDistance: Bool
@@ -33,10 +32,6 @@ struct PlaceCell: View {
                     }
                     .clipShape(.circle)
                     .overlay(Circle().stroke(AppColors.lightGray5, lineWidth: 1))
-//                    .padding(5)
-//                    .overlay {
-//                        Circle().stroke(showOpenInfo && place.isOpenNow() ? .green : .clear, lineWidth: 2)
-//                    }
                 } else {
                     Color.clear
                         .frame(width: 50, height: 50)
@@ -75,7 +70,6 @@ struct PlaceCell: View {
                     .multilineTextAlignment(.leading)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
-              //  .background(.orange)
                 if place.isLiked {
                     AppImages.iconHeartFill
                         .foregroundColor(.red)
@@ -85,15 +79,6 @@ struct PlaceCell: View {
             Divider()
                 .offset(x: 70)
         }
-//        .onAppear() {
-//            if let url = place.avatar {
-//                Task {
-//                    if let image = await ImageLoader.shared.loadImage(urlString: url) {
-//                        self.image = image
-//                    }
-//                }
-//            }
-//        }
     }
 }
 

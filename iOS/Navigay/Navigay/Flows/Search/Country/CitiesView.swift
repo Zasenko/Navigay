@@ -39,13 +39,17 @@ struct CitiesView: View {
     
     var body: some View {
         Section {
-            ForEach(cities.filter( { $0.isActive == true } )) { city in
-                NavigationLink {
-                    CityView(modelContext: modelContext, city: city, catalogNetworkManager: catalogNetworkManager, eventNetworkManager: eventNetworkManager, placeNetworkManager: placeNetworkManager, errorManager: errorManager, user: user, authenticationManager: authenticationManager)
-                } label: {
-                    Text(city.name)
+            Section {
+                ForEach(cities.filter( { $0.isActive == true } )) { city in
+                    NavigationLink {
+                        CityView(modelContext: modelContext, city: city, catalogNetworkManager: catalogNetworkManager, eventNetworkManager: eventNetworkManager, placeNetworkManager: placeNetworkManager, errorManager: errorManager, user: user, authenticationManager: authenticationManager)
+                    } label: {
+                        CityCell(city: city, showCountryRegion: false)
+                    }
                 }
             }
+            .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
+            .listRowSeparator(.hidden)
         }
     }
 }

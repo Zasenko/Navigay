@@ -37,7 +37,16 @@ struct CountryView: View {
                         .clipped()
                         .listRowSeparator(.hidden)
                         .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                        .padding(.bottom, 20)
                     }
+                    Text("Cities")
+                        .font(.title)
+                        .foregroundStyle(.secondary)
+                        .padding(.top, 20)
+                        .padding(.bottom, 10)
+                        .offset(x: 70)
+                        .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
+                        .listRowSeparator(.hidden)
                     if viewModel.country.showRegions {
                         ForEach(viewModel.country.regions.filter( { $0.isActive == true } )) { region in
                             RegionView(modelContext: viewModel.modelContext, region: region, catalogNetworkManager: viewModel.catalogNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, errorManager: viewModel.errorManager, user: viewModel.user, authenticationManager: authenticationManager)
@@ -45,6 +54,7 @@ struct CountryView: View {
                     } else {
                         CitiesView(modelContext: viewModel.modelContext, cities: viewModel.country.regions.flatMap( { $0.cities.filter { $0.isActive == true } } ), catalogNetworkManager: viewModel.catalogNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, errorManager: viewModel.errorManager, user: viewModel.user, authenticationManager: authenticationManager)
                     }
+                    
                     Section {
                         if let about = viewModel.country.about {
                             Text(about)

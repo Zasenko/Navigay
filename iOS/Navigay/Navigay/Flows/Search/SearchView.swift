@@ -272,7 +272,7 @@ struct SearchView: View {
                             NavigationLink {
                                 CityView(modelContext: viewModel.modelContext, city: city, catalogNetworkManager: viewModel.catalogNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, errorManager: viewModel.errorManager, user: viewModel.user, authenticationManager: authenticationManager)
                             } label: {
-                                cityCell(city: city)
+                                CityCell(city: city, showCountryRegion: true)
                             }
                         }
                     }
@@ -330,44 +330,6 @@ struct SearchView: View {
         }
         .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
         .listRowSeparator(.hidden)
-    }
-    
-    @ViewBuilder
-    private func cityCell(city: City) -> some View {
-        VStack(spacing: 0) {
-            HStack(spacing: 20) {
-                if let url = city.photo {
-                    ImageLoadingView(url: url, width: 50, height: 50, contentMode: .fill) {
-                        AppColors.lightGray6
-                    }
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                    .overlay(RoundedRectangle(cornerRadius: 10).stroke(AppColors.lightGray5, lineWidth: 1))
-                } else {
-                    Color.clear
-                        .frame(width: 50, height: 50)
-                }
-                
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(city.name)
-                        .font(.title3)
-                       // .bold()
-                    if let region = city.region {
-                        Group {
-                            Text(region.country?.name ?? "")
-                                .bold()
-                            + Text("  •  \(region.name ?? "")")
-                        }
-                        .font(.footnote)
-                        .foregroundColor(.secondary)
-                        .multilineTextAlignment(.leading)
-                    }
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-            }
-            .padding(.vertical, 10)
-            Divider()
-                .offset(x: 70)
-        }
     }
     
     @ViewBuilder

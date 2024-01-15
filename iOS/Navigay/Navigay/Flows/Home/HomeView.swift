@@ -41,9 +41,9 @@ struct HomeView: View {
                     .frame(maxHeight: .infinity)
             } else {
                 if viewModel.showMap {
-                    MapView(viewModel: MapViewModel(showMap: $viewModel.showMap, events: $viewModel.todayAndTomorrowEvents, places: $viewModel.aroundPlaces, categories: $viewModel.sortingCategories, selectedCategory: $viewModel.selectedSortingCategory))
+                    MapView(viewModel: MapViewModel(showMap: $viewModel.showMap, events: $viewModel.todayAndTomorrowEvents, places: $viewModel.aroundPlaces, categories: $viewModel.sortingMapCategories, selectedCategory: $viewModel.selectedMapSortingCategory))
                 } else {
-                    MainView
+                    mainView
                 }
             }
         }
@@ -55,12 +55,24 @@ struct HomeView: View {
     
     // MARK: - Views
     
-    private var MainView: some View {
+    private var mainView: some View {
         NavigationStack {
             GeometryReader { proxy in
                 VStack(spacing: 0) {
-                    Divider()
                     ListView(width: proxy.size.width)
+//                    Divider()
+//                    ScrollView(.horizontal) {
+//                        LazyHStack(spacing: 10, pinnedViews: /*@START_MENU_TOKEN@*/[]/*@END_MENU_TOKEN@*/) {
+//                            ForEach(viewModel.sortingMapCategories, id: \.self) { category in
+//                                Text(category.getName())
+//                                    .font(.headline)
+//                                    .foregroundStyle(.secondary)
+//                            }
+//                        }
+//                        .padding(.horizontal)
+//                    }
+//                    .frame(maxHeight: 40)
+//                    .scrollIndicators(.hidden)
                 }
                 .toolbarBackground(AppColors.background)
                 .toolbarTitleDisplayMode(.inline)
@@ -72,7 +84,7 @@ struct HomeView: View {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button {
                             withAnimation {
-                                viewModel.selectedSortingCategory = .all
+                                viewModel.selectedMapSortingCategory = .all
                                 viewModel.showMap.toggle()
                             }
                         } label: {
@@ -159,8 +171,6 @@ struct HomeView: View {
                     .foregroundStyle(.blue)
                     .clipShape(Capsule())
                 }
-               // .buttonStyle(.borderedProminent)
-                //.foregroundStyle(.blue)
             }
             .padding(.horizontal, 20)
             .padding(.vertical, 30)

@@ -35,8 +35,21 @@ struct EventView: View {
     
     var body: some View {
         NavigationStack {
-            listView
-                .toolbar(.hidden, for: .navigationBar)
+            ZStack(alignment: .topTrailing) {
+                listView
+                    .toolbar(.hidden, for: .navigationBar)
+                Button {
+                    isEventViewPresented.toggle()
+                } label: {
+                    AppImages.iconX
+                        .bold()
+                        .foregroundStyle(.secondary)
+                        .padding(5)
+                        .background(.ultraThinMaterial)
+                        .clipShape(.circle)
+                }
+                .padding()
+            }
         }
     }
     
@@ -46,7 +59,7 @@ struct EventView: View {
         GeometryReader { geometry in
             let width = geometry.size.width
             List {
-                ZStack(alignment: .topTrailing) {
+                ZStack() {
                     if viewModel.event.poster != nil {
                         if !viewModel.isPosterLoaded {
                             if let image = viewModel.event.image  {
@@ -69,17 +82,6 @@ struct EventView: View {
                             }
                         }
                     }
-                    Button {
-                        isEventViewPresented.toggle()
-                    } label: {
-                        AppImages.iconX
-                            .bold()
-                            .foregroundStyle(.secondary)
-                            .padding(5)
-                            .background(.ultraThinMaterial)
-                            .clipShape(.circle)
-                    }
-                    .padding()
                 }
                 .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                 .ignoresSafeArea(.all, edges: .top)
@@ -104,7 +106,7 @@ struct EventView: View {
                 Section {
                     VStack(alignment: .leading, spacing: 4) {
                         Text(viewModel.event.name)
-                            .font(.largeTitle).bold()
+                            .font(.title2).bold()
                             .foregroundColor(.primary)
                         Text(viewModel.event.address)
                             .font(.body)
@@ -146,7 +148,7 @@ struct EventView: View {
                         }
                     }
                     .padding()
-                    .foregroundColor(.black)
+                    .foregroundColor(.primary)
                     .frame(maxWidth: .infinity, alignment: .center)
                     
                     if let finishDate = viewModel.event.finishDate {
@@ -177,7 +179,7 @@ struct EventView: View {
                             }
                         }
                         .padding()
-                        .foregroundColor(.black)
+                        .foregroundColor(.primary)
                         .frame(maxWidth: .infinity, alignment: .center)
                     }
                 }
@@ -193,6 +195,7 @@ struct EventView: View {
                 if let about = viewModel.event.about {
                     Text(about)
                         .font(.callout)
+                        .foregroundStyle(.secondary)
                         .padding()
                         .padding(.bottom, 40)
                         .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
@@ -318,7 +321,7 @@ struct EventView: View {
                 .padding()
                 .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                 .listSectionSeparator(.hidden)
-                // .listRowBackground(Color.orange)
+                .listRowBackground(AppColors.background)
                 
                 if let place = viewModel.event.place {
                     VStack( alignment: .leading, spacing: 0) {
@@ -377,6 +380,8 @@ struct EventView: View {
             }
             .listStyle(.plain)
             .scrollIndicators(.hidden)
+            .scrollContentBackground(.hidden)
+            .background(AppColors.background)
         }
     }
     
@@ -420,102 +425,8 @@ struct EventView: View {
         .listRowSeparator(.hidden)
         .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
     }
-    
-    // MARK: - Private Functions
-    
-//    private func loadEvent() {
-//        Task {
-//            if networkManager.loadedEvents.contains(where: { $0 == event.id}) {
-//                return
-//            }
-//            let errorModel = ErrorModel(massage: "Something went wrong. The information has not been updated. Please try again later.", img: nil, color: nil)
-//            do {
-//                let decodedResult = try await networkManager.fetchEvent(id: event.id)
-//                guard decodedResult.result, let decodedEvent = decodedResult.event else {
-//                    debugPrint("ERROR - getAdminInfo API:", decodedResult.error?.message ?? "---")
-//                    errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: errorModel)
-//                    return
-//                }
-//                networkManager.addToLoadedEvents(id: decodedEvent.id)
-//                await MainActor.run {
-//                    updateEvent(decodedEvent: decodedEvent)
-//                }
-//            } catch {
-//                debugPrint("ERROR - get place: ", error)
-//                errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
-//            }
-//        }
-//    }
-
-//    private func updateEvent(decodedEvent: DecodedEvent) {
-//        let lastUpdate = decodedEvent.lastUpdate.dateFromString(format: "yyyy-MM-dd HH:mm:ss")
-//        if event.lastUpdateComplite != lastUpdate {
-//            event.updateEventComplete(decodedEvent: decodedEvent)
-//        }
-//        if let decodePlace = decodedEvent.place {
-//            var newPlace: Place?
-//            if let place = allPlaces.first(where: { $0.id == decodePlace.id} ) {
-//                place.updatePlaceIncomplete(decodedPlace: decodePlace)
-//                newPlace = place
-//            } else if decodePlace.isActive {
-//                let place = Place(decodedPlace: decodePlace)
-//                newPlace = place
-//            }
-//            event.place = newPlace
-//        }
-//    }
-    
-//    private func call(phone: String) {
-//        let api = "tel://"
-//        let stringUrl = api + phone
-//        guard let url = URL(string: stringUrl) else { return }
-//        UIApplication.shared.open(url)
-//    }
-//    
-//    private func goToWebSite(url: String) {
-//        guard let url = URL(string: url) else { return }
-//        openURL(url)
-//    }
-//    
-//    private func goToMaps(coordinate: CLLocationCoordinate2D) {
-//        let stringUrl = "maps://?saddr=&daddr=\(coordinate.latitude),\(coordinate.longitude)"
-//        guard let url = URL(string: stringUrl) else { return }
-//        openURL(url)
-//    }
 }
 
 //#Preview {
 //    EventView()
-//}
-
-//private struct OffsetPreferenceKey: PreferenceKey {
-//  static var defaultValue: CGFloat = .zero
-//  static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {}
-//}
-//
-//struct ScrollViewOffset<Content: View>: View {
-//  let content: () -> Content
-//
-//  init(@ViewBuilder content: @escaping () -> Content) {
-//    self.content = content
-//  }
-//
-//  var body: some View {
-//    ScrollView {
-//      offsetReader
-//      content()
-//    }
-//    .coordinateSpace(name: "frameLayer")
-//  }
-//
-//  var offsetReader: some View {
-//    GeometryReader { proxy in
-//      Color.clear
-//        .preference(
-//          key: OffsetPreferenceKey.self,
-//          value: proxy.frame(in: .named("frameLayer")).minY
-//        )
-//    }
-//    .frame(height: 0) // 👈🏻 make sure that the reader doesn't affect the content height
-//  }
 //}

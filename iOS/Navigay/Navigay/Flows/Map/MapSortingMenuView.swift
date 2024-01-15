@@ -8,24 +8,24 @@
 import SwiftUI
 
 enum SortingMapCategory {
+    case events
     case bar
     case cafe
     case restaurant
     case club
-    case hotel
     case sauna
     case cruiseBar
     case cruiseClub
-    case beach
     case shop
+    case hotel
+    case hostel
+    case beach
     case gym
     case culture
     case community
-    case hostel
     case medicine
     case other
     
-    case events
     case all
     
     init?(placeType: PlaceType) {
@@ -86,7 +86,7 @@ enum SortingMapCategory {
         case .shop:
             return "Shops"
         case .gym:
-            return "Gyms"
+            return "Sport"
         case .culture:
             return "Cultur"
         case .community:

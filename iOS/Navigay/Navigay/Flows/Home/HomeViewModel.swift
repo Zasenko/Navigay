@@ -34,8 +34,10 @@ extension HomeView {
         var gridLayout: [GridItem] = Array(repeating: GridItem(.flexible(), spacing: 20), count: 2)
         
         var showMap: Bool = false
-        var sortingCategories: [SortingMapCategory] = [] /// for Map
-        var selectedSortingCategory: SortingMapCategory = .all /// for Map
+        var sortingCategories: [SortingMapCategory] = []
+        var selectedHomeSortingCategory: SortingMapCategory = .all
+        var sortingMapCategories: [SortingMapCategory] = []
+        var selectedMapSortingCategory: SortingMapCategory = .all
         
         let aroundNetworkManager: AroundNetworkManagerProtocol
         let eventNetworkManager: EventNetworkManagerProtocol
@@ -177,7 +179,7 @@ extension HomeView {
         
         private func getEventsFromDB(userLocation: CLLocation, radius: Double) {
             do {
-                let eventDescriptor = FetchDescriptor<Event>()
+                let eventDescriptor = FetchDescriptor<Event>(sortBy: [SortDescriptor(\.id)])
                 allEvents = try modelContext.fetch(eventDescriptor)
                 let allAroundEvents = allEvents.filter { event in
                     let distance = userLocation.distance(from: CLLocation(latitude: event.latitude, longitude: event.longitude))
@@ -375,12 +377,17 @@ extension HomeView {
                 if !aroundEvents.isEmpty {
                     categories.append(.events)
                 }
+                await MainActor.run { [categories] in
+                    withAnimation {
+                        sortingCategories = categories
+                    }
+                }
                 if categories.count > 1 {
                     categories.append(.all)
                 }
                 await MainActor.run { [categories] in
                     withAnimation {
-                        sortingCategories = categories
+                        sortingMapCategories = categories
                     }
                 }
             }

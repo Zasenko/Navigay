@@ -54,7 +54,7 @@ struct EventCell: View {
                 isShowEvent = true
             }
         } label: {
-            EventPosterLable
+            eventPosterLable
         }
         .sheet(isPresented: $isShowEvent) {
             //selectedEvent = nil
@@ -67,7 +67,7 @@ struct EventCell: View {
     
     // MARK: - Views
     
-    private var EventPosterLable: some View {
+    private var eventPosterLable: some View {
         VStack(alignment: .center, spacing: 0) {
             if showCountryCity {
                 Group {

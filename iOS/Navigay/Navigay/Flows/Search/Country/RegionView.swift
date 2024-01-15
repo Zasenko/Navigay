@@ -39,16 +39,20 @@ struct RegionView: View {
     
     var body: some View {
         Section {
+            Text(region.name ?? "")
+                .font(.callout)
+                .foregroundStyle(.secondary)
+                .padding(.top, 20)
+                .offset(x: 70)
             ForEach(region.cities.filter( { $0.isActive == true } )) { city in
                 NavigationLink {
                     CityView(modelContext: modelContext, city: city, catalogNetworkManager: catalogNetworkManager, eventNetworkManager: eventNetworkManager, placeNetworkManager: placeNetworkManager, errorManager: errorManager, user: user, authenticationManager: authenticationManager)
                 } label: {
-                    Text(city.name)
+                    CityCell(city: city, showCountryRegion: false)
                 }
             }
-        } header: {
-            Text(region.name ?? "")
-                .bold()
         }
+        .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
+        .listRowSeparator(.hidden)
     }
 }

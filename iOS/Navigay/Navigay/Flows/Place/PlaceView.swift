@@ -104,7 +104,7 @@ struct PlaceView: View {
                     }
                     VStack(alignment: .leading, spacing: 4) {
                         Text(viewModel.place.name)
-                            .font(.title).bold()
+                            .font(.title2).bold()
                             .foregroundColor(.primary)
                         Text(viewModel.place.address)
                             .font(.body)
