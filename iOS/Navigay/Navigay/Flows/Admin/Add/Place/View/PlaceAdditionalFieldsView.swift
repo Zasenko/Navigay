@@ -11,172 +11,127 @@ struct PlaceAdditionalFieldsView: View {
     
     //MARK: - Properties
     
-    @ObservedObject var viewModel: AddNewPlaceViewModel
-    
+    //@ObservedObject var viewModel: AddNewPlaceViewModel
+    @Binding var isoCountryCode: String
+    @Binding var email: String
+    @Binding var phone: String
+    @Binding var www: String
+    @Binding var facebook: String
+    @Binding var instagram: String
+    @Binding var about: String
+    @Binding var timetable: [NewWorkingDay]
+    @Binding var otherInfo: String
+    @Binding var tags: [Tag]
     //MARK: - Body
     
     var body: some View {
         NavigationStack {
-        //    ScrollView(showsIndicators: false) {
-//                Divider()
+
                 LazyVStack(spacing: 0) {
                     VStack(spacing: 0) {
                         NavigationLink {
-                            EditEmailView(email: viewModel.email) { string in
-                                viewModel.email = string.lowercased()
+                            EditEmailView(email: email) { string in
+                                email = string.lowercased()
                             }
                         } label: {
-                            EditField(title: "Email", text: $viewModel.email, emptyFieldColor: .secondary)
+                            EditField(title: "Email", text: $email, emptyFieldColor: .secondary)
                         }
                         Divider()
                             .padding(.horizontal)
                         NavigationLink {
-                            EditPhoneView(isoCountryCode: viewModel.isoCountryCode) { phone in
-                                viewModel.phone = phone
+                            EditPhoneView(isoCountryCode: isoCountryCode) { string in
+                                phone = string
                             }
                         } label: {
-                            EditField(title: "Phone", text: $viewModel.phone, emptyFieldColor: .secondary)
+                            EditField(title: "Phone", text: $phone, emptyFieldColor: .secondary)
                         }
                         Divider()
                             .padding(.horizontal)
                         NavigationLink {
-                            EditTextFieldView(text: viewModel.www, characterLimit: 255, minHaracters: 0, title: "Web page", placeholder: "www") { string in
-                                viewModel.www = string
+                            EditTextFieldView(text: www, characterLimit: 255, minHaracters: 0, title: "Web page", placeholder: "www") { string in
+                                www = string
                             }
                         } label: {
-                            EditField(title: "www", text: $viewModel.www, emptyFieldColor: .secondary)
+                            EditField(title: "www", text: $www, emptyFieldColor: .secondary)
                         }
                         Divider()
                             .padding(.horizontal)
                         NavigationLink {
-                            EditTextFieldView(text: viewModel.facebook, characterLimit: 255, minHaracters: 0, title: "Facebook", placeholder: "Facebook") { string in
-                                viewModel.facebook = string
+                            EditTextFieldView(text: facebook, characterLimit: 255, minHaracters: 0, title: "Facebook", placeholder: "Facebook") { string in
+                                facebook = string
                             }
                         } label: {
-                            EditField(title: "Facebook", text: $viewModel.facebook, emptyFieldColor: .secondary)
+                            EditField(title: "Facebook", text: $facebook, emptyFieldColor: .secondary)
                         }
                         Divider()
                             .padding(.horizontal)
                         NavigationLink {
-                            EditTextFieldView(text: viewModel.instagram, characterLimit: 255, minHaracters: 0, title: "Instagram", placeholder: "Instagram") { string in
-                                viewModel.instagram = string
+                            EditTextFieldView(text: instagram, characterLimit: 255, minHaracters: 0, title: "Instagram", placeholder: "Instagram") { string in
+                                instagram = string
                             }
                         } label: {
-                            EditField(title: "Instagram", text: $viewModel.instagram, emptyFieldColor: .secondary)
+                            EditField(title: "Instagram", text: $instagram, emptyFieldColor: .secondary)
                         }
                     }
                     .background(AppColors.lightGray6)
                     .cornerRadius(10)
                     .padding(.bottom, 40)
-                    AboutEditView(languages: $viewModel.languages, about: $viewModel.about)
-                    .padding(.bottom, 40)
-                    tagsView
+
                     NavigationLink {
-                        EditTimetableView(timetable: viewModel.timetable) { timetable in
-                            viewModel.timetable = timetable
+                        EditTextEditorView(title: "About", text: about, characterLimit: 3000, onSave: { string in
+                            about = string
+                        })
+                    } label: {
+                        EditField(title: "About", text: $about, emptyFieldColor: .secondary)
+                    }
+                    
+                    tagsView
+                    
+                    NavigationLink {
+                        EditTimetableView(timetable: timetable) { newTimetable in
+                            timetable = newTimetable
                         }
                     } label: {
-                        timetable
+                        timetableView
                     }
-                    if !viewModel.timetable.isEmpty {
+                    if !timetable.isEmpty {
                         workdays
                     }
+                    
                     NavigationLink {
-                        EditTextEditorView(title: "Other information", text: viewModel.otherInfo, characterLimit: 255) { string in
-                            viewModel.otherInfo = string
+                        EditTextEditorView(title: "Other information", text: otherInfo, characterLimit: 255) { string in
+                            otherInfo = string
                         }
                     } label: {
-                        EditField(title: "Other information", text: $viewModel.otherInfo, emptyFieldColor: .secondary)
+                        EditField(title: "Other information", text: $otherInfo, emptyFieldColor: .secondary)
                             .padding(.bottom, 40)
                             .padding(.top, 40)
                     }
                 }
                 .padding(.horizontal)
-            
-        //    }
         }
     }
     
     //MARK: - Views
-    
-//    private var aboutField: some View {
-//        HStack {
-//            Text("About")
-//                .font(.callout)
-//                .foregroundStyle(viewModel.about.isEmpty ? Color.secondary : .green)
-//                .frame(maxWidth: .infinity, alignment: .leading)
-//            if !viewModel.languages.isEmpty {
-//                Menu("Add information") {
-//                    ForEach(viewModel.languages, id: \.self) { language in
-//                        NavigationLink {
-//                            EditTextEditorView(language: language, text: "") { placeAbout in
-//                                viewModel.about.append(placeAbout)
-//                                viewModel.languages.removeAll(where: { $0 == placeAbout.language})
-//                            }
-//                        } label: {
-//                            Text("\(language.getFlag()) \(language.getName())")
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//        .padding()
-//    }
-    
-//    private var aboutView: some View {
-//        VStack {
-//            ForEach(viewModel.about.indices, id: \.self) { index in
-//                let info = viewModel.about[index]
-//                HStack(spacing: 20) {
-//                    Button {
-//                        if let existingIndex = viewModel.about.firstIndex(where: { $0.id == info.id }) {
-//                            let removedLanguage = viewModel.about.remove(at: existingIndex).language
-//                            viewModel.languages.append(removedLanguage)
-//                        }
-//                    } label: {
-//                        AppImages.iconTrash
-//                            .foregroundStyle(.red)
-//                            .padding(.leading)
-//                    }
-//                    NavigationLink {
-//                        EditTextEditorView(language: info.language, text: info.about) { placeAbout in
-//                            if let existingIndex = viewModel.about.firstIndex(where: { $0.id == info.id }) {
-//                                viewModel.about[existingIndex] = placeAbout
-//                            }
-//                        }
-//                    } label: {
-//                        Text("\(info.language.getFlag()) \(info.about)")
-//                            .lineLimit(1)
-//                            .tint(.primary)
-//                            .frame(maxWidth: .infinity, alignment: .leading)
-//                        AppImages.iconRight
-//                            .foregroundStyle(.quaternary)
-//                    }
-//                    .padding()
-//                    .background(AppColors.lightGray6, in: RoundedRectangle(cornerRadius: 10))
-//                }
-//            }
-//        }
-//    }
 
     private var tagsView: some View {
         VStack {
             Text("Tags")
                 .font(.callout)
-                .foregroundStyle(viewModel.tags.isEmpty ? Color.secondary : Color.green)
+                .foregroundStyle(tags.isEmpty ? Color.secondary : Color.green)
                 .frame(maxWidth: .infinity, alignment: .leading)
-            EditTagsView(tags: $viewModel.tags)
+            EditTagsView(tags: $tags)
             
         }
         .padding()
         .padding(.bottom, 40)
     }
     
-    private var timetable: some View {
+    private var timetableView: some View {
         HStack {
                 Text("Timetable")
                     .font(.callout)
-                    .foregroundStyle(viewModel.timetable.isEmpty ? Color.secondary : Color.green)
+                    .foregroundStyle(timetable.isEmpty ? Color.secondary : Color.green)
 
             .frame(maxWidth: .infinity, alignment: .leading)
             AppImages.iconRight
@@ -188,7 +143,7 @@ struct PlaceAdditionalFieldsView: View {
     
     private var workdays: some View {
         VStack(spacing: 10) {
-            ForEach(viewModel.timetable) { day in
+            ForEach(timetable) { day in
                 HStack {
                     Text(day.day.getString())
                         .frame(maxWidth: .infinity, alignment: .leading)

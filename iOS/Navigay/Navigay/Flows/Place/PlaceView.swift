@@ -60,14 +60,21 @@ struct PlaceView: View {
                             .tint(.primary)
                         }
                         ToolbarItem(placement: .topBarTrailing) {
-                            Button {
-                                viewModel.place.isLiked.toggle()
-                            } label: {
-                                Image(systemName: viewModel.place.isLiked ? "heart.fill" : "heart")
-                                    .bold()
-                                    .frame(width: 30, height: 30, alignment: .leading)
+                            HStack {
+                                Button {
+                                    viewModel.place.isLiked.toggle()
+                                } label: {
+                                    Image(systemName: viewModel.place.isLiked ? "heart.fill" : "heart")
+                                        .bold()
+                                        .frame(width: 30, height: 30, alignment: .leading)
+                                }
+                                .tint(viewModel.place.isLiked ? .red :  .secondary)
+                                if let user = authenticationManager.appUser, user.status == .admin {
+                                    Button("Edit") {
+                                        viewModel.showEditView = true
+                                    }
+                                }
                             }
-                            .tint(viewModel.place.isLiked ? .red :  .secondary)
                         }
                     }
                     .onAppear() {
@@ -284,13 +291,13 @@ struct PlaceView: View {
             .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
             
             Section {
-                
                 HStack {
                     Text("Reviews")
                         .font(.title)
                         .foregroundStyle(.secondary)
                         .frame(maxWidth: .infinity, alignment: .leading)
                     if let user = authenticationManager.appUser, user.status != .blocked {
+                        //TODO: Add review designe
                         NavigationLink {
                             AddCommentView(text: "", characterLimit: 1000, placeId: viewModel.place.id, placeNetworkManager: viewModel.placeNetworkManager, authenticationManager: authenticationManager)
                         } label: {
@@ -299,7 +306,6 @@ struct PlaceView: View {
                                 .padding()
                                 .foregroundStyle(.blue)
                         }
-                        
                     } else {
                         Button {
                             viewModel.showRegistrationView = true
@@ -320,9 +326,9 @@ struct PlaceView: View {
                 .padding(.top, 50)
                 .padding(.bottom, 10)
                 .padding(.horizontal)
-              //  .offset(x: 70)
                 
                 if viewModel.comments.isEmpty {
+                    //TODO: No comments
                     Text("No comments")
                 } else {
                     ForEach(viewModel.comments) { comment in
@@ -396,13 +402,19 @@ struct PlaceView: View {
         .listStyle(.plain)
         .scrollIndicators(.hidden)
         .buttonStyle(PlainButtonStyle())
+        .fullScreenCover(isPresented: $viewModel.showEditView) {
+            viewModel.showEditView = false
+        } content: {
+            EditPlaceView(viewModel: EditPlaceViewModel(place: viewModel.place, networkManager: AdminNetworkManager(errorManager: viewModel.errorManager)))
+        }
+
     }
     
     @ViewBuilder
     private func createMap(geometry: CGSize) -> some View {
         VStack {
             Map(position: $viewModel.position, interactionModes: [], selection: $viewModel.selectedTag) {
-                Marker(viewModel.place.name, monogram: Text(viewModel.place.type.getImage()), coordinate: viewModel.place.coordinate)
+                Marker(viewModel.place.address, monogram: Text(viewModel.place.type.getImage()), coordinate: viewModel.place.coordinate)
                     .tint(viewModel.place.type.getColor())
                     .tag(viewModel.place.tag)
                     .annotationTitles(.hidden)
@@ -412,7 +424,7 @@ struct PlaceView: View {
             .frame(height: geometry.width)
             .clipShape(RoundedRectangle(cornerRadius: 0))
             .onAppear {
-                viewModel.position = .camera(MapCamera(centerCoordinate: viewModel.place.coordinate, distance: 500))
+                viewModel.position = .camera(MapCamera(centerCoordinate: viewModel.place.coordinate, distance: 1000))
             }
             Text(viewModel.place.address)
                 .font(.callout)

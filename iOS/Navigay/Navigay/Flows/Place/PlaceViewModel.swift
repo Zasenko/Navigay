@@ -34,6 +34,9 @@ extension PlaceView {
         let errorManager: ErrorManagerProtocol
         
         var showRegistrationView: Bool = false
+        
+        var showEditView: Bool = false
+        
         //MARK: - Inits
         
         init(place: Place, modelContext: ModelContext, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol) {

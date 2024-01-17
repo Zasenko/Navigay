@@ -15,7 +15,7 @@ struct AdminPlace: Identifiable, Codable {
     let countryId: Int
     let regionId: Int?
     let cityId: Int?
-    let about: [DecodedAbout]?
+    let about: String?
     let avatar: String?
     let mainPhoto: String?
     let photos: [DecodedPhoto]?

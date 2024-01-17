@@ -102,6 +102,13 @@ struct AppUserView: View {
                     Text("Log out")
                 }
                 .buttonStyle(.bordered)
+                Button {
+//                    authenticationManager.appUser?.isUserLoggedIn = false
+//                    likedPlaces.forEach( { $0.isLiked = false } )
+                } label: {
+                    Text("Delete accounte")
+                }
+                .buttonStyle(.bordered)
                 
             }
         }

@@ -27,7 +27,8 @@ struct NewPlaceInfoView: View {
                         .foregroundStyle(.secondary)
                         .padding()
                         .padding(.top)
-                    PlaceAdditionalFieldsView(viewModel: viewModel)
+                    PlaceAdditionalFieldsView(isoCountryCode: $viewModel.isoCountryCode, email: $viewModel.email, phone: $viewModel.phone, www: $viewModel.www, facebook: $viewModel.facebook, instagram: $viewModel.instagram, about: $viewModel.about, timetable: $viewModel.timetable, otherInfo: $viewModel.otherInfo, tags: $viewModel.tags)
+                    
                     if viewModel.user.status == .admin || viewModel.user.status == .moderator {
                         ActivationFieldsView(isActive: $viewModel.isActive, isChecked: $viewModel.isChecked)
                             .padding(.bottom, 40)
