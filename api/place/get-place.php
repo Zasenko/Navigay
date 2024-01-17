@@ -35,24 +35,6 @@ $is_active = (bool)$row['is_active'];
 $tags_data = json_decode($row['tags'], true);
 $timetable = json_decode($row['timetable'], true);
 
-$about_data = json_decode($row['about'], true);
-$selected_language_data = null;
-$eng_language_data = null;
-$any_language_data = null;
-if (is_array($about_data)) {
-    foreach ($about_data as $aboutItem) {
-        if ($aboutItem['language'] === $language) {
-            $selected_language_data = $aboutItem['about'];
-            break;
-        } else if ($aboutItem['language'] === 'en') {
-            $eng_language_data = $aboutItem['about'];
-            break;
-        }
-        $any_language_data = $aboutItem['about'];
-    }
-}
-$about = $selected_language_data ?? $eng_language_data ?? $any_language_data;
-
 $photos_data = json_decode($row['photos'], true);
 $photos_urls = array();
 foreach ($photos_data as $photoItem) {
@@ -74,7 +56,7 @@ $place = array(
     'country_id' => $row['country_id'],
     'region_id' => $row['region_id'],
     'city_id' => $row['city_id'],
-    'about' => $about,
+    'about' => $row['about'],
     'avatar' => $avatar_url,
     'main_photo' => $main_photo_url,
     'photos' => $photos_urls,

@@ -39,9 +39,10 @@ function executeQuery($conn, $sql, $params, $types)
 function checkInsertResult($stmt, $conn, $errorMessage)
 {
     if ($stmt->affected_rows === 0) {
+        $error = $stmt->error;
         $stmt->close();
         $conn->close();
-        sendError($errorMessage);
+        sendError($error);
     } else {
         $stmt->close();
         return true;

@@ -79,34 +79,50 @@ $decodedPlace = json_decode($postData, true);
 if (empty($decodedPlace)) {
     sendError('Empty Data.');
 }
-$name = isset($decodedPlace["name"]) ? htmlspecialchars($decodedPlace["name"]) : "";
+
+$name = $decodedPlace["name"];
+if (!isset($name)) {
+    sendError('name is required.');
+}
 $type_id = isset($decodedPlace["type"]) ? intval($decodedPlace["type"]) : 0;
-if (!isset($decodedPlace["isoCountryCode"])) {
+
+$isoCountryCode = $decodedPlace["isoCountryCode"];
+if (!isset($isoCountryCode)) {
     sendError('ISO country code is required.');
 }
-$isoCountryCode = htmlspecialchars($decodedPlace["isoCountryCode"]);
-$country_name = isset($decodedPlace["countryOrigin"]) ? htmlspecialchars($decodedPlace["countryOrigin"]) : null;
-$country_name_en = isset($decodedPlace["countryEnglish"]) ? htmlspecialchars($decodedPlace["countryEnglish"]) : null;
-$region_name = isset($decodedPlace["regionOrigin"]) ? htmlspecialchars($decodedPlace["regionOrigin"]) : null;
-$region_name_eng = isset($decodedPlace["regionEnglish"]) ? htmlspecialchars($decodedPlace["regionEnglish"]) : null;
-$city_name = isset($decodedPlace["cityOrigin"]) ? htmlspecialchars($decodedPlace["cityOrigin"]) : null;
-$city_name_en = isset($decodedPlace["cityEnglish"]) ? htmlspecialchars($decodedPlace["cityEnglish"]) : null;
-$address = isset($decodedPlace["address"]) ? htmlspecialchars($decodedPlace["address"]) : "";
-$longitude = isset($decodedPlace["longitude"]) ? floatval($decodedPlace["longitude"]) : 0.0;
-$latitude = isset($decodedPlace["latitude"]) ? floatval($decodedPlace["latitude"]) : 0.0;
 
-$email = isset($decodedPlace["email"]) ? htmlspecialchars($decodedPlace["email"]) : null;
-$phone = isset($decodedPlace["phone"]) ? htmlspecialchars($decodedPlace["phone"]) : null;
-$www = isset($decodedPlace["www"]) ? htmlspecialchars($decodedPlace["www"]) : null;
-$facebook = isset($decodedPlace["facebook"]) ? htmlspecialchars($decodedPlace["facebook"]) : null;
-$instagram = isset($decodedPlace["instagram"]) ? htmlspecialchars($decodedPlace["instagram"]) : null;
-$about = isset($decodedPlace["about"]) ? json_encode($decodedPlace["about"]) : null;
+$country_name = isset($decodedPlace["countryOrigin"]) ? $decodedPlace["countryOrigin"] : null;
+$country_name_en = isset($decodedPlace["countryEnglish"]) ? $decodedPlace["countryEnglish"] : null;
+$region_name = isset($decodedPlace["regionOrigin"]) ? $decodedPlace["regionOrigin"] : null;
+$region_name_eng = isset($decodedPlace["regionEnglish"]) ? $decodedPlace["regionEnglish"] : null;
+$city_name = isset($decodedPlace["cityOrigin"]) ? $decodedPlace["cityOrigin"] : null;
+$city_name_en = isset($decodedPlace["cityEnglish"]) ? $decodedPlace["cityEnglish"] : null;
+
+$address = $decodedPlace["address"];
+if (!isset($address)) {
+    sendError('ISO country code is required.');
+}
+
+$longitude = isset($decodedPlace["longitude"]) ? floatval($decodedPlace["longitude"]) : null;
+if ($longitude == null) {
+    sendError('longitude is required.');
+}
+
+$latitude = isset($decodedPlace["latitude"]) ? floatval($decodedPlace["latitude"]) : null;
+if ($latitude == null) {
+    sendError('latitude is required.');
+}
+
+$email = isset($decodedPlace["email"]) ? $decodedPlace["email"] : null;
+$phone = isset($decodedPlace["phone"]) ? $decodedPlace["phone"] : null;
+$www = isset($decodedPlace["www"]) ? $decodedPlace["www"] : null;
+$facebook = isset($decodedPlace["facebook"]) ? $decodedPlace["facebook"] : null;
+$instagram = isset($decodedPlace["instagram"]) ? $decodedPlace["instagram"] : null;
+$about = isset($decodedPlace["about"]) ? $decodedPlace["about"] : null;
 $tags = isset($decodedPlace["tags"]) ? json_encode($decodedPlace["tags"]) : null;
 $timetable = isset($decodedPlace["timetable"]) ? json_encode($decodedPlace["timetable"]) : null;
-$other_info = isset($decodedPlace["otherInfo"]) ? htmlspecialchars($decodedPlace["otherInfo"]) : null;
-
+$other_info = isset($decodedPlace["otherInfo"]) ? $decodedPlace["otherInfo"] : null;
 $owner_id = isset($decodedPlace["ownerId"]) ? intval($decodedPlace["ownerId"]) : null;
-
 $is_active = isset($decodedPlace["isActive"]) ? boolval($decodedPlace["isActive"]) : false;
 $is_checked = isset($decodedPlace["isChecked"]) ? boolval($decodedPlace["isChecked"]) : false;
 
