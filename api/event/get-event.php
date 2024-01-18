@@ -35,24 +35,6 @@ $is_free = (bool)$row['is_free'];
 //todo на проверку
 $tags_data = json_decode($row['tags'], true);
 
-$about_data = json_decode($row['about'], true);
-$selected_language_data = null;
-$eng_language_data = null;
-$any_language_data = null;
-if (is_array($about_data)) {
-    foreach ($about_data as $aboutItem) {
-        if ($aboutItem['language'] === $language) {
-            $selected_language_data = $aboutItem['about'];
-            break;
-        } else if ($aboutItem['language'] === 'en') {
-            $eng_language_data = $aboutItem['about'];
-            break;
-        }
-        $any_language_data = $aboutItem['about'];
-    }
-}
-$about = $selected_language_data ?? $eng_language_data ?? $any_language_data;
-
 $poster_small = $row['poster_small'];
 $poster_small_url = isset($poster_small) ? "https://www.navigay.me/" . $poster_small : null;
 
@@ -77,7 +59,7 @@ $event = array(
     'poster_small' => $poster_small_url,
     'place_id' => $row['place_id'],
     // country_id, region_id, city_id,
-    'about' => $about,
+    'about' => $row['about'],
     'tickets' => $row['tickets'],
     'fee' => $row['fee'],
     'www' => $row['www'],

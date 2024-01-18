@@ -1,31 +1,38 @@
 <?php
 
 require_once('../error-handler.php');
+require_once('../dbconfig.php');
 
-function getOrCreateCountryId($conn, $isoCountryCode, $country_name, $country_name_engg)
+function getOrCreateCountryId($conn, $isoCountryCode, $country_name, $country_name_eng)
 {
+    if (!isset($isoCountryCode)) {
+        sendError('ISO country code is required.');
+    }
     $sql = "SELECT id FROM Country WHERE isoCountryCode = ? LIMIT 1";
     $params = [$isoCountryCode];
     $types = "s";
     $stmt = executeQuery($conn, $sql, $params, $types);
     $country_result = $stmt->get_result();
     $stmt->close();
-
     if ($country_result->num_rows > 0) {
         $row = $country_result->fetch_assoc();
         return $row["id"];
     } else {
         $sql = "INSERT INTO Country (isoCountryCode, name_origin, name_en) VALUES (?, ?, ?)";
-        $params = [$isoCountryCode, $country_name, $country_name_engg];
+        $params = [$isoCountryCode, $country_name, $country_name_eng];
         $types = "sss";
         $stmt = executeQuery($conn, $sql, $params, $types);
-        if (checkInsertResult($stmt, $conn, 'Failed to insert data (isoCountryCode: ' . $isoCountryCode . ', country name: ' . $country_name . ', country name eng :' . $country_name_engg . ') into Country table.')) {
+        if (checkInsertResult($stmt, $conn, 'Failed to insert data (isoCountryCode: ' . $isoCountryCode . ', country name: ' . $country_name . ', country name eng :' . $country_name_eng . ') into Country table.')) {
             return getLastInsertId($conn);
         }
     }
 }
 function getOrCreateRegionId($conn, $country_id, $region_name, $region_name_eng)
 {
+    if (!isset($region_name)) {
+        sendError('region name_origin is required.');
+    }
+
     $sql = "SELECT id FROM Region WHERE country_id = ? AND name_origin = ? LIMIT 1";
     $params = [$country_id, $region_name];
     $types = "is";
@@ -48,7 +55,7 @@ function getOrCreateRegionId($conn, $country_id, $region_name, $region_name_eng)
 }
 function getOrCreateCityId($conn, $country_id, $region_id, $city_name, $city_name_eng)
 {
-    if ($city_name === null || $city_name_eng === null) {
+    if (!isset($city_name)) {
         return null;
     }
 
@@ -102,22 +109,25 @@ if (empty($decodedEvent)) {
     sendError('Empty Data.');
 }
 
-$name = isset($decodedEvent["name"]) ? htmlspecialchars($decodedEvent["name"]) : "";
+$name = $decodedEvent["name"];
+if (!isset($name)) {
+    sendError('name is required.');
+}
+
 $type_id = isset($decodedEvent["type"]) ? intval($decodedEvent["type"]) : 0;
-if (!isset($decodedEvent["isoCountryCode"])) {
+
+$address = $decodedEvent["address"];
+if (!isset($address)) {
     sendError('ISO country code is required.');
 }
-$isoCountryCode = htmlspecialchars($decodedEvent["isoCountryCode"]);
-$country_name = isset($decodedEvent["countryOrigin"]) ? htmlspecialchars($decodedEvent["countryOrigin"]) : null;
-$country_name_eng = isset($decodedEvent["countryEnglish"]) ? htmlspecialchars($decodedEvent["countryEnglish"]) : null;
-$region_name = isset($decodedEvent["regionOrigin"]) ? htmlspecialchars($decodedEvent["regionOrigin"]) : null;
-$region_name_eng = isset($decodedEvent["regionEnglish"]) ? htmlspecialchars($decodedEvent["regionEnglish"]) : null;
-$city_name = isset($decodedEvent["cityOrigin"]) ? htmlspecialchars($decodedEvent["cityOrigin"]) : null;
-$city_name_eng = isset($decodedEvent["cityEnglish"]) ? htmlspecialchars($decodedEvent["cityEnglish"]) : null;
-$address = isset($decodedEvent["address"]) ? htmlspecialchars($decodedEvent["address"]) : "";
-$longitude = isset($decodedEvent["longitude"]) ? floatval($decodedEvent["longitude"]) : 0.0;
-$latitude = isset($decodedEvent["latitude"]) ? floatval($decodedEvent["latitude"]) : 0.0;
-
+$longitude = isset($decodedEvent["longitude"]) ? floatval($decodedEvent["longitude"]) : null;
+if ($longitude === null) {
+    sendError('longitude is required.');
+}
+$latitude = isset($decodedEvent["latitude"]) ? floatval($decodedEvent["latitude"]) : null;
+if ($latitude === null) {
+    sendError('latitude is required.');
+}
 if (!isset($decodedEvent["startDate"])) {
     sendError('Start date is required.');
 }
@@ -125,32 +135,45 @@ $start_date = convertToMySQLDate($decodedEvent["startDate"]);
 $start_time = isset($decodedEvent["startTime"]) ? convertToMySQLTime($decodedEvent["startTime"]) : null;
 $finish_date = isset($decodedEvent["finishDate"]) ? convertToMySQLDate($decodedEvent["finishDate"]) : null;
 $finish_time = isset($decodedEvent["finishTime"]) ? convertToMySQLTime($decodedEvent["finishTime"]) : null;
-
-$location = isset($decodedEvent["location"]) ? htmlspecialchars($decodedEvent["location"]) : null;
-$tickets = isset($decodedEvent["tickets"]) ? htmlspecialchars($decodedEvent["tickets"]) : null;
-$fee = isset($decodedEvent["fee"]) ? htmlspecialchars($decodedEvent["fee"]) : null;
+$location = isset($decodedEvent["location"]) ? $decodedEvent["location"] : null;
+$tickets = isset($decodedEvent["tickets"]) ? $decodedEvent["tickets"] : null;
+$fee = isset($decodedEvent["fee"]) ? $decodedEvent["fee"] : null;
 $is_free = isset($decodedEvent["isFree"]) ? boolval($decodedEvent["isFree"]) : false;
-
-$email = isset($decodedEvent["email"]) ? htmlspecialchars($decodedEvent["email"]) : null;
-$phone = isset($decodedEvent["phone"]) ? htmlspecialchars($decodedEvent["phone"]) : null;
-$www = isset($decodedEvent["www"]) ? htmlspecialchars($decodedEvent["www"]) : null;
-$facebook = isset($decodedEvent["facebook"]) ? htmlspecialchars($decodedEvent["facebook"]) : null;
-$instagram = isset($decodedEvent["instagram"]) ? htmlspecialchars($decodedEvent["instagram"]) : null;
-
-$about = isset($decodedEvent["about"]) ? json_encode($decodedEvent["about"]) : null;
+$email = isset($decodedEvent["email"]) ? $decodedEvent["email"] : null;
+$phone = isset($decodedEvent["phone"]) ? $decodedEvent["phone"] : null;
+$www = isset($decodedEvent["www"]) ? $decodedEvent["www"] : null;
+$facebook = isset($decodedEvent["facebook"]) ? $decodedEvent["facebook"] : null;
+$instagram = isset($decodedEvent["instagram"]) ? $decodedEvent["instagram"] : null;
+$about = isset($decodedEvent["about"]) ? $decodedEvent["about"] : null;
 $tags = isset($decodedEvent["tags"]) ? json_encode($decodedEvent["tags"]) : null;
 
 $owner_id = isset($decodedEvent["ownerId"]) ? intval($decodedEvent["ownerId"]) : null;
-
 $added_by = isset($decodedEvent["addedBy"]) ? intval($decodedEvent["addedBy"]) : null;
+$added_by = isset($decodedEvent["addedBy"]) ? intval($decodedEvent["addedBy"]) : null;
+
 $is_active = isset($decodedEvent["isActive"]) ? boolval($decodedEvent["isActive"]) : false;
 $is_checked = isset($decodedEvent["isChecked"]) ? boolval($decodedEvent["isChecked"]) : false;
 
-require_once('../dbconfig.php');
 
-$country_id = getOrCreateCountryId($conn, $isoCountryCode, $country_name, $country_name_eng);
-$region_id = getOrCreateRegionId($conn, $country_id, $region_name, $region_name_eng);
-$city_id = getOrCreateCityId($conn, $country_id, $region_id, $city_name, $city_name_eng);
+$country_id = $decodedEvent["countryId"];
+$region_id = $decodedEvent["regionId"];
+$city_id = $decodedEvent["cityId"];
+
+$isoCountryCode = $decodedEvent["isoCountryCode"];
+$country_name = isset($decodedEvent["countryOrigin"]) ? $decodedEvent["countryOrigin"] : null;
+$country_name_eng = isset($decodedEvent["countryEnglish"]) ? $decodedEvent["countryEnglish"] : null;
+
+$region_name = isset($decodedEvent["regionOrigin"]) ? $decodedEvent["regionOrigin"] : null;
+$region_name_eng = isset($decodedEvent["regionEnglish"]) ? $decodedEvent["regionEnglish"] : null;
+
+$city_name = isset($decodedEvent["cityOrigin"]) ? $decodedEvent["cityOrigin"] : null;
+$city_name_eng = isset($decodedEvent["cityEnglish"]) ? $decodedEvent["cityEnglish"] : null;
+
+$country_id = isset($country_id) ? intval($country_id) : getOrCreateCountryId($conn, $isoCountryCode, $country_name, $country_name_eng);
+$region_id = isset($region_id) ? intval($region_id) : getOrCreateRegionId($conn, $country_id, $region_name, $region_name_eng);
+$city_id = isset($city_id) ? intval($city_id) : getOrCreateCityId($conn, $country_id, $region_id, $city_name, $city_name_eng);
+
+$place_id = isset($decodedEvent["placeId"]) ? intval($decodedEvent["placeId"]) : null;
 
 $sql = "INSERT INTO Event (name, type_id, country_id, region_id, city_id, latitude, longitude, address, start_date, start_time, finish_date, finish_time, location, about, is_free, tickets, fee, email, phone, www, facebook, instagram, tags, owner_id, place_id, added_by, is_active, is_checked) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 

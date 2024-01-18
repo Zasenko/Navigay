@@ -13,23 +13,23 @@ $data = json_decode($postData, true);
 if (empty($data)) {
     sendError('Empty Data.');
 }
-$place_id = $data["place_id"];
-if (!isset($place_id)) {
-    sendError('place ID is required.');
+$event_id = $data["event_id"];
+if (!isset($event_id)) {
+    sendError('event ID is required.');
 }
-$place_id = intval($place_id);
-if ($place_id <= 0) {
-    sendError('Invalid place ID.');
+$event_id = intval($event_id);
+if ($event_id <= 0) {
+    sendError('Invalid event ID.');
 }
 
 $about = $data["about"];
 $about = isset($about) ? $about : null;
 
-$sql = "UPDATE Place SET about = ? WHERE id = ?";
-$params = [$about, $place_id];
+$sql = "UPDATE Event SET about = ? WHERE id = ?";
+$params = [$about, $event_id];
 $types = "si";
 $stmt = executeQuery($conn, $sql, $params, $types);
-if (checkInsertResult($stmt, $conn, 'Failed to update place table.')) {
+if (checkInsertResult($stmt, $conn, 'Failed to update event table.')) {
     $conn->close();
     $json = ['result' => true];
     echo json_encode($json);
