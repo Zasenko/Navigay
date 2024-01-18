@@ -10,6 +10,8 @@ import SwiftData
 
 struct EventCell: View {
     
+    @ObservedObject var authenticationManager: AuthenticationManager
+    
     // MARK: - Private Properties
     
     private let event: Event
@@ -17,6 +19,8 @@ struct EventCell: View {
     
     @State private var image: Image? = nil
     @State private var isShowEvent: Bool = false
+    
+    
     
     private let width: CGFloat
     private var formattedDate: AttributedString {
@@ -34,7 +38,7 @@ struct EventCell: View {
     
     // MARK: - Init
     
-    init(event: Event, width: CGFloat, modelContext: ModelContext, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol, showCountryCity: Bool) {
+    init(event: Event, width: CGFloat, modelContext: ModelContext, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol, showCountryCity: Bool, authenticationManager: AuthenticationManager) {
         self.event = event
         self.width = width
         self.modelContext = modelContext
@@ -42,6 +46,7 @@ struct EventCell: View {
         self.placeNetworkManager = placeNetworkManager
         self.errorManager = errorManager
         self.showCountryCity = showCountryCity
+        self.authenticationManager = authenticationManager
     }
     
     // MARK: - Body
@@ -55,7 +60,7 @@ struct EventCell: View {
         .sheet(isPresented: $isShowEvent) {
             isShowEvent = false
         } content: {
-            EventView(isEventViewPresented: $isShowEvent, event: event, modelContext: modelContext, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager)
+            EventView(isEventViewPresented: $isShowEvent, event: event, modelContext: modelContext, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, authenticationManager: authenticationManager)
                 .presentationDragIndicator(.hidden)
                 .presentationDetents([.large])
                 .presentationCornerRadius(25)

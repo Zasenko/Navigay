@@ -43,8 +43,7 @@ final class NewEventViewModel: ObservableObject {
     
     @Published var tags: [Tag] = []
 
-    @Published var languages: [Language] = Language.allCases
-    @Published var about: [NewPlaceAbout] = []
+    @Published var about: String = ""
     
     @Published var phone: String = ""
     @Published var email: String = ""
@@ -59,45 +58,55 @@ final class NewEventViewModel: ObservableObject {
     
     @Published var isLoading: Bool = false
     
-    let user: AppUser
     let errorManager: ErrorManagerProtocol
     let networkManager: EventNetworkManagerProtocol
     
     //MARK: - Private Properties
     
     private let place: Place?
+    
     //MARK: - Inits
     
-    init(user: AppUser, place: Place?, networkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol) {
-        self.user = user
+    init(place: Place?, networkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol) {
         self.place = place
         self.networkManager = networkManager
         self.errorManager = errorManager
+        
+        if let isoCountryCode = place?.city?.region?.country?.isoCountryCode,
+           place?.city?.region?.country?.id != nil,
+           place?.city?.region?.id != nil,
+           place?.city?.id != nil {
+            self.addressOrigin = place?.address ?? ""
+            self.isoCountryCode = isoCountryCode
+            self.latitude = place?.latitude
+            self.longitude = place?.longitude
+            self.location = place?.name ?? ""
+        }
     }
 }
 
 extension NewEventViewModel {
     
-    
-    func addNewEvent() {
+    func addNewEvent(user: AppUser) {
         isLoading = true
         Task {
-            let errorModel = ErrorModel(massage: "Something went wrong. The event didn't load to database. Please try again later.", img: nil, color: nil)
-            guard !name.isEmpty else { return }
-            guard let type = type?.rawValue else { return }
-            guard !isoCountryCode.isEmpty else { return }
-            guard !addressOrigin.isEmpty else { return }
-            guard let latitude else { return }
-            guard let longitude else { return }
-            
-            guard let startDateString = startDate?.format("yyyy-MM-dd") else { return }
+            guard !name.isEmpty,
+                  let type = type?.rawValue,
+                  !isoCountryCode.isEmpty,
+                  !addressOrigin.isEmpty,
+                  let latitude,
+                  let longitude,
+                  let startDateString = startDate?.format("yyyy-MM-dd")
+            else {
+                await MainActor.run {
+                    isLoading = false
+                }
+                return
+            }
             let startTimeString = startTime?.format("HH:mm")
             let finishDateString = finishDate?.format("yyyy-MM-dd")
             let finishTimeString = finishTime?.format("HH:mm")
-
-            let about = about.map( { DecodedAbout(language: $0.language, about: $0.about) } )
             let tags = tags.map( { $0.rawValue} )
-            
             let newEvent: NewEvent = NewEvent(name: name,
                                               type: type,
                                               isoCountryCode: isoCountryCode,
@@ -129,24 +138,19 @@ extension NewEventViewModel {
                                               placeId: place?.id,
                                               addedBy: user.id,
                                               isActive: isActive,
-                                              isChecked: isChecked)
-            do {
-                let decodedResult = try await networkManager.addNewEvent(event: newEvent)
-                guard let id = decodedResult.id, decodedResult.result else {
-                    errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: errorModel)
-                    return
-                }
-                await MainActor.run {
-                    self.isLoading = false
+                                              isChecked: isChecked,
+                                              countryId: place?.city?.region?.country?.id,
+                                              regionId: place?.city?.region?.id,
+                                              cityId: place?.city?.id)
+            let id = await networkManager.addNewEvent(event: newEvent)
+            await MainActor.run {
+                if let id {
                     self.id = id
+                    self.isLoading = false
                     withAnimation {
                         self.router = .poster
                     }
-                }
-            } catch {
-                debugPrint("ERROR - addNewEvent: ", error)
-                errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
-                await MainActor.run {
+                } else {
                     self.isLoading = false
                 }
             }

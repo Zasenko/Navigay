@@ -73,7 +73,7 @@ struct EditCountryView: View {
                         .padding()
                         NamesEditView(nameOrigin: $viewModel.nameOrigin, nameEn: $viewModel.nameEn, nameFr: $viewModel.nameFr, nameDe: $viewModel.nameDe, nameRu: $viewModel.nameRu, nameIt: $viewModel.nameIt, nameEs: $viewModel.nameEs, namePt: $viewModel.namePt)
                             .padding()
-                        AboutEditView(languages: $viewModel.languages, about: $viewModel.about)
+                      //  AboutEditView(languages: $viewModel.languages, about: $viewModel.about)
                             .padding()
                         EditToggleField(toggle: $viewModel.showRegions, text: "Show regions")
                             .padding(.vertical)

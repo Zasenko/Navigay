@@ -11,7 +11,7 @@ protocol EventNetworkManagerProtocol {
     var loadedEvents: [Int] { get set }
     func addToLoadedEvents(id: Int)
     func fetchEvent(id: Int) async -> DecodedEvent?
-    func addNewEvent(event: NewEvent) async throws -> NewEventResult
+    func addNewEvent(event: NewEvent) async -> Int?
     func updatePoster(eventId: Int, poster: UIImage, smallPoster: UIImage) async throws -> PosterResult
 }
 
@@ -75,7 +75,6 @@ extension EventNetworkManager: EventNetworkManagerProtocol {
             guard let decodedResult = try? JSONDecoder().decode(EventResult.self, from: data) else {
                 throw NetworkErrors.decoderError
             }
-            
             guard decodedResult.result, let decodedEvent = decodedResult.event else {
                 errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: errorModel)
                 debugPrint("API ERROR - EventNetworkManager fetchEvent(id: \(id)) - ", decodedResult.error?.message ?? "")
@@ -90,7 +89,8 @@ extension EventNetworkManager: EventNetworkManagerProtocol {
         }
     }
     
-    func addNewEvent(event: NewEvent) async throws -> NewEventResult {
+    func addNewEvent(event: NewEvent) async -> Int? {
+        let errorModel = ErrorModel(massage: "Something went wrong. The event didn't load to database. Please try again later.", img: nil, color: nil)
         let path = "/api/event/add-new-event.php"
         var urlComponents: URLComponents {
             var components = URLComponents()
@@ -99,13 +99,13 @@ extension EventNetworkManager: EventNetworkManagerProtocol {
             components.path = path
             return components
         }
-        guard let url = urlComponents.url else {
-            throw NetworkErrors.bedUrl
-        }
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         do {
+            guard let url = urlComponents.url else {
+                throw NetworkErrors.bedUrl
+            }
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
             let jsonData = try JSONEncoder().encode(event)
             request.httpBody = jsonData
             let (data, response) = try await URLSession.shared.data(for: request)
@@ -115,9 +115,16 @@ extension EventNetworkManager: EventNetworkManagerProtocol {
             guard let decodedResult = try? JSONDecoder().decode(NewEventResult.self, from: data) else {
                 throw NetworkErrors.decoderError
             }
-            return decodedResult
+            guard decodedResult.result, let id = decodedResult.id else {
+                errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: errorModel)
+                debugPrint("API ERROR - EventNetworkManager addNewEvent: ", decodedResult.error?.message ?? "")
+                return nil
+            }
+            return id
         } catch {
-            throw error
+            errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
+            debugPrint("ERROR - EventNetworkManager addNewEvent: ", error)
+            return nil
         }
     }
     

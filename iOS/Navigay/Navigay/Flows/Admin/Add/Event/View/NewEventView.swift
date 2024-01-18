@@ -9,32 +9,44 @@ import SwiftUI
 
 struct NewEventView: View {
     
+    @ObservedObject private var authenticationManager: AuthenticationManager
     @StateObject private var viewModel: NewEventViewModel
     private var infoTitle: String = "New event"
     private var posterTitle: String = "Event's poster"
     @Environment(\.dismiss) private var dismiss
     
     
-    init(viewModel: NewEventViewModel) {
+    init(viewModel: NewEventViewModel, authenticationManager: AuthenticationManager) {
         _viewModel = StateObject(wrappedValue: viewModel)
+        self.authenticationManager = authenticationManager
     }
     
     //MARK: - Body
     
     var body: some View {
+        
+        if let user = authenticationManager.appUser, user.status == .admin {
+            editView
+        } else {
+            //TODO: - вью ошибки и переход назад
+            Color.red
+        }
+    }
+    
+    var editView: some View {
         NavigationStack {
             GeometryReader { geometry in
                 VStack(spacing: 0) {
                     Divider()
                     switch viewModel.router {
                     case .info:
-                        NewEventInfoView(viewModel: viewModel)
+                        NewEventInfoView(viewModel: viewModel, authenticationManager: authenticationManager)
                             .disabled(viewModel.isLoading)
                     case .poster:
                         if let id = viewModel.id {
                             EditEventCoverView(viewModel: EditEventCoverViewModel(poster: nil, eventId: id, networkManager: viewModel.networkManager, errorManager: viewModel.errorManager))
                         } else {
-                            //TODO
+                            //TODO: вью с ошибкой
                            EmptyView()
                         }
                     }
@@ -71,7 +83,8 @@ struct NewEventView: View {
                                     .tint(.blue)
                             } else {
                                 Button("Add") {
-                                    viewModel.addNewEvent()
+                                    guard let user = authenticationManager.appUser, user.status == .admin else { return }
+                                    viewModel.addNewEvent(user: user)
                                 }
                                 .disabled(viewModel.name.isEmpty)
                                 .disabled(viewModel.addressOrigin.isEmpty == true)

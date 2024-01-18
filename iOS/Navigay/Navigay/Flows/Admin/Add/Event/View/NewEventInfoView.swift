@@ -12,7 +12,7 @@ struct NewEventInfoView: View {
     //MARK: - Properties
     
     @ObservedObject var viewModel: NewEventViewModel
-    
+    @ObservedObject var authenticationManager: AuthenticationManager
     //MARK: - Body
     
     var body: some View {
@@ -34,9 +34,9 @@ struct NewEventInfoView: View {
                         .padding(.bottom, 40)
                     EventFeeFieldsView(isFree: $viewModel.isFree, fee: $viewModel.fee, tickets: $viewModel.tickets)
                         .padding(.bottom, 40)
-                    EventAdditionalFieldsView(languages: $viewModel.languages, about: $viewModel.about, tags: $viewModel.tags, isoCountryCode: $viewModel.isoCountryCode, phone: $viewModel.phone, email: $viewModel.email, www: $viewModel.www, facebook: $viewModel.facebook, instagram: $viewModel.instagram)
+                    EventAdditionalFieldsView(about: $viewModel.about, tags: $viewModel.tags, isoCountryCode: $viewModel.isoCountryCode, phone: $viewModel.phone, email: $viewModel.email, www: $viewModel.www, facebook: $viewModel.facebook, instagram: $viewModel.instagram)
                         .padding(.bottom, 40)
-                    if viewModel.user.status == .admin || viewModel.user.status == .moderator {
+                    if let user = authenticationManager.appUser, user.status == .admin {
                         ActivationFieldsView(isActive: $viewModel.isActive, isChecked: $viewModel.isChecked)
                             .padding(.bottom, 40)
                     }

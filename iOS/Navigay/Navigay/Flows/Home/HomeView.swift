@@ -179,7 +179,7 @@ struct HomeView: View {
             .padding(.vertical, 30)
             LazyVGrid(columns: viewModel.gridLayout, spacing: 20) {
                 ForEach(viewModel.displayedEvents) { event in
-                    EventCell(event: event, width: (width / 2) - 30, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, showCountryCity: false)
+                    EventCell(event: event, width: (width / 2) - 30, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, showCountryCity: false, authenticationManager: authenticationManager)
                 }
             }
             .padding(.horizontal, 20)

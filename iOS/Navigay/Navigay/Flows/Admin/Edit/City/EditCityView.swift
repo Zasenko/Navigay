@@ -72,8 +72,9 @@ struct EditCityView: View {
                         .padding(.vertical)
                         NamesEditView(nameOrigin: $viewModel.nameOrigin, nameEn: $viewModel.nameEn, nameFr: $viewModel.nameFr, nameDe: $viewModel.nameDe, nameRu: $viewModel.nameRu, nameIt: $viewModel.nameIt, nameEs: $viewModel.nameEs, namePt: $viewModel.namePt)
                             .padding()
-                        AboutEditView(languages: $viewModel.languages, about: $viewModel.about)
-                            .padding()
+                    //TODO: убрать редактирование О городе на других языках
+//                        AboutEditView(languages: $viewModel.languages, about: $viewModel.about)
+//                            .padding()
                         ActivationFieldsView(isActive: $viewModel.isActive, isChecked: $viewModel.isChecked)
                             .padding(.vertical)
                             .padding(.bottom, 50)

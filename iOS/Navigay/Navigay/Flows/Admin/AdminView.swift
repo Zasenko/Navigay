@@ -55,10 +55,12 @@ extension AdminViewModel {
 
 struct AdminView: View {
 
-    @StateObject var viewModel: AdminViewModel
+    @StateObject private var viewModel: AdminViewModel
+    @ObservedObject private var authenticationManager: AuthenticationManager // TODO: убрать юзера из вью модели так как он в authenticationManager
     
-    init(viewModel: AdminViewModel) {
+    init(viewModel: AdminViewModel, authenticationManager: AuthenticationManager) {
         _viewModel = StateObject(wrappedValue: viewModel)
+        self.authenticationManager = authenticationManager
     }
     
     //MARK: - Body
@@ -71,7 +73,7 @@ struct AdminView: View {
                         NewPlaceView(viewModel: AddNewPlaceViewModel(user: viewModel.user, networkManager: PlaceNetworkManager(appSettingsManager: AppSettingsManager(), errorManager: viewModel.errorManager), errorManager: viewModel.errorManager))
                     }
                     NavigationLink("Add new event") {
-                        NewEventView(viewModel: NewEventViewModel(user: viewModel.user, place: nil, networkManager: EventNetworkManager(appSettingsManager: AppSettingsManager(), errorManager: viewModel.errorManager), errorManager: viewModel.errorManager))
+                        NewEventView(viewModel: NewEventViewModel(place: nil, networkManager: EventNetworkManager(appSettingsManager: AppSettingsManager(), errorManager: viewModel.errorManager), errorManager: viewModel.errorManager), authenticationManager: authenticationManager)
                     }
                 }
                 

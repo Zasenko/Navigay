@@ -25,6 +25,8 @@ protocol AdminNetworkManagerProtocol {
     func deleteCityLibraryPhoto(cityId: Int, photoId: String) async throws -> ApiResult
     
     func updatePlaceAbout(id: Int, about: String) async -> Bool
+    
+    func updateEventAbout(id: Int, about: String) async -> Bool
 }
 
 final class AdminNetworkManager {
@@ -85,6 +87,51 @@ extension AdminNetworkManager: AdminNetworkManagerProtocol {
         } catch {
             errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
             debugPrint("-ERROR- AdminNetworkManager updatePlaceAbout place id \(id) : ", error)
+            return false
+        }
+        
+    }
+    
+    func updateEventAbout(id: Int, about: String) async -> Bool {
+        let errorModel = ErrorModel(massage: "Something went wrong. Please try again later.", img: nil, color: nil)
+        debugPrint("--- AdminNetworkManager updateEventAbout event id \(id)")
+        let path = "/api/admin/update-event-about.php"
+        var urlComponents: URLComponents {
+            var components = URLComponents()
+            components.scheme = scheme
+            components.host = host
+            components.path = path
+            return components
+        }
+        do {
+            guard let url = urlComponents.url else {
+                throw NetworkErrors.bedUrl
+            }
+            let parameters = [
+                "event_id": String(id),
+                "about": about,
+            ]
+            let requestData = try JSONSerialization.data(withJSONObject: parameters)
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.httpBody = requestData
+            let (data, response) = try await URLSession.shared.data(for: request)
+            guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
+                throw NetworkErrors.invalidData
+            }
+            guard let decodedResult = try? JSONDecoder().decode(ApiResult.self, from: data) else {
+                throw NetworkErrors.decoderError
+            }
+            guard decodedResult.result else {
+                errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: errorModel)
+                debugPrint("-API ERROR- AdminNetworkManager updateEventAbout event id \(id) : ", decodedResult.error?.message ?? "")
+                return false
+            }
+            return true
+        } catch {
+            errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
+            debugPrint("-ERROR- AdminNetworkManager updateEventAbout event id \(id) : ", error)
             return false
         }
         

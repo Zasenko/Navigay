@@ -34,6 +34,7 @@ extension PlaceView {
         let errorManager: ErrorManagerProtocol
         
         var showRegistrationView: Bool = false
+        var showAddEventView: Bool = false
         
         var showEditView: Bool = false
         

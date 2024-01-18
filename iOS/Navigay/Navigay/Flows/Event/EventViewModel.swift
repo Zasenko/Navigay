@@ -26,6 +26,8 @@ extension EventView {
         var place: Place? = nil //????????? -> event.place
         var position: MapCameraPosition = .automatic
         
+        var showEditView: Bool = false
+        
         let placeNetworkManager: PlaceNetworkManagerProtocol //?????????
         let eventNetworkManager: EventNetworkManagerProtocol
         let errorManager: ErrorManagerProtocol

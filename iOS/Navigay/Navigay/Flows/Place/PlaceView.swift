@@ -21,7 +21,7 @@ struct PlaceView: View {
     init(place: Place, modelContext: ModelContext, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol, authenticationManager: AuthenticationManager) {
         let viewModel = PlaceViewModel(place: place, modelContext: modelContext, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager)
         _viewModel = State(wrappedValue: viewModel)
-        _authenticationManager = ObservedObject(wrappedValue: authenticationManager)
+        self.authenticationManager = authenticationManager
     }
     
     // MARK: - Body
@@ -70,9 +70,21 @@ struct PlaceView: View {
                                 }
                                 .tint(viewModel.place.isLiked ? .red :  .secondary)
                                 if let user = authenticationManager.appUser, user.status == .admin {
-                                    Button("Edit") {
-                                        viewModel.showEditView = true
+                                    Menu {
+                                        Button("Edit") {
+                                            viewModel.showEditView = true
+                                        }
+                                        Button("Add Event") {
+                                            viewModel.showAddEventView = true
+                                        }
+                                    } label: {
+                                        AppImages.iconSettings
+                                            .bold()
+                                            .frame(width: 30, height: 30, alignment: .leading)
                                     }
+
+                                    
+                                    
                                 }
                             }
                         }
@@ -80,6 +92,19 @@ struct PlaceView: View {
                     .onAppear() {
                         viewModel.allPhotos = viewModel.place.getAllPhotos()
                         viewModel.loadPlace()
+                    }
+                    .navigationDestination(isPresented: $viewModel.showAddEventView) {
+                        if let user = authenticationManager.appUser, user.status == .admin {
+                            NewEventView(viewModel: NewEventViewModel(place: viewModel.place, networkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager), authenticationManager: authenticationManager)
+                        } else {
+                            //TODO: - вью ошибки и переход назад
+                            EmptyView()
+                        }
+                    }
+                    .fullScreenCover(isPresented: $viewModel.showEditView) {
+                        viewModel.showEditView = false
+                    } content: {
+                        EditPlaceView(viewModel: EditPlaceViewModel(place: viewModel.place, networkManager: AdminNetworkManager(errorManager: viewModel.errorManager)))
                     }
                 }
             }
@@ -253,7 +278,7 @@ struct PlaceView: View {
                         .padding(.vertical, 30)
                     LazyVGrid(columns: viewModel.gridLayoutEvents, spacing: 20) {
                         ForEach(viewModel.place.events.sorted(by: { $0.startDate < $1.startDate } )) { event in
-                            EventCell(event: event, width: (width / 2) - 30, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, showCountryCity: false)
+                            EventCell(event: event, width: (width / 2) - 30, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, showCountryCity: false, authenticationManager: authenticationManager)
                         }
                     }
                     .padding(.horizontal, 20)
@@ -402,12 +427,6 @@ struct PlaceView: View {
         .listStyle(.plain)
         .scrollIndicators(.hidden)
         .buttonStyle(PlainButtonStyle())
-        .fullScreenCover(isPresented: $viewModel.showEditView) {
-            viewModel.showEditView = false
-        } content: {
-            EditPlaceView(viewModel: EditPlaceViewModel(place: viewModel.place, networkManager: AdminNetworkManager(errorManager: viewModel.errorManager)))
-        }
-
     }
     
     @ViewBuilder

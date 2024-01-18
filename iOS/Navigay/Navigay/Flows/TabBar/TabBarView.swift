@@ -57,7 +57,7 @@ struct TabBarView: View {
                     AppUserView(authenticationManager: authenticationManager)
                 case .admin:
                     if let user = authenticationManager.appUser {
-                        AdminView(viewModel: AdminViewModel(user: user, errorManager: errorManager, networkManager: AdminNetworkManager(errorManager: errorManager)))
+                        AdminView(viewModel: AdminViewModel(user: user, errorManager: errorManager, networkManager: AdminNetworkManager(errorManager: errorManager)), authenticationManager: authenticationManager)
                     } else {
                         EmptyView()
                     }

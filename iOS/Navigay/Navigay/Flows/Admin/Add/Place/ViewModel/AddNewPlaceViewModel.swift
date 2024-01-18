@@ -34,8 +34,6 @@ final class AddNewPlaceViewModel: ObservableObject {
     @Published var tags: [Tag] = []
     @Published var timetable: [NewWorkingDay] = []
     @Published var otherInfo: String = ""
-//    @Published var languages: [Language] = Language.allCases
-//    @Published var about: [NewPlaceAbout] = []
     @Published var about: String = ""
     @Published var phone: String = ""
     @Published var email: String = ""

@@ -25,7 +25,7 @@ struct NewEvent: Codable {
     let finishDate: String?
     let finishTime: String?
     let location: String?
-    let about: [DecodedAbout]?
+    let about: String?
     let isFree: Bool
     let tickets: String?
     let fee: String?
@@ -41,7 +41,11 @@ struct NewEvent: Codable {
     let isActive: Bool
     let isChecked: Bool
     
-    init(name: String, type: Int, isoCountryCode: String, countryOrigin: String?, countryEnglish: String?, regionOrigin: String?, regionEnglish: String?, cityOrigin: String?, cityEnglish: String?, address: String, latitude: Double, longitude: Double, startDate: String, startTime: String?, finishDate: String?, finishTime: String?, location: String?, about: [DecodedAbout]?, isFree: Bool, tickets: String?, fee: String?, email: String?, phone: String?, www: String?, facebook: String?, instagram: String?, tags: [Int]?, ownderId: Int?, placeId: Int?, addedBy: Int?, isActive: Bool, isChecked: Bool) {
+    let countryId: Int?
+    let regionId: Int?
+    let cityId: Int?
+    
+    init(name: String, type: Int, isoCountryCode: String, countryOrigin: String?, countryEnglish: String?, regionOrigin: String?, regionEnglish: String?, cityOrigin: String?, cityEnglish: String?, address: String, latitude: Double, longitude: Double, startDate: String, startTime: String?, finishDate: String?, finishTime: String?, location: String?, about: String?, isFree: Bool, tickets: String?, fee: String?, email: String?, phone: String?, www: String?, facebook: String?, instagram: String?, tags: [Int]?, ownderId: Int?, placeId: Int?, addedBy: Int?, isActive: Bool, isChecked: Bool, countryId: Int?, regionId: Int?, cityId: Int?) {
         self.name = name
         self.type = type
         self.isoCountryCode = isoCountryCode
@@ -74,5 +78,8 @@ struct NewEvent: Codable {
         self.addedBy = addedBy
         self.isActive = isActive
         self.isChecked = isChecked
+        self.countryId = countryId
+        self.regionId = regionId
+        self.cityId = cityId
     }
 }
