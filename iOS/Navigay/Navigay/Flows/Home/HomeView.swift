@@ -153,7 +153,7 @@ struct HomeView: View {
     @ViewBuilder
     private func todayEventsView(width: CGFloat) -> some View {
         Section {
-            Text("Today")
+            Text("Today's Events")
                 .font(.title2)
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -175,8 +175,8 @@ struct HomeView: View {
     private func eventsView(width: CGFloat) -> some View {
         Section {
             HStack {
-                Text(viewModel.selectedDate?.formatted(date: .long, time: .omitted) ?? "Upcoming events")
-                    .font(.title2)
+                Text(viewModel.selectedDate?.formatted(date: .long, time: .omitted) ?? "Upcoming Events")
+                                    .font(.title2)
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 Button {
@@ -240,7 +240,7 @@ struct HomeView: View {
                     NavigationLink {
                         PlaceView(place: place, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, authenticationManager: authenticationManager)
                     } label: {
-                        PlaceCell(place: place, showOpenInfo: true, showDistance: true, showCountryCity: false)
+                        PlaceCell(place: place, showOpenInfo: true, showDistance: true, showCountryCity: false, showLike: true)
                     }
                 }
             }

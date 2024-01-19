@@ -41,7 +41,14 @@ struct EventView: View {
                     .toolbar(.hidden, for: .navigationBar)
                
                 HStack {
-                    
+                    Button {
+                        viewModel.event.isLiked.toggle()
+                    } label: {
+                        Image(systemName: viewModel.event.isLiked ? "heart.fill" : "heart")
+                            .bold()
+                            .frame(width: 30, height: 30, alignment: .leading)
+                    }
+                    .tint(viewModel.event.isLiked ? .red :  .secondary)
                     if let user = authenticationManager.appUser, user.status == .admin {
                         Button("Edit") {
                             viewModel.showEditView = true

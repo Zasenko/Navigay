@@ -100,7 +100,7 @@ enum SortingMapCategory {
         case .cruiseClub:
             return "Cruise Clubs"
         case .events:
-            return "Events"
+            return "Today's Events"
         case .all:
             return "All locations"
         }

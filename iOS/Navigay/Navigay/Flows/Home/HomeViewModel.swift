@@ -215,37 +215,17 @@ extension HomeView {
                 let lastDayOfWeek = Calendar.current.date(byAdding: .day, value: 7, to: Date()) ?? Date()
                 let sevenDaydFromNow = Date().getAllDatesBetween(finishDate: lastDayOfWeek)
                 let upcomingEvents = aroundEvents.filter { event in
-//                    if event.startDate.isToday || event.startDate.isPastDate{
-//                        return false
-//                    }
                     if event.startDate.isFutureDay {
                         var isShow: Bool = false
                         for day in sevenDaydFromNow {
                             if event.startDate.isSameDayWithOtherDate(day) {
                                 isShow = true
-                                //break
                             }
-//                            else {
-//                                isShow = false
-//                            }
                         }
                         return isShow
                     } else {
                         return false
                     }
-//                    guard let finishDate = event.finishDate else {
-//                        return false
-//                    }
-//                    if finishDate.isFutureDay {
-//                        return true
-//                    }
-//                    guard finishDate.isToday,
-//                          let finishTime = event.finishTime,
-//                          finishTime.isFutureHour(of: Date())
-//                    else {
-//                        return false
-//                    }
-//                    return true
                 }
                 await MainActor.run {
                     if upcomingEvents.count > 0 {
@@ -260,10 +240,6 @@ extension HomeView {
         func getEvents(for date: Date) {
             Task {
                 let events = aroundEvents.filter { event in
-//                    print(event.name)
-//                    print(event.startDate.formatted())
-//                    print(event.finishDate?.formatted() ?? "-")
-//                    print("--")
                     if event.startDate.isFutureDay(of: date) {
                         return false
                     }

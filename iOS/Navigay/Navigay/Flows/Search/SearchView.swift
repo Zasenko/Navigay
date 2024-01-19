@@ -323,7 +323,7 @@ struct SearchView: View {
                     NavigationLink {
                         PlaceView(place: place, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, authenticationManager: authenticationManager)
                     } label: {
-                        PlaceCell(place: place, showOpenInfo: false, showDistance: false, showCountryCity: true)
+                        PlaceCell(place: place, showOpenInfo: false, showDistance: false, showCountryCity: true, showLike: true)
                     }
                 }
             }

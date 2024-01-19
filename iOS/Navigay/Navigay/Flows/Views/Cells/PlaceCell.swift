@@ -15,12 +15,14 @@ struct PlaceCell: View {
     private let showOpenInfo: Bool
     private let showDistance: Bool
     private let showCountryCity: Bool
+    private let showLike: Bool
         
-    init(place: Place, showOpenInfo: Bool, showDistance: Bool, showCountryCity: Bool) {
+    init(place: Place, showOpenInfo: Bool, showDistance: Bool, showCountryCity: Bool, showLike: Bool) {
         self.place = place
         self.showOpenInfo = showOpenInfo
         self.showDistance = showDistance
         self.showCountryCity = showCountryCity
+        self.showLike = showLike
     }
     
     var body: some View {
@@ -45,32 +47,32 @@ struct PlaceCell: View {
                             .foregroundColor(.primary)
                     if showOpenInfo && place.isOpenNow() {
                         Text("open now")
-                            .font(.footnote).bold()
+                            .bold()
                             .foregroundColor(.green)
                     }
-                    HStack(alignment: .top, spacing: 10) {
-                        if showCountryCity {
-                            VStack(alignment: .leading) {
-                                if place.city?.region?.country?.name != nil || place.city?.name != nil {
-                                    Text(place.city?.name == nil ? "" : "\(place.city?.name ?? "")")
-                                        .bold()
-                                    + Text(place.city?.region?.country?.name == nil ? "" : "  •  \(place.city?.region?.country?.name ?? "")")
-                                }
-                                Text(place.address)
-                            }
-                        } else {
-                            Text(place.address)
-                        }
+                    HStack(spacing: 5) {
+                        Text(place.address)
                         if showDistance {
-                            Text(place.distanceText)
+                            HStack(alignment: .top, spacing: 5) {
+                                Text("•")
+                                Text(place.distanceText)
+                            }
                         }
                     }
-                    .font(.footnote)
-                    .foregroundColor(.secondary)
-                    .multilineTextAlignment(.leading)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                    if showCountryCity {
+                        HStack(spacing: 5) {
+                            Text(place.city?.name ?? "")
+                                .bold()
+                            Text("•")
+                            Text(place.city?.region?.country?.name ?? "")
+                        }
+                    }
                 }
-                if place.isLiked {
+                .font(.footnote)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.leading)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                if showLike && place.isLiked {
                     AppImages.iconHeartFill
                         .foregroundColor(.red)
                 }

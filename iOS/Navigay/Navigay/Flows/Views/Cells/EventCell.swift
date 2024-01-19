@@ -71,16 +71,6 @@ struct EventCell: View {
     
     private var eventPosterLable: some View {
         VStack(alignment: .center, spacing: 0) {
-            if showCountryCity {
-                Group {
-                    Text(event.city?.region?.country?.name == nil ? "" : "\(event.city?.region?.country?.name ?? "")")
-                        .bold()
-                    + Text(event.city?.name == nil ? "" : "  •  \(event.city?.name ?? "")")
-                }
-                .font(.footnote)
-                .foregroundColor(.secondary)
-                .padding(.bottom, 5)
-            }
             ZStack(alignment: .topTrailing) {
                 if let url = event.smallPoster {
                     Group {
@@ -136,8 +126,18 @@ struct EventCell: View {
                     Text("•")
                 }
                 .foregroundStyle(.secondary)
+                if showCountryCity {
+                    HStack(spacing: 5) {
+                        Text(event.city?.name ?? "")
+                            .bold()
+                        Text("•")
+                        Text(event.city?.region?.country?.name ?? "")
+                    }
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                }
             }
-            .font(.caption)
+            .font(.footnote)
             .padding(.top, 5)
         }
     }

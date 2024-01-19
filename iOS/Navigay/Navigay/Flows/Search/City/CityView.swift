@@ -180,7 +180,7 @@ struct CityView: View {
                     NavigationLink {
                         PlaceView(place: place, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, authenticationManager: authenticationManager)
                     } label: {
-                        PlaceCell(place: place, showOpenInfo: false, showDistance: false, showCountryCity: false)
+                        PlaceCell(place: place, showOpenInfo: false, showDistance: false, showCountryCity: false, showLike: true)
                     }
                 }
             }
