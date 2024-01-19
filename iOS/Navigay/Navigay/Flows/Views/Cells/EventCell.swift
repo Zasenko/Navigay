@@ -81,7 +81,6 @@ struct EventCell: View {
                 .foregroundColor(.secondary)
                 .padding(.bottom, 5)
             }
-            
             ZStack(alignment: .topTrailing) {
                 if let url = event.smallPoster {
                     Group {
@@ -120,18 +119,28 @@ struct EventCell: View {
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
             }
-            Text(event.name)
-                .font(.caption)
-                .bold()
-                .foregroundColor(.primary)
-                .lineLimit(1)
-                .padding(.vertical, 5)
-            Text(formattedDate)
-                .font(.caption)
+            VStack(spacing: 0) {
+                Text(event.name)
+                    .bold()
+                    .foregroundColor(.primary)
+                    .lineLimit(1)
+                Text(formattedDate)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                HStack(spacing: 5) {
+                    Text("•")
+                    if let location = event.location {
+                        Text(location)
+                            .lineLimit(1)
+                    }
+                    Text("•")
+                }
                 .foregroundStyle(.secondary)
-                .frame(maxWidth: .infinity)
-                .padding(.bottom)
+            }
+            .font(.caption)
+            .padding(.top, 5)
         }
+        .padding(.bottom)
     }
     
     

@@ -257,11 +257,15 @@ extension HomeView {
         func getEvents(for date: Date) {
             Task {
                 let events = aroundEvents.filter { event in
-                    if event.startDate.isSameDayWithOtherDate(date) {
-                        return true
-                    }
+                    print(event.name)
+                    print(event.startDate.formatted())
+                    print(event.finishDate?.formatted() ?? "-")
+                    print("--")
                     if event.startDate.isFutureDay(of: date) {
                         return false
+                    }
+                    if event.startDate.isSameDayWithOtherDate(date) {
+                        return true
                     }
                     guard let finishDate = event.finishDate else {
                         return false
@@ -344,13 +348,19 @@ extension HomeView {
                     if let finishTime = event.finishTime {
                         if let elevenAM = Calendar.current.date(bySettingHour: 11, minute: 0, second: 0, of: Date()) {
                             if finishTime.isPastHour(of: elevenAM) {
-                                dates.removeLast()
+                                if dates.count > 0 {
+                                    dates.removeLast()
+                                }
                             }
                         } else {
-                            dates.removeLast()
+                            if dates.count > 0 {
+                                dates.removeLast()
+                            }
                         }
                     } else {
-                        dates.removeLast()
+                        if dates.count > 0 {
+                            dates.removeLast()
+                        }
                     }
                     activeDates.append(contentsOf: dates)
                 }

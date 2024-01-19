@@ -64,10 +64,7 @@ extension Date {
     }
     
     func isSameMonth(with otherDate: Date) -> Bool {
-        let calendar = Calendar.current
-        let components1 = calendar.dateComponents([.month], from: self)
-        let components2 = calendar.dateComponents([.month], from: otherDate)
-        return components1.month == components2.month
+        Calendar.current.compare(self, to: otherDate, toGranularity: .month) == .orderedSame
     }
     
     func isPastHour(of otherDate: Date) -> Bool {
@@ -85,10 +82,7 @@ extension Date {
     }
     
     func isFutureDay(of otherDate: Date) -> Bool {
-        let calendar = Calendar.current
-        let components1 = calendar.dateComponents([.day], from: self)
-        let components2 = calendar.dateComponents([.day], from: otherDate)
-        return components1.day! > components2.day!//TODO:  components1.hour!
+        return Calendar.current.compare(self, to: otherDate, toGranularity: .day) == .orderedDescending
     }
     
     /// next day from date
