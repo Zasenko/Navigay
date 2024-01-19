@@ -17,7 +17,7 @@ extension HomeView {
         let user: AppUser?
         var allEvents: [Event] = []
         var aroundEvents: [Event] = []
-        var todayAndTomorrowEvents: [Event] = [] /// for Map
+        var todayEvents: [Event] = []
         var displayedEvents: [Event] = []
         
         var eventsDates: [Date] = []
@@ -157,7 +157,7 @@ extension HomeView {
                     break
                 }
             }
-            aroundPlaces = closestPlaces
+            aroundPlaces = closestPlaces.sorted(by: { $0.name < $1.name})
             createGroupedPlaces(places: closestPlaces)
         }
         
@@ -204,7 +204,7 @@ extension HomeView {
                 aroundEvents = unsortedEvents.sorted(by: { $0.startDate < $1.startDate } )
                 getUpcomingEvents()
                 updateEventsDates()
-                getEventsForMap()
+                getTodayEvents()
             } catch {
                 debugPrint(error)
             }
@@ -215,34 +215,37 @@ extension HomeView {
                 let lastDayOfWeek = Calendar.current.date(byAdding: .day, value: 7, to: Date()) ?? Date()
                 let sevenDaydFromNow = Date().getAllDatesBetween(finishDate: lastDayOfWeek)
                 let upcomingEvents = aroundEvents.filter { event in
-                    if event.startDate.isToday {
-                        return true
-                    }
+//                    if event.startDate.isToday || event.startDate.isPastDate{
+//                        return false
+//                    }
                     if event.startDate.isFutureDay {
                         var isShow: Bool = false
                         for day in sevenDaydFromNow {
                             if event.startDate.isSameDayWithOtherDate(day) {
                                 isShow = true
-                                break
-                            } else {
-                                isShow = false
+                                //break
                             }
+//                            else {
+//                                isShow = false
+//                            }
                         }
                         return isShow
-                    }
-                    guard let finishDate = event.finishDate else {
+                    } else {
                         return false
                     }
-                    if finishDate.isFutureDay {
-                        return true
-                    }
-                    guard finishDate.isToday,
-                          let finishTime = event.finishTime,
-                          finishTime.isFutureHour(of: Date())
-                    else {
-                        return false
-                    }
-                    return true
+//                    guard let finishDate = event.finishDate else {
+//                        return false
+//                    }
+//                    if finishDate.isFutureDay {
+//                        return true
+//                    }
+//                    guard finishDate.isToday,
+//                          let finishTime = event.finishTime,
+//                          finishTime.isFutureHour(of: Date())
+//                    else {
+//                        return false
+//                    }
+//                    return true
                 }
                 await MainActor.run {
                     if upcomingEvents.count > 0 {
@@ -257,10 +260,10 @@ extension HomeView {
         func getEvents(for date: Date) {
             Task {
                 let events = aroundEvents.filter { event in
-                    print(event.name)
-                    print(event.startDate.formatted())
-                    print(event.finishDate?.formatted() ?? "-")
-                    print("--")
+//                    print(event.name)
+//                    print(event.startDate.formatted())
+//                    print(event.finishDate?.formatted() ?? "-")
+//                    print("--")
                     if event.startDate.isFutureDay(of: date) {
                         return false
                     }
@@ -294,38 +297,33 @@ extension HomeView {
             }
         }
         
-        func getEventsForMap() {
+        func getTodayEvents() {
             Task {
                 let events = aroundEvents.filter { event in
                     if event.startDate.isToday {
                         return true
-                    }
-                    if event.startDate.isFutureDay {
-                        guard event.startDate.isTomorrow else {
+                    } else {
+                        if event.startDate.isFutureDay {
                             return false
                         }
-                        return true
-                    }
-                    
-                    guard let finishTime = event.finishTime else {
-                        return false
-                    }
-                    if finishTime.isFutureDay {
-                        return true
-                    }
-                    
-                    if finishTime.isToday {
-                        guard let finishTime = event.finishTime,
-                              finishTime.isFutureHour(of: Date())
-                        else {
+                        guard let finishDate = event.finishDate else {
                             return false
                         }
-                        return true
+                        if finishDate.isFutureDay {
+                            return true
+                        } else {
+                            guard let finishTime = event.finishTime,
+                                  finishTime.isFutureHour(of: Date())
+                            else {
+                                return false
+                            }
+                            return true
+                        }
+                        
                     }
-                    return false
                 }
                 await MainActor.run {
-                    todayAndTomorrowEvents = events
+                    todayEvents = events
                 }
             }
         }

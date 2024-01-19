@@ -140,10 +140,7 @@ struct EventCell: View {
             .font(.caption)
             .padding(.top, 5)
         }
-        .padding(.bottom)
     }
-    
-    
 }
 
 //#Preview {

@@ -102,7 +102,7 @@ extension CityView {
             let sortedEvents = unsortedEvents.sorted(by: { $0.startDate < $1.startDate } )
             await getUpcomingEvents(for: sortedEvents)
             await updateEventsDates(for: sortedEvents)
-            //  getEventsForMap()
+            //  getTodayEvents()
         }
         
         // TODO: дубляж

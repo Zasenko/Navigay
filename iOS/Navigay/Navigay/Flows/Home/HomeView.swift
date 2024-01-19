@@ -41,7 +41,7 @@ struct HomeView: View {
                     .frame(maxHeight: .infinity)
             } else {
                 if viewModel.showMap {
-                    MapView(viewModel: MapViewModel(showMap: $viewModel.showMap, events: $viewModel.todayAndTomorrowEvents, places: $viewModel.aroundPlaces, categories: $viewModel.sortingMapCategories, selectedCategory: $viewModel.selectedMapSortingCategory))
+                    MapView(viewModel: MapViewModel(showMap: $viewModel.showMap, events: $viewModel.todayEvents, places: $viewModel.aroundPlaces, categories: $viewModel.sortingMapCategories, selectedCategory: $viewModel.selectedMapSortingCategory))
                 } else {
                     mainView
                 }
@@ -112,7 +112,9 @@ struct HomeView: View {
                     notFountView
                         .listRowSeparator(.hidden)
                 }
-                
+                if viewModel.todayEvents.count > 0 {
+                    todayEventsView(width: proxy.size.width)
+                }
                 if viewModel.aroundEvents.count > 0 {
                     eventsView(width: proxy.size.width)
                 }
@@ -149,6 +151,27 @@ struct HomeView: View {
     }
     
     @ViewBuilder
+    private func todayEventsView(width: CGFloat) -> some View {
+        Section {
+            Text("Today")
+                .font(.title2)
+                .foregroundStyle(.secondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 20)
+                .padding(.top, 30)
+                .padding(.bottom, 10)
+            LazyVGrid(columns: viewModel.gridLayout, spacing: 20) {
+                ForEach(viewModel.todayEvents) { event in
+                    EventCell(event: event, width: (width / 2) - 30, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, showCountryCity: false, authenticationManager: authenticationManager)
+                }
+            }
+            .padding(.horizontal, 20)
+        }
+        .listRowSeparator(.hidden)
+        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+    }
+    
+    @ViewBuilder
     private func eventsView(width: CGFloat) -> some View {
         Section {
             HStack {
@@ -176,7 +199,8 @@ struct HomeView: View {
                 }
             }
             .padding(.horizontal, 20)
-            .padding(.vertical, 30)
+            .padding(.top, 30)
+            .padding(.bottom, 10)
             LazyVGrid(columns: viewModel.gridLayout, spacing: 20) {
                 ForEach(viewModel.displayedEvents) { event in
                     EventCell(event: event, width: (width / 2) - 30, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, showCountryCity: false, authenticationManager: authenticationManager)
@@ -206,17 +230,10 @@ struct HomeView: View {
     private var placesView: some View {
         ForEach(viewModel.groupedPlaces.keys.sorted(), id: \.self) { key in
             Section {
-//                Text(key.getPluralName().uppercased())
-//                    .foregroundColor(.white)
-//                    .font(.caption)
-//                    .bold()
-//                    .modifier(CapsuleSmall(background: key.getColor(), foreground: .white))
-//                    .frame(maxWidth: .infinity)
-//                    .padding(.top)
                 Text(key.getPluralName())
                     .font(.title)
                     .foregroundStyle(.secondary)
-                    .padding(.top, 50)
+                    .padding(.top, 30)
                     .padding(.bottom, 10)
                     .offset(x: 70)
                 ForEach(viewModel.groupedPlaces[key] ?? []) { place in
