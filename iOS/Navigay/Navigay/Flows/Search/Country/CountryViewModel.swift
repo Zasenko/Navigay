@@ -89,7 +89,7 @@ extension CountryView {
                 for decodedCity in decodedCities {
                     if let city = region.cities.first(where: { $0.id == decodedCity.id} ) {
                         city.updateCityIncomplete(decodedCity: decodedCity)
-                    } else if decodedCity.isActive {
+                    } else {
                         let city = City(decodedCity: decodedCity)
                         region.cities.append(city)
                         city.region = region

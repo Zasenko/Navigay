@@ -30,7 +30,7 @@ struct PlaceCell: View {
             HStack(spacing: 20) {
                 if let url = place.avatar {
                     ImageLoadingView(url: url, width: 50, height: 50, contentMode: .fill) {
-                        Color.red
+                        AppColors.lightGray6
                     }
                     .clipShape(.circle)
                     .overlay(Circle().stroke(AppColors.lightGray5, lineWidth: 1))
@@ -50,21 +50,23 @@ struct PlaceCell: View {
                             .bold()
                             .foregroundColor(.green)
                     }
-                    HStack(spacing: 5) {
-                        Text(place.address)
+                    HStack(alignment: .top, spacing: 5) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(place.address)
+                            if showCountryCity {
+                                HStack(spacing: 5) {
+                                    Text(place.city?.name ?? "")
+                                        .bold()
+                                    Text("•")
+                                    Text(place.city?.region?.country?.name ?? "")
+                                }
+                            }
+                        }
                         if showDistance {
                             HStack(alignment: .top, spacing: 5) {
                                 Text("•")
                                 Text(place.distanceText)
                             }
-                        }
-                    }
-                    if showCountryCity {
-                        HStack(spacing: 5) {
-                            Text(place.city?.name ?? "")
-                                .bold()
-                            Text("•")
-                            Text(place.city?.region?.country?.name ?? "")
                         }
                     }
                 }

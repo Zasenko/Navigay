@@ -60,7 +60,7 @@ final class EditPlaceViewModel: ObservableObject {
         self.www = place.www ?? ""
         self.facebook = place.facebook ?? ""
         self.instagram = place.instagram ?? ""
-        self.isActive = place.isActive
+     //   self.isActive = place.isActive
         self.avatar = AdminPhoto(id: UUID().uuidString, image: nil, url: place.avatar)
         self.mainPhoto = AdminPhoto(id: UUID().uuidString, image: nil, url: place.mainPhoto)
     }
@@ -79,6 +79,7 @@ extension EditPlaceViewModel {
             await MainActor.run {
                 self.email = decodedPlace.email ?? ""
                 self.isChecked = decodedPlace.isChecked
+                self.isActive = decodedPlace.isActive
                 if let photos = decodedPlace.photos, !photos.isEmpty {
                     let adminPhotos = photos.compactMap( { AdminPhoto(id: $0.id, image: nil, url: $0.url)})
                     self.photos = adminPhotos

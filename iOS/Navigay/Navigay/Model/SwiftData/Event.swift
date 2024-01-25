@@ -28,7 +28,7 @@ final class Event {
     var smallPoster: String? = nil
     var isFree: Bool = false
     var tags: [Tag] = []
-    var isActive: Bool = true
+  //  var isActive: Bool = true
     
     var location: String? = nil
     var www: String? = nil
@@ -82,7 +82,7 @@ final class Event {
                 }
             }
             location = decodedEvent.location
-            isActive = decodedEvent.isActive
+            //isActive = decodedEvent.isActive
             lastUpdateIncomplete = lastUpdate
         }
     }

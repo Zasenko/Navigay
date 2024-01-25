@@ -12,9 +12,11 @@ struct ItemsResult: Codable {
         case foundAround = "found_around"
         case places
         case events
+        case cities
     }
     
     let foundAround: Bool
     let places: [DecodedPlace]?
     let events: [DecodedEvent]?
+    let cities: [DecodedCity]?
 }

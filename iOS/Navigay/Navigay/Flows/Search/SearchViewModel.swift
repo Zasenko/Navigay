@@ -106,7 +106,7 @@ extension SearchView {
                         for decodedCountry in decodedCountries {
                             if let country = countries.first(where: { $0.id == decodedCountry.id} ) {
                                 country.updateCountryIncomplete(decodedCountry: decodedCountry)
-                            } else if decodedCountry.isActive {
+                            } else {
                                 let country = Country(decodedCountry: decodedCountry)
                                 modelContext.insert(country)
                                // countries.append(country)
@@ -237,7 +237,7 @@ extension SearchView {
                         updateRegionCountry(decodedCountry: decodedRegion.country, for: region)
                         updateRegionCities(decodedCities: decodedRegion.cities, for: region)
                         regions.append(region)
-                    } else if decodedRegion.isActive {
+                    } else {
                         let region = Region(decodedRegion: decodedRegion)
                         modelContext.insert(region)
                         updateRegionCountry(decodedCountry: decodedRegion.country, for: region)
@@ -264,7 +264,7 @@ extension SearchView {
                     if !country.regions.contains(where: { $0.id == region.id } ) {
                         country.regions.append(region)
                     }
-                } else if decodedCountry.isActive {
+                } else {
                     let country = Country(decodedCountry: decodedCountry)
                     modelContext.insert(country)
                     region.country = country
@@ -294,7 +294,7 @@ extension SearchView {
                     if !region.cities.contains(where: { $0.id == city.id } ) {
                         region.cities.append(city)
                     }
-                } else if decodedCity.isActive {
+                } else {
                     let city = City(decodedCity: decodedCity)
                     modelContext.insert(city)
                     city.region = region
@@ -320,7 +320,7 @@ extension SearchView {
                         city.updateCityIncomplete(decodedCity: decodedCity)
                         updateCityRegion(decodedRegion: decodedCity.region, for: city)
                         cities.append(city)
-                    } else if decodedCity.isActive {
+                    } else {
                         let city = City(decodedCity: decodedCity)
                         modelContext.insert(city)
                         updateCityRegion(decodedRegion: decodedCity.region, for: city)
@@ -481,7 +481,7 @@ extension SearchView {
         
         // TODO: дубликат
         private func createGroupedPlaces(places: [Place]) -> [PlaceType: [Place]] {
-            return Dictionary(grouping: places.filter( { $0.isActive }).sorted(by: {$0.name < $1.name} )) { $0.type }
+            return Dictionary(grouping: places.sorted(by: {$0.name < $1.name} )) { $0.type }
         }
     }
 }

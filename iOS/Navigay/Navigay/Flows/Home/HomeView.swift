@@ -14,7 +14,7 @@ struct HomeView: View {
     
     @ObservedObject private var locationManager: LocationManager
     @State private var viewModel: HomeViewModel
-    @ObservedObject var authenticationManager: AuthenticationManager // TODO: убрать юзера из вью модели так как он в authenticationManager
+    @ObservedObject var authenticationManager: AuthenticationManager
     
     // MARK: - Init
     
@@ -24,9 +24,8 @@ struct HomeView: View {
          eventNetworkManager: EventNetworkManagerProtocol,
          locationManager: LocationManager,
          errorManager: ErrorManagerProtocol,
-         user: AppUser?,
          authenticationManager: AuthenticationManager) {
-        _viewModel = State(initialValue: HomeViewModel(modelContext: modelContext, aroundNetworkManager: aroundNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, user: user))
+        _viewModel = State(initialValue: HomeViewModel(modelContext: modelContext, aroundNetworkManager: aroundNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager))
         _locationManager = ObservedObject(wrappedValue: locationManager)
         _authenticationManager = ObservedObject(wrappedValue: authenticationManager)
     }
@@ -108,14 +107,14 @@ struct HomeView: View {
     private var listView: some View {
         GeometryReader { proxy in
             List {
-                if !viewModel.foundAround {
+                if !viewModel.isLocationsAround20Found {
                     notFountView
                         .listRowSeparator(.hidden)
                 }
                 if viewModel.todayEvents.count > 0 {
                     todayEventsView(width: proxy.size.width)
                 }
-                if viewModel.aroundEvents.count > 0 {
+                if viewModel.upcomingEvents.count > 0 {
                     eventsView(width: proxy.size.width)
                 }
                 placesView
@@ -154,7 +153,7 @@ struct HomeView: View {
     private func todayEventsView(width: CGFloat) -> some View {
         Section {
             Text("Today's Events")
-                .font(.title2)
+                .font(.title2).bold()
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, 20)
@@ -176,7 +175,7 @@ struct HomeView: View {
         Section {
             HStack {
                 Text(viewModel.selectedDate?.formatted(date: .long, time: .omitted) ?? "Upcoming Events")
-                                    .font(.title2)
+                    .font(.title2).bold()
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 Button {
@@ -215,7 +214,7 @@ struct HomeView: View {
             if let date = newValue {
                 viewModel.getEvents(for: date)
             } else {
-                viewModel.getUpcomingEvents()
+                viewModel.showUpcomingEvents()
             }
             
         }
@@ -240,7 +239,7 @@ struct HomeView: View {
                     NavigationLink {
                         PlaceView(place: place, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, authenticationManager: authenticationManager)
                     } label: {
-                        PlaceCell(place: place, showOpenInfo: true, showDistance: true, showCountryCity: false, showLike: true)
+                        PlaceCell(place: place, showOpenInfo: viewModel.isLocationsAround20Found ? true : false, showDistance: true, showCountryCity: viewModel.isLocationsAround20Found ? false : true, showLike: true)
                     }
                 }
             }

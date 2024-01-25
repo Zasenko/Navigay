@@ -32,7 +32,7 @@ final class Place {
     var city: City? = nil
     var lastUpdateIncomplete: Date? = nil
     var lastUpdateComplite: Date? = nil
-    var isActive: Bool = false
+  //  var isActive: Bool = false
     var isLiked: Bool = false
 
     @Transient lazy var coordinate: CLLocationCoordinate2D = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
@@ -54,7 +54,7 @@ final class Place {
             address = decodedPlace.address
             latitude = decodedPlace.latitude
             longitude = decodedPlace.longitude
-            isActive = decodedPlace.isActive
+         //   isActive = decodedPlace.isActive
             tags.removeAll()
             if let dacodedTags = decodedPlace.tags {
                 for tag in dacodedTags {
@@ -76,7 +76,7 @@ final class Place {
             www = decodedPlace.www
             facebook = decodedPlace.facebook
             instagram = decodedPlace.instagram
-            isActive = decodedPlace.isActive
+          //  isActive = decodedPlace.isActive
             lastUpdateComplite = lastUpdate
         }
     }

@@ -10,8 +10,6 @@ import Foundation
 struct DecodedEvent: Identifiable, Codable {
 
     enum CodingKeys: String, CodingKey {
-
-//        // country_id, region_id, city_id,
         case id
         case name
         case type = "type_id"
@@ -27,7 +25,6 @@ struct DecodedEvent: Identifiable, Codable {
         case poster
         case smallPoster = "poster_small"
         case isFree = "is_free"
-        case isActive = "is_active"
         case lastUpdate = "updated_at"
         case about
         case tickets
@@ -38,6 +35,7 @@ struct DecodedEvent: Identifiable, Codable {
         case phone
         case place
         case city
+        case cityId = "city_id"
     }
     
     let id: Int
@@ -54,10 +52,8 @@ struct DecodedEvent: Identifiable, Codable {
     let smallPoster: String?
     let isFree: Bool
     let tags: [Tag]?
-    let isActive: Bool
     let location: String?
     let lastUpdate: String
-    
     let about: String?
     let fee: String?
     let tickets: String?
@@ -67,7 +63,5 @@ struct DecodedEvent: Identifiable, Codable {
     let phone: String?
     let place: DecodedPlace?
     let city: DecodedCity?
-   // let countryId: Int?
-   // let regionId: Int?
-   // let cityId: Int?
+    let cityId: Int?
 }

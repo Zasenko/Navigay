@@ -46,8 +46,7 @@ extension AroundNetworkManager: AroundNetworkManagerProtocol {
     func fetchLocations(location: CLLocation) async -> ItemsResult? {
         let errorModel = ErrorModel(massage: "Something went wrong. Failed to upload data. Please try again later.", img: nil, color: nil)
         debugPrint("--- fetchLocations around()")
-        
-        let path = "/api/around/get-locations-around.php"
+        let path = "/api/around/get-around.php"
         var urlComponents: URLComponents {
             var components = URLComponents()
             components.scheme = scheme
@@ -56,6 +55,7 @@ extension AroundNetworkManager: AroundNetworkManagerProtocol {
             components.queryItems = [
                 URLQueryItem(name: "latitude", value: "\(location.coordinate.latitude)"),
                 URLQueryItem(name: "longitude", value: "\(location.coordinate.longitude)"),
+                URLQueryItem(name: "user_date", value: "2024-01-25")
             ]
             return components
         }
@@ -63,6 +63,7 @@ extension AroundNetworkManager: AroundNetworkManagerProtocol {
             guard let url = urlComponents.url else {
                 throw NetworkErrors.bedUrl
             }
+            print("url->>> ", url)
             var request = URLRequest(url: url)
             request.httpMethod = "GET"
             let (data, response) = try await URLSession.shared.data(for: request)

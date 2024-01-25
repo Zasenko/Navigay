@@ -14,7 +14,7 @@ struct DecodedPlace: Identifiable, Codable {
         case address
         case latitude
         case longitude
-        case isActive = "is_active"
+      //  case isActive = "is_active"
         case lastUpdate = "updated_at"
         case avatar
         case mainPhoto = "main_photo"
@@ -25,6 +25,7 @@ struct DecodedPlace: Identifiable, Codable {
         case www, facebook, instagram, phone
         case otherInfo = "other_info"
         case city
+        case cityId = "city_id"
         case events
     }
 
@@ -34,9 +35,8 @@ struct DecodedPlace: Identifiable, Codable {
     let address: String
     let latitude: Double
     let longitude: Double
-    let isActive: Bool
+   // let isActive: Bool
     let lastUpdate: String
-    
     let avatar: String?
     let mainPhoto: String?
     let photos: [String]?
@@ -49,6 +49,7 @@ struct DecodedPlace: Identifiable, Codable {
     let instagram: String?
     let phone: String?
     let city: DecodedCity?
+    let cityId: Int?
     let events: [DecodedEvent]?
 }
 

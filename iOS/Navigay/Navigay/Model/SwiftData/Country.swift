@@ -17,7 +17,7 @@ final class Country {
     var flagEmoji: String = "🏳️‍🌈"
     var photo: String? = nil
     var about: String? = nil
-    var isActive: Bool = false
+    //var isActive: Bool = false
     var showRegions: Bool = false
     var lastUpdateIncomplete: Date? = nil
     var lastUpdateComplite: Date? = nil
@@ -37,7 +37,7 @@ final class Country {
             name = decodedCountry.name
             photo = decodedCountry.photo
             showRegions = decodedCountry.showRegions
-            isActive = decodedCountry.isActive
+          //  isActive = decodedCountry.isActive
             lastUpdateIncomplete = lastUpdate
         }
     }

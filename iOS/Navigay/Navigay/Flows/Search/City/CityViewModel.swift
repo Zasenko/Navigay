@@ -112,10 +112,10 @@ extension CityView {
                     print(date.formatted())
                     print(event.id)
                     print(event.name)
-                    guard event.isActive else {
-                        print("event.isActive false - return false")
-                        return false
-                    }
+//                    guard event.isActive else {
+//                        print("event.isActive false - return false")
+//                        return false
+//                    }
                     if event.startDate.isSameDayWithOtherDate(date) {
                         print("event.startDate.isSameDayWithOtherDate - return true")
                         return true
@@ -255,7 +255,7 @@ extension CityView {
                             place.updatePlaceIncomplete(decodedPlace: decodedPlace)
                             city.places.append(place)
                             updateTimeTable(timetable: decodedPlace.timetable, for: place)
-                        } else if decodedPlace.isActive {
+                        } else {
                             let place = Place(decodedPlace: decodedPlace)
                             city.places.append(place)
                             updateTimeTable(timetable: decodedPlace.timetable, for: place)
@@ -327,7 +327,7 @@ extension CityView {
         
         
         func createGroupedPlaces(places: [Place]) async {
-            let groupedPlaces = Dictionary(grouping: places.filter { $0.isActive }) { $0.type }
+            let groupedPlaces = Dictionary(grouping: places) { $0.type }
             await MainActor.run {
                 withAnimation(.spring()) {
                     self.groupedPlaces = groupedPlaces

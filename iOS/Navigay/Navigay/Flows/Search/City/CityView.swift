@@ -66,7 +66,7 @@ struct CityView: View {
                                 guard let region = viewModel.city.region , let country = region.country else {
                                     return
                                 }
-                                let adminCity = AdminCity(id: viewModel.city.id, countryId: country.id, regionId: region.id, nameOrigin: nil, nameEn: nil, nameFr: nil, nameDe: nil, nameRu: nil, nameIt: nil, nameEs: nil, namePt: nil, about: nil, photo: nil, photos: nil, isActive: viewModel.city.isActive, isChecked: false)
+                                let adminCity = AdminCity(id: viewModel.city.id, countryId: country.id, regionId: region.id, nameOrigin: nil, nameEn: nil, nameFr: nil, nameDe: nil, nameRu: nil, nameIt: nil, nameEs: nil, namePt: nil, about: nil, photo: nil, photos: nil, isActive: false, isChecked: false)
                                 viewModel.adminCity = adminCity
                             }
                         }

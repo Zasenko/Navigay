@@ -40,7 +40,7 @@ struct CitiesView: View {
     var body: some View {
         Section {
             Section {
-                ForEach(cities.filter( { $0.isActive == true } )) { city in
+                ForEach(cities) { city in
                     NavigationLink {
                         CityView(modelContext: modelContext, city: city, catalogNetworkManager: catalogNetworkManager, eventNetworkManager: eventNetworkManager, placeNetworkManager: placeNetworkManager, errorManager: errorManager, user: user, authenticationManager: authenticationManager)
                     } label: {

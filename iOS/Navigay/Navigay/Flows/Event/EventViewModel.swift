@@ -98,7 +98,7 @@ extension EventView {
                         place.updatePlaceIncomplete(decodedPlace: decodedPlace)
                         updateTimeTable(timetable: decodedPlace.timetable, for: place)
                         eventPlace = place
-                    } else if decodedPlace.isActive {
+                    } else {
                         let place = Place(decodedPlace: decodedPlace)
                         updateTimeTable(timetable: decodedPlace.timetable, for: place)
                         eventPlace = place

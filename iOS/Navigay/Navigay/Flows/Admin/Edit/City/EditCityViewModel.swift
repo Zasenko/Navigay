@@ -49,8 +49,8 @@ final class EditCityViewModel: ObservableObject {
     @Published var photos: [AdminPhoto]
     @Published var languages: [Language]
     @Published var about: [NewPlaceAbout]
-    @Published var isActive: Bool
-    @Published var isChecked: Bool
+    @Published var isActive: Bool = false
+    @Published var isChecked: Bool = false
     
     @Published var isLoading: Bool = false
     @Published var isLoadingPhoto: Bool = false
@@ -88,8 +88,6 @@ final class EditCityViewModel: ObservableObject {
         self.about = city.about?.map({ NewPlaceAbout(language: $0.language, about: $0.about) }) ?? []
         let existingLanguages = city.about?.map( { $0.language } ) ?? []
         self.languages = Language.allCases.filter { !existingLanguages.contains($0) }
-        self.isActive = city.isActive
-        self.isChecked = city.isChecked
         self.photo = AdminPhoto(id: UUID().uuidString, image: nil, url: city.photo)
         if let photos = city.photos, !photos.isEmpty {
             let adminPhotos = photos.compactMap( { AdminPhoto(id: $0.id, image: nil, url: $0.url)})

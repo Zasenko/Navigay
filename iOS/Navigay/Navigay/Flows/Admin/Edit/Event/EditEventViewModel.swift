@@ -56,7 +56,7 @@ final class EditEventViewModel: ObservableObject {
         self.www = event.www ?? ""
         self.facebook = event.facebook ?? ""
         self.instagram = event.instagram ?? ""
-        self.isActive = event.isActive
+       // self.isActive = event.isActive
 //        self.avatar = AdminPhoto(id: UUID().uuidString, image: nil, url: place.avatar)
 //        self.mainPhoto = AdminPhoto(id: UUID().uuidString, image: nil, url: place.mainPhoto)
     }

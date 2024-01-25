@@ -13,7 +13,7 @@ struct DecodedCity: Identifiable, Codable {
         case id
         case name
         case photo
-        case isActive = "is_active"
+  //      case isActive = "is_active"
         case lastUpdate = "updated_at"
         case about
         case photos
@@ -27,7 +27,7 @@ struct DecodedCity: Identifiable, Codable {
     let name: String
     let photo: String?
     let photos: [String]?
-    let isActive: Bool
+  //  let isActive: Bool
     let lastUpdate: String
     
     let about: String?

@@ -44,7 +44,7 @@ struct RegionView: View {
                 .foregroundStyle(.secondary)
                 .padding(.top, 20)
                 .offset(x: 70)
-            ForEach(region.cities.filter( { $0.isActive == true } )) { city in
+            ForEach(region.cities) { city in
                 NavigationLink {
                     CityView(modelContext: modelContext, city: city, catalogNetworkManager: catalogNetworkManager, eventNetworkManager: eventNetworkManager, placeNetworkManager: placeNetworkManager, errorManager: errorManager, user: user, authenticationManager: authenticationManager)
                 } label: {
