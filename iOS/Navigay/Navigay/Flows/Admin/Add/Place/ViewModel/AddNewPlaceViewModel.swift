@@ -46,7 +46,7 @@ final class AddNewPlaceViewModel: ObservableObject {
     @Published var showMap: Bool = false // TODO! убрать
     @Published var isLoading: Bool = false
     
-    let user: AppUser
+    let userId: Int
     let errorManager: ErrorManagerProtocol
     let networkManager: PlaceNetworkManagerProtocol
     
@@ -54,8 +54,8 @@ final class AddNewPlaceViewModel: ObservableObject {
         
     //MARK: - Inits
     
-    init(user: AppUser, networkManager: PlaceNetworkManagerProtocol, errorManager: ErrorManagerProtocol) {
-        self.user = user
+    init(userId: Int, networkManager: PlaceNetworkManagerProtocol, errorManager: ErrorManagerProtocol) {
+        self.userId = userId
         self.networkManager = networkManager
         self.errorManager = errorManager
     }
@@ -100,8 +100,8 @@ extension AddNewPlaceViewModel {
                                               www: www.isEmpty ? nil : www,
                                               facebook: facebook.isEmpty ? nil : facebook,
                                               instagram: instagram.isEmpty ? nil : instagram,
-                                              ownderId: isOwned ? user.id : nil,
-                                              addedBy: user.id,
+                                              ownderId: isOwned ? userId : nil,
+                                              addedBy: userId,
                                               isActive: isActive,
                                               isChecked: isChecked)
             do {

@@ -55,7 +55,7 @@ extension AroundNetworkManager: AroundNetworkManagerProtocol {
             components.queryItems = [
                 URLQueryItem(name: "latitude", value: "\(location.coordinate.latitude)"),
                 URLQueryItem(name: "longitude", value: "\(location.coordinate.longitude)"),
-                URLQueryItem(name: "user_date", value: "2024-01-25")
+                URLQueryItem(name: "user_date", value: Date().format("yyyy-MM-dd"))
             ]
             return components
         }
@@ -63,7 +63,6 @@ extension AroundNetworkManager: AroundNetworkManagerProtocol {
             guard let url = urlComponents.url else {
                 throw NetworkErrors.bedUrl
             }
-            print("url->>> ", url)
             var request = URLRequest(url: url)
             request.httpMethod = "GET"
             let (data, response) = try await URLSession.shared.data(for: request)

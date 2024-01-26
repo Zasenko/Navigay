@@ -14,30 +14,45 @@ extension CityView {
         
         var modelContext: ModelContext
         
-        var user: AppUser?
         let city: City
-        var isLoading: Bool = false // TODO: isLoading
+        var isLoading: Bool = false
         
         var allPhotos: [String] = []
         
+        var aroundPlaces: [Place] = [] /// for Map
         var groupedPlaces: [PlaceType: [Place]] = [:]
         
+        var actualEvents: [Event] = [] // actualEvents
+        var todayEvents: [Event] = []
+        var upcomingEvents: [Event] = []
         var displayedEvents: [Event] = []
         var eventsDates: [Date] = []
         var selectedDate: Date? = nil
         var showCalendar: Bool = false // - убрать???
         
         var gridLayout: [GridItem] = Array(repeating: GridItem(.flexible(), spacing: 20), count: 2)
+    
+        
+        var sortingHomeCategories: [SortingMapCategory] = []
+        var selectedHomeSortingCategory: SortingMapCategory = .all
+        
+        var showMap: Bool = false
+        var sortingMapCategories: [SortingMapCategory] = []
+        var selectedMapSortingCategory: SortingMapCategory = .all
         
         let catalogNetworkManager: CatalogNetworkManagerProtocol
         let placeNetworkManager: PlaceNetworkManagerProtocol
         let eventNetworkManager: EventNetworkManagerProtocol
         let errorManager: ErrorManagerProtocol
         
+        let placeDataManager: PlaceDataManagerProtocol
+        let eventDataManager: EventDataManagerProtocol
+        let catalogDataManager: CatalogDataManagerProtocol
+        
         var showEditCityView: Bool = false
         var adminCity: AdminCity? = nil
         
-        init(modelContext: ModelContext, city: City, catalogNetworkManager: CatalogNetworkManagerProtocol, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol, user: AppUser?) {
+        init(modelContext: ModelContext, city: City, catalogNetworkManager: CatalogNetworkManagerProtocol, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol) {
             self.modelContext = modelContext
             self.city = city
             self.catalogNetworkManager = catalogNetworkManager
@@ -46,291 +61,126 @@ extension CityView {
             self.errorManager = errorManager
             let newPhotosLinks = city.getAllPhotos()
             allPhotos = newPhotosLinks
-            self.user = user
+            
+            //TODO: - Init!!!
+            self.placeDataManager = PlaceDataManager()
+            self.eventDataManager = EventDataManager()
+            self.catalogDataManager = CatalogDataManager()
         }
         
         func getPlacesAndEventsFromDB() {
             if city.lastUpdateComplite == nil {
                 isLoading = true
+                Task {
+                    await fetch()
+                }
+            } else {
+                Task {
+                    let places = city.places.sorted(by: { $0.name < $1.name })
+                    let events = city.events.sorted(by: { $0.id < $1.id })
+                    
+                    let groupedPlaces = await placeDataManager.createGroupedPlaces(places: places)
+                    
+                    let actualEvents = await self.eventDataManager.getActualEvents(for: events)
+                    let todayEvents = await eventDataManager.getTodayEvents(from: actualEvents)
+                    let upcomingEvents = await eventDataManager.getUpcomingEvents(from: actualEvents)
+                    let eventsDatesWithoutToday = await eventDataManager.getActiveDates(for: actualEvents)
+                    
+                    await MainActor.run {
+                        self.actualEvents = actualEvents
+                        self.upcomingEvents = upcomingEvents
+                        self.aroundPlaces = aroundPlaces
+                        self.eventsDates = eventsDatesWithoutToday
+                        withAnimation {
+                            self.todayEvents = todayEvents
+                            self.displayedEvents = upcomingEvents
+                            self.groupedPlaces = groupedPlaces
+                        }
+                    }
+                    await fetch()
+                }
             }
-            Task {
-                await createGroupedPlaces(places: city.places)
-                await getEventsForCity()
-                await fetch()
+        }
+        
+        func showUpcomingEvents() {
+            withAnimation {
+                self.displayedEvents = upcomingEvents
             }
         }
         
         private func fetch() async {
             guard !catalogNetworkManager.loadedCities.contains(where: { $0 == city.id}),
-                  let decodedCity = await catalogNetworkManager.fetchCity(id: city.id) else {
+                  let decodedCity = await catalogNetworkManager.fetchCity(id: city.id)
+            else {
                 await MainActor.run {
                     isLoading = false
                 }
                 return
             }
             await MainActor.run {
-                city.updateCityComplite(decodedCity: decodedCity)
-                let newPhotosLinks = city.getAllPhotos()
-                for links in newPhotosLinks {
-                    if !allPhotos.contains(where:  { $0 == links } ) {
-                        allPhotos.append(links)
-                    }
-                }
-                updatePlaces(decodedPlaces: decodedCity.places)
-                updateEvents(decodedEvents: decodedCity.events)
+                updateFetchedResult(decodedCity: decodedCity)
                 isLoading = false
             }
         }
         
-        private func getEventsForCity() async {
-            let unsortedEvents = city.events.filter { event in
-                guard event.startDate.isToday || event.startDate.isFutureDay else {
-                    if let finishDate = event.finishDate, finishDate.isFutureDay {
-                        return true
-                    }
-                    guard let finishDate = event.finishDate,
-                          finishDate.isToday,
-                          let finishTime = event.finishTime,
-                          finishTime.isFutureHour(of: Date())
-                    else {
-                        return false
-                    }
-                    return true
+        private func updateFetchedResult(decodedCity: DecodedCity) {
+            
+            city.updateCityComplite(decodedCity: decodedCity)
+            let newPhotosLinks = city.getAllPhotos()
+            for link in newPhotosLinks {
+                if !allPhotos.contains(where:  { $0 == link } ) {
+                    allPhotos.append(link)
                 }
-                return true
             }
-            let sortedEvents = unsortedEvents.sorted(by: { $0.startDate < $1.startDate } )
-            await getUpcomingEvents(for: sortedEvents)
-            await updateEventsDates(for: sortedEvents)
-            //  getTodayEvents()
+            let places = placeDataManager.updatePlaces(decodedPlaces: decodedCity.places, for: city, modelContext: modelContext)
+            let events = eventDataManager.updateEvents(decodedEvents: decodedCity.events, for: city, modelContext: modelContext)
+            Task {
+                let groupedPlaces = await placeDataManager.createGroupedPlaces(places: places.sorted(by: { $0.name < $1.name}))
+                let actualEvents = await eventDataManager.getActualEvents(for: events.sorted(by: { $0.id < $1.id}))
+                let todayEvents = await eventDataManager.getTodayEvents(from: actualEvents)
+                let upcomingEvents = await eventDataManager.getUpcomingEvents(from: actualEvents)
+                let eventsDatesWithoutToday = await eventDataManager.getActiveDates(for: actualEvents)
+                
+                let eventsIDs = actualEvents.map( { $0.id } )
+                var eventsToDelete: [Event] = []
+                self.actualEvents.forEach { event in
+                    if !eventsIDs.contains(event.id) {
+                        eventsToDelete.append(event)
+                    }
+                }
+                
+                let placesIDs = aroundPlaces.map( { $0.id } )
+                var placesToDelete: [Place] = []
+                self.aroundPlaces.forEach { place in
+                    if !placesIDs.contains(place.id) {
+                        placesToDelete.append(place)
+                    }
+                }
+                
+                await MainActor.run { [eventsToDelete, placesToDelete] in
+                    eventsToDelete.forEach( { modelContext.delete($0) } )
+                    placesToDelete.forEach( { modelContext.delete($0) } )
+                    self.actualEvents = actualEvents
+                    self.upcomingEvents = upcomingEvents
+                    self.aroundPlaces = places
+                    self.eventsDates = eventsDatesWithoutToday
+                    withAnimation {
+                        self.todayEvents = todayEvents
+                        self.displayedEvents = upcomingEvents
+                        self.groupedPlaces = groupedPlaces
+                        isLoading = false
+                    }
+                }
+            }
         }
         
-        // TODO: дубляж
-        func getEvents(for date: Date) async {
-                let events = city.events.filter { event in
-                    print("----------------")
-                    print(date.formatted())
-                    print(event.id)
-                    print(event.name)
-//                    guard event.isActive else {
-//                        print("event.isActive false - return false")
-//                        return false
-//                    }
-                    if event.startDate.isSameDayWithOtherDate(date) {
-                        print("event.startDate.isSameDayWithOtherDate - return true")
-                        return true
-                    }
-                    if event.startDate.isFutureDay(of: date) {
-                        print("event.startDate.isFutureDay(of: date) true - return false")
-                        return false
-                    }
-                    guard let finishDate = event.finishDate else {
-                        print("finishDate nill - return false")
-                        return false
-                    }
-                    
-                    if finishDate.isFutureDay(of: date) {
-                        print("finishDate.isFutureDay(of: date) true - return true")
-                        return true
-                    }
-                    if finishDate.isSameDayWithOtherDate(date) {
-                        guard let finishTime = event.finishTime,
-                              let elevenAM = Calendar.current.date(bySettingHour: 11, minute: 0, second: 0, of: Date())
-                        else {
-                            print("event.finishTime nill - return false")
-                            return false
-                        }
-                        if finishTime.isPastHour(of: elevenAM) {
-                            print("finishTime.isPastHour(of: elevenAM) true - return false")
-                            return false
-                        } else {
-                            print("finishTime.isPastHour(of: elevenAM) false - return true")
-                            return true
-                        }
-                    }
-                    print("return false")
-                    return false
-                }
+        func getEvents(for date: Date) {
+            Task {
+                let events = await eventDataManager.getEvents(for: date, events: actualEvents )
                 await MainActor.run {
-                    displayedEvents = events
-                }
-        }
-        
-        // TODO: дубляж
-        func getUpcomingEvents(for events: [Event]) async {
-            let lastDayOfWeek = Calendar.current.date(byAdding: .day, value: 7, to: Date()) ?? Date()
-            let sevenDaydFromNow = Date().getAllDatesBetween(finishDate: lastDayOfWeek)
-            let upcomingEvents = events.filter { event in
-                if event.startDate.isToday {
-                    return true
-                }
-                if event.startDate.isFutureDay {
-                    var isShow: Bool = false
-                    for day in sevenDaydFromNow {
-                        if event.startDate.isSameDayWithOtherDate(day) {
-                            isShow = true
-                            break
-                        } else {
-                            isShow = false
-                        }
+                    withAnimation {
+                        displayedEvents = events
                     }
-                    return isShow
-                }
-                guard let finishDate = event.finishDate else {
-                    return false
-                }
-                if finishDate.isFutureDay {
-                    return true
-                }
-                guard finishDate.isToday,
-                      let finishTime = event.finishTime,
-                      finishTime.isFutureHour(of: Date())
-                else {
-                    return false
-                }
-                return true
-            }
-            await MainActor.run {
-                if upcomingEvents.count > 0 {
-                    displayedEvents = upcomingEvents
-                } else {
-                    displayedEvents = Array(events.prefix(4))
-                }
-            }
-            
-        }
-        
-        private func updateEventsDates(for events: [Event]) async {
-            var activeDates: [Date] = []
-            
-            events.forEach { event in
-                guard let finishDate = event.finishDate else {
-                    activeDates.append(event.startDate)
-                    return
-                }
-                guard !finishDate.isSameDayWithOtherDate(event.startDate) else {
-                    activeDates.append(event.startDate)
-                    return
-                }
-                
-                var dates = event.startDate.getAllDatesBetween(finishDate: finishDate)
-                if let finishTime = event.finishTime {
-                    if let elevenAM = Calendar.current.date(bySettingHour: 11, minute: 0, second: 0, of: Date()) {
-                        if finishTime.isPastHour(of: elevenAM) {
-                            dates.removeLast()
-                        }
-                    } else {
-                        dates.removeLast()
-                    }
-                } else {
-                    dates.removeLast()
-                }
-                activeDates.append(contentsOf: dates)
-            }
-            let eventsDates = activeDates.uniqued().filter { !$0.isPastDate }.sorted()
-            await MainActor.run {
-                withAnimation {
-                    self.eventsDates = eventsDates
-                }
-            }
-            
-        }
-        
-        func updatePlaces(decodedPlaces: [DecodedPlace]?) {
-            guard let decodedPlaces, !decodedPlaces.isEmpty else {
-                // TODO: проверить нужно ли удалять places из city
-                city.places.forEach( { modelContext.delete($0) } )
-                return
-            }
-            do {
-                let descriptor = FetchDescriptor<Place>(sortBy: [SortDescriptor(\.name)])
-                let allPlaces = try modelContext.fetch(descriptor)
-                
-                for decodedPlace in decodedPlaces {
-                    if let place = city.places.first(where: { $0.id == decodedPlace.id} ) {
-                        place.updatePlaceIncomplete(decodedPlace: decodedPlace)
-                        updateTimeTable(timetable: decodedPlace.timetable, for: place)
-                    } else {
-                        if let place = allPlaces.first(where: { $0.id == decodedPlace.id} ) {
-                            place.updatePlaceIncomplete(decodedPlace: decodedPlace)
-                            city.places.append(place)
-                            updateTimeTable(timetable: decodedPlace.timetable, for: place)
-                        } else {
-                            let place = Place(decodedPlace: decodedPlace)
-                            city.places.append(place)
-                            updateTimeTable(timetable: decodedPlace.timetable, for: place)
-                        }
-                    }
-                }
-                Task {
-                    await createGroupedPlaces(places: city.places)
-                }
-            } catch {
-                debugPrint("-- ERROR--- CityViewModel updatePlaces: ", error)
-            }
-        }
-        
-        func updateEvents(decodedEvents: [DecodedEvent]?) {
-            guard let decodedEvents, !decodedEvents.isEmpty else {
-                // TODO: проверить нужно ли удалять places из city
-                city.events.forEach( { modelContext.delete($0) } )
-                return
-            }
-            
-            let ids = decodedEvents.map( { $0.id } )
-            var eventsToDelete: [Event] = []
-            city.events.forEach { event in
-                if !ids.contains(event.id) {
-                    eventsToDelete.append(event)
-                }
-            }
-            eventsToDelete.forEach( { modelContext.delete($0) } )
-
-            do {
-                let descriptor = FetchDescriptor<Event>(sortBy: [SortDescriptor(\.startDate)])
-                let allEvents = try modelContext.fetch(descriptor)
-                
-                for decodedEvent in decodedEvents {
-                    if let event = city.events.first(where: { $0.id == decodedEvent.id} ) {
-                        event.updateEventIncomplete(decodedEvent: decodedEvent)
-                    } else {
-                        if let event = allEvents.first(where: { $0.id == decodedEvent.id} ) {
-                            event.updateEventIncomplete(decodedEvent: decodedEvent)
-                            city.events.append(event)
-                            event.city = city
-                        } else {
-                            let event = Event(decodedEvent: decodedEvent)
-                            city.events.append(event)
-                            event.city = city
-                        }
-                    }
-                }
-                Task {
-                    await getEventsForCity()
-                }
-            } catch {
-                debugPrint("-- ERROR--- CityViewModel updateEvents: ", error)
-            }
-        }
-        
-        private func updateTimeTable(timetable: [PlaceWorkDay]?, for place: Place) {
-            let oldTimetable = place.timetable
-            place.timetable.removeAll()
-            oldTimetable.forEach( { modelContext.delete($0) })
-            if let timetable {
-                for day in timetable {
-                    let workingDay = WorkDay(workDay: day)
-                    place.timetable.append(workingDay)
-                }
-            }
-        }
-        
-        
-        func createGroupedPlaces(places: [Place]) async {
-            let groupedPlaces = Dictionary(grouping: places) { $0.type }
-            await MainActor.run {
-                withAnimation(.spring()) {
-                    self.groupedPlaces = groupedPlaces
                 }
             }
         }

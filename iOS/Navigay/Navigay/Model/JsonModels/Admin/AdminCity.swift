@@ -14,17 +14,12 @@ struct AdminCity: Identifiable, Codable, Hashable  {
     let regionId: Int
     let nameOrigin: String?
     let nameEn: String?
-    let nameFr: String?
-    let nameDe: String?
-    let nameRu: String?
-    let nameIt: String?
-    let nameEs: String?
-    let namePt: String?
-    let about: [DecodedAbout]?
+    let about: String?
     let photo: String?
     let photos: [DecodedPhoto]?
     let isActive: Bool
     let isChecked: Bool
+    let userId: Int?
     
     enum CodingKeys: String, CodingKey {
         case id, about, photo, photos
@@ -32,14 +27,9 @@ struct AdminCity: Identifiable, Codable, Hashable  {
         case regionId = "region_id"
         case nameOrigin = "name_origin"
         case nameEn = "name_en"
-        case nameFr = "name_fr"
-        case nameDe = "name_de"
-        case nameRu = "name_ru"
-        case nameIt = "name_it"
-        case nameEs = "name_es"
-        case namePt = "name_pt"
         case isActive = "is_active"
         case isChecked = "is_checked"
+        case userId = "user_id"
     }
     
     func hash(into hasher: inout Hasher) {

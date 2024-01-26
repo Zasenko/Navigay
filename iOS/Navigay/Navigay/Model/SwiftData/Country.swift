@@ -10,6 +10,7 @@ import SwiftData
 
 @Model
 final class Country {
+    
     let id: Int
     let isoCountryCode: String
     
@@ -17,7 +18,6 @@ final class Country {
     var flagEmoji: String = "🏳️‍🌈"
     var photo: String? = nil
     var about: String? = nil
-    //var isActive: Bool = false
     var showRegions: Bool = false
     var lastUpdateIncomplete: Date? = nil
     var lastUpdateComplite: Date? = nil
@@ -32,21 +32,21 @@ final class Country {
     
     func updateCountryIncomplete(decodedCountry: DecodedCountry) {
         let lastUpdate = decodedCountry.lastUpdate.dateFromString(format: "yyyy-MM-dd HH:mm:ss")
-        if lastUpdateIncomplete != lastUpdate {
-            flagEmoji = decodedCountry.flagEmoji
-            name = decodedCountry.name
-            photo = decodedCountry.photo
-            showRegions = decodedCountry.showRegions
-          //  isActive = decodedCountry.isActive
-            lastUpdateIncomplete = lastUpdate
-        }
+        guard lastUpdateIncomplete != lastUpdate else { return }
+        flagEmoji = decodedCountry.flagEmoji
+        name = decodedCountry.name
+        photo = decodedCountry.photo
+        showRegions = decodedCountry.showRegions
+        lastUpdateIncomplete = lastUpdate
+        
     }
     
     func updateCountryComplite(decodedCountry: DecodedCountry) {
         let lastUpdate = decodedCountry.lastUpdate.dateFromString(format: "yyyy-MM-dd HH:mm:ss")
-        if lastUpdateComplite != lastUpdate {
-            updateCountryIncomplete(decodedCountry: decodedCountry)
-            about = decodedCountry.about
-        }
+        guard lastUpdateComplite != lastUpdate else { return }
+        updateCountryIncomplete(decodedCountry: decodedCountry)
+        about = decodedCountry.about
+        lastUpdateComplite = lastUpdate
+        
     }
 }

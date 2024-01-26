@@ -11,51 +11,40 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 if (!isset($_GET["id"]) || !is_numeric($_GET["id"])) {
     sendError('Invalid or missing "id" parameter.');
 }
-$city_id = (int)$_GET["id"];
+$country_id = (int)$_GET["id"];
 
 require_once('../dbconfig.php');
-$sql = "SELECT * FROM City WHERE id = ?";
-$params = [$city_id];
+
+$sql = "SELECT id, isoCountryCode, name_origin, name_en, flag_emoji, about, photo, show_regions, is_active, is_checked FROM Country WHERE id = ?";
+
+$params = [$country_id];
 $types = "i";
 $stmt = executeQuery($conn, $sql, $params, $types);
-$result = $stmt->get_result();
+$country_result = $stmt->get_result();
 $stmt->close();
+$row = $country_result->fetch_assoc();
 
-$row = $result->fetch_assoc();
-
-$is_active = (bool)$row['is_active'];
+$show_regions = (bool)$row['show_regions'];
 $is_checked = (bool)$row['is_checked'];
+$is_active = (bool)$row['is_active'];
 
 $photo = $row['photo'];
 $photo_url = isset($photo) ? "https://www.navigay.me/" . $photo : null;
 
-$photos = json_decode($row['photos'], true);
-$library_photos = array();
-
-if (is_array($photos)) {
-    foreach ($photos as $photoData) {
-        if (isset($photoData['url']) && isset($photoData['id'])) {
-            $library_photo = array(
-                'id' => strval($photoData['id']),
-                'url' => "https://www.navigay.me/" . $photoData['url']
-            );
-            array_push($library_photos, $library_photo);
-        }
-    }
-}
-$city = array(
+$country = array(
     'id' => $row['id'],
-    'country_id' => $row["country_id"],
-    'region_id' => $row['region_id'],
+    'isoCountryCode' => $row["isoCountryCode"],
     'name_origin' => $row['name_origin'],
     'name_en' => $row['name_en'],
+    'flag_emoji' => $row['flag_emoji'],
     'about' => $row['about'],
     'photo' => $photo_url,
-    'photos' => $library_photos,
+    'show_regions' => $show_regions,
     'is_active' => $is_active,
     'is_checked' => $is_checked,
 );
+
 $conn->close();
-$json = ['result' => true, 'city' => $city];
+$json = ['result' => true, 'country' => $country];
 echo json_encode($json, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
 exit;

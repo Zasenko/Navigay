@@ -12,14 +12,16 @@ struct NewPlaceView: View {
     //MARK: - Private Properties
     
     @StateObject private var viewModel: AddNewPlaceViewModel
+    @ObservedObject var authenticationManager: AuthenticationManager
     private var infoTitle: String = "New place"
     private var photoTitle: String = "Place's photos"
     @Environment(\.dismiss) private var dismiss
     
     //MARK: - Inits
     
-    init(viewModel: AddNewPlaceViewModel) {
+    init(viewModel: AddNewPlaceViewModel, authenticationManager: AuthenticationManager) {
         _viewModel = StateObject(wrappedValue: viewModel)
+        _authenticationManager = ObservedObject(wrappedValue: authenticationManager)
     }
     
     //MARK: - Body
@@ -30,7 +32,7 @@ struct NewPlaceView: View {
                 Divider()
                 switch viewModel.router {
                 case .info:
-                    NewPlaceInfoView(viewModel: viewModel)
+                    NewPlaceInfoView(viewModel: viewModel, authenticationManager: authenticationManager)
                         .disabled(viewModel.isLoading)
                 case .photos:
                     if let id = viewModel.placeId {

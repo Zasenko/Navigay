@@ -14,7 +14,6 @@ final class User {
     var name: String = ""
     var bio: String? = nil
     var photo: String? = nil
-    var photoData: Data? = nil
     
     init(decodedUser: DecodedUser) {
         self.id = decodedUser.id

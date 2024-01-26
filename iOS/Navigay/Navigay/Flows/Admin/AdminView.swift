@@ -9,7 +9,6 @@ import SwiftUI
 
 final class AdminViewModel: ObservableObject {
     
-    let user: AppUser
     let errorManager: ErrorManagerProtocol //todo  убрать
     let networkManager: AdminNetworkManagerProtocol
     
@@ -20,8 +19,7 @@ final class AdminViewModel: ObservableObject {
     
     // MARK: - Inits
     
-    init(user: AppUser, errorManager: ErrorManagerProtocol, networkManager: AdminNetworkManagerProtocol) {
-        self.user = user
+    init(errorManager: ErrorManagerProtocol, networkManager: AdminNetworkManagerProtocol) {
         self.errorManager = errorManager
         self.networkManager = networkManager
     }
@@ -56,7 +54,7 @@ extension AdminViewModel {
 struct AdminView: View {
 
     @StateObject private var viewModel: AdminViewModel
-    @ObservedObject private var authenticationManager: AuthenticationManager // TODO: убрать юзера из вью модели так как он в authenticationManager
+    @ObservedObject private var authenticationManager: AuthenticationManager
     
     init(viewModel: AdminViewModel, authenticationManager: AuthenticationManager) {
         _viewModel = StateObject(wrappedValue: viewModel)
@@ -70,7 +68,7 @@ struct AdminView: View {
             List {
                 Section {
                     NavigationLink("Add new place") {
-                        NewPlaceView(viewModel: AddNewPlaceViewModel(user: viewModel.user, networkManager: PlaceNetworkManager(appSettingsManager: AppSettingsManager(), errorManager: viewModel.errorManager), errorManager: viewModel.errorManager))
+                        NewPlaceView(viewModel: AddNewPlaceViewModel(userId: authenticationManager.appUser?.id ?? 0, networkManager: PlaceNetworkManager(appSettingsManager: AppSettingsManager(), errorManager: viewModel.errorManager), errorManager: viewModel.errorManager), authenticationManager: authenticationManager)
                     }
                     NavigationLink("Add new event") {
                         NewEventView(viewModel: NewEventViewModel(place: nil, networkManager: EventNetworkManager(appSettingsManager: AppSettingsManager(), errorManager: viewModel.errorManager), errorManager: viewModel.errorManager), authenticationManager: authenticationManager)
@@ -151,7 +149,7 @@ struct AdminView: View {
                 Section("Unchecked Cities") {
                     ForEach(viewModel.uncheckedCities) { city in
                         NavigationLink {
-                            EditCityView(viewModel: EditCityViewModel(city: city, errorManager: viewModel.errorManager, networkManager: viewModel.networkManager))
+                            EditCityView(viewModel: EditCityViewModel(id: city.id, userId: authenticationManager.appUser?.id ?? 0, errorManager: viewModel.errorManager, networkManager: viewModel.networkManager))
                         } label: {
                             VStack {
                                 Text("id \(city.id)")

@@ -22,64 +22,44 @@ $cities = array();
 
 $sql = "SELECT
 City.id, 
-City.name_$language, 
+City.name_en, 
 City.photo, 
-City.is_active, 
 City.updated_at, 
 City.region_id, 
 City.country_id, 
-Region.name_$language AS region_name, 
+Region.name_en AS region_name, 
 Region.photo AS region_photo, 
-Region.is_active AS region_is_active, 
 Region.updated_at AS region_updated_at, 
 Country.isoCountryCode, 
-Country.name_$language AS country_name, 
+Country.name_en AS country_name, 
 Country.flag_emoji, 
 Country.photo AS country_photo, 
-Country.show_regions, 
-Country.is_active AS country_is_active, 
+Country.show_regions,
 Country.updated_at AS country_updated_at 
 FROM City 
 LEFT JOIN Region ON Region.id = City.region_id 
 LEFT JOIN Country ON Country.id = City.country_id 
 WHERE 
-(City.name_origin LIKE ? 
-OR City.name_en LIKE ? 
-OR City.name_fr LIKE ? 
-OR City.name_de LIKE ? 
-OR City.name_ru LIKE ? 
-OR City.name_it LIKE ? 
-OR City.name_es LIKE ?) 
+(City.name_origin LIKE ? OR City.name_en LIKE ?) 
 AND City.is_active = true";
 
 $param = "%" . $search_text . "%";
 $params = [$param, $param, $param, $param, $param, $param, $param];
-$types = "sssssss";
+$types = "ss";
 $stmt = executeQuery($conn, $sql, $params, $types);
 $cities_result = $stmt->get_result();
 $stmt->close();
 while ($row = $cities_result->fetch_assoc()) {
-    $is_active = (bool)$row['is_active'];
-
     $photo = $row['photo'];
     $photo_url = isset($photo) ? "https://www.navigay.me/" . $photo : null;
 
-    $region_is_active = (bool)$row['region_is_active'];
     $region_photo = $row['region_photo'];
     $region_photo_url = isset($region_photo) ? "https://www.navigay.me/" . $region_photo : null;
 
     $show_regions = (bool)$row['show_regions'];
-    $country_is_active = (bool)$row['country_is_active'];
     $country_photo = $row['country_photo'];
     $country_photo_url = isset($country_photo) ? "https://www.navigay.me/" . $country_photo : null;
 
-    $region = array(
-        'id' => $row['region_id'],
-        'name' => $row["region_name"],
-        'photo' => $region_photo_url,
-        'is_active' => $region_is_active,
-        'updated_at' => $row['region_updated_at']
-    );
     $country = array(
         'id' => $row['country_id'],
         'name' => $row['country_name'],
@@ -87,17 +67,21 @@ while ($row = $cities_result->fetch_assoc()) {
         'flag_emoji' => $row['flag_emoji'],
         'photo' => $country_photo_url,
         'show_regions' => $show_regions,
-        'is_active' => $country_is_active,
         'updated_at' => $row['country_updated_at']
+    );
+    $region = array(
+        'id' => $row['region_id'],
+        'name' => $row["region_name"],
+        'photo' => $region_photo_url,
+        'updated_at' => $row['region_updated_at']
+        'country' => $country,
     );
     $city = array(
         'id' => $row['id'],
-        'name' => $row["name_$language"],
+        'name' => $row["name_en"],
         'photo' => $photo_url,
-        'is_active' => $is_active,
         'updated_at' => $row['updated_at'],
         'region' => $region,
-        'country' => $country,
     );
     array_push($cities, $city);
 }
@@ -106,69 +90,59 @@ $regions = array();
 
 $sql = "SELECT 
 Region.id, 
-Region.name_$language, 
+Region.name_en, 
 Region.photo, 
-Region.is_active, 
 Region.updated_at, 
 Region.country_id, 
 Country.isoCountryCode, 
-Country.name_$language AS country_name, 
+Country.name_en AS country_name, 
 Country.flag_emoji, 
 Country.photo AS country_photo, 
 Country.show_regions, 
-Country.is_active AS country_is_active, 
 Country.updated_at AS country_updated_at 
 FROM Region";
 $sql .= " LEFT JOIN Country ON Country.id = Region.country_id";
 $sql .= " WHERE";
 $sql .= " (Region.name_origin LIKE ?";
-$sql .= " OR Region.name_en LIKE ?";
-$sql .= " OR Region.name_fr LIKE ?";
-$sql .= " OR Region.name_de LIKE ?";
-$sql .= " OR Region.name_ru LIKE ?";
-$sql .= " OR Region.name_it LIKE ?";
-$sql .= " OR Region.name_es LIKE ?)";
+$sql .= " OR Region.name_en LIKE ?)";
 $sql .= " AND Region.is_active = true";
 
 $param = "%" . $search_text . "%";
 $params = [$param, $param, $param, $param, $param, $param, $param];
-$types = "sssssss";
+$types = "ss";
 $stmt = executeQuery($conn, $sql, $params, $types);
 $regions_result = $stmt->get_result();
 $stmt->close();
 while ($row = $regions_result->fetch_assoc()) {
-    //is_active
-    $is_active = (bool)$row['is_active'];
-    //photo
+
     $photo = $row['photo'];
     $photo_url = isset($photo) ? "https://www.navigay.me/" . $photo : null;
-    //id
+
     $region_id = $row['id'];
 
     $show_regions = (bool)$row['show_regions'];
-    $country_is_active = (bool)$row['country_is_active'];
     $country_photo = $row['country_photo'];
     $country_photo_url = isset($country_photo) ? "https://www.navigay.me/" . $country_photo : null;
 
-    $region = array(
-        'id' => $region_id,
-        'name' => $row["name_$language"],
-        'photo' => $photo_url,
-        'is_active' => $is_active,
-        'updated_at' => $row['updated_at'],
-        'country' => array(
-            'id' => $row['country_id'],
-            'name' => $row['country_name'],
-            'isoCountryCode' => $row["isoCountryCode"],
-            'flag_emoji' => $row['flag_emoji'],
-            'photo' => $country_photo_url,
-            'show_regions' => $show_regions,
-            'is_active' => $country_is_active,
-            'updated_at' => $row['country_updated_at']
-        ),
+    $country = array(
+        'id' => $row['country_id'],
+        'name' => $row['country_name'],
+        'isoCountryCode' => $row["isoCountryCode"],
+        'flag_emoji' => $row['flag_emoji'],
+        'photo' => $country_photo_url,
+        'show_regions' => $show_regions,
+        'updated_at' => $row['country_updated_at']
     );
 
-    $sql = "SELECT id, name_$language, photo, is_active, updated_at FROM City WHERE region_id = ? AND is_checked = true";
+    $region = array(
+        'id' => $region_id,
+        'name' => $row["name_en"],
+        'photo' => $photo_url,
+        'updated_at' => $row['updated_at'],
+        'country' => $country,
+    );
+
+    $sql = "SELECT id, name_en, photo, updated_at FROM City WHERE region_id = ? AND is_active = true";
     $params = [$region_id];
     $types = "i";
     $stmt = executeQuery($conn, $sql, $params, $types);
@@ -177,28 +151,19 @@ while ($row = $regions_result->fetch_assoc()) {
 
     $region_cities = array();
     while ($row = $cities_result->fetch_assoc()) {
-        //is_active
-        $is_active = (bool)$row['is_active'];
-        //photo
         $photo = $row['photo'];
         $photo_url = isset($photo) ? "https://www.navigay.me/" . $photo : null;
-
         $region_city = array(
             'id' => $row['id'],
-            'name' => $row["name_$language"],
+            'name' => $row["name_en"],
             'photo' => $photo_url,
-            'is_active' => $is_active,
             'updated_at' => $row['updated_at']
         );
-        array_push($region_cities, $region_city);
     }
     $region += ['cities' => $region_cities];
-    array_push($regions, $region);
-
-    //TODO
-    // if (count($region_cities) > 0) {
-    //     array_push($regions, $region);
-    // } 
+    if (count($region_cities) > 0) {
+        array_push($regions, $region);
+    }
 }
 
 $places = array();
@@ -217,30 +182,25 @@ Place.latitude,
 Place.longitude, 
 Place.tags, 
 Place.timetable, 
-Place.is_active, 
 Place.updated_at, 
 Country.isoCountryCode, 
-Country.name_$language AS country_name, 
+Country.name_en AS country_name, 
 Country.flag_emoji, 
 Country.photo AS country_photo, 
 Country.show_regions, 
-Country.is_active AS country_is_active, 
 Country.updated_at AS country_updated_at, 
-Region.name_$language AS region_name, 
+Region.name_en AS region_name, 
 Region.photo AS region_photo, 
-Region.is_active AS region_is_active, 
 Region.updated_at AS region_updated_at, 
-City.name_$language AS city_name, 
+City.name_en AS city_name, 
 City.photo AS city_photo, 
-City.is_active AS city_is_active, 
 City.updated_at AS city_updated_at 
-FROM Place";
-$sql .= " LEFT JOIN Country ON Country.id = Place.country_id";
-$sql .= " LEFT JOIN Region ON Region.id = Place.region_id";
-$sql .= " LEFT JOIN City ON City.id = Place.city_id";
-$sql .= " WHERE";
-$sql .= " Place.name LIKE ?";
-$sql .= " AND Place.is_active = true";
+FROM Place
+LEFT JOIN Country ON Country.id = Place.country_id
+LEFT JOIN Region ON Region.id = Place.region_id
+LEFT JOIN City ON City.id = Place.city_id
+WHERE Place.name LIKE ?
+AND Place.is_active = true";
 
 $param = "%" . $search_text . "%";
 $params = [$param];
@@ -250,7 +210,6 @@ $result = $stmt->get_result();
 $stmt->close();
 
 while ($row = $result->fetch_assoc()) {
-    $is_active = (bool)$row['is_active'];
     $tags = json_decode($row['tags'], true);
     $timetable = json_decode($row['timetable'], true);
 
@@ -260,16 +219,13 @@ while ($row = $result->fetch_assoc()) {
     $main_photo = $row['main_photo'];
     $main_photo_url = isset($main_photo) ? "https://www.navigay.me/" . $main_photo : null;
 
-    $city_is_active = (bool)$row['city_is_active'];
     $city_photo = $row['city_photo'];
     $city_photo_url = isset($city_photo) ? "https://www.navigay.me/" . $city_photo : null;
 
-    $region_is_active = (bool)$row['region_is_active'];
     $region_photo = $row['region_photo'];
     $region_photo_url = isset($region_photo) ? "https://www.navigay.me/" . $region_photo : null;
 
     $show_regions = (bool)$row['show_regions'];
-    $country_is_active = (bool)$row['country_is_active'];
     $country_photo = $row['country_photo'];
     $country_photo_url = isset($country_photo) ? "https://www.navigay.me/" . $country_photo : null;
 
@@ -284,19 +240,16 @@ while ($row = $result->fetch_assoc()) {
         'longitude' => $row['longitude'],
         'tags' => $tags,
         'timetable' => $timetable,
-        'is_active' => $is_active,
         'updated_at' => $row['updated_at'],
         'city' => array(
             'id' => $row['city_id'],
             'name' => $row["city_name"],
             'photo' => $city_photo_url,
-            'is_active' => $city_is_active,
             'updated_at' => $row['city_updated_at'],
             'region' => array(
                 'id' => $row['region_id'],
                 'name' => $row["region_name"],
                 'photo' => $region_photo_url,
-                'is_active' => $region_is_active,
                 'updated_at' => $row['region_updated_at'],
                 'country' => array(
                     'id' => $row['country_id'],
@@ -305,7 +258,6 @@ while ($row = $result->fetch_assoc()) {
                     'flag_emoji' => $row['flag_emoji'],
                     'photo' => $country_photo_url,
                     'show_regions' => $show_regions,
-                    'is_active' => $country_is_active,
                     'updated_at' => $row['country_updated_at']
                 ),
             ),
@@ -325,7 +277,7 @@ Event.city_id,
 Event.latitude, 
 Event.longitude, 
 Event.start_date, 
-start_time, 
+Event.start_time, 
 Event.finish_date, 
 Event.finish_time, 
 Event.address, 
@@ -334,23 +286,18 @@ Event.poster,
 Event.poster_small, 
 Event.is_free, 
 Event.tags, 
-Event.place_id, 
-Event.is_active, 
 Event.updated_at, 
 Country.isoCountryCode, 
-Country.name_$language AS country_name, 
+Country.name_en AS country_name, 
 Country.flag_emoji, 
 Country.photo AS country_photo, 
 Country.show_regions, 
-Country.is_active AS country_is_active, 
 Country.updated_at AS country_updated_at, 
-Region.name_$language AS region_name, 
+Region.name_en AS region_name, 
 Region.photo AS region_photo, 
-Region.is_active AS region_is_active, 
 Region.updated_at AS region_updated_at, 
-City.name_$language AS city_name, 
+City.name_en AS city_name, 
 City.photo AS city_photo, 
-City.is_active AS city_is_active, 
 City.updated_at AS city_updated_at 
 FROM Event";
 $sql .= " LEFT JOIN Country ON Country.id = Event.country_id";
@@ -369,7 +316,6 @@ $result = $stmt->get_result();
 $stmt->close();
 
 while ($row = $result->fetch_assoc()) {
-    $is_active = (bool)$row['is_active'];
     $is_free = (bool)$row['is_free'];
     $tags = json_decode($row['tags'], true);
     $poster_small = $row['poster_small'];
@@ -377,16 +323,13 @@ while ($row = $result->fetch_assoc()) {
     $poster = $row['poster'];
     $poster_url = isset($poster) ? "https://www.navigay.me/" . $poster : null;
 
-    $city_is_active = (bool)$row['city_is_active'];
     $city_photo = $row['city_photo'];
     $city_photo_url = isset($city_photo) ? "https://www.navigay.me/" . $city_photo : null;
 
-    $region_is_active = (bool)$row['region_is_active'];
     $region_photo = $row['region_photo'];
     $region_photo_url = isset($region_photo) ? "https://www.navigay.me/" . $region_photo : null;
 
     $show_regions = (bool)$row['show_regions'];
-    $country_is_active = (bool)$row['country_is_active'];
     $country_photo = $row['country_photo'];
     $country_photo_url = isset($country_photo) ? "https://www.navigay.me/" . $country_photo : null;
 
@@ -406,21 +349,16 @@ while ($row = $result->fetch_assoc()) {
         'poster' => $poster_url,
         'poster_small' => $poster_small_url,
         'is_free' => $is_free,
-        //TODO [place]
-        //'place_id' => $row['place_id'],
-        'is_active' => $is_active,
         'updated_at' => $row['updated_at'],
         'city' => array(
             'id' => $row['city_id'],
             'name' => $row["city_name"],
             'photo' => $city_photo_url,
-            'is_active' => $city_is_active,
             'updated_at' => $row['city_updated_at'],
             'region' => array(
                 'id' => $row['region_id'],
                 'name' => $row["region_name"],
                 'photo' => $region_photo_url,
-                'is_active' => $region_is_active,
                 'updated_at' => $row['region_updated_at'],
                 'country' => array(
                     'id' => $row['country_id'],
@@ -429,7 +367,6 @@ while ($row = $result->fetch_assoc()) {
                     'flag_emoji' => $row['flag_emoji'],
                     'photo' => $country_photo_url,
                     'show_regions' => $show_regions,
-                    'is_active' => $country_is_active,
                     'updated_at' => $row['country_updated_at']
                 ),
             ),

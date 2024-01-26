@@ -12,11 +12,16 @@ if (!isset($_GET["id"]) || !is_numeric($_GET["id"])) {
 }
 $city_id = (int)$_GET["id"];
 
+$user_date = $_GET['user_date'];
+if (!isset($user_date)) {
+    sendError('Date is required.');
+}
+
 $language = isset($_GET['language']) && in_array($_GET['language'], $languages) ? $_GET['language'] : 'en';
 
 require_once('../dbconfig.php');
 
-$sql = "SELECT id, name_$language, about, photo, photos, is_active, updated_at FROM City WHERE id = ?";
+$sql = "SELECT id, name_en, about, photo, photos, updated_at FROM City WHERE id = ?";
 $params = [$city_id];
 $types = "i";
 $stmt = executeQuery($conn, $sql, $params, $types);
@@ -25,27 +30,6 @@ $stmt->close();
 
 $row = $result->fetch_assoc();
 
-//about
-$about_data = json_decode($row['about'], true);
-$selected_language_data = null;
-$eng_language_data = null;
-$any_language_data = null;
-if (is_array($about_data)) {
-    foreach ($about_data as $aboutItem) {
-        if ($aboutItem['language'] === $language) {
-            $selected_language_data = $aboutItem['about'];
-            break;
-        } else if ($aboutItem['language'] === 'en') {
-            $eng_language_data = $aboutItem['about'];
-            break;
-        }
-        $any_language_data = $aboutItem['about'];
-    }
-}
-
-$about = $selected_language_data ?? $eng_language_data ?? $any_language_data;
-//is_active
-$is_active = (bool)$row['is_active'];
 //photo
 $photo = $row['photo'];
 $photo_url = isset($photo) ? "https://www.navigay.me/" . $photo : null;
@@ -64,15 +48,14 @@ $city_id = $row['id'];
 
 $city = array(
     'id' => $city_id,
-    'name' => $row["name_$language"],
+    'name' => $row["name_en"],
     'photo' => $photo_url,
     'photos' => $photos_urls,
-    'about' => $about,
-    'is_active' => $is_active,
+    'about' => $row['about'],
     'updated_at' => $row['updated_at']
 );
 
-$sql = "SELECT id, name, type_id, avatar, main_photo, address, latitude, longitude, tags, timetable, is_active, updated_at FROM Place WHERE city_id = ? AND is_active = true";
+$sql = "SELECT id, name, type_id, avatar, main_photo, address, latitude, longitude, tags, timetable, updated_at FROM Place WHERE city_id = ? AND is_active = true";
 $params = [$city_id];
 $types = "i";
 $stmt = executeQuery($conn, $sql, $params, $types);
@@ -81,16 +64,13 @@ $stmt->close();
 
 $places = array();
 while ($row = $result->fetch_assoc()) {
-    //is_active
-    $is_active = (bool)$row['is_active'];
-    //tags
+
     $tags = json_decode($row['tags'], true);
-    //timetable
     $timetable = json_decode($row['timetable'], true);
-    //avatar
+
     $avatar = $row['avatar'];
     $avatar_url = isset($avatar) ? "https://www.navigay.me/" . $avatar : null;
-    //main photo
+
     $main_photo = $row['main_photo'];
     $main_photo_url = isset($main_photo) ? "https://www.navigay.me/" . $main_photo : null;
 
@@ -105,24 +85,23 @@ while ($row = $result->fetch_assoc()) {
         'longitude' => $row['longitude'],
         'tags' => $tags,
         'timetable' => $timetable,
-        'is_active' => $is_active,
         'updated_at' => $row['updated_at'],
     );
     array_push($places, $place);
 }
 $city += ['places' => $places];
 
-$sql = "SELECT id, name, type_id, country_id, region_id, city_id, latitude, longitude, start_date, start_time, finish_date, finish_time, address, location, poster, poster_small, is_free, tags, place_id, is_active, updated_at FROM Event WHERE city_id = ? AND is_active = true AND ((finish_date IS NOT NULL AND finish_date >= CURDATE() - INTERVAL 1 DAY) OR (finish_date IS NULL AND start_date >= CURDATE() - INTERVAL 1 DAY))";
-$params = [$city_id];
-$types = "i";
+$sql = "SELECT id, name, type_id, latitude, longitude, start_date, start_time, finish_date, finish_time, address, location, poster, poster_small, is_free, tags, updated_at FROM Event WHERE city_id = ? AND is_active = true AND ((finish_date IS NULL AND start_date >= ?) OR (finish_date IS NOT NULL AND finish_date >= ?))";
+
+$params = [$city_id, $user_date, $user_date];
+$types = "iss";
 $stmt = executeQuery($conn, $sql, $params, $types);
 $result = $stmt->get_result();
 $stmt->close();
 
-
 $events = array();
 while ($row = $result->fetch_assoc()) {
-    $is_active = (bool)$row['is_active'];
+
     $is_free = (bool)$row['is_free'];
     $tags = json_decode($row['tags'], true);
 
@@ -148,7 +127,6 @@ while ($row = $result->fetch_assoc()) {
         'poster' => $poster_url,
         'poster_small' => $poster_small_url,
         'is_free' => $is_free,
-        'is_active' => $is_active,
         'updated_at' => $row['updated_at'],
     );
     array_push($events, $event);

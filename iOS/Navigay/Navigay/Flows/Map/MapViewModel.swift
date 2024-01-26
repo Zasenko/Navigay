@@ -80,6 +80,8 @@ extension MapViewModel {
         case .all:
             filteredPlaces = places
             filteredEvents = events
+        case .rights:
+            getPlaces(type: .rights)
         }
         withAnimation(.spring()) {
             if filteredPlaces.count == 1, let place = filteredPlaces.first {

@@ -14,7 +14,6 @@ final class Region {
     var name: String? = nil
     var country: Country? = nil
     var photo: String?
-  //  var isActive: Bool = false
     var lastUpdateIncomplete: Date? = nil
     
     @Relationship(deleteRule: .cascade, inverse: \City.region) var cities: [City] = []
@@ -29,7 +28,6 @@ final class Region {
         if lastUpdateIncomplete != lastUpdate {
             name = decodedRegion.name
             photo = decodedRegion.photo
-         //   isActive = decodedRegion.isActive
             lastUpdateIncomplete = lastUpdate
         }
     }

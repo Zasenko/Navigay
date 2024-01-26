@@ -42,7 +42,7 @@ struct CitiesView: View {
             Section {
                 ForEach(cities) { city in
                     NavigationLink {
-                        CityView(modelContext: modelContext, city: city, catalogNetworkManager: catalogNetworkManager, eventNetworkManager: eventNetworkManager, placeNetworkManager: placeNetworkManager, errorManager: errorManager, user: user, authenticationManager: authenticationManager)
+                        CityView(modelContext: modelContext, city: city, catalogNetworkManager: catalogNetworkManager, eventNetworkManager: eventNetworkManager, placeNetworkManager: placeNetworkManager, errorManager: errorManager, authenticationManager: authenticationManager)
                     } label: {
                         CityCell(city: city, showCountryRegion: false)
                     }

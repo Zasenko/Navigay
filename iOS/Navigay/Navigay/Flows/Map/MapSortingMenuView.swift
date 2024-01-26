@@ -24,6 +24,7 @@ enum SortingMapCategory {
     case culture
     case community
     case medicine
+    case rights
     case other
     
     case all
@@ -62,6 +63,8 @@ enum SortingMapCategory {
             self = .medicine
         case .cruiseClub:
             self = .cruiseClub
+        case .rights:
+            self = .rights
         }
     }
     
@@ -103,6 +106,8 @@ enum SortingMapCategory {
             return "Today's Events"
         case .all:
             return "All locations"
+        case .rights:
+            return "Rights"
         }
     }
 }

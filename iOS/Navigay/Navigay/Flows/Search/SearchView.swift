@@ -270,7 +270,7 @@ struct SearchView: View {
                             .offset(x: 70)
                         ForEach(viewModel.searchCities) { city in
                             NavigationLink {
-                                CityView(modelContext: viewModel.modelContext, city: city, catalogNetworkManager: viewModel.catalogNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, errorManager: viewModel.errorManager, user: viewModel.user, authenticationManager: authenticationManager)
+                                CityView(modelContext: viewModel.modelContext, city: city, catalogNetworkManager: viewModel.catalogNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, errorManager: viewModel.errorManager, authenticationManager: authenticationManager)
                             } label: {
                                 CityCell(city: city, showCountryRegion: true)
                             }

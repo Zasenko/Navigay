@@ -17,7 +17,8 @@ final class AppUser {
     var bio: String?
     var photo: String?
     var isUserLoggedIn: Bool = false
-    
+    var photoData: Data? = nil
+
     init(decodedUser: DecodedAppUser) {
         self.id = decodedUser.id
         self.email = decodedUser.email

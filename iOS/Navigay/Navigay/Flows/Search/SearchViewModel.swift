@@ -75,6 +75,7 @@ extension SearchView {
         }
         
         func getCountriesFromDB() {
+            print("--- SearchViewModel getCountriesFromDB()")
             do {
                 let descriptor = FetchDescriptor<Country>(sortBy: [SortDescriptor(\.name)])
                 countries = try modelContext.fetch(descriptor)
@@ -87,35 +88,36 @@ extension SearchView {
         }
         
         func fetchCountries() {
-            if !catalogNetworkManager.isCountriesLoaded {
-                Task {
-                    guard let decodedCountries = await catalogNetworkManager.fetchCountries() else {
-                        return
+            guard !catalogNetworkManager.isCountriesLoaded else {
+                return
+            }
+            Task {
+                guard let decodedCountries = await catalogNetworkManager.fetchCountries() else {
+                    return
+                }
+                let ids = decodedCountries.map { $0.id }
+                var countriesToDelete: [Country] = []
+                countries.forEach { country in
+                    if !ids.contains(country.id) {
+                        countriesToDelete.append(country)
                     }
-                    
-                    let ids = decodedCountries.map { $0.id }
-                    var countriseToDelete: [Country] = []
-                    countries.forEach { country in
-                        if !ids.contains(country.id) {
-                            countriseToDelete.append(country)
+                }
+                await MainActor.run { [countriesToDelete] in
+                    countriesToDelete.forEach( { modelContext.delete($0) } )
+                    var newCountries: [Country] = []
+                    for decodedCountry in decodedCountries {
+                        if let country = countries.first(where: { $0.id == decodedCountry.id} ) {
+                            country.updateCountryIncomplete(decodedCountry: decodedCountry)
+                            newCountries.append(country)
+                        } else {
+                            let country = Country(decodedCountry: decodedCountry)
+                            modelContext.insert(country)
+                            newCountries.append(country)
                         }
                     }
-                    countriseToDelete.forEach( { modelContext.delete($0) } )
-
-                    await MainActor.run {
-                        for decodedCountry in decodedCountries {
-                            if let country = countries.first(where: { $0.id == decodedCountry.id} ) {
-                                country.updateCountryIncomplete(decodedCountry: decodedCountry)
-                            } else {
-                                let country = Country(decodedCountry: decodedCountry)
-                                modelContext.insert(country)
-                               // countries.append(country)
-                            }
-                        }
-                        withAnimation {
-                            getCountriesFromDB()
-                            isLoading = false
-                        }
+                    withAnimation {
+                        self.countries = newCountries.sorted(by: { $0.name < $1.name})
+                        isLoading = false
                     }
                 }
             }

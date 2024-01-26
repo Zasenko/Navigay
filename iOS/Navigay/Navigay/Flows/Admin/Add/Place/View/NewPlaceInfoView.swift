@@ -12,7 +12,8 @@ struct NewPlaceInfoView: View {
     //MARK: - Properties
     
     @ObservedObject var viewModel: AddNewPlaceViewModel
-            
+    @ObservedObject var authenticationManager: AuthenticationManager
+    
     //MARK: - Body
     
     var body: some View {
@@ -29,7 +30,7 @@ struct NewPlaceInfoView: View {
                         .padding(.top)
                     PlaceAdditionalFieldsView(isoCountryCode: $viewModel.isoCountryCode, email: $viewModel.email, phone: $viewModel.phone, www: $viewModel.www, facebook: $viewModel.facebook, instagram: $viewModel.instagram, about: $viewModel.about, timetable: $viewModel.timetable, otherInfo: $viewModel.otherInfo, tags: $viewModel.tags)
                     
-                    if viewModel.user.status == .admin || viewModel.user.status == .moderator {
+                    if authenticationManager.appUser?.status == .admin || authenticationManager.appUser?.status == .moderator {
                         ActivationFieldsView(isActive: $viewModel.isActive, isChecked: $viewModel.isChecked)
                             .padding(.bottom, 40)
                     } else {

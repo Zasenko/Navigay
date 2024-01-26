@@ -71,10 +71,17 @@ struct EditCountryView: View {
                             EditField(title: "Flag emoji", text: $viewModel.flagEmoji, emptyFieldColor: .red)
                         }
                         .padding()
-                        NamesEditView(nameOrigin: $viewModel.nameOrigin, nameEn: $viewModel.nameEn, nameFr: $viewModel.nameFr, nameDe: $viewModel.nameDe, nameRu: $viewModel.nameRu, nameIt: $viewModel.nameIt, nameEs: $viewModel.nameEs, namePt: $viewModel.namePt)
+                        NamesEditView(nameOrigin: $viewModel.nameOrigin, nameEn: $viewModel.nameEn)
                             .padding()
-                      //  AboutEditView(languages: $viewModel.languages, about: $viewModel.about)
-                            .padding()
+                        
+                        NavigationLink {
+                            EditTextEditorView(title: "Edit description", text: viewModel.about, characterLimit: 3000) { string in
+                                viewModel.about = string
+                            }
+                        } label: {
+                            EditField(title: "Description", text: $viewModel.about, emptyFieldColor: .secondary)
+                        }
+                        .padding()
                         EditToggleField(toggle: $viewModel.showRegions, text: "Show regions")
                             .padding(.vertical)
                         ActivationFieldsView(isActive: $viewModel.isActive, isChecked: $viewModel.isChecked)
@@ -124,6 +131,9 @@ struct EditCountryView: View {
                 }
                 .disabled(viewModel.isLoadingPhoto)
                 .disabled(viewModel.isLoading)
+                .onAppear {
+                    viewModel.fetchCountry()
+                }
             }
         }
     }

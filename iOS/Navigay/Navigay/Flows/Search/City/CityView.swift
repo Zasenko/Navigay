@@ -12,7 +12,7 @@ struct CityView: View {
     
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel: CityViewModel
-    @ObservedObject var authenticationManager: AuthenticationManager // TODO: убрать юзера из вью модели так как он в authenticationManager
+    @ObservedObject var authenticationManager: AuthenticationManager
     
     init(modelContext: ModelContext,
          city: City,
@@ -20,9 +20,13 @@ struct CityView: View {
          eventNetworkManager: EventNetworkManagerProtocol,
          placeNetworkManager: PlaceNetworkManagerProtocol,
          errorManager: ErrorManagerProtocol,
-         user: AppUser?,
          authenticationManager: AuthenticationManager) {
-        _viewModel = State(initialValue: CityViewModel(modelContext: modelContext, city: city, catalogNetworkManager: catalogNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, user: user))
+        _viewModel = State(initialValue: CityViewModel(modelContext: modelContext,
+                                                       city: city,
+                                                       catalogNetworkManager: catalogNetworkManager,
+                                                       placeNetworkManager: placeNetworkManager,
+                                                       eventNetworkManager: eventNetworkManager,
+                                                       errorManager: errorManager))
         _authenticationManager = ObservedObject(wrappedValue: authenticationManager)
     }
     
@@ -59,18 +63,6 @@ struct CityView: View {
                         }
                         .tint(.primary)
                     }
-                    // TODO: только для АДМИНИСТРАТОРА
-                    if let user = viewModel.user, user.status == .admin {
-                        ToolbarItem(placement: .topBarTrailing) {
-                            Button("Edit") {
-                                guard let region = viewModel.city.region , let country = region.country else {
-                                    return
-                                }
-                                let adminCity = AdminCity(id: viewModel.city.id, countryId: country.id, regionId: region.id, nameOrigin: nil, nameEn: nil, nameFr: nil, nameDe: nil, nameRu: nil, nameIt: nil, nameEs: nil, namePt: nil, about: nil, photo: nil, photos: nil, isActive: false, isChecked: false)
-                                viewModel.adminCity = adminCity
-                            }
-                        }
-                    }
                 }
             }
         }
@@ -87,7 +79,14 @@ struct CityView: View {
                     .padding(.bottom)
             }
             
-            if viewModel.displayedEvents.count > 0 {
+            if let user = authenticationManager.appUser, user.status == .admin {
+                adminPanel
+            }
+            
+            if viewModel.todayEvents.count > 0 {
+                todayEventsView(width: width)
+            }
+            if viewModel.upcomingEvents.count > 0 {
                 eventsView(width: width)
             }
             placesView
@@ -109,37 +108,82 @@ struct CityView: View {
         .onAppear() {
             viewModel.getPlacesAndEventsFromDB()
         }
-        .navigationDestination(item: $viewModel.adminCity) { adminCity in
-            EditCityView(viewModel: EditCityViewModel(city: adminCity, errorManager: viewModel.errorManager, networkManager: AdminNetworkManager(errorManager: viewModel.errorManager)))
+//        .navigationDestination(item: $viewModel.adminCity) { adminCity in
+//            EditCityView(viewModel: EditCityViewModel(city: adminCity, errorManager: viewModel.errorManager, networkManager: AdminNetworkManager(errorManager: viewModel.errorManager)))
+//        }
+    }
+    
+    private var adminPanel: some View {
+        Section {
+            NavigationLink {
+                EditCityView(viewModel: EditCityViewModel(id: viewModel.city.id, userId: authenticationManager.appUser?.id ?? 0, errorManager: viewModel.errorManager, networkManager: AdminNetworkManager(errorManager: viewModel.errorManager)))
+            } label: {
+                Text("Edit")
+                    .font(.callout)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 40)
+                    .padding(.vertical, 10)
+                    .background(
+                        Capsule()
+                            .fill(.green.gradient)
+                    )
+            }
         }
+        .listRowSeparator(.hidden)
+    }
+    
+    @ViewBuilder
+    private func todayEventsView(width: CGFloat) -> some View {
+        Section {
+            Text("Today's Events")
+                .font(.title2).bold()
+                .foregroundStyle(.secondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 20)
+                .padding(.top, 30)
+                .padding(.bottom, 10)
+            LazyVGrid(columns: viewModel.gridLayout, spacing: 20) {
+                ForEach(viewModel.todayEvents) { event in
+                    EventCell(event: event, width: (width / 2) - 30, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, showCountryCity: false, authenticationManager: authenticationManager)
+                }
+            }
+            .padding(.horizontal, 20)
+        }
+        .listRowSeparator(.hidden)
+        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
     }
     
     @ViewBuilder
     private func eventsView(width: CGFloat) -> some View {
         Section {
             HStack {
-                Text(viewModel.selectedDate?.formatted(date: .long, time: .omitted) ?? "Upcoming events")
-                    .font(.title3).bold()
+                Text(viewModel.selectedDate?.formatted(date: .long, time: .omitted) ?? "Upcoming Events")
+                    .font(.title2).bold()
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 Button {
                     viewModel.showCalendar = true
                 } label: {
                     HStack {
-                        Text("Select\ndate")
-                            .font(.caption)
-                            .multilineTextAlignment(.trailing)
-                            .lineSpacing(-10)
                         AppImages.iconCalendar
                             .resizable()
                             .scaledToFit()
                             .frame(width: 25, height: 25)
+                        Text("Select date")
+                            .font(.caption)
+                            .multilineTextAlignment(.trailing)
+                            .lineSpacing(-10)
                     }
+                    .padding()
+                    .background(.ultraThinMaterial)
+                    .foregroundStyle(.blue)
+                    .clipShape(Capsule())
                 }
-                .foregroundStyle(.blue)
             }
             .padding(.horizontal, 20)
-            .padding(.vertical, 30)
+            .padding(.top, 30)
+            .padding(.bottom, 10)
             LazyVGrid(columns: viewModel.gridLayout, spacing: 20) {
                 ForEach(viewModel.displayedEvents) { event in
                     EventCell(event: event, width: (width / 2) - 30, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, showCountryCity: false, authenticationManager: authenticationManager)
@@ -151,15 +195,14 @@ struct CityView: View {
         .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
         .onChange(of: viewModel.selectedDate, initial: false) { oldValue, newValue in
             viewModel.showCalendar = false
-            Task {
-                if let date = newValue {
-                    await viewModel.getEvents(for: date)
-                } else {
-                    await viewModel.getUpcomingEvents(for: viewModel.city.events)
-                }
+            if let date = newValue {
+                viewModel.getEvents(for: date)
+            } else {
+                viewModel.showUpcomingEvents()
             }
+            
         }
-        .sheet(isPresented:  $viewModel.showCalendar) {
+        .sheet(isPresented:  $viewModel.showCalendar) {} content: {
             CalendarView(selectedDate: $viewModel.selectedDate, eventsDates: $viewModel.eventsDates)
                 .presentationDetents([.medium])
                 .presentationDragIndicator(.visible)
@@ -173,7 +216,7 @@ struct CityView: View {
                 Text(key.getPluralName())
                     .font(.title)
                     .foregroundStyle(.secondary)
-                    .padding(.top, 50)
+                    .padding(.top, 30)
                     .padding(.bottom, 10)
                     .offset(x: 70)
                 ForEach(viewModel.groupedPlaces[key] ?? []) { place in
@@ -184,11 +227,10 @@ struct CityView: View {
                     }
                 }
             }
-            .listRowSeparator(.hidden)
             .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
+            .listRowSeparator(.hidden)
         }
     }
-    
 
 }
 

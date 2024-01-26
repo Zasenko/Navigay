@@ -1,27 +1,15 @@
 //
-//  DataManager.swift
+//  EventDataManager.swift
 //  Navigay
 //
-//  Created by Dmitry Zasenko on 04.01.24.
+//  Created by Dmitry Zasenko on 25.01.24.
 //
 
 import Foundation
 import SwiftData
 import CoreLocation
 
-protocol DataManagerProtocol {
-    ///Sorted by name
-    func getAllPlaces(modelContext: ModelContext) -> [Place]
-
-    ///Filtered by distance
-    func getAroundPlaces(radius: Double, allPlaces: [Place], userLocation: CLLocation) async -> [Place]
-    
-    ///Grouped by type
-    func createGroupedPlaces(places: [Place]) async -> [PlaceType: [Place]]
-    
-    func getClosestPlaces(from places: [Place], userLocation: CLLocation, count: Int) async -> [Place]
-    
-    
+protocol EventDataManagerProtocol {
     ///Sorted by id
     func getAllEvents(modelContext: ModelContext) -> [Event]
     
@@ -33,24 +21,21 @@ protocol DataManagerProtocol {
     
     func getTodayEvents(from events: [Event]) async -> [Event]
     
-    ///events for 1 week without today
+    ///sorted by date / events for 1 week without today
     func getUpcomingEvents(from events: [Event]) async -> [Event]
     
     func getActiveDates(for events: [Event]) async -> [Date]
+    
+    func getEvents(for date: Date, events: [Event]) async -> [Event]
+     
+    func updateEvents(decodedEvents: [DecodedEvent]?, for cities: [City], modelContext: ModelContext) -> [Event]
+    
+    func updateEvents(decodedEvents: [DecodedEvent]?, for city: City, modelContext: ModelContext) -> [Event]
+    
 }
 
-final class DataManager: DataManagerProtocol {
-    
-    func getAllPlaces(modelContext: ModelContext) -> [Place] {
-        do {
-            let descriptor = FetchDescriptor<Place>(sortBy: [SortDescriptor(\.name)])
-            return try modelContext.fetch(descriptor)
-        } catch {
-            debugPrint(error)
-            return []
-        }
-    }
-    
+final class EventDataManager: EventDataManagerProtocol {
+
     func getAllEvents(modelContext: ModelContext) -> [Event] {
         do {
             let descriptor = FetchDescriptor<Event>(sortBy: [SortDescriptor(\.id)])
@@ -60,24 +45,12 @@ final class DataManager: DataManagerProtocol {
             return []
         }
     }
-    
-    func getAroundPlaces(radius: Double, allPlaces: [Place], userLocation: CLLocation) async -> [Place] {
-        return allPlaces.filter { place in
-            let distance = userLocation.distance(from: CLLocation(latitude: place.latitude, longitude: place.longitude))
-            place.getDistanceText(distance: distance, inKm: true)//TODO: in miles also
-            return distance <= radius
-        }
-    }
-    
+
     func getAroundEvents(radius: Double, allEvents: [Event], userLocation: CLLocation) async -> [Event] {
         return allEvents.filter { event in
             let distance = userLocation.distance(from: CLLocation(latitude: event.latitude, longitude: event.longitude))
             return distance <= radius
         }
-    }
-    
-    func createGroupedPlaces(places: [Place]) async -> [PlaceType: [Place]] {
-        return Dictionary(grouping: places) { $0.type }
     }
     
     func getActualEvents(for events: [Event]) async -> [Event] {
@@ -185,24 +158,117 @@ final class DataManager: DataManagerProtocol {
         return activeDates.uniqued().sorted()
     }
     
-    func getClosestPlaces(from places: [Place], userLocation: CLLocation, count: Int) async -> [Place] {
-
-        let sortedPlaces = places.sorted { place1, place2 in
-            let location1 = CLLocation(latitude: place1.latitude, longitude: place1.longitude)
-            let location2 = CLLocation(latitude: place2.latitude, longitude: place2.longitude)
-            let distance1 = userLocation.distance(from: location1)
-            let distance2 = userLocation.distance(from: location2)
-            return distance1 < distance2
+    func getEvents(for date: Date, events: [Event]) async -> [Event] {
+            return events.filter { event in
+                if event.startDate.isFutureDay(of: date) {
+                    return false
+                }
+                if event.startDate.isSameDayWithOtherDate(date) {
+                    return true
+                }
+                guard let finishDate = event.finishDate else {
+                    return false
+                }
+                
+                if finishDate.isFutureDay(of: date) {
+                    return true
+                }
+                if finishDate.isSameDayWithOtherDate(date) {
+                    guard let finishTime = event.finishTime,
+                          let elevenAM = Calendar.current.date(bySettingHour: 11, minute: 0, second: 0, of: Date())
+                    else {
+                        return false
+                    }
+                    if finishTime.isPastHour(of: elevenAM) {
+                        return false
+                    } else {
+                        return true
+                    }
+                }
+                return false
+            }
+    }
+    
+    func updateEvents(decodedEvents: [DecodedEvent]?, for cities: [City], modelContext: ModelContext) -> [Event] {
+        guard let decodedEvents else { return [] }
+        do {
+            let descriptor = FetchDescriptor<Event>()
+            var allEvents = try modelContext.fetch(descriptor)
+            var events: [Event] = []
+            
+            for decodeEvent in decodedEvents {
+                if let event = allEvents.first(where: { $0.id == decodeEvent.id} ) {
+                    event.updateEventIncomplete(decodedEvent: decodeEvent)
+                    events.append(event)
+                    if let cityId = decodeEvent.cityId,
+                       let city = cities.first(where: { $0.id == cityId }) {
+                        event.city = city
+                        if !city.events.contains(where: { $0.id == event.id } ) {
+                            city.events.append(event)
+                        }
+                    }
+                } else {
+                    let event = Event(decodedEvent: decodeEvent)
+                    modelContext.insert(event)
+                    allEvents.append(event)
+                    events.append(event)
+                    if let cityId = decodeEvent.cityId,
+                       let city = cities.first(where: { $0.id == cityId }) {
+                        event.city = city
+                        if !city.events.contains(where: { $0.id == event.id } ) {
+                            city.events.append(event)
+                        }
+                    }
+                }
+            }
+            return events
+        } catch {
+            debugPrint(error)
+            return []
         }
-        var closestPlaces: [Place] = []
-        var placeCount: Int = 0
-        for place in sortedPlaces {
-            closestPlaces.append(place)
-            placeCount += 1
-            if placeCount == count {
-                break
+    }
+    
+    func updateEvents(decodedEvents: [DecodedEvent]?, for city: City, modelContext: ModelContext) -> [Event] {
+        guard let decodedEvents, !decodedEvents.isEmpty else {
+            city.events.forEach( { modelContext.delete($0) } )
+            return []
+        }
+        
+        let ids = decodedEvents.map( { $0.id } )
+        var eventsToDelete: [Event] = []
+        city.events.forEach { event in
+            if !ids.contains(event.id) {
+                eventsToDelete.append(event)
             }
         }
-        return closestPlaces
+        eventsToDelete.forEach( { modelContext.delete($0) } )
+     
+        do {
+            let descriptor = FetchDescriptor<Event>()
+            var allEvents = try modelContext.fetch(descriptor)
+            var events: [Event] = []
+            
+            for decodeEvent in decodedEvents {
+                if let event = allEvents.first(where: { $0.id == decodeEvent.id} ) {
+                    event.updateEventIncomplete(decodedEvent: decodeEvent)
+                    events.append(event)
+                    event.city = city
+                    if !city.events.contains(where: { $0.id == event.id } ) {
+                        city.events.append(event)
+                    }
+                } else {
+                    let event = Event(decodedEvent: decodeEvent)
+                    modelContext.insert(event)
+                    allEvents.append(event)
+                    events.append(event)
+                    event.city = city
+                    city.events.append(event)
+                }
+            }
+            return events
+        } catch {
+            debugPrint(error)
+            return []
+        }
     }
 }

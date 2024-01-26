@@ -39,7 +39,7 @@ struct EditCityView: View {
                                             .opacity(viewModel.isLoadingPhoto ? 0.2 : 1)
                                     } else if let url = photo.url {
                                         ImageLoadingView(url: url, width: proxy.size.width, height: (proxy.size.width / 4) * 5, contentMode: .fit) {
-                                            Color.red
+                                            AppColors.lightGray6
                                         }
                                         .clipped()
                                         .opacity(viewModel.isLoadingPhoto ? 0.2 : 1)
@@ -62,6 +62,19 @@ struct EditCityView: View {
                         } onSave: { uiImage in
                             viewModel.loadImage(uiImage: uiImage)
                         } onDelete: {}
+                        
+                        NamesEditView(nameOrigin: $viewModel.nameOrigin, nameEn: $viewModel.nameEn)
+                            .padding()
+                        
+                        NavigationLink {
+                            EditTextEditorView(title: "Edit description", text: viewModel.about, characterLimit: 3000) { string in
+                                viewModel.about = string
+                            }
+                        } label: {
+                            EditField(title: "Description", text: $viewModel.about, emptyFieldColor: .secondary)
+                        }
+                        .padding()
+                        
                         EditLibraryView(photos: $viewModel.photos, isLoading: $viewModel.isLoadingLibraryPhoto, width: proxy.size.width) { result in
                             viewModel.loadLibraryPhoto(photoId: result.id, uiImage: result.uiImage)
                         } onDelete: { id in
@@ -70,11 +83,7 @@ struct EditCityView: View {
                             }
                         }
                         .padding(.vertical)
-                        NamesEditView(nameOrigin: $viewModel.nameOrigin, nameEn: $viewModel.nameEn, nameFr: $viewModel.nameFr, nameDe: $viewModel.nameDe, nameRu: $viewModel.nameRu, nameIt: $viewModel.nameIt, nameEs: $viewModel.nameEs, namePt: $viewModel.namePt)
-                            .padding()
-                    //TODO: убрать редактирование О городе на других языках
-//                        AboutEditView(languages: $viewModel.languages, about: $viewModel.about)
-//                            .padding()
+                        
                         ActivationFieldsView(isActive: $viewModel.isActive, isChecked: $viewModel.isChecked)
                             .padding(.vertical)
                             .padding(.bottom, 50)
@@ -104,15 +113,11 @@ struct EditCityView: View {
                                 .tint(.blue)
                         } else {
                             Button("Save") {
-                                viewModel.isLoading = true
                                 Task {
                                     let result = await viewModel.updateInfo()
-                                    await MainActor.run {
-                                        if result {
-                                            self.viewModel.isLoading = false
-                                            self.dismiss()
-                                        } else {
-                                            self.viewModel.isLoading = false
+                                    if result {
+                                        await MainActor.run {
+                                            dismiss()
                                         }
                                     }
                                 }
@@ -124,6 +129,16 @@ struct EditCityView: View {
                 .disabled(viewModel.isLoadingPhoto)
                 .disabled(viewModel.isLoading)
                 .disabled(viewModel.isLoadingLibraryPhoto)
+                .onAppear {
+                    Task {
+                        let result = await viewModel.fetchCity()
+                        if !result {
+                            await MainActor.run {
+                                dismiss()
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -174,6 +189,7 @@ struct ImageLoadingView<Content: View>: View {
                         }
                     }
             }
-        }.frame(width: width, height: height)
+        }
+        .frame(width: width, height: height)
     }
 }

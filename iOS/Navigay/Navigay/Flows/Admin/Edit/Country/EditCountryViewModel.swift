@@ -15,22 +15,17 @@ final class EditCountryViewModel: ObservableObject {
     let isoCountryCode: String
     @Published var nameOrigin: String
     @Published var nameEn: String
-    @Published var nameFr: String
-    @Published var nameDe: String
-    @Published var nameRu: String
-    @Published var nameIt: String
-    @Published var nameEs: String
-    @Published var namePt: String
     @Published var flagEmoji: String
     @Published var photo: AdminPhoto?
-    @Published var languages: [Language]
-    @Published var about: [NewPlaceAbout]
+    @Published var about: String
     @Published var showRegions: Bool
     @Published var isActive: Bool
     @Published var isChecked: Bool
     
     @Published var isLoading: Bool = false
     @Published var isLoadingPhoto: Bool = false
+    
+    var isFetched: Bool = false
     
     //MARK: - Private Properties
     
@@ -46,17 +41,9 @@ final class EditCountryViewModel: ObservableObject {
         self.isoCountryCode = country.isoCountryCode
         self.nameOrigin = country.nameOrigin ?? ""
         self.nameEn = country.nameEn ?? ""
-        self.nameFr = country.nameFr ?? ""
-        self.nameDe = country.nameDe ?? ""
-        self.nameRu = country.nameRu ?? ""
-        self.nameIt = country.nameIt ?? ""
-        self.nameEs = country.nameEs ?? ""
-        self.namePt = country.namePt ?? ""
         self.flagEmoji = country.flagEmoji ?? ""
         self.photo = AdminPhoto(id: UUID().uuidString, image: nil, url: country.photo)
-        self.about = country.about?.map({ NewPlaceAbout(language: $0.language, about: $0.about) }) ?? []
-        let existingLanguages = country.about?.map( { $0.language } ) ?? []
-        self.languages = Language.allCases.filter { !existingLanguages.contains($0) }
+        self.about = country.about ?? ""
         self.showRegions = country.showRegions
         self.isActive = country.isActive
         self.isChecked = country.isChecked
@@ -67,19 +54,31 @@ extension EditCountryViewModel {
     
     //MARK: - Functions
     
+    func fetchCountry() {
+        Task {
+            guard !isFetched, let decodedCountry = await networkManager.fetchCountry(id: id) else {
+                return
+            }
+            await MainActor.run {
+                isFetched = true
+                nameOrigin = decodedCountry.nameOrigin ?? ""
+                nameEn = decodedCountry.nameEn ?? ""
+                flagEmoji = decodedCountry.flagEmoji ?? ""
+                photo = AdminPhoto(id: UUID().uuidString, image: nil, url: decodedCountry.photo)
+                about = decodedCountry.about ?? ""
+                showRegions = decodedCountry.showRegions
+                isActive = decodedCountry.isActive
+                isChecked = decodedCountry.isChecked
+            }
+        }
+    }
+    
     func updateInfo() async -> Bool {
-            let errorModel = ErrorModel(massage: "Something went wrong. The country didn't update in database. Please try again later.", img: nil, color: nil)
-            let about = about.map( { DecodedAbout(language: $0.language, about: $0.about) } )
+            let errorModel = ErrorModel(massage: "Something went wrong. The information didn't update in database. Please try again later.", img: nil, color: nil)
             let country: AdminCountry = AdminCountry(id: id,
                                                      isoCountryCode: isoCountryCode,
                                                      nameOrigin: nameOrigin.isEmpty ? nil : nameOrigin,
                                                      nameEn: nameEn.isEmpty ? nil : nameEn,
-                                                     nameFr: nameFr.isEmpty ? nil : nameFr,
-                                                     nameDe: nameDe.isEmpty ? nil : nameDe,
-                                                     nameRu: nameRu.isEmpty ? nil : nameRu,
-                                                     nameIt: nameIt.isEmpty ? nil : nameIt,
-                                                     nameEs: nameEs.isEmpty ? nil : nameEs,
-                                                     namePt: namePt.isEmpty ? nil : namePt,
                                                      about: about.isEmpty ? nil : about,
                                                      flagEmoji: flagEmoji.isEmpty ? nil : flagEmoji,
                                                      photo: nil,
@@ -88,7 +87,6 @@ extension EditCountryViewModel {
                                                      isChecked: isChecked)
             do {
                 let decodedResult = try await networkManager.updateCountry(country: country)
-                print("decodedResult: ", decodedResult)
                 guard decodedResult.result else {
                     errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: errorModel)
                     return false
@@ -99,7 +97,6 @@ extension EditCountryViewModel {
                 errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
                 return false
             }
-        
     }
     
     func loadImage(uiImage: UIImage) {

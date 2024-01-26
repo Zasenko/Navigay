@@ -63,7 +63,7 @@ struct EditRegionView: View {
                         } onSave: { uiImage in
                             viewModel.loadImage(uiImage: uiImage)
                         } onDelete: {}
-                        NamesEditView(nameOrigin: $viewModel.nameOrigin, nameEn: $viewModel.nameEn, nameFr: $viewModel.nameFr, nameDe: $viewModel.nameDe, nameRu: $viewModel.nameRu, nameIt: $viewModel.nameIt, nameEs: $viewModel.nameEs, namePt: $viewModel.namePt)
+                        NamesEditView(nameOrigin: $viewModel.nameOrigin, nameEn: $viewModel.nameEn)
                             .padding()
                         ActivationFieldsView(isActive: $viewModel.isActive, isChecked: $viewModel.isChecked)
                             .padding(.vertical)

@@ -13,9 +13,12 @@ extension HomeView {
     
     @Observable
     class HomeViewModel {
+        
+        //MARK: - Properties
+        
         var modelContext: ModelContext
         
-        var allAroundEvents: [Event] = [] // actualEvents
+        var actualEvents: [Event] = [] // actualEvents
         var todayEvents: [Event] = []
         var upcomingEvents: [Event] = []
         var displayedEvents: [Event] = []
@@ -33,46 +36,63 @@ extension HomeView {
         var gridLayout: [GridItem] = Array(repeating: GridItem(.flexible(), spacing: 20), count: 2)
         
         var showMap: Bool = false
+        
         var sortingHomeCategories: [SortingMapCategory] = []
         var selectedHomeSortingCategory: SortingMapCategory = .all
         
         var sortingMapCategories: [SortingMapCategory] = []
         var selectedMapSortingCategory: SortingMapCategory = .all
         
-        let dataManager: DataManagerProtocol = DataManager() //TODO: init
+        let placeDataManager: PlaceDataManagerProtocol
+        let eventDataManager: EventDataManagerProtocol
+        let catalogDataManager: CatalogDataManagerProtocol
+        
         let aroundNetworkManager: AroundNetworkManagerProtocol
         let eventNetworkManager: EventNetworkManagerProtocol
         let placeNetworkManager: PlaceNetworkManagerProtocol
         let errorManager: ErrorManagerProtocol
         
-        init(modelContext: ModelContext, aroundNetworkManager: AroundNetworkManagerProtocol, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol) {
+        //MARK: - Init
+        
+        init(modelContext: ModelContext,
+             aroundNetworkManager: AroundNetworkManagerProtocol,
+             placeNetworkManager: PlaceNetworkManagerProtocol,
+             eventNetworkManager: EventNetworkManagerProtocol,
+             errorManager: ErrorManagerProtocol) {
             self.modelContext = modelContext
             self.aroundNetworkManager = aroundNetworkManager
             self.eventNetworkManager = eventNetworkManager
             self.placeNetworkManager = placeNetworkManager
             self.errorManager = errorManager
+            
+            //TODO: - Init!!!
+            self.placeDataManager = PlaceDataManager()
+            self.eventDataManager = EventDataManager()
+            self.catalogDataManager = CatalogDataManager()
         }
+        
+        //MARK: - Functions
         
         func updateAroundPlacesAndEvents(userLocation: CLLocation) {
             let radius: Double = 20000
             
-            let allPlaces = dataManager.getAllPlaces(modelContext: modelContext)
-            let allEvents = dataManager.getAllEvents(modelContext: modelContext)
+            let allPlaces = placeDataManager.getAllPlaces(modelContext: modelContext)
+            let allEvents = eventDataManager.getAllEvents(modelContext: modelContext)
             
             Task {
-                let aroundPlaces = await dataManager.getAroundPlaces(radius: radius, allPlaces: allPlaces, userLocation: userLocation)
-                let aroundEvents = await dataManager.getAroundEvents(radius: radius, allEvents: allEvents, userLocation: userLocation)
+                let aroundPlaces = await placeDataManager.getAroundPlaces(radius: radius, allPlaces: allPlaces, userLocation: userLocation)
+                let aroundEvents = await eventDataManager.getAroundEvents(radius: radius, allEvents: allEvents, userLocation: userLocation)
                 
-                let groupedPlaces = await dataManager.createGroupedPlaces(places: aroundPlaces)
-                let actualEvents = await dataManager.getActualEvents(for: aroundEvents)
-                let todayEvents = await dataManager.getTodayEvents(from: aroundEvents)
-                let upcomingEvents = await dataManager.getUpcomingEvents(from: aroundEvents)
-                let eventsDatesWithoutToday = await dataManager.getActiveDates(for: actualEvents)
+                let groupedPlaces = await placeDataManager.createGroupedPlaces(places: aroundPlaces)
+                let actualEvents = await eventDataManager.getActualEvents(for: aroundEvents)
+                let todayEvents = await eventDataManager.getTodayEvents(from: actualEvents)
+                let upcomingEvents = await eventDataManager.getUpcomingEvents(from: actualEvents)
+                let eventsDatesWithoutToday = await eventDataManager.getActiveDates(for: actualEvents)
                 
                 await MainActor.run {
-                    self.allAroundEvents = actualEvents
+                    self.actualEvents = actualEvents
                     self.upcomingEvents = upcomingEvents
-                    self.aroundPlaces = aroundPlaces/// для карты
+                    self.aroundPlaces = aroundPlaces
                     self.eventsDates = eventsDatesWithoutToday
                     aroundPlaces.forEach { place in
                         let distance = userLocation.distance(from: CLLocation(latitude: place.latitude, longitude: place.longitude))
@@ -81,7 +101,7 @@ extension HomeView {
                     withAnimation {
                         self.todayEvents = todayEvents
                         self.displayedEvents = upcomingEvents
-                        self.groupedPlaces = groupedPlaces///для страницы
+                        self.groupedPlaces = groupedPlaces
                         if !aroundPlaces.isEmpty && !aroundEvents.isEmpty {
                             isLoading = false
                         }
@@ -92,8 +112,8 @@ extension HomeView {
                     await fetch(location: userLocation)
                 } else {
                     if isLoading {
-                        let closestPlaces = await dataManager.getClosestPlaces(from: allPlaces, userLocation: userLocation, count: 5)
-                        let groupedClosestPlaces = await dataManager.createGroupedPlaces(places: closestPlaces)
+                        let closestPlaces = await placeDataManager.getClosestPlaces(from: allPlaces, userLocation: userLocation, count: 5)
+                        let groupedClosestPlaces = await placeDataManager.createGroupedPlaces(places: closestPlaces)
                         await MainActor.run {
                             closestPlaces.forEach { place in
                                 let distance = userLocation.distance(from: CLLocation(latitude: place.latitude, longitude: place.longitude))
@@ -111,6 +131,25 @@ extension HomeView {
             }
         }
         
+        func showUpcomingEvents() {
+            withAnimation {
+                self.displayedEvents = upcomingEvents
+            }
+        }
+        
+        func getEvents(for date: Date) {
+            Task {
+                let events = await eventDataManager.getEvents(for: date, events: actualEvents )
+                await MainActor.run {
+                    withAnimation {
+                        displayedEvents = events
+                    }
+                }
+            }
+        }
+        
+        //MARK: - Private Functions
+        
         private func fetch(location: CLLocation) async {
             guard let decodedResult = await aroundNetworkManager.fetchLocations(location: location) else {
                 return
@@ -127,9 +166,9 @@ extension HomeView {
                     }
                 }
                 
-                let cities = updateCities(decodedCities: decodedResult.cities)
-                let places = updatePlaces(decodedPlaces: decodedResult.places, for: cities)
-                let events = updateEvents(decodedEvents: decodedResult.events, for: cities)
+                let cities = catalogDataManager.updateCities(decodedCities: decodedResult.cities, modelContext: modelContext)
+                let places = placeDataManager.updatePlaces(decodedPlaces: decodedResult.places, for: cities, modelContext: modelContext)
+                let events = eventDataManager.updateEvents(decodedEvents: decodedResult.events, for: cities, modelContext: modelContext)
 
                 places.forEach { place in
                     let distance = location.distance(from: CLLocation(latitude: place.latitude, longitude: place.longitude))
@@ -141,16 +180,15 @@ extension HomeView {
         
         private func updateFetchedResult(places: [Place], events: [Event], userLocation: CLLocation) {
             Task {
-                let groupedPlaces = await dataManager.createGroupedPlaces(places: places)
-                let actualEvents = await dataManager.getActualEvents(for: events)
-                let todayEvents = await dataManager.getTodayEvents(from: events)
-                let upcomingEvents = await dataManager.getUpcomingEvents(from: events)
-                let eventsDatesWithoutToday = await dataManager.getActiveDates(for: actualEvents)
+                let groupedPlaces = await placeDataManager.createGroupedPlaces(places: places)
+                let actualEvents = await eventDataManager.getActualEvents(for: events)
+                let todayEvents = await eventDataManager.getTodayEvents(from: events)
+                let upcomingEvents = await eventDataManager.getUpcomingEvents(from: events)
+                let eventsDatesWithoutToday = await eventDataManager.getActiveDates(for: actualEvents)
                 
-                /// удаляем не нужное
-                let eventsIDs = allAroundEvents.map( { $0.id } )
+                let eventsIDs = actualEvents.map( { $0.id } )
                 var eventsToDelete: [Event] = []
-                allAroundEvents.forEach { event in
+                self.actualEvents.forEach { event in
                     if !eventsIDs.contains(event.id) {
                         eventsToDelete.append(event)
                     }
@@ -158,7 +196,7 @@ extension HomeView {
                 
                 let placesIDs = aroundPlaces.map( { $0.id } )
                 var placesToDelete: [Place] = []
-                aroundPlaces.forEach { place in
+                self.aroundPlaces.forEach { place in
                     if !placesIDs.contains(place.id) {
                         placesToDelete.append(place)
                     }
@@ -167,9 +205,9 @@ extension HomeView {
                 await MainActor.run { [eventsToDelete, placesToDelete] in
                     eventsToDelete.forEach( { modelContext.delete($0) } )
                     placesToDelete.forEach( { modelContext.delete($0) } )
-                    self.allAroundEvents = actualEvents
+                    self.actualEvents = actualEvents
                     self.upcomingEvents = upcomingEvents
-                    self.aroundPlaces = places/// для карты
+                    self.aroundPlaces = places
                     self.eventsDates = eventsDatesWithoutToday
                     places.forEach { place in
                         let distance = userLocation.distance(from: CLLocation(latitude: place.latitude, longitude: place.longitude))
@@ -178,143 +216,9 @@ extension HomeView {
                     withAnimation {
                         self.todayEvents = todayEvents
                         self.displayedEvents = upcomingEvents
-                        self.groupedPlaces = groupedPlaces///для страницы
+                        self.groupedPlaces = groupedPlaces
                         isLoading = false
                     }
-                }
-            }
-        }
-        
-    //TODO:
-        func showUpcomingEvents() {
-            withAnimation {
-                self.displayedEvents = upcomingEvents
-            }
-        }
-        
-        private func updatePlaces(decodedPlaces: [DecodedPlace]?, for cities: [City]) -> [Place] {
-            guard let decodedPlaces else { return [] }
-            do {
-                let descriptor = FetchDescriptor<Place>()
-                var allPlaces = try modelContext.fetch(descriptor)
-                
-                var places: [Place] = []
-                
-                for decodedPlace in decodedPlaces {
-                    if let place = allPlaces.first(where: { $0.id == decodedPlace.id} ) {
-                        place.updatePlaceIncomplete(decodedPlace: decodedPlace)
-                        updateTimeTable(timetable: decodedPlace.timetable, for: place)
-                        places.append(place)
-                        if let cityId = decodedPlace.cityId,
-                           let city = cities.first(where: { $0.id == cityId }) {
-                            place.city = city
-                            if !city.places.contains(where: { $0.id == place.id } ) {
-                                city.places.append(place)
-                            }
-                        }
-                    } else {
-                        let place = Place(decodedPlace: decodedPlace)
-                        modelContext.insert(place)
-                        updateTimeTable(timetable: decodedPlace.timetable, for: place)
-                        allPlaces.append(place)
-                        places.append(place)
-                        if let cityId = decodedPlace.cityId,
-                           let city = cities.first(where: { $0.id == cityId }) {
-                            place.city = city
-                            city.places.append(place)
-                        }
-                    }
-                }
-                return places
-            } catch {
-                debugPrint(error)
-                return []
-            }
-        }
-        
-        private func updateEvents(decodedEvents: [DecodedEvent]?, for cities: [City]) -> [Event] {
-            guard let decodedEvents else { return [] }
-            do {
-                let descriptor = FetchDescriptor<Event>()
-                var allEvents = try modelContext.fetch(descriptor)
-                var events: [Event] = []
-                
-                for decodeEvent in decodedEvents {
-                    if let event = allEvents.first(where: { $0.id == decodeEvent.id} ) {
-                        event.updateEventIncomplete(decodedEvent: decodeEvent)
-                        events.append(event)
-                        if let cityId = decodeEvent.cityId,
-                           let city = cities.first(where: { $0.id == cityId }) {
-                            event.city = city
-                            if !city.events.contains(where: { $0.id == event.id } ) {
-                                city.events.append(event)
-                            }
-                        }
-                    } else {
-                        let event = Event(decodedEvent: decodeEvent)
-                        modelContext.insert(event)
-                        allEvents.append(event)
-                        events.append(event)
-                        if let cityId = decodeEvent.cityId,
-                           let city = cities.first(where: { $0.id == cityId }) {
-                            event.city = city
-                            if !city.events.contains(where: { $0.id == event.id } ) {
-                                city.events.append(event)
-                            }
-                        }
-                    }
-                }
-                return events
-            } catch {
-                debugPrint(error)
-                return []
-            }
-        }
-        
-        private func updateTimeTable(timetable: [PlaceWorkDay]?, for place: Place) {
-            let oldTimetable = place.timetable
-            place.timetable.removeAll()
-            oldTimetable.forEach( { modelContext.delete($0) })
-            if let timetable {
-                for day in timetable {
-                    let workingDay = WorkDay(workDay: day)
-                    place.timetable.append(workingDay)
-                }
-            }
-        }
-        
-        func getEvents(for date: Date) {
-            Task {
-                let events = allAroundEvents.filter { event in
-                    if event.startDate.isFutureDay(of: date) {
-                        return false
-                    }
-                    if event.startDate.isSameDayWithOtherDate(date) {
-                        return true
-                    }
-                    guard let finishDate = event.finishDate else {
-                        return false
-                    }
-                    
-                    if finishDate.isFutureDay(of: date) {
-                        return true
-                    }
-                    if finishDate.isSameDayWithOtherDate(date) {
-                        guard let finishTime = event.finishTime,
-                              let elevenAM = Calendar.current.date(bySettingHour: 11, minute: 0, second: 0, of: Date())
-                        else {
-                            return false
-                        }
-                        if finishTime.isPastHour(of: elevenAM) {
-                            return false
-                        } else {
-                            return true
-                        }
-                    }
-                    return false
-                }
-                await MainActor.run {
-                    displayedEvents = events
                 }
             }
         }
@@ -336,86 +240,5 @@ extension HomeView {
                 }
             }
         }
-        
-        private func updateCities(decodedCities: [DecodedCity]?) -> [City] {
-            guard let decodedCities, !decodedCities.isEmpty else {
-                return []
-            }
-            
-            do {
-                let cityDescriptor = FetchDescriptor<City>()
-                let allCities = try modelContext.fetch(cityDescriptor)
-                
-                var cities: [City] = []
-                for decodedCity in decodedCities {
-                    if let city = allCities.first(where: { $0.id == decodedCity.id} ) {
-                        city.updateCityIncomplete(decodedCity: decodedCity)
-                        updateCityRegion(decodedRegion: decodedCity.region, for: city)
-                        cities.append(city)
-                    } else {
-                        let city = City(decodedCity: decodedCity)
-                        modelContext.insert(city)
-                        updateCityRegion(decodedRegion: decodedCity.region, for: city)
-                        cities.append(city)
-                    }
-                }
-                return cities.sorted(by: { $0.name < $1.name})
-            } catch {
-                debugPrint(error)
-                return []
-            }
-        }
-        
-        private func updateCityRegion(decodedRegion: DecodedRegion?, for city: City) {
-            guard let decodedRegion else {
-                return
-            }
-            do {
-                let regionDescriptor = FetchDescriptor<Region>()
-                let allRegions = try modelContext.fetch(regionDescriptor)
-                
-                if let region = allRegions.first(where: { $0.id == decodedRegion.id} ) {
-                    region.updateIncomplete(decodedRegion: decodedRegion)
-                    city.region = region
-                    if !region.cities.contains(where: { $0.id == city.id } ) {
-                        region.cities.append(city)
-                    }
-                    updateRegionCountry(decodedCountry: decodedRegion.country, for: region)
-                } else {
-                    let region = Region(decodedRegion: decodedRegion)
-                    modelContext.insert(region)
-                    city.region = region
-                    region.cities.append(city)
-                    updateRegionCountry(decodedCountry: decodedRegion.country, for: region)
-                }
-            } catch {
-                debugPrint(error)
-            }
-        }
-        
-        private func updateRegionCountry(decodedCountry: DecodedCountry?, for region: Region) {
-            guard let decodedCountry else { return }
-            do {
-                let countryDescriptor = FetchDescriptor<Country>()
-                let allCountries = try modelContext.fetch(countryDescriptor)
-                
-                if let country = allCountries.first(where: { $0.id == decodedCountry.id} ) {
-                    country.updateCountryIncomplete(decodedCountry: decodedCountry)
-                    region.country = country
-                    if !country.regions.contains(where: { $0.id == region.id } ) {
-                        country.regions.append(region)
-                    }
-                } else {
-                    let country = Country(decodedCountry: decodedCountry)
-                    modelContext.insert(country)
-                    region.country = country
-                    country.regions.append(region)
-                }
-            } catch {
-                debugPrint(error)
-            }
-        }
-        
-        
     }
 }

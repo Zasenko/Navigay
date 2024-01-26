@@ -9,9 +9,15 @@ import SwiftUI
 
 protocol AdminNetworkManagerProtocol {
     
+    func updateCity(city: AdminCity) async -> Bool
+    
     func getCountries() async -> [AdminCountry]?
+    func fetchCountry(id: Int) async -> AdminCountry?
     func fetchCity(id: Int) async -> AdminCity?
     func fetchPlace(id: Int) async -> AdminPlace?
+    
+    func updatePlaceAbout(id: Int, about: String) async -> Bool
+    func updateEventAbout(id: Int, about: String) async -> Bool
     
     //TODO: избавиться от throws (ошибку обрабатывать тут на примере fetchPlace)
     func getAdminInfo() async throws -> AdminInfoResult
@@ -19,14 +25,10 @@ protocol AdminNetworkManagerProtocol {
     func updateCountryPhoto(countryId: Int, uiImage: UIImage) async throws -> ImageResult
     func updateRegion(region: AdminRegion) async throws -> ApiResult
     func updateRegionPhoto(regionId: Int, uiImage: UIImage) async throws -> ImageResult
-    func updateCity(city: AdminCity) async throws -> ApiResult
+    
     func updateCityPhoto(cityId: Int, uiImage: UIImage) async throws -> ImageResult
     func updateCityLibraryPhoto(cityId: Int, photoId: String, uiImage: UIImage) async throws -> ImageResult
     func deleteCityLibraryPhoto(cityId: Int, photoId: String) async throws -> ApiResult
-    
-    func updatePlaceAbout(id: Int, about: String) async -> Bool
-    
-    func updateEventAbout(id: Int, about: String) async -> Bool
 }
 
 final class AdminNetworkManager {
@@ -46,6 +48,48 @@ final class AdminNetworkManager {
 // MARK: - AuthNetworkManagerProtocol
 
 extension AdminNetworkManager: AdminNetworkManagerProtocol {
+    
+    func updateCity(city: AdminCity) async -> Bool {
+        let errorModel = ErrorModel(massage: "Something went wrong. Please try again later.", img: nil, color: nil)
+        debugPrint("--- AdminNetworkManager updateCity(city id: \(city.id))")
+        let path = "/api/admin/update-city.php"
+        var urlComponents: URLComponents {
+            var components = URLComponents()
+            components.scheme = scheme
+            components.host = host
+            components.path = path
+            return components
+        }
+        do {
+            guard let url = urlComponents.url else {
+                throw NetworkErrors.bedUrl
+            }
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            
+            let jsonData = try JSONEncoder().encode(city)
+            request.httpBody = jsonData
+            let (data, response) = try await URLSession.shared.data(for: request)
+            guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
+                throw NetworkErrors.invalidData
+            }
+            guard let decodedResult = try? JSONDecoder().decode(ApiResult.self, from: data) else {
+                throw NetworkErrors.decoderError
+            }
+            guard decodedResult.result else {
+                errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: errorModel)
+                debugPrint("-API ERROR- AdminNetworkManager updateCity(city id: \(city.id))", decodedResult.error?.message ?? "")
+                return false
+            }
+            return true
+        } catch {
+            errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
+            debugPrint("-ERROR- AdminNetworkManager updateCity(city id: \(city.id)) : ", error)
+            return false
+        }
+    }
+    
     
     func updatePlaceAbout(id: Int, about: String) async -> Bool {
         let errorModel = ErrorModel(massage: "Something went wrong. Please try again later.", img: nil, color: nil)
@@ -218,6 +262,45 @@ extension AdminNetworkManager: AdminNetworkManagerProtocol {
         }
     }
     
+    func fetchCountry(id: Int) async -> AdminCountry? {
+        let errorModel = ErrorModel(massage: "Something went wrong. The information has not been upload. Please try again later.", img: nil, color: nil)
+        debugPrint("--- AdminNetworkManager fetchCountry id \(id)")
+        let path = "/api/admin/get-country.php"
+        var urlComponents: URLComponents {
+            var components = URLComponents()
+            components.scheme = scheme
+            components.host = host
+            components.path = path
+            components.queryItems = [
+                URLQueryItem(name: "id", value: String(id)),
+            ]
+            return components
+        }
+        do {
+            guard let url = urlComponents.url else {
+                throw NetworkErrors.bedUrl
+            }
+            var request = URLRequest(url: url)
+            request.httpMethod = "GET"
+            let (data, response) = try await URLSession.shared.data(for: request)
+            guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
+                throw NetworkErrors.invalidData
+            }
+            guard let decodedResult = try? JSONDecoder().decode(AdminCountryResult.self, from: data) else {
+                throw NetworkErrors.decoderError
+            }
+            guard decodedResult.result, let decodedCountry = decodedResult.country else {
+                errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: errorModel)
+                debugPrint("-API ERROR- AdminNetworkManager fetchCountry id \(id) : ", decodedResult.error?.message ?? "")
+                return nil
+            }
+            return decodedCountry
+        } catch {
+            errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
+            debugPrint("-ERROR- AdminNetworkManager fetchCountry id \(id) : ", error)
+            return nil
+        }
+    }
     
     func getCountries() async  -> [AdminCountry]? {
         let errorModel = ErrorModel(massage: "Something went wrong. The information has not been updated. Please try again later.", img: nil, color: nil)
@@ -401,37 +484,6 @@ extension AdminNetworkManager: AdminNetworkManagerProtocol {
                 throw NetworkErrors.invalidData
             }
             guard let decodedResult = try? JSONDecoder().decode(ImageResult.self, from: data) else {
-                throw NetworkErrors.decoderError
-            }
-            return decodedResult
-        } catch {
-            throw error
-        }
-    }
-    
-    func updateCity(city: AdminCity) async throws -> ApiResult {
-        let path = "/api/admin/update-city.php"
-        var urlComponents: URLComponents {
-            var components = URLComponents()
-            components.scheme = scheme
-            components.host = host
-            components.path = path
-            return components
-        }
-        guard let url = urlComponents.url else {
-            throw NetworkErrors.bedUrl
-        }
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        do {
-            let jsonData = try JSONEncoder().encode(city)
-            request.httpBody = jsonData
-            let (data, response) = try await URLSession.shared.data(for: request)
-            guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
-                throw NetworkErrors.invalidData
-            }
-            guard let decodedResult = try? JSONDecoder().decode(ApiResult.self, from: data) else {
                 throw NetworkErrors.decoderError
             }
             return decodedResult

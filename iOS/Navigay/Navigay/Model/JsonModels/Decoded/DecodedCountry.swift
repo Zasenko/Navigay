@@ -16,7 +16,6 @@ struct DecodedCountry: Identifiable, Codable {
         case flagEmoji = "flag_emoji"
         case photo
         case showRegions = "show_regions"
-     //   case isActive = "is_active"
         case lastUpdate = "updated_at"
         case about
         case regions
@@ -28,7 +27,6 @@ struct DecodedCountry: Identifiable, Codable {
     let flagEmoji: String
     let photo: String?
     let showRegions: Bool
- //   let isActive: Bool
     let lastUpdate: String
     
     let about: String?

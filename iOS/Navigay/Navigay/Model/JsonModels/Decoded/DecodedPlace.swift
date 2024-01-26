@@ -14,7 +14,6 @@ struct DecodedPlace: Identifiable, Codable {
         case address
         case latitude
         case longitude
-      //  case isActive = "is_active"
         case lastUpdate = "updated_at"
         case avatar
         case mainPhoto = "main_photo"
@@ -35,7 +34,6 @@ struct DecodedPlace: Identifiable, Codable {
     let address: String
     let latitude: Double
     let longitude: Double
-   // let isActive: Bool
     let lastUpdate: String
     let avatar: String?
     let mainPhoto: String?
