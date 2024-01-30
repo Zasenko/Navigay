@@ -104,10 +104,11 @@ struct CalendarView: View {
                         .foregroundStyle(value.date.isToday ? .red : eventsDates.contains(where: { $0.isSameDayWithOtherDate(value.date)}) ? .blue : .secondary)
                         .fontWeight(value.date.isToday || eventsDates.contains(where: { $0.isSameDayWithOtherDate(value.date)}) ? .bold : .regular)
                         .frame(width: 35, height: 35, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
-                        .background(eventsDates.contains(where: { $0.isSameDayWithOtherDate(value.date)}) ? .blue.opacity(0.2) : .clear)
+                        .background(value.date.isToday ? .clear : eventsDates.contains(where: { $0.isSameDayWithOtherDate(value.date)}) ? .blue.opacity(0.2) : .clear)
                         .clipShape(Circle())
                 }
                 .disabled(!eventsDates.contains(where: { $0.isSameDayWithOtherDate(value.date)}) )
+                .disabled(value.date.isToday)
             }
         }
     }

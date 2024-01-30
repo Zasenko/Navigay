@@ -50,8 +50,17 @@ struct EventView: View {
                     }
                     .tint(viewModel.event.isLiked ? .red :  .secondary)
                     if let user = authenticationManager.appUser, user.status == .admin {
-                        Button("Edit") {
-                            viewModel.showEditView = true
+                        Menu {
+                            Button("Edit") {
+                                viewModel.showEditView = true
+                            }
+                            Button("Clone Event") {
+                                viewModel.showNewEvetnView = true
+                            }
+                        } label: {
+                            AppImages.iconSettings
+                                .bold()
+                                .frame(width: 30, height: 30, alignment: .leading)
                         }
                     }
                     
@@ -71,6 +80,11 @@ struct EventView: View {
                     viewModel.showEditView = false
                 } content: {
                     EditEventView(viewModel: EditEventViewModel(event: viewModel.event, networkManager: AdminNetworkManager(errorManager: viewModel.errorManager)))
+                }
+                .fullScreenCover(isPresented: $viewModel.showNewEvetnView) {
+                    viewModel.showNewEvetnView = false
+                } content: {
+                    NewEventView(viewModel: NewEventViewModel(place: nil, copy: viewModel.event, networkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager), authenticationManager: authenticationManager)
                 }
             }
         }

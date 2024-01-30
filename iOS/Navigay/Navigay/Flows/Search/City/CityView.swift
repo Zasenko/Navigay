@@ -33,10 +33,10 @@ struct CityView: View {
     var body: some View {
         NavigationStack {
             GeometryReader { geometry in
-                VStack(spacing: 0) {
-                    Divider()
-                    listView(width: geometry.size.width)
-                }
+//                VStack(spacing: 0) {
+//                    Divider()
+                    listView(size: geometry.size)
+      //          }
                 .toolbarTitleDisplayMode(.inline)
                 .toolbarBackground(AppColors.background)
                 .navigationBarBackButtonHidden()
@@ -69,11 +69,11 @@ struct CityView: View {
     }
     
     @ViewBuilder
-    private func listView(width: CGFloat) -> some View {
+    private func listView(size: CGSize) -> some View {
         List {
             if !viewModel.allPhotos.isEmpty {
-                PhotosTabView(allPhotos: $viewModel.allPhotos, width: width)
-                    .frame(width: width, height: (width / 4) * 5)
+                PhotosTabView(allPhotos: $viewModel.allPhotos, width: size.width)
+                    .frame(width: size.width, height: (size.width / 4) * 5)
                     .listRowSeparator(.hidden)
                     .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                     .padding(.bottom)
@@ -83,11 +83,10 @@ struct CityView: View {
                 adminPanel
             }
             
-            if viewModel.todayEvents.count > 0 {
-                todayEventsView(width: width)
-            }
-            if viewModel.upcomingEvents.count > 0 {
-                eventsView(width: width)
+            if viewModel.actualEvents.count > 0 {
+                EventsView(modelContext: viewModel.modelContext, authenticationManager: authenticationManager, selectedDate: $viewModel.selectedDate, displayedEvents: $viewModel.displayedEvents, actualEvents: $viewModel.actualEvents, todayEvents: $viewModel.todayEvents, upcomingEvents: $viewModel.upcomingEvents, eventsDates: $viewModel.eventsDates, size: size, eventDataManager: viewModel.eventDataManager, eventNetworkManager: viewModel.eventNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, errorManager: viewModel.errorManager)
+                    .listRowSeparator(.hidden)
+                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
             }
             placesView
             
@@ -133,95 +132,18 @@ struct CityView: View {
         .listRowSeparator(.hidden)
     }
     
-    @ViewBuilder
-    private func todayEventsView(width: CGFloat) -> some View {
-        Section {
-            Text("Today's Events")
-                .font(.title2).bold()
-                .foregroundStyle(.secondary)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 20)
-                .padding(.top, 30)
-                .padding(.bottom, 10)
-            LazyVGrid(columns: viewModel.gridLayout, spacing: 20) {
-                ForEach(viewModel.todayEvents) { event in
-                    EventCell(event: event, width: (width / 2) - 30, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, showCountryCity: false, authenticationManager: authenticationManager)
-                }
-            }
-            .padding(.horizontal, 20)
-        }
-        .listRowSeparator(.hidden)
-        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-    }
-    
-    @ViewBuilder
-    private func eventsView(width: CGFloat) -> some View {
-        Section {
-            HStack {
-                Text(viewModel.selectedDate?.formatted(date: .long, time: .omitted) ?? "Upcoming Events")
-                    .font(.title2).bold()
-                    .foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                Button {
-                    viewModel.showCalendar = true
-                } label: {
-                    HStack {
-                        AppImages.iconCalendar
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 25, height: 25)
-                        Text("Select date")
-                            .font(.caption)
-                            .multilineTextAlignment(.trailing)
-                            .lineSpacing(-10)
-                    }
-                    .padding()
-                    .background(.ultraThinMaterial)
-                    .foregroundStyle(.blue)
-                    .clipShape(Capsule())
-                }
-            }
-            .padding(.horizontal, 20)
-            .padding(.top, 30)
-            .padding(.bottom, 10)
-            LazyVGrid(columns: viewModel.gridLayout, spacing: 20) {
-                ForEach(viewModel.displayedEvents) { event in
-                    EventCell(event: event, width: (width / 2) - 30, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, showCountryCity: false, authenticationManager: authenticationManager)
-                }
-            }
-            .padding(.horizontal, 20)
-        }
-        .listRowSeparator(.hidden)
-        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-        .onChange(of: viewModel.selectedDate, initial: false) { oldValue, newValue in
-            viewModel.showCalendar = false
-            if let date = newValue {
-                viewModel.getEvents(for: date)
-            } else {
-                viewModel.showUpcomingEvents()
-            }
-            
-        }
-        .sheet(isPresented:  $viewModel.showCalendar) {} content: {
-            CalendarView(selectedDate: $viewModel.selectedDate, eventsDates: $viewModel.eventsDates)
-                .presentationDetents([.medium])
-                .presentationDragIndicator(.visible)
-                .presentationCornerRadius(25)
-        }
-    }
-    
     private var placesView: some View {
         ForEach(viewModel.groupedPlaces.keys.sorted(), id: \.self) { key in
             Section {
                 Text(key.getPluralName())
                     .font(.title)
                     .foregroundStyle(.secondary)
-                    .padding(.top, 30)
+                    .padding(.top, 50)
                     .padding(.bottom, 10)
                     .offset(x: 70)
                 ForEach(viewModel.groupedPlaces[key] ?? []) { place in
                     NavigationLink {
-                        PlaceView(place: place, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, authenticationManager: authenticationManager)
+                        PlaceView(place: place, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, authenticationManager: authenticationManager, showOpenInfo: false)
                     } label: {
                         PlaceCell(place: place, showOpenInfo: false, showDistance: false, showCountryCity: false, showLike: true)
                     }

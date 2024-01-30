@@ -71,7 +71,7 @@ struct AdminView: View {
                         NewPlaceView(viewModel: AddNewPlaceViewModel(userId: authenticationManager.appUser?.id ?? 0, networkManager: PlaceNetworkManager(appSettingsManager: AppSettingsManager(), errorManager: viewModel.errorManager), errorManager: viewModel.errorManager), authenticationManager: authenticationManager)
                     }
                     NavigationLink("Add new event") {
-                        NewEventView(viewModel: NewEventViewModel(place: nil, networkManager: EventNetworkManager(appSettingsManager: AppSettingsManager(), errorManager: viewModel.errorManager), errorManager: viewModel.errorManager), authenticationManager: authenticationManager)
+                        NewEventView(viewModel: NewEventViewModel(place: nil, copy: nil, networkManager: EventNetworkManager(appSettingsManager: AppSettingsManager(), errorManager: viewModel.errorManager), errorManager: viewModel.errorManager), authenticationManager: authenticationManager)
                     }
                 }
                 

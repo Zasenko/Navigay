@@ -63,25 +63,53 @@ final class NewEventViewModel: ObservableObject {
     
     //MARK: - Private Properties
     
-    private let place: Place?
-    
+    private var place: Place? = nil
+
     //MARK: - Inits
     
-    init(place: Place?, networkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol) {
-        self.place = place
+    init(place: Place?, copy event: Event?, networkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol) {
+        
+        let zeroTime = Calendar.current.date(bySettingHour: 0, minute: 0, second: 0, of: Date()) ?? Date()
+        
+        self.startTime = zeroTime
+        self.finishTime = zeroTime
+        
+        if let place,
+           let isoCountryCode = place.city?.region?.country?.isoCountryCode,
+           place.city?.region?.country?.id != nil,
+           place.city?.region?.id != nil,
+           place.city?.id != nil {
+            self.addressOrigin = place.address
+            self.isoCountryCode = isoCountryCode
+            self.latitude = place.latitude
+            self.longitude = place.longitude
+            self.location = place.name
+            self.place = place
+        } else if let event {
+            self.name = event.name
+            self.startTime = event.startTime
+            self.finishTime = event.finishTime
+            self.about = event.about ?? ""
+            self.type = event.type
+            self.addressOrigin = event.address
+            self.latitude = event.latitude
+            self.longitude = event.longitude
+            self.isFree = event.isFree
+            self.tags = event.tags
+            self.location = event.location ?? ""
+            self.www = event.www ?? ""
+            self.instagram = event.instagram ?? ""
+            self.phone = event.phone ?? ""
+            self.fee = event.fee ?? ""
+            if let place = event.place,
+               let isoCountryCode = place.city?.region?.country?.isoCountryCode {
+                self.isoCountryCode = isoCountryCode
+                self.place = place
+            }
+        }
+        
         self.networkManager = networkManager
         self.errorManager = errorManager
-        
-        if let isoCountryCode = place?.city?.region?.country?.isoCountryCode,
-           place?.city?.region?.country?.id != nil,
-           place?.city?.region?.id != nil,
-           place?.city?.id != nil {
-            self.addressOrigin = place?.address ?? ""
-            self.isoCountryCode = isoCountryCode
-            self.latitude = place?.latitude
-            self.longitude = place?.longitude
-            self.location = place?.name ?? ""
-        }
     }
 }
 

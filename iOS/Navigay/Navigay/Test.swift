@@ -10,20 +10,45 @@ import SwiftUI
 struct Test: View {
     var body: some View {
         
-        Button {
-        } label: {
-            HStack {
-                Text("Show\non map")
-                    .font(.caption).bold()
-                    .multilineTextAlignment(.trailing)
-                    .lineSpacing(-4)
-                AppImages.iconLocation
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 30, height: 30)
-            }
-            .tint(.blue)
+        
+        VStack {
+            
+            Text("Hello world")
+                .font(.largeTitle)
+            Text("Hello world")
+                .font(.title)
+            Text("Hello world")
+                .font(.title2)
+            Text("Hello world")
+                .font(.title3)
+            Text("Hello world")
+                .font(.body)
+            Text("Hello world")
+                .font(.callout)
+            Text("Hello world")
+                .font(.subheadline)
+            Text("Hello world")
+                .font(.footnote)
+            Text("Hello world")
+                .font(.caption)
+            Text("Hello world")
+                .font(.caption2)
         }
+        
+//        Button {
+//        } label: {
+//            HStack {
+//                Text("Show\non map")
+//                    .font(.caption).bold()
+//                    .multilineTextAlignment(.trailing)
+//                    .lineSpacing(-4)
+//                AppImages.iconLocation
+//                    .resizable()
+//                    .scaledToFit()
+//                    .frame(width: 30, height: 30)
+//            }
+//            .tint(.blue)
+//        }
 
              
         

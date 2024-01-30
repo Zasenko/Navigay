@@ -18,14 +18,13 @@ extension HomeView {
         
         var modelContext: ModelContext
         
-        var actualEvents: [Event] = [] // actualEvents
+        var actualEvents: [Event] = []
         var todayEvents: [Event] = []
         var upcomingEvents: [Event] = []
         var displayedEvents: [Event] = []
         
         var eventsDates: [Date] = []
         var selectedDate: Date? = nil
-        var showCalendar: Bool = false //TODO: убрать
         
         var aroundPlaces: [Place] = [] /// for Map
         var groupedPlaces: [PlaceType: [Place]] = [:]
@@ -98,13 +97,11 @@ extension HomeView {
                         let distance = userLocation.distance(from: CLLocation(latitude: place.latitude, longitude: place.longitude))
                         place.getDistanceText(distance: distance, inKm: true)
                     }
-                    withAnimation {
-                        self.todayEvents = todayEvents
-                        self.displayedEvents = upcomingEvents
-                        self.groupedPlaces = groupedPlaces
-                        if !aroundPlaces.isEmpty && !aroundEvents.isEmpty {
-                            isLoading = false
-                        }
+                    self.todayEvents = todayEvents
+                    self.displayedEvents = upcomingEvents
+                    self.groupedPlaces = groupedPlaces
+                    if !aroundPlaces.isEmpty && !aroundEvents.isEmpty {
+                        isLoading = false
                     }
                 }
                 
@@ -119,11 +116,9 @@ extension HomeView {
                                 let distance = userLocation.distance(from: CLLocation(latitude: place.latitude, longitude: place.longitude))
                                 place.getDistanceText(distance: distance, inKm: true)
                             }
-                            withAnimation {
-                                self.groupedPlaces = groupedClosestPlaces
-                                self.isLocationsAround20Found = false
-                                self.isLoading = false
-                            }
+                            self.groupedPlaces = groupedClosestPlaces
+                            self.isLocationsAround20Found = false
+                            self.isLoading = false
                         }
                     }
                 }
@@ -141,9 +136,7 @@ extension HomeView {
             Task {
                 let events = await eventDataManager.getEvents(for: date, events: actualEvents )
                 await MainActor.run {
-                    withAnimation {
-                        displayedEvents = events
-                    }
+                    displayedEvents = events
                 }
             }
         }
@@ -157,13 +150,9 @@ extension HomeView {
             await MainActor.run {
                 
                 if decodedResult.foundAround {
-                    withAnimation {
-                        isLocationsAround20Found = true
-                    }
+                    isLocationsAround20Found = true
                 } else {
-                    withAnimation {
-                        isLocationsAround20Found = false
-                    }
+                    isLocationsAround20Found = false
                 }
                 
                 let cities = catalogDataManager.updateCities(decodedCities: decodedResult.cities, modelContext: modelContext)
@@ -213,12 +202,10 @@ extension HomeView {
                         let distance = userLocation.distance(from: CLLocation(latitude: place.latitude, longitude: place.longitude))
                         place.getDistanceText(distance: distance, inKm: true)
                     }
-                    withAnimation {
                         self.todayEvents = todayEvents
                         self.displayedEvents = upcomingEvents
                         self.groupedPlaces = groupedPlaces
                         isLoading = false
-                    }
                 }
             }
         }

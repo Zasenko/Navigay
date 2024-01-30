@@ -15,6 +15,8 @@
 		0F151F4B2AE93B7A0049C60F /* AddNewPlaceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F151F4A2AE93B7A0049C60F /* AddNewPlaceViewModel.swift */; };
 		0F151F4D2AE948BD0049C60F /* CountryNumbers.json in Resources */ = {isa = PBXBuildFile; fileRef = 0F151F4C2AE948BD0049C60F /* CountryNumbers.json */; };
 		0F151F4F2AE94D2E0049C60F /* EditPhoneView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F151F4E2AE94D2E0049C60F /* EditPhoneView.swift */; };
+		0F198EBD2B67CCD8005D3E12 /* ContactInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F198EBC2B67CCD8005D3E12 /* ContactInfoView.swift */; };
+		0F198EBF2B67CD28005D3E12 /* TimetableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F198EBE2B67CD28005D3E12 /* TimetableView.swift */; };
 		0F2765442B0234250084B5DD /* EventRequiredFieldsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2765432B0234250084B5DD /* EventRequiredFieldsView.swift */; };
 		0F2765462B0241C00084B5DD /* EventAdditionalFieldsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2765452B0241C00084B5DD /* EventAdditionalFieldsView.swift */; };
 		0F2765482B0242430084B5DD /* EventTimeFieldsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2765472B0242430084B5DD /* EventTimeFieldsView.swift */; };
@@ -147,6 +149,7 @@
 		0FAA79A82AE7D331003BB224 /* NewWorkingDay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FAA79A72AE7D331003BB224 /* NewWorkingDay.swift */; };
 		0FBABB8A2B2B590900A2B4FE /* ItemsResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FBABB892B2B590900A2B4FE /* ItemsResult.swift */; };
 		0FBABB8C2B2C5C9900A2B4FE /* MapSortingMenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FBABB8B2B2C5C9900A2B4FE /* MapSortingMenuView.swift */; };
+		0FBF06312B666903006AE078 /* EventsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FBF06302B666903006AE078 /* EventsView.swift */; };
 		0FC4BD8B2B3C25F60031DD4D /* AddCommentResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FC4BD8A2B3C25F60031DD4D /* AddCommentResult.swift */; };
 		0FC7B4D32B07CD910077E555 /* PlaceResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FC7B4D22B07CD910077E555 /* PlaceResult.swift */; };
 		0FC9652D2ADD2E2500108443 /* PlaceCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FC9652C2ADD2E2500108443 /* PlaceCell.swift */; };
@@ -199,6 +202,8 @@
 		0F151F4A2AE93B7A0049C60F /* AddNewPlaceViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddNewPlaceViewModel.swift; sourceTree = "<group>"; };
 		0F151F4C2AE948BD0049C60F /* CountryNumbers.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = CountryNumbers.json; sourceTree = "<group>"; };
 		0F151F4E2AE94D2E0049C60F /* EditPhoneView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditPhoneView.swift; sourceTree = "<group>"; };
+		0F198EBC2B67CCD8005D3E12 /* ContactInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactInfoView.swift; sourceTree = "<group>"; };
+		0F198EBE2B67CD28005D3E12 /* TimetableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimetableView.swift; sourceTree = "<group>"; };
 		0F2765432B0234250084B5DD /* EventRequiredFieldsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventRequiredFieldsView.swift; sourceTree = "<group>"; };
 		0F2765452B0241C00084B5DD /* EventAdditionalFieldsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventAdditionalFieldsView.swift; sourceTree = "<group>"; };
 		0F2765472B0242430084B5DD /* EventTimeFieldsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventTimeFieldsView.swift; sourceTree = "<group>"; };
@@ -332,6 +337,7 @@
 		0FAA79A72AE7D331003BB224 /* NewWorkingDay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewWorkingDay.swift; sourceTree = "<group>"; };
 		0FBABB892B2B590900A2B4FE /* ItemsResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemsResult.swift; sourceTree = "<group>"; };
 		0FBABB8B2B2C5C9900A2B4FE /* MapSortingMenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapSortingMenuView.swift; sourceTree = "<group>"; };
+		0FBF06302B666903006AE078 /* EventsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventsView.swift; sourceTree = "<group>"; };
 		0FC4BD8A2B3C25F60031DD4D /* AddCommentResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCommentResult.swift; sourceTree = "<group>"; };
 		0FC7B4D22B07CD910077E555 /* PlaceResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceResult.swift; sourceTree = "<group>"; };
 		0FC9652C2ADD2E2500108443 /* PlaceCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceCell.swift; sourceTree = "<group>"; };
@@ -584,6 +590,9 @@
 			children = (
 				0FC9652B2ADD2E1900108443 /* Cells */,
 				0F4997052B36F216003E4E2B /* PhotosTabView.swift */,
+				0FBF06302B666903006AE078 /* EventsView.swift */,
+				0F198EBC2B67CCD8005D3E12 /* ContactInfoView.swift */,
+				0F198EBE2B67CD28005D3E12 /* TimetableView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -1216,6 +1225,7 @@
 				0F5DE38F2B04E4FE007D5238 /* EditCityView.swift in Sources */,
 				0FF7B8EE2B3AC826003A4B6A /* CountryViewModel.swift in Sources */,
 				0FF7B8F22B3ACBF8003A4B6A /* CityViewModel.swift in Sources */,
+				0F198EBF2B67CD28005D3E12 /* TimetableView.swift in Sources */,
 				0F741A762ACD644D00A7759E /* EventResult.swift in Sources */,
 				0F354CB92AFE756800594AE0 /* AdminNetworkManager.swift in Sources */,
 				0F354CB12AFE144000594AE0 /* Photo.swift in Sources */,
@@ -1231,6 +1241,7 @@
 				0F47347D2B03B73900C9B509 /* EditCountryView.swift in Sources */,
 				0F459E252B3B69A900D7E843 /* AddCommentView.swift in Sources */,
 				0F9C320B2B306B3100CAB3D3 /* Sequence+Ext.swift in Sources */,
+				0FBF06312B666903006AE078 /* EventsView.swift in Sources */,
 				0F2765652B03780C0084B5DD /* PosterResult.swift in Sources */,
 				0FC4BD8B2B3C25F60031DD4D /* AddCommentResult.swift in Sources */,
 				0F79B2602AF26D7A00FCAED2 /* PlaceRequiredInfo.swift in Sources */,
@@ -1331,6 +1342,7 @@
 				0F2765462B0241C00084B5DD /* EventAdditionalFieldsView.swift in Sources */,
 				0F151F4F2AE94D2E0049C60F /* EditPhoneView.swift in Sources */,
 				0F741A902ACDB66900A7759E /* EventView.swift in Sources */,
+				0F198EBD2B67CCD8005D3E12 /* ContactInfoView.swift in Sources */,
 				0F741A292ACD4D4200A7759E /* ErrorViewModel.swift in Sources */,
 				0F27654F2B026C810084B5DD /* EditTimeView.swift in Sources */,
 				0FF7B8EA2B3820AA003A4B6A /* MapViewModel.swift in Sources */,

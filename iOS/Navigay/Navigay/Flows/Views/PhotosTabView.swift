@@ -12,7 +12,7 @@ struct PhotosTabView: View {
     @State private var selectedPhotoIndex: Int = 0
     let width: CGFloat
     var body: some View {
-        VStack {
+        VStack(spacing: 0) {
             TabView(selection: $selectedPhotoIndex) {
                 ForEach(allPhotos.indices, id: \.self) { index in
                     ImageLoadingView(url: allPhotos[index], width: width, height: (width / 4) * 5, contentMode: .fill) {
@@ -29,14 +29,14 @@ struct PhotosTabView: View {
                 HStack(spacing: 10) {
                     ForEach(0..<allPhotos.count, id: \.self) { index in
                         Circle()
-                            .foregroundStyle(index == selectedPhotoIndex ? .gray : AppColors.lightGray6)
+                            .foregroundStyle(index == selectedPhotoIndex ? .gray : AppColors.lightGray5)
                             .frame(width: 6, height: 6)
                             .onTapGesture {
                                 selectedPhotoIndex = index
                             }
                     }
                 }
-                .padding(5)
+                .frame(height: 20)
                 .frame(maxWidth: .infinity)
             }
         }

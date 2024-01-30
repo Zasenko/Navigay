@@ -22,7 +22,7 @@ extension CityView {
         var aroundPlaces: [Place] = [] /// for Map
         var groupedPlaces: [PlaceType: [Place]] = [:]
         
-        var actualEvents: [Event] = [] // actualEvents
+        var actualEvents: [Event] = []
         var todayEvents: [Event] = []
         var upcomingEvents: [Event] = []
         var displayedEvents: [Event] = []
@@ -31,7 +31,7 @@ extension CityView {
         var showCalendar: Bool = false // - убрать???
         
         var gridLayout: [GridItem] = Array(repeating: GridItem(.flexible(), spacing: 20), count: 2)
-    
+        
         
         var sortingHomeCategories: [SortingMapCategory] = []
         var selectedHomeSortingCategory: SortingMapCategory = .all
@@ -91,11 +91,9 @@ extension CityView {
                         self.upcomingEvents = upcomingEvents
                         self.aroundPlaces = aroundPlaces
                         self.eventsDates = eventsDatesWithoutToday
-                        withAnimation {
-                            self.todayEvents = todayEvents
-                            self.displayedEvents = upcomingEvents
-                            self.groupedPlaces = groupedPlaces
-                        }
+                        self.todayEvents = todayEvents
+                        self.displayedEvents = upcomingEvents
+                        self.groupedPlaces = groupedPlaces
                     }
                     await fetch()
                 }
@@ -103,9 +101,7 @@ extension CityView {
         }
         
         func showUpcomingEvents() {
-            withAnimation {
-                self.displayedEvents = upcomingEvents
-            }
+            self.displayedEvents = upcomingEvents
         }
         
         private func fetch() async {
@@ -164,12 +160,10 @@ extension CityView {
                     self.upcomingEvents = upcomingEvents
                     self.aroundPlaces = places
                     self.eventsDates = eventsDatesWithoutToday
-                    withAnimation {
-                        self.todayEvents = todayEvents
-                        self.displayedEvents = upcomingEvents
-                        self.groupedPlaces = groupedPlaces
-                        isLoading = false
-                    }
+                    self.todayEvents = todayEvents
+                    self.displayedEvents = upcomingEvents
+                    self.groupedPlaces = groupedPlaces
+                    isLoading = false
                 }
             }
         }
@@ -178,9 +172,7 @@ extension CityView {
             Task {
                 let events = await eventDataManager.getEvents(for: date, events: actualEvents )
                 await MainActor.run {
-                    withAnimation {
-                        displayedEvents = events
-                    }
+                    displayedEvents = events
                 }
             }
         }

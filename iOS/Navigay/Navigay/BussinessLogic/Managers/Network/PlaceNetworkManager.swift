@@ -155,6 +155,7 @@ extension PlaceNetworkManager: PlaceNetworkManagerProtocol {
             components.queryItems = [
                 URLQueryItem(name: "place_id", value: "\(id)"),
                 URLQueryItem(name: "language", value: appSettingsManager.language),
+                URLQueryItem(name: "user_date", value: Date().format("yyyy-MM-dd"))
             ]
             return components
         }

@@ -31,7 +31,7 @@ protocol EventDataManagerProtocol {
     func updateEvents(decodedEvents: [DecodedEvent]?, for cities: [City], modelContext: ModelContext) -> [Event]
     
     func updateEvents(decodedEvents: [DecodedEvent]?, for city: City, modelContext: ModelContext) -> [Event]
-    
+    func updateEvents(decodedEvents: [DecodedEvent]?, for place: Place, modelContext: ModelContext) -> [Event]
 }
 
 final class EventDataManager: EventDataManagerProtocol {
@@ -187,6 +187,50 @@ final class EventDataManager: EventDataManagerProtocol {
                 }
                 return false
             }
+    }
+    
+    func updateEvents(decodedEvents: [DecodedEvent]?, for place: Place, modelContext: ModelContext) -> [Event] {
+        guard let decodedEvents, !decodedEvents.isEmpty else {
+            place.events.forEach( { modelContext.delete($0) } )
+            return []
+        }
+        
+        let ids = decodedEvents.map( { $0.id } )
+        var eventsToDelete: [Event] = []
+        place.events.forEach { event in
+            if !ids.contains(event.id) {
+                eventsToDelete.append(event)
+            }
+        }
+        eventsToDelete.forEach( { modelContext.delete($0) } )
+        
+        do {
+            let descriptor = FetchDescriptor<Event>()
+            var allEvents = try modelContext.fetch(descriptor)
+            var events: [Event] = []
+            
+            for decodeEvent in decodedEvents {
+                if let event = allEvents.first(where: { $0.id == decodeEvent.id} ) {
+                    event.updateEventIncomplete(decodedEvent: decodeEvent)
+                    events.append(event)
+                    event.place = place
+                    if !place.events.contains(where: { $0.id == event.id } ) {
+                        place.events.append(event)
+                    }
+                } else {
+                    let event = Event(decodedEvent: decodeEvent)
+                    modelContext.insert(event)
+                    allEvents.append(event)
+                    events.append(event)
+                    event.place = place
+                    place.events.append(event)
+                }
+            }
+            return events
+        } catch {
+            debugPrint(error)
+            return []
+        }
     }
     
     func updateEvents(decodedEvents: [DecodedEvent]?, for cities: [City], modelContext: ModelContext) -> [Event] {

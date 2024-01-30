@@ -16,29 +16,30 @@ struct EventCell: View {
     
     private let event: Event
     private let showCountryCity: Bool
+    private let showStartDayInfo: Bool
+    private let showStartTimeInfo: Bool
     
     @State private var image: Image? = nil
     @State private var isShowEvent: Bool = false
-    
-    
-    
+
     private let width: CGFloat
+    
     private var formattedDate: AttributedString {
-        var formattedDate: AttributedString = event.startDate.formatted(Date.FormatStyle().day().month(.abbreviated).weekday(.wide).attributed)
-        let weekday = AttributeContainer.dateField(.weekday)
-        let color = AttributeContainer.foregroundColor(event.startDate.isWeekend ? .red : .blue)
-        formattedDate.replaceAttributes(weekday, with: color)
+        var formattedDate: AttributedString = event.startDate.formatted(Date.FormatStyle().month(.abbreviated).day().weekday(.wide).attributed)
+      //  let dayOfWeek = AttributeContainer.dateField(.weekday)
+       // let color = AttributeContainer.foregroundColor(event.startDate.isWeekend ? .blue : .blue)
+      //  formattedDate.replaceAttributes(dayOfWeek, with: color)
         return formattedDate
     }
     
-    var modelContext: ModelContext
-    let placeNetworkManager: PlaceNetworkManagerProtocol
-    let eventNetworkManager: EventNetworkManagerProtocol
-    let errorManager: ErrorManagerProtocol
+    private var modelContext: ModelContext
+    private let placeNetworkManager: PlaceNetworkManagerProtocol
+    private let eventNetworkManager: EventNetworkManagerProtocol
+    private let errorManager: ErrorManagerProtocol
     
     // MARK: - Init
     
-    init(event: Event, width: CGFloat, modelContext: ModelContext, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol, showCountryCity: Bool, authenticationManager: AuthenticationManager) {
+    init(event: Event, width: CGFloat, modelContext: ModelContext, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol, showCountryCity: Bool, authenticationManager: AuthenticationManager, showStartDayInfo: Bool, showStartTimeInfo: Bool) {
         self.event = event
         self.width = width
         self.modelContext = modelContext
@@ -47,6 +48,8 @@ struct EventCell: View {
         self.errorManager = errorManager
         self.showCountryCity = showCountryCity
         self.authenticationManager = authenticationManager
+        self.showStartDayInfo = showStartDayInfo
+        self.showStartTimeInfo = showStartTimeInfo
     }
     
     // MARK: - Body
@@ -111,19 +114,28 @@ struct EventCell: View {
             }
             VStack(spacing: 0) {
                 Text(event.name)
+                    .font(.footnote)
                     .bold()
                     .foregroundColor(.primary)
                     .lineLimit(1)
-                Text(formattedDate)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
-                HStack(spacing: 5) {
-                    if let location = event.location {
-                        Text(location)
-                            .lineLimit(1)
-                    }
+                if showStartDayInfo {
+                    Text(formattedDate)
+                        .bold()
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
                 }
-                .foregroundStyle(.secondary)
+//                if showStartTimeInfo {
+//                    Text(stringForToday())
+//                        .foregroundStyle(.secondary)
+//                        .lineLimit(1)
+//                }
+                if let location = event.location {
+                    Text(location)
+                        .font(.caption)
+                        .lineLimit(1)
+                        .foregroundStyle(.secondary)
+                }
                 if showCountryCity {
                     HStack(spacing: 5) {
                         Text(event.city?.name ?? "")
@@ -135,10 +147,27 @@ struct EventCell: View {
                     .foregroundColor(.secondary)
                 }
             }
-            .font(.footnote)
             .padding(.top, 5)
         }
     }
+    
+    //TODO: неправильная сортировка!
+//    private func stringForToday() -> String {
+//        //let startDate = event.startDate
+//       // let finishDate = event.finishDate
+//        
+//        let startTime = event.startTime
+//        let finishTime = event.finishTime
+//                
+//        guard let startTime else {
+//            return "today"
+//        }
+//        if startTime.isPastHour(of: Date()) {
+//            return "going now"
+//        } else {
+//            return "at \(startTime.formatted(date: .omitted, time: .shortened))"
+//        }
+//    }
 }
 
 //#Preview {

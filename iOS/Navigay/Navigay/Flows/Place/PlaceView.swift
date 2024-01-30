@@ -9,104 +9,109 @@ import SwiftUI
 import SwiftData
 import MapKit
 
+//TODO: сообщить об ошибке (место закрыто, неправильная информация)
+// рейтинг заведения
+
 struct PlaceView: View {
     
     // MARK: - Private Properties
     
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel: PlaceViewModel
-    @ObservedObject var authenticationManager: AuthenticationManager // TODO: убрать юзера из вью модели так как он в authenticationManager
+    @ObservedObject private var authenticationManager: AuthenticationManager // TODO: убрать юзера из вью модели так как он в authenticationManager
     // MARK: - Inits
     
-    init(place: Place, modelContext: ModelContext, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol, authenticationManager: AuthenticationManager) {
-        let viewModel = PlaceViewModel(place: place, modelContext: modelContext, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager)
+    init(place: Place, modelContext: ModelContext, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol, authenticationManager: AuthenticationManager, showOpenInfo: Bool) {
+        let viewModel = PlaceViewModel(place: place, modelContext: modelContext, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, showOpenInfo: showOpenInfo)
         _viewModel = State(wrappedValue: viewModel)
         self.authenticationManager = authenticationManager
     }
-    
+        
     // MARK: - Body
     
     var body: some View {
-        ZStack {
-            NavigationStack {
-                GeometryReader { geometry in
-                    VStack(spacing: 0) {
-                        Divider()
-                        createList(width: geometry.size.width, geometry: geometry.size)
+        NavigationStack {
+            GeometryReader { outsideProxy in
+            VStack(spacing: 0) {
+                Divider()
+                    
+                        createList(outsideProxy: outsideProxy)
                     }
-                    .navigationBarBackButtonHidden()
-                    .toolbarBackground(AppColors.background)
-                    .toolbarTitleDisplayMode(.inline)
-                    .toolbar {
-                        ToolbarItem(placement: .principal) {
-                            VStack(spacing: 0) {
-                                Text(viewModel.place.type.getName().uppercased())
-                                    .font(.caption).bold()
-                                    .foregroundStyle(.secondary)
-                                Text(viewModel.place.name)
-                                    .font(.headline).bold()
-                            }
+            }
+            .navigationBarBackButtonHidden()
+            .toolbarBackground(AppColors.background)
+            // .toolbarBackground(viewModel.showHeaderTitle ? .visible : .hidden, for: .navigationBar)
+            .toolbarTitleDisplayMode(.inline)
+            .toolbar {
+                  if viewModel.showHeaderTitle {
+                ToolbarItem(placement: .principal) {
+                    VStack(spacing: 0) {
+                        Text(viewModel.place.type.getName().uppercased())
+                            .font(.caption).bold()
+                            .foregroundStyle(.secondary)
+                        Text(viewModel.place.name)
+                            .font(.headline).bold()
+                    }
+                }
+                 }
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        withAnimation {
+                            dismiss()
                         }
-                        ToolbarItem(placement: .topBarLeading) {
-                            Button {
-                                withAnimation {
-                                    dismiss()
+                    } label: {
+                        AppImages.iconLeft
+                            .bold()
+                            .frame(width: 30, height: 30, alignment: .leading)
+                    }
+                    .tint(.primary)
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    HStack {
+                        Button {
+                            viewModel.place.isLiked.toggle()
+                        } label: {
+                            Image(systemName: viewModel.place.isLiked ? "heart.fill" : "heart")
+                                .bold()
+                                .frame(width: 30, height: 30, alignment: .leading)
+                        }
+                        .tint(viewModel.place.isLiked ? .red :  .secondary)
+                        if let user = authenticationManager.appUser, user.status == .admin {
+                            Menu {
+                                Button("Edit") {
+                                    viewModel.showEditView = true
+                                }
+                                Button("Add Event") {
+                                    viewModel.showAddEventView = true
                                 }
                             } label: {
-                                AppImages.iconLeft
+                                AppImages.iconSettings
                                     .bold()
                                     .frame(width: 30, height: 30, alignment: .leading)
                             }
-                            .tint(.primary)
+                            
+                            
+                            
                         }
-                        ToolbarItem(placement: .topBarTrailing) {
-                            HStack {
-                                Button {
-                                    viewModel.place.isLiked.toggle()
-                                } label: {
-                                    Image(systemName: viewModel.place.isLiked ? "heart.fill" : "heart")
-                                        .bold()
-                                        .frame(width: 30, height: 30, alignment: .leading)
-                                }
-                                .tint(viewModel.place.isLiked ? .red :  .secondary)
-                                if let user = authenticationManager.appUser, user.status == .admin {
-                                    Menu {
-                                        Button("Edit") {
-                                            viewModel.showEditView = true
-                                        }
-                                        Button("Add Event") {
-                                            viewModel.showAddEventView = true
-                                        }
-                                    } label: {
-                                        AppImages.iconSettings
-                                            .bold()
-                                            .frame(width: 30, height: 30, alignment: .leading)
-                                    }
-
-                                    
-                                    
-                                }
-                            }
-                        }
-                    }
-                    .onAppear() {
-                        viewModel.allPhotos = viewModel.place.getAllPhotos()
-                        viewModel.loadPlace()
-                    }
-                    .navigationDestination(isPresented: $viewModel.showAddEventView) {
-                        if let user = authenticationManager.appUser, user.status == .admin {
-                            NewEventView(viewModel: NewEventViewModel(place: viewModel.place, networkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager), authenticationManager: authenticationManager)
-                        } else {
-                            //TODO: - вью ошибки и переход назад
-                            EmptyView()
-                        }
-                    }
-                    .fullScreenCover(isPresented: $viewModel.showEditView) {
-                        viewModel.showEditView = false
-                    } content: {
-                        EditPlaceView(viewModel: EditPlaceViewModel(place: viewModel.place, networkManager: AdminNetworkManager(errorManager: viewModel.errorManager)))
                     }
                 }
+            }
+            .onAppear() {
+                viewModel.allPhotos = viewModel.place.getAllPhotos()
+                viewModel.fetchPlace()
+            }
+            .navigationDestination(isPresented: $viewModel.showAddEventView) {
+                if let user = authenticationManager.appUser, user.status == .admin {
+                    NewEventView(viewModel: NewEventViewModel(place: viewModel.place, copy: nil, networkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager), authenticationManager: authenticationManager)
+                } else {
+                    //TODO: - вью ошибки и переход назад
+                    EmptyView()
+                }
+            }
+            .fullScreenCover(isPresented: $viewModel.showEditView) {
+                viewModel.showEditView = false
+            } content: {
+                EditPlaceView(viewModel: EditPlaceViewModel(place: viewModel.place, networkManager: AdminNetworkManager(errorManager: viewModel.errorManager)))
             }
         }
     }
@@ -114,206 +119,63 @@ struct PlaceView: View {
     // MARK: - Views
     
     @ViewBuilder
-    private func createList(width: CGFloat, geometry: CGSize) -> some View {
+    private func createList(outsideProxy: GeometryProxy) -> some View {
         List {
-            if !viewModel.allPhotos.isEmpty {
-                PhotosTabView(allPhotos: $viewModel.allPhotos, width: width)
-                    .frame(width: width, height: (width / 4) * 5)
-                    .listRowSeparator(.hidden)
-                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                    .padding(.bottom)
-            }
             
-            Section {
-                HStack {
-                    if let url = viewModel.place.avatar {
-                        ImageLoadingView(url: url, width: 70, height: 70, contentMode: .fill) {
-                            Color.orange
-                        }
-                        .clipShape(Circle())
-                        .overlay(Circle().stroke(AppColors.lightGray5, lineWidth: 1))
-                        .padding(.trailing)
-                    }
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(viewModel.place.name)
-                            .font(.title2).bold()
-                            .foregroundColor(.primary)
-                        Text(viewModel.place.address)
-                            .font(.body)
-                            .foregroundColor(.secondary)
-                        //.frame(maxWidth: .infinity, alignment: .leading)
-                    }
-                    .frame(maxWidth: .infinity)
-                }
-            }
-            .padding()
-            .listRowSeparator(.hidden)
-            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+            headerSection(width: outsideProxy.size.width)
             
             TagsView(tags: viewModel.place.tags)
                 .padding(.bottom)
                 .listRowSeparator(.hidden)
-                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
             
-            Section {
-                ForEach(viewModel.place.timetable.sorted(by: { $0.day.rawValue < $1.day.rawValue } )) { day in
-                    let dayOfWeek = Date().dayOfWeek
-                    HStack {
-                        Text(day.day.getString())
-                            .bold()
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                        if dayOfWeek == day.day {
-                            if viewModel.place.isOpenNow() {
-                                Text("open now")
-                                    .font(.footnote).bold()
-                                    .foregroundColor(.green)
-                                    .padding(.trailing)
-                            }
-                        }
-                        Text(day.open.formatted(date: .omitted, time: .shortened))
-                        Text("—")
-                        Text(day.close.formatted(date: .omitted, time: .shortened))
-                    }
-                    .font(.caption)
-                    .listRowBackground(dayOfWeek == day.day ? AppColors.lightGray6 : AppColors.background)
-                }
-                Text(viewModel.place.otherInfo ?? "")
-                    .font(.caption)
+            createMap(size: outsideProxy.size)
+            
+            if !viewModel.place.timetable.isEmpty {
+                TimetableView(place: viewModel.place, showOpenInfo: viewModel.showOpenInfo)
+            }
+            
+            
+            if let otherInfo = viewModel.place.otherInfo {
+                Text(otherInfo)
+                    //.font(.caption)
                     .foregroundStyle(.secondary)
-                    .padding(.bottom, 40)
-            }
-            .padding()
-            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-            .listSectionSeparator(.hidden)
-            
-            VStack(spacing: 10) {
-                if let phone = viewModel.place.phone {
-                    Button {
-                        viewModel.call(phone: phone)
-                    } label: {
-                        HStack {
-                            AppImages.iconPhoneFill
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 25, height: 25, alignment: .leading)
-                            Text(phone)
-                                .font(.title2)
-                                .bold()
-                        }
-                    }
-                    .padding()
-                    .foregroundColor(.primary)
-                    .background(AppColors.lightGray6)
-                    .clipShape(Capsule(style: .continuous))
-                    .buttonStyle(.borderless)
-                }
-                HStack {
-                    if let www = viewModel.place.www {
-                        Button {
-                            viewModel.goToWebSite(url: www)
-                        } label: {
-                            HStack {
-                                AppImages.iconGlobe
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 25, height: 25, alignment: .leading)
-                                Text("Web")
-                                    .font(.caption)
-                                    .bold()
-                            }
-                        }
-                        .buttonStyle(.borderless)
-                        .foregroundColor(.primary)
-                        .padding()
-                        .background(AppColors.lightGray6)
-                        .clipShape(Capsule(style: .continuous))
-                    }
-                    if let facebook = viewModel.place.facebook {
-                        Button {
-                            viewModel.goToWebSite(url: facebook)
-                        } label: {
-                            AppImages.iconFacebook
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 25, height: 25, alignment: .leading)
-                        }
-                        .buttonStyle(.borderless)
-                        .foregroundColor(.primary)
-                        .padding()
-                        .background(AppColors.lightGray6)
-                        .clipShape(.circle)
-                    }
-                    
-                    if let instagram = viewModel.place.instagram {
-                        Button {
-                            viewModel.goToWebSite(url: instagram)
-                        } label: {
-                            AppImages.iconInstagram
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 25, height: 25, alignment: .leading)
-                        }
-                        .buttonStyle(.borderless)
-                        .foregroundColor(.primary)
-                        .padding()
-                        .background(AppColors.lightGray6)
-                        .clipShape(.circle)
-                    }
-                }
-            }
-            .frame(maxWidth: .infinity, alignment: .center)
-            .padding()
-            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-            .listSectionSeparator(.hidden)
-            
-            createMap(geometry: geometry)
-            
-            if !viewModel.place.events.isEmpty {
-                Section {
-                    Text("Upcoming events")//.uppercased())
-                        .font(.title3).bold()
-                        .foregroundStyle(.secondary)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, 20)
-                        .padding(.vertical, 30)
-                    LazyVGrid(columns: viewModel.gridLayoutEvents, spacing: 20) {
-                        ForEach(viewModel.place.events.sorted(by: { $0.startDate < $1.startDate } )) { event in
-                            EventCell(event: event, width: (width / 2) - 30, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, showCountryCity: false, authenticationManager: authenticationManager)
-                        }
-                    }
-                    .padding(.horizontal, 20)
-                    
-                }
-                .listRowSeparator(.hidden)
-                .frame(maxWidth: .infinity)
-                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                
+                    .listRowInsets(EdgeInsets(top: 20, leading: 20, bottom: 50, trailing: 20))
+                    .listSectionSeparator(.hidden)
             }
             
-            Section {
-                if let about = viewModel.place.about {
+            
+            ContactInfoView(phone: viewModel.place.phone, www: viewModel.place.www, facebook: viewModel.place.facebook, instagram: viewModel.place.instagram)
+                .listRowInsets(EdgeInsets(top: 50, leading: 20, bottom: 50, trailing: 20))
+                .listSectionSeparator(.hidden)
+            
+            if viewModel.actualEvents.count > 0 {
+                EventsView(modelContext: viewModel.modelContext, authenticationManager: authenticationManager, selectedDate: $viewModel.selectedDate, displayedEvents: $viewModel.displayedEvents, actualEvents: $viewModel.actualEvents, todayEvents: $viewModel.todayEvents, upcomingEvents: $viewModel.upcomingEvents, eventsDates: $viewModel.eventsDates, size: outsideProxy.size, eventDataManager: viewModel.eventDataManager, eventNetworkManager: viewModel.eventNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, errorManager: viewModel.errorManager)
+                    .listRowSeparator(.hidden)
+                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+            }
+            
+            if let about = viewModel.place.about {
                     Text(about)
                         .font(.callout)
                         .foregroundStyle(.secondary)
-                        .padding(.vertical, 50)
                         .listRowSeparator(.hidden)
-                }
+                        .listRowInsets(EdgeInsets(top: 50, leading: 20, bottom: 50, trailing: 20))
             }
             
-            //todo фотографии должны открываться
-            Section {
-                LazyVGrid(columns: viewModel.gridLayoutPhotos, spacing: 2) {
-                    ForEach(viewModel.place.photos, id: \.self) { url in
-                        ImageLoadingView(url: url, width: (width - 4) / 3, height: (width - 4) / 3, contentMode: .fill) {
-                            AppColors.lightGray6 //TODO animation
+            if viewModel.place.photos.count > 0 {
+                //todo фотографии должны открываться
+                    LazyVGrid(columns: viewModel.gridLayoutPhotos, spacing: 2) {
+                        ForEach(viewModel.place.photos, id: \.self) { url in
+                            ImageLoadingView(url: url, width: (outsideProxy.size.width - 4) / 3, height: (outsideProxy.size.width - 4) / 3, contentMode: .fill) {
+                                AppColors.lightGray6 //TODO animation
+                            }
+                            .clipped()
                         }
-                        .clipped()
                     }
-                }
-                .padding(.vertical, 50)
+                .listRowSeparator(.hidden)
+                .listRowInsets(EdgeInsets(top: 50, leading: 0, bottom: 50, trailing: 0))
             }
-            .listRowSeparator(.hidden)
-            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
             
             Section {
                 HStack {
@@ -323,14 +185,18 @@ struct PlaceView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                     if let user = authenticationManager.appUser, user.status != .blocked {
                         //TODO: Add review designe
-                        NavigationLink {
-                            AddCommentView(text: "", characterLimit: 1000, placeId: viewModel.place.id, placeNetworkManager: viewModel.placeNetworkManager, authenticationManager: authenticationManager)
-                        } label: {
+                        ZStack {
+                            NavigationLink {
+                                AddCommentView(text: "", characterLimit: 1000, placeId: viewModel.place.id, placeNetworkManager: viewModel.placeNetworkManager, authenticationManager: authenticationManager)
+                            } label: {
+                                EmptyView()
+                            }
                             Text("Add review")
                                 .font(.callout.bold())
                                 .padding()
                                 .foregroundStyle(.blue)
                         }
+                        
                     } else {
                         Button {
                             viewModel.showRegistrationView = true
@@ -377,7 +243,7 @@ struct PlaceView: View {
                                 if let photos = comment.photos {
                                     HStack {
                                         ForEach(photos, id: \.self) { photo in
-                                            ImageLoadingView(url: photo, width: width / 4, height: width / 4, contentMode: .fill) {
+                                            ImageLoadingView(url: photo, width: outsideProxy.size.width / 4, height: outsideProxy.size.width / 4, contentMode: .fill) {
                                                 Color.orange
                                             }
                                             .clipShape(RoundedRectangle(cornerRadius: 20))
@@ -430,7 +296,39 @@ struct PlaceView: View {
     }
     
     @ViewBuilder
-    private func createMap(geometry: CGSize) -> some View {
+    private func headerSection(width: CGFloat) -> some View {
+        VStack {
+            if !viewModel.allPhotos.isEmpty {
+                PhotosTabView(allPhotos: $viewModel.allPhotos, width: width)
+                    .frame(width: width, height: ((width / 4) * 5) + 20)///20 is spase after tabview for circls
+            }
+            HStack(spacing: 20) {
+                if let url = viewModel.place.avatar {
+                    ImageLoadingView(url: url, width: 60, height: 60, contentMode: .fill) {
+                        Color.orange
+                    }
+                    .clipShape(Circle())
+                    .overlay(Circle().stroke(AppColors.lightGray5, lineWidth: 1))
+                }
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(viewModel.place.name)
+                        .font(.title2).bold()
+                        .foregroundColor(.primary)
+                    Text(viewModel.place.address)
+                        .font(.body)
+                        .foregroundColor(.secondary)
+                }
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.top, 10)
+            .padding(.horizontal, 20)
+        }
+        .listRowSeparator(.hidden)
+        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+    }
+    
+    @ViewBuilder
+    private func createMap(size: CGSize) -> some View {
         VStack {
             Map(position: $viewModel.position, interactionModes: [], selection: $viewModel.selectedTag) {
                 Marker(viewModel.place.address, monogram: Text(viewModel.place.type.getImage()), coordinate: viewModel.place.coordinate)
@@ -440,15 +338,15 @@ struct PlaceView: View {
             }
             .mapStyle(.standard(elevation: .flat, pointsOfInterest: .including([.publicTransport])))
             .mapControlVisibility(.hidden)
-            .frame(height: geometry.width)
+            .frame(height: size.width)
             .clipShape(RoundedRectangle(cornerRadius: 0))
             .onAppear {
-                viewModel.position = .camera(MapCamera(centerCoordinate: viewModel.place.coordinate, distance: 1000))
+                viewModel.position = .camera(MapCamera(centerCoordinate: viewModel.place.coordinate, distance: 1500))
             }
-            Text(viewModel.place.address)
-                .font(.callout)
-                .foregroundColor(.secondary)
-                .padding()
+//            Text(viewModel.place.address)
+//                .font(.callout)
+//                .foregroundColor(.secondary)
+//                .padding()
             Button {
                 viewModel.goToMaps()
             } label: {

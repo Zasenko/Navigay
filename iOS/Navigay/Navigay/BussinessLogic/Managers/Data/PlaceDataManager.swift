@@ -21,6 +21,7 @@ protocol PlaceDataManagerProtocol {
     
     func getClosestPlaces(from places: [Place], userLocation: CLLocation, count: Int) async -> [Place]
     
+    func update(place: Place, decodedPlace: DecodedPlace, modelContext: ModelContext)
     func updatePlaces(decodedPlaces: [DecodedPlace]?, for cities: [City], modelContext: ModelContext) -> [Place]
     func updatePlaces(decodedPlaces: [DecodedPlace]?, for city: City, modelContext: ModelContext) -> [Place]
     func updateTimeTable(timetable: [PlaceWorkDay]?, for place: Place, modelContext: ModelContext)
@@ -69,6 +70,19 @@ final class PlaceDataManager: PlaceDataManagerProtocol {
             }
         }
         return closestPlaces
+    }
+    
+    func update(place: Place, decodedPlace: DecodedPlace, modelContext: ModelContext) {
+        place.updatePlaceComplite(decodedPlace: decodedPlace)
+        let timetable = place.timetable
+        place.timetable.removeAll()
+        timetable.forEach( { modelContext.delete($0) })
+        if let timetable = decodedPlace.timetable {
+            for day in timetable {
+                let workingDay = WorkDay(workDay: day)
+                place.timetable.append(workingDay)
+            }
+        }
     }
     
     func updatePlaces(decodedPlaces: [DecodedPlace]?, for cities: [City], modelContext: ModelContext) -> [Place] {
