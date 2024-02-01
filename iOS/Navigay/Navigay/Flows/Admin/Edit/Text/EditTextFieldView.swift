@@ -73,7 +73,7 @@ struct EditTextFieldView: View {
                     .tint(.primary)
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Готово") {
+                    Button("Done") {
                         onSave(text)
                         dismiss()
                     }

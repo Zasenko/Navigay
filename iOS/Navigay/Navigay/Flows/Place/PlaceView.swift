@@ -89,9 +89,6 @@ struct PlaceView: View {
                                     .bold()
                                     .frame(width: 30, height: 30, alignment: .leading)
                             }
-                            
-                            
-                            
                         }
                     }
                 }

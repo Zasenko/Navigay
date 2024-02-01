@@ -39,6 +39,7 @@ struct AppImages {
     static let iconInstagram = Image("icon_instagram")
     static let iconLocation = Image("icon_location")
     static let iconWallet = Image("icon_wallet")
+    static let iconGoogleG = Image("icon_google_g")
     
 //    static let mapBarIcon = UIImage(named: "barIcon")
 //    static let mapCafeIcon = UIImage(named: "cafeIcon")

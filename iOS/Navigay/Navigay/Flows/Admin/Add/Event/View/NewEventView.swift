@@ -83,7 +83,9 @@ struct NewEventView: View {
                                     .tint(.blue)
                             } else {
                                 Button("Add") {
-                                    guard let user = authenticationManager.appUser, user.status == .admin else { return }
+                                    guard let user = authenticationManager.appUser, user.status == .admin else {
+                                        return
+                                    }
                                     viewModel.addNewEvent(user: user)
                                 }
                                 .disabled(viewModel.name.isEmpty)

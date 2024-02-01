@@ -34,6 +34,7 @@
 		0F28EC4D2B5916610069B5C2 /* EditEventView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F28EC4C2B5916610069B5C2 /* EditEventView.swift */; };
 		0F28EC512B5916880069B5C2 /* EditEventAboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F28EC502B5916880069B5C2 /* EditEventAboutView.swift */; };
 		0F28EC532B5917630069B5C2 /* EditEventViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F28EC522B5917630069B5C2 /* EditEventViewModel.swift */; };
+		0F300F5F2B6918CD000F0302 /* AppUserViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F300F5E2B6918CD000F0302 /* AppUserViewModel.swift */; };
 		0F34DF7E2AE665BA005D29D0 /* AddLocationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F34DF7D2AE665BA005D29D0 /* AddLocationView.swift */; };
 		0F34DF832AE692BB005D29D0 /* SearchLocationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F34DF822AE692BB005D29D0 /* SearchLocationView.swift */; };
 		0F354CB12AFE144000594AE0 /* Photo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F354CB02AFE144000594AE0 /* Photo.swift */; };
@@ -221,6 +222,7 @@
 		0F28EC4C2B5916610069B5C2 /* EditEventView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditEventView.swift; sourceTree = "<group>"; };
 		0F28EC502B5916880069B5C2 /* EditEventAboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditEventAboutView.swift; sourceTree = "<group>"; };
 		0F28EC522B5917630069B5C2 /* EditEventViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditEventViewModel.swift; sourceTree = "<group>"; };
+		0F300F5E2B6918CD000F0302 /* AppUserViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppUserViewModel.swift; sourceTree = "<group>"; };
 		0F34DF7D2AE665BA005D29D0 /* AddLocationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddLocationView.swift; sourceTree = "<group>"; };
 		0F34DF822AE692BB005D29D0 /* SearchLocationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchLocationView.swift; sourceTree = "<group>"; };
 		0F354CB02AFE144000594AE0 /* Photo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Photo.swift; sourceTree = "<group>"; };
@@ -647,6 +649,7 @@
 		0F6500C22ACE9AEE00A58E77 /* User */ = {
 			isa = PBXGroup;
 			children = (
+				0F300F5E2B6918CD000F0302 /* AppUserViewModel.swift */,
 				0F6500C52ACEB3C800A58E77 /* AppUserView.swift */,
 			);
 			path = User;
@@ -1277,6 +1280,7 @@
 				0F151F462AE910290049C60F /* EditTextEditorView.swift in Sources */,
 				0F741A982ACDB7B300A7759E /* TabBarButton.swift in Sources */,
 				0F79B2682AF2710E00FCAED2 /* DecodedAbout.swift in Sources */,
+				0F300F5F2B6918CD000F0302 /* AppUserViewModel.swift in Sources */,
 				0FFB3A3B2AF102A2001CF946 /* Test2.swift in Sources */,
 				0F354CC22AFE96DB00594AE0 /* AdminRegion.swift in Sources */,
 				0F28EC512B5916880069B5C2 /* EditEventAboutView.swift in Sources */,

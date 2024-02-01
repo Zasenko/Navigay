@@ -32,44 +32,47 @@ struct LoginView: View {
     // MARK: - Body
     
     var body: some View {
-        ZStack {
-            AppColors.background
-            authView
+        NavigationStack {
+            ZStack {
+                AppColors.background
+                authView
+                
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .onTapGesture {
+                focusedField = nil
+            }
+            .onSubmit(focusNextField)
+            .disabled(viewModel.allViewsDisabled)
             
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .onTapGesture {
-            focusedField = nil
-        }
-        .onSubmit(focusNextField)
-        .disabled(viewModel.allViewsDisabled)
-        .navigationBarBackButtonHidden()
-        .toolbarBackground(AppColors.background)
-        .toolbarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                Button {
-                    withAnimation {
-                        focusedField = nil
-                        dismiss()
+            .navigationBarBackButtonHidden()
+            .toolbarBackground(AppColors.background)
+            .toolbarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        withAnimation {
+                            focusedField = nil
+                            dismiss()
+                        }
+                    } label: {
+                        AppImages.iconLeft
+                            .bold()
+                            .frame(width: 30, height: 30, alignment: .leading)
                     }
-                } label: {
-                    AppImages.iconLeft
-                        .bold()
-                        .frame(width: 30, height: 30, alignment: .leading)
+                    .tint(.primary)
                 }
-                .tint(.primary)
             }
+//            .gesture(DragGesture(minimumDistance: 3.0, coordinateSpace: .local)
+//                .onEnded { value in
+//                    switch(value.translation.width, value.translation.height) {
+//                    case (0..., -30...30):
+//                        dismiss()
+//                    default:  break
+//                    }
+//                }
+//            )
         }
-        .gesture(DragGesture(minimumDistance: 3.0, coordinateSpace: .local)
-            .onEnded { value in
-                switch(value.translation.width, value.translation.height) {
-                    case (0..., -30...30):
-                    dismiss()
-                    default:  break
-                }
-            }
-        )
     }
     
     // MARK: - Views
@@ -218,31 +221,33 @@ struct LoginView: View {
         viewModel.buttonState = .loading
         Task {
             let decodedUser = await authenticationManager.login(email: viewModel.email, password: viewModel.password)
-            guard let decodedUser else {
-                viewModel.allViewsDisabled = false
-                viewModel.buttonState = .normal
-                return
-            }
             
-            do {
-                let descriptor = FetchDescriptor(predicate: #Predicate<AppUser>{ $0.id == decodedUser.id })
-                
-                if let user = try context.fetch(descriptor).first {
-                    user.isUserLoggedIn = true
-                    user.updateUser(decodedUser: decodedUser)
-                    authenticationManager.appUser = user
-                } else {
-                    let user = AppUser(decodedUser: decodedUser)
-                    user.isUserLoggedIn = true
-                    authenticationManager.appUser = user
-                    context.insert(user)
+            await MainActor.run {
+                guard let decodedUser else {
+                        viewModel.allViewsDisabled = false
+                        viewModel.buttonState = .normal
+                    return
                 }
-                onDismiss()
-                
-            } catch {
-                viewModel.allViewsDisabled = false
-                viewModel.buttonState = .normal
-                print("Fetch failed")
+                do {
+                    let descriptor = FetchDescriptor(predicate: #Predicate<AppUser>{ $0.id == decodedUser.id })
+                    
+                    if let user = try context.fetch(descriptor).first {
+                        user.isUserLoggedIn = true
+                        user.updateUser(decodedUser: decodedUser)
+                        authenticationManager.appUser = user
+                    } else {
+                        let user = AppUser(decodedUser: decodedUser)
+                        user.isUserLoggedIn = true
+                        authenticationManager.appUser = user
+                        context.insert(user)
+                    }
+                    self.onDismiss()
+                    
+                } catch {
+                    viewModel.allViewsDisabled = false
+                    viewModel.buttonState = .normal
+                    print("Fetch failed")
+                }
             }
         }
     }
