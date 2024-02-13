@@ -34,13 +34,11 @@ struct PlaceView: View {
             GeometryReader { outsideProxy in
             VStack(spacing: 0) {
                 Divider()
-                    
                         createList(outsideProxy: outsideProxy)
                     }
             }
             .navigationBarBackButtonHidden()
             .toolbarBackground(AppColors.background)
-            // .toolbarBackground(viewModel.showHeaderTitle ? .visible : .hidden, for: .navigationBar)
             .toolbarTitleDisplayMode(.inline)
             .toolbar {
                   if viewModel.showHeaderTitle {
@@ -70,6 +68,13 @@ struct PlaceView: View {
                     HStack {
                         Button {
                             viewModel.place.isLiked.toggle()
+                            guard let user = authenticationManager.appUser else { return }
+                            
+                            if user.likedPlaces.contains(where: {$0 == viewModel.place.id} ) {
+                                user.likedPlaces.removeAll(where: {$0 == viewModel.place.id})
+                            } else {
+                                user.likedPlaces.append(viewModel.place.id)
+                            }
                         } label: {
                             Image(systemName: viewModel.place.isLiked ? "heart.fill" : "heart")
                                 .bold()
@@ -118,7 +123,7 @@ struct PlaceView: View {
     @ViewBuilder
     private func createList(outsideProxy: GeometryProxy) -> some View {
         List {
-            
+            headerView
             headerSection(width: outsideProxy.size.width)
             
             TagsView(tags: viewModel.place.tags)
@@ -292,33 +297,42 @@ struct PlaceView: View {
         .buttonStyle(PlainButtonStyle())
     }
     
+    private var headerView: some View {
+        HStack(spacing: 20) {
+            if let url = viewModel.place.avatar {
+                ImageLoadingView(url: url, width: 60, height: 60, contentMode: .fill) {
+                    Color.orange
+                }
+                .clipShape(Circle())
+                .overlay(Circle().stroke(AppColors.lightGray5, lineWidth: 1))
+            }
+            VStack(alignment: .leading, spacing: 4) {
+                Text(viewModel.place.name)
+                    .font(.title2).bold()
+                    .foregroundColor(.primary)
+                Text(viewModel.place.address)
+                    .font(.body)
+                    .foregroundColor(.secondary)
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .listRowSeparator(.hidden)
+        .listRowInsets(EdgeInsets(top: 10, leading: 20, bottom: 10, trailing: 20))
+        .onAppear {
+            viewModel.showHeaderTitle = false
+        }
+        .onDisappear {
+            viewModel.showHeaderTitle = true
+        }
+    }
+    
     @ViewBuilder
     private func headerSection(width: CGFloat) -> some View {
-        VStack {
+        ZStack {
             if !viewModel.allPhotos.isEmpty {
                 PhotosTabView(allPhotos: $viewModel.allPhotos, width: width)
                     .frame(width: width, height: ((width / 4) * 5) + 20)///20 is spase after tabview for circls
             }
-            HStack(spacing: 20) {
-                if let url = viewModel.place.avatar {
-                    ImageLoadingView(url: url, width: 60, height: 60, contentMode: .fill) {
-                        Color.orange
-                    }
-                    .clipShape(Circle())
-                    .overlay(Circle().stroke(AppColors.lightGray5, lineWidth: 1))
-                }
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(viewModel.place.name)
-                        .font(.title2).bold()
-                        .foregroundColor(.primary)
-                    Text(viewModel.place.address)
-                        .font(.body)
-                        .foregroundColor(.secondary)
-                }
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.top, 10)
-            .padding(.horizontal, 20)
         }
         .listRowSeparator(.hidden)
         .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))

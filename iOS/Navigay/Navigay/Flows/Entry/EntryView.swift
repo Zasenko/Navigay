@@ -43,11 +43,9 @@ struct EntryView: View {
         ZStack(alignment: .top) {
             switch router {
             case .welcomeView:
-                RegistrationView(authenticationManager: authenticationManager) {
+                WelcomeView(authenticationManager: authenticationManager) {
                     firstTimeInApp = false
-                    withAnimation {
                         router = .tabView
-                    }
                 }
             case .tabView:
                 TabBarView(authenticationManager: authenticationManager, appSettingsManager: appSettingsManager, errorManager: errorManager)

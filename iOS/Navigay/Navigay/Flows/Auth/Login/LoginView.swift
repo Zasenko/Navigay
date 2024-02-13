@@ -24,8 +24,6 @@ struct LoginView: View {
     // MARK: - Private Properties
     
     @Environment(\.modelContext) private var context
-    
-    
     @Environment(\.dismiss) private var dismiss
     @FocusState private var focusedField: FocusField?
     
@@ -33,36 +31,25 @@ struct LoginView: View {
     
     var body: some View {
         NavigationStack {
-            ZStack {
-                AppColors.background
-                authView
-                
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .onTapGesture {
-                focusedField = nil
-            }
-            .onSubmit(focusNextField)
-            .disabled(viewModel.allViewsDisabled)
-            
-            .navigationBarBackButtonHidden()
-            .toolbarBackground(AppColors.background)
-            .toolbarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button {
-                        withAnimation {
+            listView
+                .navigationBarBackButtonHidden()
+                .toolbarBackground(.hidden, for: .navigationBar)
+                .toolbarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button {
                             focusedField = nil
                             dismiss()
+                        } label: {
+                            AppImages.iconX
+                                .bold()
+                                .frame(width: 30, height: 30)
                         }
-                    } label: {
-                        AppImages.iconLeft
-                            .bold()
-                            .frame(width: 30, height: 30, alignment: .leading)
+                        .tint(.primary)
                     }
-                    .tint(.primary)
                 }
-            }
+        }
+    }
 //            .gesture(DragGesture(minimumDistance: 3.0, coordinateSpace: .local)
 //                .onEnded { value in
 //                    switch(value.translation.width, value.translation.height) {
@@ -72,31 +59,40 @@ struct LoginView: View {
 //                    }
 //                }
 //            )
-        }
-    }
     
     // MARK: - Views
 
-    var authView: some View {
-        VStack {
-            Spacer()
+    private var listView: some View {
+        List {
             Text("Sign in\nto your Account")
                 .font(.largeTitle)
                 .bold()
                 .multilineTextAlignment(.center)
-                .lineSpacing(0)
-            Spacer()
-            emailView
-                .padding(.bottom,10)
-            passwordView
-                .padding(.bottom,10)
-            Spacer()
-            loginButtonView
-            Spacer()
+                .frame(maxWidth: .infinity)
+                .padding(.bottom, 20)
+                .listRowSeparator(.hidden)
             
+            VStack {
+                VStack(spacing: 20) {
+                    emailView
+                    passwordView
+                }
+                .frame(maxWidth: 400)
+            }
+            .frame(maxWidth: .infinity)
+            .listRowSeparator(.hidden)
+            
+            loginButtonView
+                .listRowSeparator(.hidden)
         }
-        .padding()
-        .frame(maxWidth: 400)
+        .listStyle(.plain)
+        .buttonStyle(.plain)
+        .scrollIndicators(.hidden)
+        .onTapGesture {
+            focusedField = nil
+        }
+        .onSubmit(focusNextField)
+        .disabled(viewModel.allViewsDisabled)
     }
     
     var emailView: some View {
@@ -128,7 +124,6 @@ struct LoginView: View {
         .padding(.horizontal, 10)
         .background(AppColors.lightGray6)
         .cornerRadius(16)
-        .shadow(color: .black.opacity(0.2), radius: 10, x: 0, y: 5)
         .onTapGesture {
             focusedField = .email
         }
@@ -163,7 +158,6 @@ struct LoginView: View {
             .padding(.horizontal, 10)
             .background(AppColors.lightGray6)
             .cornerRadius(16)
-            .shadow(color: .black.opacity(0.2), radius: 10, x: 0, y: 5)
             .onTapGesture {
                 focusedField = .password
             }

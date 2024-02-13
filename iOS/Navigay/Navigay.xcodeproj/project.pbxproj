@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0F0E352E2B7B9DDB00D396B0 /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F0E352D2B7B9DDB00D396B0 /* WelcomeView.swift */; };
 		0F151F402AE90DBC0049C60F /* Language.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F151F3F2AE90DBC0049C60F /* Language.swift */; };
 		0F151F422AE90E680049C60F /* UIImage+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F151F412AE90E680049C60F /* UIImage+Ext.swift */; };
 		0F151F442AE90E8B0049C60F /* View+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F151F432AE90E8B0049C60F /* View+Ext.swift */; };
@@ -195,6 +196,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0F0E352D2B7B9DDB00D396B0 /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
 		0F151F3F2AE90DBC0049C60F /* Language.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Language.swift; sourceTree = "<group>"; };
 		0F151F412AE90E680049C60F /* UIImage+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Ext.swift"; sourceTree = "<group>"; };
 		0F151F432AE90E8B0049C60F /* View+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+Ext.swift"; sourceTree = "<group>"; };
@@ -395,6 +397,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0F0E352C2B7B9DD000D396B0 /* Welcome */ = {
+			isa = PBXGroup;
+			children = (
+				0F0E352D2B7B9DDB00D396B0 /* WelcomeView.swift */,
+			);
+			path = Welcome;
+			sourceTree = "<group>";
+		};
 		0F151F492AE93B5D0049C60F /* ViewModel */ = {
 			isa = PBXGroup;
 			children = (
@@ -1037,6 +1047,7 @@
 			isa = PBXGroup;
 			children = (
 				0F6500C02ACE9ABD00A58E77 /* Entry */,
+				0F0E352C2B7B9DD000D396B0 /* Welcome */,
 				0FD617A92ACC3C4800877C70 /* Auth */,
 				0F741A962ACDB7A500A7759E /* TabBar */,
 				0FC965322ADD55B300108443 /* Home */,
@@ -1299,6 +1310,7 @@
 				0F5DE3912B04E511007D5238 /* EditCityViewModel.swift in Sources */,
 				0FD617A42ACC3AF500877C70 /* DecodedUser.swift in Sources */,
 				0F741A7B2ACD644D00A7759E /* CityResult.swift in Sources */,
+				0F0E352E2B7B9DDB00D396B0 /* WelcomeView.swift in Sources */,
 				0F741A912ACDB66900A7759E /* PlaceView.swift in Sources */,
 				0FF7B8F82B3B2800003A4B6A /* AdminCityResult.swift in Sources */,
 				0F4997062B36F216003E4E2B /* PhotosTabView.swift in Sources */,

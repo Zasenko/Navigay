@@ -99,9 +99,7 @@ struct AppUserView: View {
         }
     }
     
-    @ViewBuilder func userView(user: AppUser) -> some View {
-   
-        
+    @ViewBuilder private func userView(user: AppUser) -> some View {
         Section {
             HStack(spacing: 20) {
                 
@@ -255,7 +253,7 @@ struct AppUserView: View {
 //        }
     
     
-    var authView: some View {
+    private var authView: some View {
         Section {
             VStack(alignment: .center, spacing: 10) {
                 AppImages.iconPerson
@@ -267,57 +265,67 @@ struct AppUserView: View {
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity)
                     .padding(.bottom)
-                VStack(spacing: 10) {
-                    Button {
-                        viewModel.showLoginView = true
-                    } label: {
-                        Text("Log In")
-                            .font(.body)
-                            .bold()
-                            .padding(12)
-                            .padding(.horizontal)
-                            .background(AppColors.lightGray6)
-                            .clipShape(Capsule())
-                    }
-                    .fullScreenCover(isPresented: $viewModel.showLoginView) {
-                        LoginView(viewModel: LoginViewModel(), authenticationManager: authenticationManager) {
-                            self.viewModel.showLoginView = false
-                        }
-                    }
-                    
-                    Button{
-                    } label: {
-                        Text("Registration")
-                            .font(.body)
-                            .bold()
-                            .padding(12)
-                            .padding(.horizontal)
-                            .background(AppColors.lightGray6)
-                            .clipShape(Capsule())
-                    }
-                    
-                    Button{
-                    } label: {
-                        HStack(spacing: 10) {
-                            AppImages.iconGoogleG
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 20, height: 20)
-                            Text("Log In with Google")
-                                .font(.body)
-                                .bold()
-                        }
-                        .padding(12)
-                        .padding(.horizontal)
-                        .background(AppColors.lightGray6)
-                        .clipShape(Capsule())
-                        
-                    }
-                }
+                authButtonsView
             }
         }
         .listRowInsets(EdgeInsets(top: 50, leading: 20, bottom: 50, trailing: 20))
         .listSectionSeparator(.hidden)
+    }
+    
+    private var authButtonsView: some View {
+        VStack(spacing: 10) {
+            Button {
+                viewModel.showLoginView = true
+            } label: {
+                Text("Log In")
+                    .font(.body)
+                    .bold()
+                    .padding(12)
+                    .padding(.horizontal)
+                    .background(AppColors.lightGray6)
+                    .clipShape(Capsule())
+            }
+            .fullScreenCover(isPresented: $viewModel.showLoginView) {
+                LoginView(viewModel: LoginViewModel(), authenticationManager: authenticationManager) {
+                    viewModel.showLoginView = false
+                }
+            }
+            
+            Button {
+                viewModel.showRegistrationView = true
+            } label: {
+                Text("Registration")
+                    .font(.body)
+                    .bold()
+                    .padding(12)
+                    .padding(.horizontal)
+                    .background(AppColors.lightGray6)
+                    .clipShape(Capsule())
+            }
+            .fullScreenCover(isPresented: $viewModel.showRegistrationView) {
+                RegistrationView(viewModel: RegistrationViewModel(), authenticationManager: authenticationManager) {
+                    viewModel.showRegistrationView = false
+                }
+            }
+            
+            Button {
+            } label: {
+                HStack(spacing: 10) {
+                    AppImages.iconGoogleG
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 20, height: 20)
+                    Text("Log In with Google")
+                        .font(.body)
+                        .bold()
+                }
+                .padding(12)
+                .padding(.horizontal)
+                .background(AppColors.lightGray6)
+                .clipShape(Capsule())
+                
+            }
+        }
     }
     
     private var placesView: some View {
