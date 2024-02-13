@@ -1,8 +1,8 @@
 <?php
 
-require_once('auth-user-error.php');
 require_once('../error-handler.php');
 require_once('../languages.php');
+require_once('auth-user-error.php');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     sendError('Invalid request method.');
@@ -58,9 +58,11 @@ if ($result->num_rows > 0) {
     sendUserError($errorDescription);
 }
 
-$sql = "INSERT INTO User (email, password, name) VALUES (?, ?, ?)";
-$params = [$user_email, $hashed_password, $user_name];
-$types = "sss";
+$session_key = bin2hex(random_bytes(16));
+
+$sql = "INSERT INTO User (email, password, session_key, name) VALUES (?, ?, ?, ?)";
+$params = [$user_email, $hashed_password, $session_key, $user_name];
+$types = "ssss";
 $stmt = executeQuery($conn, $sql, $params, $types);
 
 if (checkInsertResult($stmt, $conn, 'Failed to insert data into User table.')) {
@@ -71,8 +73,9 @@ if (checkInsertResult($stmt, $conn, 'Failed to insert data into User table.')) {
         'name' => $user_name,
         'email' => $user_email,
         'status' => "user",
+        'session_key' => $session_key,
     );
     $json = array('result' => true, 'user' => $user);
-    echo json_encode($json, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
+    echo json_encode($json, JSON_UNESCAPED_UNICODE);
     exit;
 }

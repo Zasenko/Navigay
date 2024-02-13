@@ -15,39 +15,25 @@ enum EntryViewRouter {
 
 struct EntryView: View {
     
-    @Query private var appUsers: [AppUser]
+    @StateObject var authenticationManager: AuthenticationManager
+    let appSettingsManager: AppSettingsManagerProtocol
+    let errorManager: ErrorManagerProtocol
+    
+    // MARK: - private Properties
+    
     @AppStorage("firstTimeInApp") private var firstTimeInApp: Bool = true
+    @Query private var appUsers: [AppUser]
     @State private var router: EntryViewRouter = .welcomeView
-    @StateObject private var authenticationManager: AuthenticationManager
-    private let appSettingsManager: AppSettingsManagerProtocol
-    private let errorManager: ErrorManagerProtocol
     
     
-    init() {
-        let appSettingsManager = AppSettingsManager()
-        let errorManager = ErrorManager()
-        let keychainManager = KeychainManager()
-        let authNetworkManager = AuthNetworkManager(appSettingsManager: appSettingsManager)
-        let authenticationManager = AuthenticationManager(keychainManager: keychainManager, networkManager: authNetworkManager, errorManager: errorManager)
-        self.appSettingsManager = appSettingsManager
-        self.errorManager = errorManager
-        _authenticationManager = StateObject(wrappedValue: authenticationManager)
-        _router = State(wrappedValue: EntryViewRouter.welcomeView)
-        let id = authenticationManager.lastLoginnedUserId
-        if id != 0 {
-            _appUsers = Query(filter: #Predicate<AppUser>{ $0.id == id })
-        }
-    }
     
     var body: some View {
         ZStack(alignment: .top) {
             switch router {
             case .welcomeView:
-                RegistrationView(authenticationManager: authenticationManager) {
+                WelcomeView(authenticationManager: authenticationManager) {
                     firstTimeInApp = false
-                    withAnimation {
-                        router = .tabView
-                    }
+                    router = .tabView
                 }
             case .tabView:
                 TabBarView(authenticationManager: authenticationManager, appSettingsManager: appSettingsManager, errorManager: errorManager)
@@ -59,7 +45,8 @@ struct EntryView: View {
                 router = .welcomeView
             } else {
                 router = .tabView
-                if let appUser = appUsers.first,
+                if authenticationManager.lastLoginnedUserId != 0,
+                   let appUser = appUsers.first(where: { $0.id == authenticationManager.lastLoginnedUserId }),
                    appUser.isUserLoggedIn {
                     authenticationManager.authentificate(user: appUser)
                 }
@@ -67,7 +54,7 @@ struct EntryView: View {
         }
     }
 }
-
-#Preview {
-    EntryView()
-}
+//
+//#Preview {
+//    EntryView()
+//}

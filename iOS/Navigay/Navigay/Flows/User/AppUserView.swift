@@ -183,7 +183,6 @@ struct AppUserView: View {
                     .padding(.trailing, 20)
                     .background(AppColors.background)
                 }
-                
                 Divider()
             }
             .navigationDestination(isPresented: $viewModel.showEditBioView) {
@@ -267,53 +266,57 @@ struct AppUserView: View {
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity)
                     .padding(.bottom)
-                VStack(spacing: 10) {
-                    Button {
-                        viewModel.showLoginView = true
-                    } label: {
-                        Text("Log In")
-                            .font(.body)
-                            .bold()
-                            .padding(12)
-                            .padding(.horizontal)
-                            .background(AppColors.lightGray6)
-                            .clipShape(Capsule())
-                    }
-                    .fullScreenCover(isPresented: $viewModel.showLoginView) {
-                        LoginView(viewModel: LoginViewModel(), authenticationManager: authenticationManager) {
-                            self.viewModel.showLoginView = false
-                        }
-                    }
-                    
-                    Button{
-                    } label: {
-                        Text("Registration")
-                            .font(.body)
-                            .bold()
-                            .padding(12)
-                            .padding(.horizontal)
-                            .background(AppColors.lightGray6)
-                            .clipShape(Capsule())
-                    }
-                    
-                    Button{
-                    } label: {
-                        HStack(spacing: 10) {
-                            AppImages.iconGoogleG
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 20, height: 20)
-                            Text("Log In with Google")
-                                .font(.body)
-                                .bold()
-                        }
-                        .padding(12)
-                        .padding(.horizontal)
-                        .background(AppColors.lightGray6)
-                        .clipShape(Capsule())
-                        
-                    }
+                
+                AuthButtonsView(authenticationManager: authenticationManager) {
+                    //onFinish()
                 }
+//                VStack(spacing: 10) {
+//                    Button {
+//                        viewModel.showLoginView = true
+//                    } label: {
+//                        Text("Log In")
+//                            .font(.body)
+//                            .bold()
+//                            .padding(12)
+//                            .padding(.horizontal)
+//                            .background(AppColors.lightGray6)
+//                            .clipShape(Capsule())
+//                    }
+//                    .fullScreenCover(isPresented: $viewModel.showLoginView) {
+//                        LoginView(viewModel: LoginViewModel(), authenticationManager: authenticationManager) {
+//                            self.viewModel.showLoginView = false
+//                        }
+//                    }
+//                    
+//                    Button{
+//                    } label: {
+//                        Text("Registration")
+//                            .font(.body)
+//                            .bold()
+//                            .padding(12)
+//                            .padding(.horizontal)
+//                            .background(AppColors.lightGray6)
+//                            .clipShape(Capsule())
+//                    }
+//                    
+//                    Button{
+//                    } label: {
+//                        HStack(spacing: 10) {
+//                            AppImages.iconGoogleG
+//                                .resizable()
+//                                .scaledToFit()
+//                                .frame(width: 20, height: 20)
+//                            Text("Log In with Google")
+//                                .font(.body)
+//                                .bold()
+//                        }
+//                        .padding(12)
+//                        .padding(.horizontal)
+//                        .background(AppColors.lightGray6)
+//                        .clipShape(Capsule())
+//                        
+//                    }
+//                }
             }
         }
         .listRowInsets(EdgeInsets(top: 50, leading: 20, bottom: 50, trailing: 20))

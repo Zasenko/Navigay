@@ -28,13 +28,13 @@ final class AuthenticationManager: ObservableObject {
     // MARK: - Properties
     
     @AppStorage("lastLoginnedUserId") var lastLoginnedUserId: Int = 0
-    
- //   @Published var userAuthorizationStatus: UserAuthorizationStatus = .loading
+        
     @Published var appUser: AppUser? = nil
-    let errorManager: ErrorManagerProtocol
+    @Published var sessionKey: String? = nil
     
     // MARK: - Private Properties
     
+    private let errorManager: ErrorManagerProtocol
     private let keychainManager: KeychainManagerProtocol
     private let networkManager: AuthNetworkManagerProtocol
     
@@ -46,7 +46,6 @@ final class AuthenticationManager: ObservableObject {
         self.keychainManager = keychainManager
         self.networkManager = networkManager
         self.errorManager = errorManager
-        
     }
 }
 
@@ -59,77 +58,75 @@ extension AuthenticationManager {
         Task {
             do {
                 let password = try keychainManager.getGenericPasswordFor(account: user.email, service: "User login")
-                let result = try await networkManager.login(email: user.email, password: password)
+                guard let decodedAppUser = await networkManager.login(email: user.email, password: password) else {
+                    return
+                }
                 
                 await MainActor.run {
-                    
-                    guard result.result,
-                          let decodedUser = result.user
-                    else {
-                        errorManager.showApiError(error: result.error)
-                        
-                        user.isUserLoggedIn = false
-                        // userAccessRights = .anonim
-                        //userAuthorizationStatus = .notAuthorized
-                        return
-                    }
-                    user.updateUser(decodedUser: decodedUser)
+                    user.updateUser(decodedUser: decodedAppUser)
                     user.isUserLoggedIn = true
-                 //   self.userAuthorizationStatus = .authorized
+                    sessionKey = decodedAppUser.sessionKey
                 }
                 
             } catch {
-                errorManager.showError(error: error)
+                debugPrint(error)
+                let errorModel = ErrorModel(massage: "Something went wrong. You are not logged in.", img: nil, color: nil)
+                errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
             }
         }
     }
     
-    @MainActor
     func registration(email: String, password: String) async -> AppUser? {
+        guard let decodedAppUser = await networkManager.registration(email: email, password: password) else {
+            return nil
+        }
+        
         do {
-            let result = try await networkManager.registration(email: email, password: password)
-            guard result.result,
-                  let decodedUser = result.user
-            else  {
-                errorManager.showApiError(error: result.error)
-                
-                return nil
-            }
             try keychainManager.storeGenericPasswordFor(account: email,
                                                         service: "User login",
                                                         password: password)
-            let user = AppUser(decodedUser: decodedUser)
-            user.isUserLoggedIn = true
+        } catch {
+            debugPrint(error)
+            let errorModel = ErrorModel(massage: "Something went wrong. You are not registration.", img: nil, color: nil)
+            errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
+            return nil
+        }
+        
+        let user = AppUser(decodedUser: decodedAppUser)
+        
+        await MainActor.run {
             lastLoginnedUserId = user.id
+            sessionKey = decodedAppUser.sessionKey
+            user.isUserLoggedIn = true
             appUser = user
-            return user
-        } catch {
-            errorManager.showError(error: error)
-            return nil
         }
+        return user
     }
     
-    @MainActor
     func login(email: String, password: String) async -> DecodedAppUser? {
+        
+        guard let decodedAppUser = await networkManager.login(email: email, password: password) else {
+            return nil
+        }
+        
         do {
-            let result = try await networkManager.login(email: email, password: password)
-            guard result.result,
-                  let decodedUser = result.user
-            else  {
-                errorManager.showApiError(error: result.error)
-                return nil
-            }
             try keychainManager.storeGenericPasswordFor(account: email,
                                                         service: "User login",
                                                         password: password)
-            lastLoginnedUserId = decodedUser.id
-            return decodedUser
-        } catch {
-            errorManager.showError(error: error)
+        }  catch {
+            debugPrint(error)
+            let errorModel = ErrorModel(massage: "Something went wrong. You are not logged in.", img: nil, color: nil)
+            errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
             return nil
         }
+        
+        await MainActor.run {
+            lastLoginnedUserId = decodedAppUser.id
+            sessionKey = decodedAppUser.sessionKey
+        }
+        return decodedAppUser
     }
-    
+}
 //    func checkEmail(email: String) {
 //        let emailRegEx = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
 //        let emailPred = NSPredicate(format:"SELF MATCHES %@", emailRegEx)
@@ -147,7 +144,6 @@ extension AuthenticationManager {
 //            errorManager.showError(with: ErrorModel(id: UUID(), massage: "Пароль должен содержать как минимум одну букву.", img: Image(systemName: "lock"), color: .red))
 //        }
 //    }
-}
 
 
 //extension AuthenticationManager {

@@ -10,6 +10,8 @@ import SwiftUI
 
 protocol UserNetworkManagerProtocol {
     func setUserImage()
+    func updateUserName()
+    func updateUserBio()
 }
 
 final class UserNetworkManager {
@@ -24,6 +26,14 @@ final class UserNetworkManager {
 // MARK: - AuthNetworkManagerProtocol
 
 extension UserNetworkManager: UserNetworkManagerProtocol {
+    func updateUserName() {
+        
+    }
+    
+    func updateUserBio() {
+        
+    }
+    
     
     func setUserImage() {
         let path = "/api/user/add-change-user-photo.php"

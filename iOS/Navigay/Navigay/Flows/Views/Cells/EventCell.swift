@@ -130,12 +130,10 @@ struct EventCell: View {
 //                        .foregroundStyle(.secondary)
 //                        .lineLimit(1)
 //                }
-                if let location = event.location {
-                    Text(location)
+                    Text(event.location ?? "•")
                         .font(.caption)
                         .lineLimit(1)
                         .foregroundStyle(.secondary)
-                }
                 if showCountryCity {
                     HStack(spacing: 5) {
                         Text(event.city?.name ?? "")

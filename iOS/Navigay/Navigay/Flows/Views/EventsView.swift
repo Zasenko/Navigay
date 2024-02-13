@@ -102,6 +102,15 @@ struct EventsView: View {
                         .presentationDragIndicator(.visible)
                         .presentationCornerRadius(25)
                 }
+//                if selectedDate == nil {
+//                    let count = actualEvents.count - todayEvents.count - displayedEvents.count
+//                    if count > 0 {
+//                        Text("and \(count) more...")
+//                            .frame(maxWidth: .infinity)
+//                            .font(.caption)
+//                            .foregroundStyle(.secondary)
+//                    }
+//                }
             }
         }
     }

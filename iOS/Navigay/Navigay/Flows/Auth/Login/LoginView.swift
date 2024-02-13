@@ -19,13 +19,11 @@ struct LoginView: View {
     @StateObject var viewModel: LoginViewModel
     @ObservedObject var authenticationManager: AuthenticationManager
     
-    let onDismiss: () -> Void
+    let onFinish: () -> Void
     
     // MARK: - Private Properties
     
     @Environment(\.modelContext) private var context
-    
-    
     @Environment(\.dismiss) private var dismiss
     @FocusState private var focusedField: FocusField?
     
@@ -33,73 +31,72 @@ struct LoginView: View {
     
     var body: some View {
         NavigationStack {
-            ZStack {
-                AppColors.background
-                authView
-                
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .onTapGesture {
-                focusedField = nil
-            }
-            .onSubmit(focusNextField)
-            .disabled(viewModel.allViewsDisabled)
-            
-            .navigationBarBackButtonHidden()
-            .toolbarBackground(AppColors.background)
-            .toolbarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button {
-                        withAnimation {
+            listView
+                .navigationBarBackButtonHidden()
+                .toolbarBackground(.hidden, for: .navigationBar)
+                .toolbarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button {
                             focusedField = nil
                             dismiss()
+                        } label: {
+                            AppImages.iconX
+                                .bold()
+                                .frame(width: 30, height: 30)
                         }
-                    } label: {
-                        AppImages.iconLeft
-                            .bold()
-                            .frame(width: 30, height: 30, alignment: .leading)
+                        .tint(.primary)
                     }
-                    .tint(.primary)
                 }
-            }
-//            .gesture(DragGesture(minimumDistance: 3.0, coordinateSpace: .local)
-//                .onEnded { value in
-//                    switch(value.translation.width, value.translation.height) {
-//                    case (0..., -30...30):
-//                        dismiss()
-//                    default:  break
-//                    }
-//                }
-//            )
         }
+        //            .gesture(DragGesture(minimumDistance: 3.0, coordinateSpace: .local)
+        //                .onEnded { value in
+        //                    switch(value.translation.width, value.translation.height) {
+        //                    case (0..., -30...30):
+        //                        dismiss()
+        //                    default:  break
+        //                    }
+        //                }
+        //            )
     }
     
+    
     // MARK: - Views
-
-    var authView: some View {
-        VStack {
-            Spacer()
+    
+    private var listView: some View {
+        List {
             Text("Sign in\nto your Account")
                 .font(.largeTitle)
                 .bold()
                 .multilineTextAlignment(.center)
-                .lineSpacing(0)
-            Spacer()
-            emailView
-                .padding(.bottom,10)
-            passwordView
-                .padding(.bottom,10)
-            Spacer()
-            loginButtonView
-            Spacer()
+                .frame(maxWidth: .infinity)
+                .padding(.bottom, 20)
+                .listRowSeparator(.hidden)
             
+            VStack {
+                VStack(spacing: 20) {
+                    emailView
+                    passwordView
+                }
+                .frame(maxWidth: 400)
+            }
+            .frame(maxWidth: .infinity)
+            .listRowSeparator(.hidden)
+            
+            loginButtonView
+                .listRowSeparator(.hidden)
         }
-        .padding()
-        .frame(maxWidth: 400)
+        .listStyle(.plain)
+        .buttonStyle(.plain)
+        .scrollIndicators(.hidden)
+        .onTapGesture {
+            focusedField = nil
+        }
+        .onSubmit(focusNextField)
+        .disabled(viewModel.allViewsDisabled)
     }
-    
-    var emailView: some View {
+        
+    private var emailView: some View {
         HStack {
             VStack(spacing: 0) {
                 HStack {
@@ -109,7 +106,7 @@ struct LoginView: View {
                     Spacer()
                 }
                 TextField("", text: $viewModel.email) {
-                  //  authenticationManager.checkEmail(email: viewModel.email)
+                    //  authenticationManager.checkEmail(email: viewModel.email)
                 }
                 .font(.body)
                 .bold()
@@ -128,13 +125,12 @@ struct LoginView: View {
         .padding(.horizontal, 10)
         .background(AppColors.lightGray6)
         .cornerRadius(16)
-        .shadow(color: .black.opacity(0.2), radius: 10, x: 0, y: 5)
         .onTapGesture {
             focusedField = .email
         }
     }
     
-    var passwordView: some View {
+    private var passwordView: some View {
         VStack {
             HStack {
                 VStack(spacing: 0) {
@@ -145,13 +141,10 @@ struct LoginView: View {
                         Spacer()
                     }
                     SecureField("", text: $viewModel.password) {
-                     //   authenticationManager.checkPassword(password: viewModel.password)
+                        //   authenticationManager.checkPassword(password: viewModel.password)
                     }
-                    .font(.body)
-                    .bold()
                     .autocorrectionDisabled(true)
                     .textInputAutocapitalization(.never)
-                    .lineLimit(1)
                     .focused($focusedField, equals: .password)
                 }
                 AppImages.iconLock
@@ -163,7 +156,6 @@ struct LoginView: View {
             .padding(.horizontal, 10)
             .background(AppColors.lightGray6)
             .cornerRadius(16)
-            .shadow(color: .black.opacity(0.2), radius: 10, x: 0, y: 5)
             .onTapGesture {
                 focusedField = .password
             }
@@ -174,14 +166,15 @@ struct LoginView: View {
                     //TODO!
                 }
                 .bold()
+                .foregroundStyle(.blue)
             }
             .font(.footnote)
-//            .padding(.top, 20)
             .padding()
+            .frame(maxWidth: .infinity)
         }
     }
     
-    var loginButtonView: some View {
+    private var loginButtonView: some View {
         Button {
             loginButtonTapped()
         } label: {
@@ -209,49 +202,50 @@ struct LoginView: View {
             .clipShape(Capsule())
         }
         .disabled(!viewModel.isButtonValid)
-        .padding()
+        .frame(maxWidth: .infinity)
     }
     
     // MARK: - Private Functions
     
-    @MainActor
     private func loginButtonTapped() {
         focusedField = nil
         viewModel.allViewsDisabled = true
         viewModel.buttonState = .loading
         Task {
-            let decodedUser = await authenticationManager.login(email: viewModel.email, password: viewModel.password)
+            guard
+                let decodedAppUser = await authenticationManager.login(email: viewModel.email, password: viewModel.password)
+            else {
+                await MainActor.run {
+                    viewModel.allViewsDisabled = false
+                    viewModel.buttonState = .normal
+                }
+                return
+            }
             
             await MainActor.run {
-                guard let decodedUser else {
-                        viewModel.allViewsDisabled = false
-                        viewModel.buttonState = .normal
-                    return
-                }
                 do {
-                    let descriptor = FetchDescriptor(predicate: #Predicate<AppUser>{ $0.id == decodedUser.id })
+                    let descriptor = FetchDescriptor(predicate: #Predicate<AppUser>{ $0.id == decodedAppUser.id })
                     
                     if let user = try context.fetch(descriptor).first {
                         user.isUserLoggedIn = true
-                        user.updateUser(decodedUser: decodedUser)
+                        user.updateUser(decodedUser: decodedAppUser)
                         authenticationManager.appUser = user
                     } else {
-                        let user = AppUser(decodedUser: decodedUser)
+                        let user = AppUser(decodedUser: decodedAppUser)
                         user.isUserLoggedIn = true
                         authenticationManager.appUser = user
                         context.insert(user)
                     }
-                    self.onDismiss()
-                    
+                    onFinish()
                 } catch {
                     viewModel.allViewsDisabled = false
                     viewModel.buttonState = .normal
-                    print("Fetch failed")
+                    print("- Error - LoginView loginButtonTapped: ", error)
                 }
             }
         }
     }
-
+    
     private func focusNextField() {
         switch focusedField {
         case .email:
@@ -289,10 +283,12 @@ struct LoginView: View {
     let viewModel = LoginViewModel(email: nil)
     let keychainManager = KeychainManager()
     let appSettingsManager = AppSettingsManager()
-    let networkManager = AuthNetworkManager(appSettingsManager: appSettingsManager)
+    
     let errorManager = ErrorManager()
+    let networkManager = AuthNetworkManager(appSettingsManager: appSettingsManager, errorManager: errorManager)
+    
     let authenticationManager = AuthenticationManager(keychainManager: keychainManager, networkManager: networkManager, errorManager: errorManager)
     return LoginView(viewModel: viewModel, authenticationManager: authenticationManager) {
-        print("dissmised")
+        print("onFinish")
     }
 }

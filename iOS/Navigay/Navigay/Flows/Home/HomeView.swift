@@ -122,9 +122,7 @@ struct HomeView: View {
                 .font(.largeTitle)
                 .padding(.vertical)
             Text("Unfortunately, we could not find any locations around you.")
-            //                    Text("Ты можешь помочь сообществу и добавить места в базу")
-            //                        .padding(.vertical)
-            //                        .font(.headline)
+            // Ты можешь помочь сообществу и добавить места в базу
             Text("These are the list of locations nearest to you:")
                 .padding(.vertical)
         }

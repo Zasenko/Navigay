@@ -23,10 +23,26 @@ struct NavigayApp: App {
             fatalError("Could not create ModelContainer: \(error)")
         }
     }()
+    
+    let appSettingsManager: AppSettingsManagerProtocol
+    let errorManager: ErrorManagerProtocol
+    let keychainManager: KeychainManagerProtocol
+    
+    init() {
+        let appSettingsManager = AppSettingsManager()
+        let errorManager = ErrorManager()
+        let keychainManager = KeychainManager()
+        let authNetworkManager = AuthNetworkManager(appSettingsManager: appSettingsManager, errorManager: errorManager)
+        
+        self.appSettingsManager = appSettingsManager
+        self.errorManager = errorManager
+        self.keychainManager = keychainManager
+       
+    }
 
     var body: some Scene {
         WindowGroup {
-            EntryView()
+            EntryView(authenticationManager: AuthenticationManager(keychainManager: keychainManager, networkManager: AuthNetworkManager(appSettingsManager: appSettingsManager, errorManager: errorManager), errorManager: errorManager), appSettingsManager: appSettingsManager, errorManager: errorManager)
         }
         .modelContainer(sharedModelContainer)
     }

@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0F0E35262B7A23E400D396B0 /* DecodedAppUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F0E35252B7A23E400D396B0 /* DecodedAppUser.swift */; };
+		0F0E35292B7A277400D396B0 /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F0E35282B7A277400D396B0 /* WelcomeView.swift */; };
+		0F0E352B2B7A5B1900D396B0 /* AuthButtonsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F0E352A2B7A5B1900D396B0 /* AuthButtonsView.swift */; };
 		0F151F402AE90DBC0049C60F /* Language.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F151F3F2AE90DBC0049C60F /* Language.swift */; };
 		0F151F422AE90E680049C60F /* UIImage+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F151F412AE90E680049C60F /* UIImage+Ext.swift */; };
 		0F151F442AE90E8B0049C60F /* View+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F151F432AE90E8B0049C60F /* View+Ext.swift */; };
@@ -195,6 +198,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0F0E35252B7A23E400D396B0 /* DecodedAppUser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecodedAppUser.swift; sourceTree = "<group>"; };
+		0F0E35282B7A277400D396B0 /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
+		0F0E352A2B7A5B1900D396B0 /* AuthButtonsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthButtonsView.swift; sourceTree = "<group>"; };
 		0F151F3F2AE90DBC0049C60F /* Language.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Language.swift; sourceTree = "<group>"; };
 		0F151F412AE90E680049C60F /* UIImage+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Ext.swift"; sourceTree = "<group>"; };
 		0F151F432AE90E8B0049C60F /* View+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+Ext.swift"; sourceTree = "<group>"; };
@@ -395,6 +401,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0F0E35272B7A275B00D396B0 /* Welcome */ = {
+			isa = PBXGroup;
+			children = (
+				0F0E35282B7A277400D396B0 /* WelcomeView.swift */,
+			);
+			path = Welcome;
+			sourceTree = "<group>";
+		};
 		0F151F492AE93B5D0049C60F /* ViewModel */ = {
 			isa = PBXGroup;
 			children = (
@@ -519,6 +533,7 @@
 			children = (
 				0F354CB52AFE5F2A00594AE0 /* Results */,
 				0F741A302ACD4DCE00A7759E /* ApiError.swift */,
+				0F0E35252B7A23E400D396B0 /* DecodedAppUser.swift */,
 				0FD617A32ACC3AF500877C70 /* DecodedUser.swift */,
 				0F459E202B3B55F800D7E843 /* DecodedComment.swift */,
 				0F741A6B2ACD644D00A7759E /* DecodedCity.swift */,
@@ -1037,6 +1052,7 @@
 			isa = PBXGroup;
 			children = (
 				0F6500C02ACE9ABD00A58E77 /* Entry */,
+				0F0E35272B7A275B00D396B0 /* Welcome */,
 				0FD617A92ACC3C4800877C70 /* Auth */,
 				0F741A962ACDB7A500A7759E /* TabBar */,
 				0FC965322ADD55B300108443 /* Home */,
@@ -1064,6 +1080,7 @@
 		0FD617A92ACC3C4800877C70 /* Auth */ = {
 			isa = PBXGroup;
 			children = (
+				0F0E352A2B7A5B1900D396B0 /* AuthButtonsView.swift */,
 				0F6500BF2ACE9A7900A58E77 /* Registration */,
 				0FF5C7252B1F444200D9EA57 /* Login */,
 			);
@@ -1336,6 +1353,7 @@
 				0F2765592B02989A0084B5DD /* NewEvent.swift in Sources */,
 				0F90B4DD2AF90D7E00547224 /* NewPlace.swift in Sources */,
 				0F8917AF2B62E00200FB4D7D /* AdminCountryResult.swift in Sources */,
+				0F0E352B2B7A5B1900D396B0 /* AuthButtonsView.swift in Sources */,
 				0F7E57E82AE129A40091A0F8 /* HomeView.swift in Sources */,
 				0F741A952ACDB68E00A7759E /* EventNetworkManager.swift in Sources */,
 				0FFB3A442AF15193001CF946 /* PlaceAdditionalFieldsView.swift in Sources */,
@@ -1343,6 +1361,7 @@
 				0F47347F2B03DE2C00C9B509 /* EditCountryViewModel.swift in Sources */,
 				0F741A682ACD642200A7759E /* Region.swift in Sources */,
 				0FA6C8B52AD7E6CD00F30B4A /* Test.swift in Sources */,
+				0F0E35262B7A23E400D396B0 /* DecodedAppUser.swift in Sources */,
 				0F2765462B0241C00084B5DD /* EventAdditionalFieldsView.swift in Sources */,
 				0F151F4F2AE94D2E0049C60F /* EditPhoneView.swift in Sources */,
 				0F741A902ACDB66900A7759E /* EventView.swift in Sources */,
@@ -1365,6 +1384,7 @@
 				0F741A652ACD642200A7759E /* City.swift in Sources */,
 				0F741A5F2ACD641800A7759E /* Event.swift in Sources */,
 				0F7F25B52B333712004F6C75 /* CalendarDay.swift in Sources */,
+				0F0E35292B7A277400D396B0 /* WelcomeView.swift in Sources */,
 				0F459E212B3B55F800D7E843 /* DecodedComment.swift in Sources */,
 				0F2765482B0242430084B5DD /* EventTimeFieldsView.swift in Sources */,
 				0F741A772ACD644D00A7759E /* CountryResult.swift in Sources */,
