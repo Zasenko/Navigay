@@ -102,7 +102,6 @@ struct AppUserView: View {
     @ViewBuilder private func userView(user: AppUser) -> some View {
         Section {
             HStack(spacing: 20) {
-                
                 PhotoEditView(canDelete: user.photo == nil ? false : true, canAddFromUrl: false) {
                     ZStack {
                         if let url = user.photo {
@@ -133,7 +132,7 @@ struct AppUserView: View {
                 } onDelete: {
                     //TODO
                 }
-                VStack {
+                VStack(spacing: 10) {
                     Button {
                         viewModel.showEditNameView = true
                     } label: {
@@ -149,15 +148,14 @@ struct AppUserView: View {
                         .padding(.trailing, 20)
                         .background(AppColors.background)
                     }
+                    .padding(.top, 10)
                     Divider()
                 }
             }
             .padding(.bottom)
             .navigationDestination(isPresented: $viewModel.showEditNameView) {
                 EditTextFieldView(text: user.name, characterLimit: 30, minHaracters: 2, title: "Name", placeholder: "Name") { string in
-                    
-                    //после обновления в интернете
-                    user.name = string
+                    viewModel.updateUserName(name: string, for: user)
                 }
             }
         }
@@ -186,9 +184,7 @@ struct AppUserView: View {
             }
             .navigationDestination(isPresented: $viewModel.showEditBioView) {
                 EditTextEditorView(title: "About", text: user.bio ?? "", characterLimit: 1000) { string in
-                    //после обновления в интернете
-                    
-                    user.bio = string
+                    viewModel.updateUserBio(bio: string.isEmpty ? nil : string, for: user)
                 }
             }
         }

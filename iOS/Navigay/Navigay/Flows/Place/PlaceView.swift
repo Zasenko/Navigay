@@ -41,17 +41,17 @@ struct PlaceView: View {
             .toolbarBackground(AppColors.background)
             .toolbarTitleDisplayMode(.inline)
             .toolbar {
-                  if viewModel.showHeaderTitle {
-                ToolbarItem(placement: .principal) {
-                    VStack(spacing: 0) {
-                        Text(viewModel.place.type.getName().uppercased())
-                            .font(.caption).bold()
-                            .foregroundStyle(.secondary)
-                        Text(viewModel.place.name)
-                            .font(.headline).bold()
+                if viewModel.showHeaderTitle {
+                    ToolbarItem(placement: .principal) {
+                        VStack(spacing: 0) {
+                            Text(viewModel.place.type.getName().uppercased())
+                                .font(.caption).bold()
+                                .foregroundStyle(.secondary)
+                            Text(viewModel.place.name)
+                                .font(.headline).bold()
+                        }
                     }
                 }
-                 }
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
                         withAnimation {

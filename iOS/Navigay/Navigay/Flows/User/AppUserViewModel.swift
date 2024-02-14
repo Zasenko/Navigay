@@ -47,12 +47,34 @@ extension AppUserView {
             
         }
         
-        func updateUserName() {
-            
+        func updateUserName(name: String, for user: AppUser) {
+            Task {
+                guard let sessionKey = user.sessionKey else { return }
+                let oldName = user.name
+                let result = await userNetworkManager.updateUserName(id: user.id, name: name, key: sessionKey)
+                await MainActor.run {
+                    if result {
+                        user.name = name
+                    } else {
+                        
+                    }
+                }
+            }
         }
         
-        func updateUserBio() {
-            
+        func updateUserBio(bio: String?, for user: AppUser) {
+            Task {
+                guard let sessionKey = user.sessionKey else { return }
+                let oldBio = user.bio
+                let result = await userNetworkManager.updateUserBio(id: user.id, bio: bio, key: sessionKey)
+                await MainActor.run {
+                    if result {
+                        user.bio = bio
+                    } else {
+                        
+                    }
+                }
+            }
         }
         
         func changePassword() {

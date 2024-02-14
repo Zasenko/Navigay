@@ -149,6 +149,7 @@ struct EventCell: View {
             }
             .padding(.top, 5)
         }
+        
     }
     
     //TODO: неправильная сортировка!
