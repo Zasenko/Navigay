@@ -72,7 +72,7 @@ $stmt = executeQuery($conn, $sql, $params, $types);
 
 if (checkInsertResult($stmt, $conn, 'Failed to update user with ID ' . $user_id)) {
     $photo = $row['photo'];
-    $photo_url = isset($photo) ? "https://www.navigay.me/" . $photo : null;
+    $photo_url = isset($photo) ? "https://www.navigay.me/images/users/" . $photo : null;
     $user = array(
         'id' => $user_id,
         'name' => $row['name'],
