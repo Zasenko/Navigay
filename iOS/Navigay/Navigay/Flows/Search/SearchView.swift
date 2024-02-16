@@ -80,9 +80,7 @@ struct SearchView: View {
             }
         } label: {
             AppImages.iconSearch
-                .font(.callout)
                 .bold()
-                .frame(width: 40, height: 40)
                 .tint(.blue)
         }
     }

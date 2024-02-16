@@ -87,8 +87,7 @@ struct AppUserView: View {
                             } label: {
                                 AppImages.iconSettings
                                     .bold()
-                                    .frame(width: 30, height: 30)
-                                    .foregroundStyle(.blue)
+                                    .tint(.blue)
                             }
                         }
                     }
@@ -104,23 +103,33 @@ struct AppUserView: View {
             HStack(spacing: 20) {
                 PhotoEditView(canDelete: user.photo == nil ? false : true, canAddFromUrl: false) {
                     ZStack {
-                        if let url = user.photo {
-                            ImageLoadingView(url: url, width: 100, height: 100, contentMode: .fill) {
-                                Color.red
-                            }
-                            .clipShape(.circle)
-                            .overlay(Circle().stroke(AppColors.lightGray5, lineWidth: 1))
-                            .opacity(viewModel.isLoadingPhoto ? 0.2 : 1)
-                        } else {
-                            AppImages.iconCamera
+                        if let image = viewModel.userImage {
+                            image
                                 .resizable()
-                                .scaledToFit()
-                                .opacity(viewModel.isLoadingPhoto ? 0 : 1)
-                                .tint(.primary)
-                                .frame(width: 40)
+                                .scaledToFill()
                                 .frame(width: 100, height: 100)
-                                .background(AppColors.lightGray6)
                                 .clipShape(.circle)
+                                .overlay(Circle().stroke(AppColors.lightGray5, lineWidth: 1))
+                                .opacity(viewModel.isLoadingPhoto ? 0.2 : 1)
+                        } else {
+                            if let url = user.photo {
+                                ImageLoadingView(url: url, width: 100, height: 100, contentMode: .fill) {
+                                    Color.red
+                                }
+                                .clipShape(.circle)
+                                .overlay(Circle().stroke(AppColors.lightGray5, lineWidth: 1))
+                                .opacity(viewModel.isLoadingPhoto ? 0.2 : 1)
+                            } else {
+                                AppImages.iconCamera
+                                    .resizable()
+                                    .scaledToFit()
+                                    .opacity(viewModel.isLoadingPhoto ? 0 : 1)
+                                    .tint(.primary)
+                                    .frame(width: 40)
+                                    .frame(width: 100, height: 100)
+                                    .background(AppColors.lightGray6)
+                                    .clipShape(.circle)
+                            }
                         }
                         if viewModel.isLoadingPhoto {
                             ProgressView()
@@ -128,7 +137,7 @@ struct AppUserView: View {
                         }
                     }
                 } onSave: { uiImage in
-                    // viewModel.loadImage(uiImage: uiImage)
+                    viewModel.updatePhoto(image: uiImage, for: user)
                 } onDelete: {
                     //TODO
                 }
@@ -191,64 +200,7 @@ struct AppUserView: View {
         .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 0))
         .listRowSeparator(.hidden)
     }
-//        LazyVStack(spacing: 10) {
-//            if let img = userImage {
-//                img
-//                    .resizable()
-//                    .scaledToFill()
-//                    .frame(width: 100, height: 100, alignment: .center)
-//                    .clipShape(.circle)
-//                HStack {
-//                    Button{
-//                    } label: {
-//                        Text("Delete photo")
-//                    }
-//                    .buttonStyle(.bordered)
-//                    Button{
-//                        viewModel.userNetworkManager.setUserImage()
-//                    } label: {
-//                        Text("Change photo")
-//                    }
-//                    .buttonStyle(.bordered)
-//                }
-//            } else {
-//                VStack {
-//                    AppImages.iconPerson
-//                        .resizable()
-//                        .scaledToFit()
-//                        .foregroundStyle(.black.gradient)
-//                        .frame(width: 50, height: 50)
-//                    Text("Add photo")
-//                }
-//                .frame(width: 200, height: 200)
-//                .background(AppColors.lightGray6.gradient)
-//                .clipShape(.circle)
-//                Button{
-//                    viewModel.userNetworkManager.setUserImage()
-//                } label: {
-//                    Text("Add photo")
-//                }
-//                .buttonStyle(.bordered)
-//            }
-//            
-//            
-//            Divider()
 
-//            
-//        }
-//        .onChange(of: user, initial: true) { _, newValue in
-//            if let url = newValue.photo {
-//                Task {
-//                    if let image = await ImageLoader.shared.loadImage(urlString: url) {
-//                        await MainActor.run {
-//                            self.userImage = image
-//                        }
-//                    }
-//                }
-//            }
-//        }
-    
-    
     private var authView: some View {
         Section {
             VStack(alignment: .center, spacing: 10) {
@@ -380,7 +332,7 @@ struct AppUserView: View {
         .listRowSeparator(.hidden)
     }
 }
-
+//
 //#Preview {
 //    AppUserView(authenticationManager: AuthenticationManager(keychainManager: KeychainManager(), networkManager: AuthNetworkManager(appSettingsManager: AppSettingsManager()), errorManager: ErrorManager()))
 //}

@@ -185,7 +185,6 @@
 		0FF7B8F82B3B2800003A4B6A /* AdminCityResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FF7B8F72B3B2800003A4B6A /* AdminCityResult.swift */; };
 		0FFB3A352AF0FAC0001CF946 /* EditEmailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FFB3A342AF0FAC0001CF946 /* EditEmailView.swift */; };
 		0FFB3A372AF0FB56001CF946 /* EditTextFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FFB3A362AF0FB56001CF946 /* EditTextFieldView.swift */; };
-		0FFB3A3B2AF102A2001CF946 /* Test2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FFB3A392AF102A2001CF946 /* Test2.swift */; };
 		0FFB3A3D2AF12596001CF946 /* TagsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FFB3A3C2AF12596001CF946 /* TagsView.swift */; };
 		0FFB3A422AF14F66001CF946 /* PlaceRequiredFieldsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FFB3A412AF14F66001CF946 /* PlaceRequiredFieldsView.swift */; };
 		0FFB3A442AF15193001CF946 /* PlaceAdditionalFieldsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FFB3A432AF15193001CF946 /* PlaceAdditionalFieldsView.swift */; };
@@ -376,7 +375,6 @@
 		0FF7B8F72B3B2800003A4B6A /* AdminCityResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdminCityResult.swift; sourceTree = "<group>"; };
 		0FFB3A342AF0FAC0001CF946 /* EditEmailView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditEmailView.swift; sourceTree = "<group>"; };
 		0FFB3A362AF0FB56001CF946 /* EditTextFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditTextFieldView.swift; sourceTree = "<group>"; };
-		0FFB3A392AF102A2001CF946 /* Test2.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Test2.swift; sourceTree = "<group>"; };
 		0FFB3A3C2AF12596001CF946 /* TagsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagsView.swift; sourceTree = "<group>"; };
 		0FFB3A412AF14F66001CF946 /* PlaceRequiredFieldsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceRequiredFieldsView.swift; sourceTree = "<group>"; };
 		0FFB3A432AF15193001CF946 /* PlaceAdditionalFieldsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceAdditionalFieldsView.swift; sourceTree = "<group>"; };
@@ -1029,7 +1027,6 @@
 				0F99152A2ACC6CE6008416D6 /* Launch Screen.storyboard */,
 				0FD617932ACC398300877C70 /* Assets.xcassets */,
 				0FA6C8B42AD7E6CD00F30B4A /* Test.swift */,
-				0FFB3A392AF102A2001CF946 /* Test2.swift */,
 				0FD617952ACC398300877C70 /* Preview Content */,
 			);
 			path = Navigay;
@@ -1292,7 +1289,6 @@
 				0F741A982ACDB7B300A7759E /* TabBarButton.swift in Sources */,
 				0F79B2682AF2710E00FCAED2 /* DecodedAbout.swift in Sources */,
 				0F300F5F2B6918CD000F0302 /* AppUserViewModel.swift in Sources */,
-				0FFB3A3B2AF102A2001CF946 /* Test2.swift in Sources */,
 				0F354CC22AFE96DB00594AE0 /* AdminRegion.swift in Sources */,
 				0F28EC512B5916880069B5C2 /* EditEventAboutView.swift in Sources */,
 				0F7823D32B04C03A0080F226 /* NamesEditView.swift in Sources */,

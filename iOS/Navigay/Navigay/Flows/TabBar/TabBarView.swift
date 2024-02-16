@@ -135,12 +135,12 @@ struct TabBarView: View {
                         img
                             .resizable()
                             .scaledToFit()
-                            .frame(width: 25, height: 25)
+                            .frame(width: 22, height: 22)
                             .clipShape(Circle())
-                            .padding(3)
+                            .padding(1)
                             .overlay(
                                 Circle()
-                                    .stroke(AppColors.lightGray5, lineWidth: 3)
+                                    .stroke(AppColors.lightGray5, lineWidth: 2)
                             )
                     }
                 } else {
