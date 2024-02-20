@@ -26,7 +26,7 @@ struct AppUserView: View {
          eventNetworkManager: EventNetworkManagerProtocol,
          errorManager: ErrorManagerProtocol,
          authenticationManager: AuthenticationManager) {
-        _viewModel = State(initialValue: AppUserViewModel(modelContext: modelContext, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, userNetworkManager: userNetworkManager))
+        _viewModel = State(initialValue: AppUserViewModel(modelContext: modelContext, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, authNetworkManager: authenticationManager.networkManager, errorManager: errorManager, userNetworkManager: userNetworkManager))
         _authenticationManager = ObservedObject(wrappedValue: authenticationManager)
     }
 
@@ -46,7 +46,6 @@ struct AppUserView: View {
                     if !likedPlaces.isEmpty {
                         placesView
                     }
-                        
                 }
                 .listStyle(.plain)
                 .scrollIndicators(.hidden)
@@ -69,9 +68,10 @@ struct AppUserView: View {
                                 }
                                 
                                 Button {
-                                    authenticationManager.appUser?.isUserLoggedIn = false
+                                    viewModel.logoutButtonTapped(user: user)
+                                    user.isUserLoggedIn = false
                                     likedPlaces.forEach( { $0.isLiked = false } )
-                                    viewModel.logoutButtonTapped()
+                                    likedEvents.forEach( { $0.isLiked = false } )
                                 } label: {
                                     Text("Log Out")
                                 }

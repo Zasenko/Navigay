@@ -28,19 +28,29 @@ extension AppUserView {
         let eventNetworkManager: EventNetworkManagerProtocol
         let placeNetworkManager: PlaceNetworkManagerProtocol
         let userNetworkManager: UserNetworkManagerProtocol
+        let authNetworkManager: AuthNetworkManagerProtocol
         
         let errorManager: ErrorManagerProtocol
         
-        init(modelContext: ModelContext, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol, userNetworkManager: UserNetworkManagerProtocol) {
+        init(modelContext: ModelContext,
+             placeNetworkManager: PlaceNetworkManagerProtocol,
+             eventNetworkManager: EventNetworkManagerProtocol,
+             authNetworkManager: AuthNetworkManagerProtocol,
+             errorManager: ErrorManagerProtocol,
+             userNetworkManager: UserNetworkManagerProtocol) {
             self.modelContext = modelContext
             self.eventNetworkManager = eventNetworkManager
             self.placeNetworkManager = placeNetworkManager
             self.userNetworkManager = userNetworkManager
+            self.authNetworkManager = authNetworkManager
             self.errorManager = errorManager
         }
         
-        func logoutButtonTapped() {
-            
+        func logoutButtonTapped(user: AppUser) {
+            Task {
+                guard let sessionKey = user.sessionKey else { return }
+                await authNetworkManager.logout(id: user.id, sessionKey: sessionKey)
+            }
         }
         
         func deleteAccountButtonTapped() {
@@ -50,7 +60,6 @@ extension AppUserView {
         func updateUserName(name: String, for user: AppUser) {
             Task {
                 guard let sessionKey = user.sessionKey else { return }
-                let oldName = user.name
                 let result = await userNetworkManager.updateUserName(id: user.id, name: name, key: sessionKey)
                 await MainActor.run {
                     if result {

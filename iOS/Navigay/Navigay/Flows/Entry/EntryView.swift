@@ -57,7 +57,7 @@ struct EntryView: View {
                 router = .welcomeView
             } else {
                 router = .tabView
-                if let appUser = appUsers.first,
+                if let appUser = appUsers.first(where: { $0.id == authenticationManager.lastLoginnedUserId }),
                    appUser.isUserLoggedIn {
                     authenticationManager.authentificate(user: appUser)
                 }

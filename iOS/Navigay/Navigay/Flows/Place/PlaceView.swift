@@ -70,8 +70,8 @@ struct PlaceView: View {
                             viewModel.place.isLiked.toggle()
                             guard let user = authenticationManager.appUser else { return }
                             
-                            if user.likedPlaces.contains(where: {$0 == viewModel.place.id} ) {
-                                user.likedPlaces.removeAll(where: {$0 == viewModel.place.id})
+                            if let index = user.likedPlaces.firstIndex(where: {$0 == viewModel.place.id} ) {
+                                user.likedPlaces.remove(at: index)
                             } else {
                                 user.likedPlaces.append(viewModel.place.id)
                             }

@@ -36,7 +36,7 @@ final class AuthenticationManager: ObservableObject {
     // MARK: - Private Properties
     
     private let keychainManager: KeychainManagerProtocol
-    private let networkManager: AuthNetworkManagerProtocol
+    let networkManager: AuthNetworkManagerProtocol
     
     // MARK: - Inits
     

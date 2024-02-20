@@ -1,7 +1,6 @@
 <?php
 
 require_once('../error-handler.php');
-require_once('../languages.php');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     sendError('Invalid request method.');
@@ -12,8 +11,6 @@ $data = json_decode($postData, true);
 if (empty($data)) {
     sendError('Invalid or empty request data.');
 }
-
-$user_language = isset($data["language"]) && in_array($data["language"], $languages) ? $data["language"] : 'en';
 
 $user_id = isset($data["user_id"]) ? intval($data["user_id"]) : 0;
 if ($user_id <= 0) {
@@ -59,4 +56,3 @@ if (checkInsertResult($stmt, $conn, 'Failed to update user with ID ' . $user_id)
     echo json_encode($json, JSON_UNESCAPED_UNICODE);
     exit;
 }
-

@@ -229,6 +229,9 @@ struct LoginView: View {
                         user.isUserLoggedIn = true
                         user.updateUser(decodedUser: decodedUser)
                         authenticationManager.appUser = user
+
+                        setLikedItems(for: user)
+                        
                     } else {
                         let user = AppUser(decodedUser: decodedUser)
                         user.isUserLoggedIn = true
@@ -275,6 +278,28 @@ struct LoginView: View {
         } else {
             focusedField = nil
             return true
+        }
+    }
+    
+    private func setLikedItems(for user: AppUser) {
+        do {
+            let placeDescriptor = FetchDescriptor<Place>()
+            let eventDescriptor = FetchDescriptor<Event>()
+            let places = try context.fetch(placeDescriptor)
+            let events = try context.fetch(eventDescriptor)
+            places.forEach { place in
+                if user.likedPlaces.contains(where: { $0 == place.id } ) {
+                    place.isLiked = true
+                }
+            }
+            events.forEach { event in
+                if user.likedEvents.contains(where: { $0 == event.id } ) {
+                    event.isLiked = true
+                }
+            }
+            //запрос в сеть на локации, которых нет в базе.
+        } catch {
+            debugPrint("-Error- LoginView setLikedItems: ", error)
         }
     }
 }
