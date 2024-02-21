@@ -16,12 +16,15 @@ enum EntryViewRouter {
 struct EntryView: View {
     
     @Query private var appUsers: [AppUser]
+    
     @AppStorage("firstTimeInApp") private var firstTimeInApp: Bool = true
+    
     @State private var router: EntryViewRouter = .welcomeView
     @StateObject private var authenticationManager: AuthenticationManager
+    
     private let appSettingsManager: AppSettingsManagerProtocol
     private let errorManager: ErrorManagerProtocol
-    
+    private let networkMonitor: NetworkMonitorManagerProtocol
     
     init() {
         let appSettingsManager = AppSettingsManager()
@@ -31,6 +34,9 @@ struct EntryView: View {
         let authenticationManager = AuthenticationManager(keychainManager: keychainManager, networkManager: authNetworkManager, errorManager: errorManager)
         self.appSettingsManager = appSettingsManager
         self.errorManager = errorManager
+        
+        self.networkMonitor = NetworkMonitorManager(errorManager: errorManager)
+        
         _authenticationManager = StateObject(wrappedValue: authenticationManager)
         _router = State(wrappedValue: EntryViewRouter.welcomeView)
         let id = authenticationManager.lastLoginnedUserId
@@ -40,7 +46,7 @@ struct EntryView: View {
     }
     
     var body: some View {
-        ZStack(alignment: .top) {
+        ZStack(alignment: .bottom) {
             switch router {
             case .welcomeView:
                 WelcomeView(authenticationManager: authenticationManager) {

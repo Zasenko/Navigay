@@ -37,11 +37,10 @@ struct ErrorView: View {
                 .background(AppColors.lightGray6)
                 .cornerRadius(12)
                 .shadow(color: .black.opacity(0.2), radius: 2, x: 0, y: 1)
-                .transition(.move(edge: .top))
+                .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
         .padding(.horizontal)
-        
     }
 }
 
