@@ -2,10 +2,6 @@
 
 require_once('../error-handler.php');
 
-if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
-    sendError('Invalid request method.');
-}
-
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     sendError('Invalid request method.');
 }
@@ -26,8 +22,6 @@ if (empty($session_key)) {
     sendError('Session key is required.');
 }
 
-//TODO! проверка юзера на то, что он администратор
-
 require_once('../dbconfig.php');
 
 $sql = "SELECT session_key, status FROM User WHERE id = ?";
@@ -44,7 +38,7 @@ if ($result->num_rows === 0) {
 
 $row = $result->fetch_assoc();
 
-$status = $row['status'];
+$status = isset($row['status']) ? $row['status'] : '';
 if (!($status === "admin")) {
     $conn->close();
     sendError('Admin access only.');
