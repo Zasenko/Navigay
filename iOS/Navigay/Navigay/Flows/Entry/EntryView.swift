@@ -20,7 +20,7 @@ struct EntryView: View {
     @Query private var appUsers: [AppUser]
     
     @AppStorage("firstTimeInApp") private var firstTimeInApp: Bool = true
-    
+    @StateObject private var userAuth: UserAuthModel =  UserAuthModel()
     @State private var router: EntryViewRouter = .welcomeView
     @StateObject private var authenticationManager: AuthenticationManager
     
@@ -68,6 +68,7 @@ struct EntryView: View {
         .onAppear() {
             setRouter()
         }
+        .environmentObject(userAuth)
     }
     
     //MARK: - Private Functions

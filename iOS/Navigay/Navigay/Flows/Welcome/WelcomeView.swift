@@ -6,11 +6,14 @@
 //
 
 import SwiftUI
+import GoogleSignInSwift
+import GoogleSignIn
+
 
 struct WelcomeView: View {
     
     // MARK: - Properties
-    
+    @EnvironmentObject var vm: UserAuthModel
     @ObservedObject var authenticationManager: AuthenticationManager
     let onFinish: () -> Void
     
@@ -93,6 +96,18 @@ struct WelcomeView: View {
                 }
             }
             
+            VStack{
+                UserInfo()
+                ProfilePic()
+                if(vm.isLoggedIn){
+                    SignOutButton()
+                }else{
+                    SignInButton()
+                }
+                Text(vm.errorMessage)
+                    .lineLimit(7)
+            }
+            
             Button {
             } label: {
                 HStack(spacing: 10) {
@@ -111,6 +126,32 @@ struct WelcomeView: View {
             }
         }
     }
+   
+    fileprivate func SignInButton() -> Button<Text> {
+        Button(action: {
+            vm.signIn()
+        }) {
+            Text("Sign In")
+        }
+    }
+    
+    fileprivate func SignOutButton() -> Button<Text> {
+        Button(action: {
+            vm.signOut()
+        }) {
+            Text("Sign Out")
+        }
+    }
+    
+    fileprivate func ProfilePic() -> some View {
+        AsyncImage(url: URL(string: vm.profilePicUrl))
+            .frame(width: 100, height: 100)
+    }
+    
+    fileprivate func UserInfo() -> Text {
+        return Text(vm.givenName)
+    }
+
 }
 
 //#Preview {

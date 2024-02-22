@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import GoogleSignIn
 
 @main
 struct NavigayApp: App {
@@ -27,7 +28,16 @@ struct NavigayApp: App {
     var body: some Scene {
         WindowGroup {
             EntryView()
+                .onOpenURL { url in
+                    GIDSignIn.sharedInstance.handle(url)
+                }
+                .onAppear {
+                          GIDSignIn.sharedInstance.restorePreviousSignIn { user, error in
+                            // Check if `user` exists; otherwise, do something with `error`
+                          }
+                        }
         }
         .modelContainer(sharedModelContainer)
+        
     }
 }
