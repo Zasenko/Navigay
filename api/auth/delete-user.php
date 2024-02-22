@@ -86,5 +86,5 @@ if (!$stmt_delete_user) {
 $conn->close();
 
 $json = ['result' => true];
-echo json_encode($json, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
+echo json_encode($json);
 exit;

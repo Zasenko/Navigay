@@ -14,44 +14,48 @@ struct WelcomeView: View {
     @ObservedObject var authenticationManager: AuthenticationManager
     let onFinish: () -> Void
     
+    // MARK: - Private Properties
+    
     @State private var showLoginView = false
     @State private var showRegistrationView = false
     
     // MARK: - Body
     
     var body: some View {
-            VStack {
-                VStack(alignment: .center, spacing: 0) {
-                    Text("Welcome to")
-                        .font(.title2)
-                        .fontWeight(.light)
+        VStack {
+            VStack(alignment: .center, spacing: 0) {
+                Text("Welcome to")
+                    .font(.title2)
+                    .fontWeight(.light)
+                
+                AppImages.logoFull
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 200)
+            }
+            .padding(.vertical, 100)
+            
+            authButtonsView
+            
+            Spacer()
+            
+            Button {
+                onFinish()
+            } label: {
+                HStack(spacing: 0) {
+                    AppImages.iconX
+                        .bold()
+                        .frame(width: 30, height: 30)
+                        .foregroundColor(.primary)
+                    Text("skip")
                     
-                    AppImages.logoFull
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 200)
-                }
-                .padding(.vertical, 100)
-                
-                authButtonsView
-                
-                Spacer()
-                
-                Button {
-                    onFinish()
-                } label: {
-                    HStack(spacing: 0) {
-                        AppImages.iconX
-                            .bold()
-                            .frame(width: 30, height: 30)
-                            .foregroundColor(.primary)
-                        Text("skip")
-                    
-                            .font(.subheadline)
-                    }
+                        .font(.subheadline)
                 }
             }
+        }
     }
+    
+    // MARK: - Views
     
     private var authButtonsView: some View {
         VStack(spacing: 10) {
@@ -67,7 +71,7 @@ struct WelcomeView: View {
                     .clipShape(Capsule())
             }
             .fullScreenCover(isPresented: $showLoginView) {
-                LoginView(viewModel: LoginViewModel(), authenticationManager: authenticationManager) {
+                LoginView(viewModel: LoginViewModel(), authenticationManager: authenticationManager, errorManager: authenticationManager.errorManager) {
                     onFinish()
                 }
             }
@@ -84,7 +88,7 @@ struct WelcomeView: View {
                     .clipShape(Capsule())
             }
             .fullScreenCover(isPresented: $showRegistrationView) {
-                RegistrationView(viewModel: RegistrationViewModel(), authenticationManager: authenticationManager) {
+                RegistrationView(viewModel: RegistrationViewModel(), authenticationManager: authenticationManager, errorManager: authenticationManager.errorManager) {
                     onFinish()
                 }
             }
@@ -104,7 +108,6 @@ struct WelcomeView: View {
                 .padding(.horizontal)
                 .background(AppColors.lightGray6)
                 .clipShape(Capsule())
-                
             }
         }
     }

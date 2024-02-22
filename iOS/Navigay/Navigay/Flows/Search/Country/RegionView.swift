@@ -16,8 +16,10 @@ struct RegionView: View {
     private let eventNetworkManager: EventNetworkManagerProtocol
     private let placeNetworkManager: PlaceNetworkManagerProtocol
     private let errorManager: ErrorManagerProtocol
-    private let user: AppUser?
-    @ObservedObject var authenticationManager: AuthenticationManager // TODO: убрать юзера из вью модели так как он в authenticationManager
+    private let placeDataManager: PlaceDataManagerProtocol
+    private let eventDataManager: EventDataManagerProtocol
+    private let catalogDataManager: CatalogDataManagerProtocol
+    @ObservedObject var authenticationManager: AuthenticationManager
     
     init(modelContext: ModelContext,
          region: Region,
@@ -25,15 +27,19 @@ struct RegionView: View {
          eventNetworkManager: EventNetworkManagerProtocol,
          placeNetworkManager: PlaceNetworkManagerProtocol,
          errorManager: ErrorManagerProtocol,
-         user: AppUser?,
-         authenticationManager: AuthenticationManager) {
+         authenticationManager: AuthenticationManager,
+         placeDataManager: PlaceDataManagerProtocol,
+         eventDataManager: EventDataManagerProtocol,
+         catalogDataManager: CatalogDataManagerProtocol) {
         self.modelContext = modelContext
         self.region = region
         self.catalogNetworkManager = catalogNetworkManager
         self.eventNetworkManager = eventNetworkManager
         self.placeNetworkManager = placeNetworkManager
         self.errorManager = errorManager
-        self.user = user
+        self.placeDataManager = placeDataManager
+        self.eventDataManager = eventDataManager
+        self.catalogDataManager = catalogDataManager
         _authenticationManager = ObservedObject(wrappedValue: authenticationManager)
     }
     
@@ -46,7 +52,7 @@ struct RegionView: View {
                 .offset(x: 70)
             ForEach(region.cities.sorted(by: { $0.name < $1.name } )) { city in
                 NavigationLink {
-                    CityView(modelContext: modelContext, city: city, catalogNetworkManager: catalogNetworkManager, eventNetworkManager: eventNetworkManager, placeNetworkManager: placeNetworkManager, errorManager: errorManager, authenticationManager: authenticationManager)
+                    CityView(modelContext: modelContext, city: city, catalogNetworkManager: catalogNetworkManager, eventNetworkManager: eventNetworkManager, placeNetworkManager: placeNetworkManager, errorManager: errorManager, authenticationManager: authenticationManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, catalogDataManager: catalogDataManager)
                 } label: {
                     CityCell(city: city, showCountryRegion: false)
                 }

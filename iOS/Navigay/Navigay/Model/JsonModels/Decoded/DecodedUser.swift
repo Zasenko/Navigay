@@ -27,10 +27,3 @@ struct DecodedAppUser: Codable, Identifiable {
     let bio: String?
     let photo: String?
 }
-
-struct DecodedUser: Codable, Identifiable {
-    let id: Int
-    let name: String
-    let bio: String?
-    let photo: String?
-}

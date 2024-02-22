@@ -11,9 +11,7 @@ import SwiftUI
 protocol UserNetworkManagerProtocol {
     func updateUserName(id: Int, name: String, key: String) async -> Bool
     func updateUserBio(id: Int, bio: String?, key: String) async -> Bool
-    
     func updateUserPhoto(id: Int, uiImage: UIImage, key: String) async throws -> ImageResult
-    
     func deleteUserPhoto()
 }
 

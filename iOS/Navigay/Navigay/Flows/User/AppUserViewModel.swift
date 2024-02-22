@@ -24,26 +24,35 @@ extension AppUserView {
         var showLoginView: Bool = false
         var showRegistrationView: Bool = false
         
+        var showDeleteAccountAlert: Bool = false
+        
         var modelContext: ModelContext
         let eventNetworkManager: EventNetworkManagerProtocol
         let placeNetworkManager: PlaceNetworkManagerProtocol
         let userNetworkManager: UserNetworkManagerProtocol
         let authNetworkManager: AuthNetworkManagerProtocol
-        
+        let placeDataManager: PlaceDataManagerProtocol
+        let eventDataManager: EventDataManagerProtocol
         let errorManager: ErrorManagerProtocol
+        
+        //MARK: - Init
         
         init(modelContext: ModelContext,
              placeNetworkManager: PlaceNetworkManagerProtocol,
              eventNetworkManager: EventNetworkManagerProtocol,
              authNetworkManager: AuthNetworkManagerProtocol,
              errorManager: ErrorManagerProtocol,
-             userNetworkManager: UserNetworkManagerProtocol) {
+             userNetworkManager: UserNetworkManagerProtocol,
+             placeDataManager: PlaceDataManagerProtocol,
+             eventDataManager: EventDataManagerProtocol) {
             self.modelContext = modelContext
             self.eventNetworkManager = eventNetworkManager
             self.placeNetworkManager = placeNetworkManager
             self.userNetworkManager = userNetworkManager
             self.authNetworkManager = authNetworkManager
             self.errorManager = errorManager
+            self.placeDataManager = placeDataManager
+            self.eventDataManager = eventDataManager
         }
         
         func logoutButtonTapped(user: AppUser) {
@@ -53,8 +62,8 @@ extension AppUserView {
             }
         }
         
-        func deleteAccountButtonTapped() {
-            
+        func deleteAccountButtonTapped(for user: AppUser) {
+            modelContext.delete(user)
         }
         
         func updateUserName(name: String, for user: AppUser) {
@@ -97,7 +106,7 @@ extension AppUserView {
                    //     errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: errorModel)
                         
                         print(decodedResult.error?.message ?? "")
-                        throw NetworkErrors.apiError
+                        throw NetworkErrors.apiErrorTest
                     }
                     await MainActor.run {
                         self.isLoadingPhoto = false

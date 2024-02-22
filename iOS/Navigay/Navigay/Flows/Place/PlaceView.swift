@@ -21,8 +21,16 @@ struct PlaceView: View {
     @ObservedObject private var authenticationManager: AuthenticationManager // TODO: убрать юзера из вью модели так как он в authenticationManager
     // MARK: - Inits
     
-    init(place: Place, modelContext: ModelContext, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol, authenticationManager: AuthenticationManager, showOpenInfo: Bool) {
-        let viewModel = PlaceViewModel(place: place, modelContext: modelContext, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, showOpenInfo: showOpenInfo)
+    init(place: Place,
+         modelContext: ModelContext,
+         placeNetworkManager: PlaceNetworkManagerProtocol,
+         eventNetworkManager: EventNetworkManagerProtocol,
+         errorManager: ErrorManagerProtocol,
+         authenticationManager: AuthenticationManager,
+         placeDataManager: PlaceDataManagerProtocol,
+         eventDataManager: EventDataManagerProtocol,
+         showOpenInfo: Bool) {
+        let viewModel = PlaceViewModel(place: place, modelContext: modelContext, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, showOpenInfo: showOpenInfo)
         _viewModel = State(wrappedValue: viewModel)
         self.authenticationManager = authenticationManager
     }
@@ -210,7 +218,7 @@ struct PlaceView: View {
                                 .foregroundStyle(.blue)
                         }
                         .fullScreenCover(isPresented: $viewModel.showRegistrationView) {
-                            RegistrationView(authenticationManager: authenticationManager) {
+                            RegistrationView(authenticationManager: authenticationManager, errorManager: authenticationManager.errorManager) {
                                 viewModel.showRegistrationView = false
                             }
                         }
@@ -227,11 +235,11 @@ struct PlaceView: View {
                     ForEach(viewModel.comments) { comment in
                         VStack(spacing: 0) {
                             VStack(spacing: 10) {
-                                if let rating = comment.rating {
+                                if comment.rating != 0 {
                                     HStack {
                                         ForEach(1..<6) { int in
                                             Image(systemName: "star.fill")
-                                                .foregroundStyle(int <= rating ? .yellow : .secondary)
+                                                .foregroundStyle(int <= comment.rating ? .yellow : .secondary)
                                         }
                                     }
                                 }
@@ -258,22 +266,24 @@ struct PlaceView: View {
                             .background(AppColors.lightGray6)
                             .clipShape(RoundedRectangle(cornerRadius: 20))
                             HStack {
-                                if let url = comment.user.photo {
-                                    ImageLoadingView(url: url, width: 50, height: 50, contentMode: .fill) {
-                                        AppColors.lightGray6 // TODO: animation in ImageLoadingView
+                                if let user = comment.user {
+                                    if let url = user.photo {
+                                        ImageLoadingView(url: url, width: 50, height: 50, contentMode: .fill) {
+                                            AppColors.lightGray6 // TODO: animation in ImageLoadingView
+                                        }
+                                        .clipped()
+                                        .listRowSeparator(.hidden)
+                                        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                                    } else {
+                                        AppImages.iconPerson
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: 20, height: 20)
                                     }
-                                    .clipped()
-                                    .listRowSeparator(.hidden)
-                                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                                } else {
-                                    AppImages.iconPerson
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(width: 20, height: 20)
+                                    Text(user.name)
+                                        .bold()
+                                        .frame(maxWidth: .infinity, alignment: .leading)
                                 }
-                                Text(comment.user.name)
-                                    .bold()
-                                    .frame(maxWidth: .infinity, alignment: .leading)
                                 Text(comment.createdAt)
                             }
                             .font(.caption)

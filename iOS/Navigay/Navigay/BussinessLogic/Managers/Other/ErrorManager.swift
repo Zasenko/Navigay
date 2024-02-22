@@ -9,6 +9,7 @@ import SwiftUI
 
 protocol ErrorManagerProtocol {
     var getError: ((ErrorModel) -> Void)? { get set }
+    
     func showError()
     func showError(error: Error)
     func showError(text: String)
@@ -40,6 +41,7 @@ final class ErrorManager: ErrorManagerProtocol {
                 getError?(ErrorModel.init(massage: apiError.message, img: nil, color: nil))
             } else {
                 debugPrint(apiError.message)
+                showError(model: error)
             }
         } else {
             showError(model: error)

@@ -87,6 +87,7 @@ struct EventCell: View {
                         } else {
                             AppColors.lightGray6
                                 .frame(width: width, height: width)
+                                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                         }
                     }
                     .onAppear() {

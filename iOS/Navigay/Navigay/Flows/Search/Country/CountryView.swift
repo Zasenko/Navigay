@@ -20,9 +20,12 @@ struct CountryView: View {
          placeNetworkManager: PlaceNetworkManagerProtocol,
          eventNetworkManager: EventNetworkManagerProtocol,
          errorManager: ErrorManagerProtocol,
-         user: AppUser?,
-         authenticationManager: AuthenticationManager) {
-        _viewModel = State(initialValue: CountryViewModel(modelContext: modelContext, country: country, catalogNetworkManager: catalogNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, user: user))
+         authenticationManager: AuthenticationManager,
+         placeDataManager: PlaceDataManagerProtocol,
+         eventDataManager: EventDataManagerProtocol,
+         catalogDataManager: CatalogDataManagerProtocol) {
+        let viewModel = CountryViewModel(modelContext: modelContext, country: country, catalogNetworkManager: catalogNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, catalogDataManager: catalogDataManager)
+        _viewModel = State(initialValue: viewModel)
         _authenticationManager = ObservedObject(wrappedValue: authenticationManager)
     }
     
@@ -49,10 +52,10 @@ struct CountryView: View {
                         .listRowSeparator(.hidden)
                     if viewModel.country.showRegions {
                         ForEach(viewModel.country.regions.sorted(by: { $0.id < $1.id } )) { region in
-                            RegionView(modelContext: viewModel.modelContext, region: region, catalogNetworkManager: viewModel.catalogNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, errorManager: viewModel.errorManager, user: viewModel.user, authenticationManager: authenticationManager)
+                            RegionView(modelContext: viewModel.modelContext, region: region, catalogNetworkManager: viewModel.catalogNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, errorManager: viewModel.errorManager, authenticationManager: authenticationManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, catalogDataManager: viewModel.catalogDataManager)
                         }
                     } else {
-                        CitiesView(modelContext: viewModel.modelContext, cities: viewModel.country.regions.flatMap( { $0.cities } ).sorted(by: { $0.id < $1.id } ), catalogNetworkManager: viewModel.catalogNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, errorManager: viewModel.errorManager, user: viewModel.user, authenticationManager: authenticationManager)
+                        CitiesView(modelContext: viewModel.modelContext, cities: viewModel.country.regions.flatMap( { $0.cities } ).sorted(by: { $0.id < $1.id } ), catalogNetworkManager: viewModel.catalogNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, errorManager: viewModel.errorManager, authenticationManager: authenticationManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, catalogDataManager: viewModel.catalogDataManager)
                     }
                     
                     Section {

@@ -25,8 +25,11 @@ struct AppUserView: View {
          placeNetworkManager: PlaceNetworkManagerProtocol,
          eventNetworkManager: EventNetworkManagerProtocol,
          errorManager: ErrorManagerProtocol,
-         authenticationManager: AuthenticationManager) {
-        _viewModel = State(initialValue: AppUserViewModel(modelContext: modelContext, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, authNetworkManager: authenticationManager.networkManager, errorManager: errorManager, userNetworkManager: userNetworkManager))
+         authenticationManager: AuthenticationManager,
+         placeDataManager: PlaceDataManagerProtocol,
+         eventDataManager: EventDataManagerProtocol) {
+        let viewModel = AppUserViewModel(modelContext: modelContext, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, authNetworkManager: authenticationManager.networkManager, errorManager: errorManager, userNetworkManager: userNetworkManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager)
+        _viewModel = State(initialValue: viewModel)
         _authenticationManager = ObservedObject(wrappedValue: authenticationManager)
     }
 
@@ -52,7 +55,6 @@ struct AppUserView: View {
                 .buttonStyle(.plain)
                 .navigationBarBackButtonHidden()
                 .toolbarBackground(AppColors.background)
-                // .toolbarBackground(viewModel.showHeaderTitle ? .visible : .hidden, for: .navigationBar)
                 .toolbarTitleDisplayMode(.inline)
                 .toolbar {
                     if let user = authenticationManager.appUser, user.isUserLoggedIn {
@@ -68,16 +70,17 @@ struct AppUserView: View {
                                 }
                                 
                                 Button {
-                                    viewModel.logoutButtonTapped(user: user)
                                     user.isUserLoggedIn = false
                                     likedPlaces.forEach( { $0.isLiked = false } )
                                     likedEvents.forEach( { $0.isLiked = false } )
+                                    viewModel.logoutButtonTapped(user: user)
+                                    authenticationManager.appUser = nil
                                 } label: {
                                     Text("Log Out")
                                 }
                                 
                                 Button(role: .destructive) {
-                                    viewModel.deleteAccountButtonTapped()
+                                    viewModel.showDeleteAccountAlert.toggle()
                                 } label: {
                                     Label(
                                         title: { Text("Delete Account") },
@@ -88,6 +91,28 @@ struct AppUserView: View {
                                 AppImages.iconSettings
                                     .bold()
                                     .tint(.blue)
+                            }
+                            .alert("Delete Account", isPresented: $viewModel.showDeleteAccountAlert) {
+                                Button("Delete", role: .destructive) {
+                                    Task {
+                                        do {
+                                            try await authenticationManager.deleteAccount(user: user)
+                                            await MainActor.run {
+                                                likedPlaces.forEach( { $0.isLiked = false } )
+                                                likedEvents.forEach( { $0.isLiked = false } )
+                                                viewModel.deleteAccountButtonTapped(for: user)
+                                                authenticationManager.appUser = nil
+                                            }
+                                        } catch {
+                                            debugPrint("-Error- Delete Account: ", error)
+                                        }
+                                    }
+                                }
+                                Button("Cancel", role: .cancel) {
+                                    viewModel.showDeleteAccountAlert.toggle()
+                                }
+                            } message: {
+                                Text("Are you shure you want to delete your Account?")
                             }
                         }
                     }
@@ -234,7 +259,7 @@ struct AppUserView: View {
                     .clipShape(Capsule())
             }
             .fullScreenCover(isPresented: $viewModel.showLoginView) {
-                LoginView(viewModel: LoginViewModel(), authenticationManager: authenticationManager) {
+                LoginView(viewModel: LoginViewModel(), authenticationManager: authenticationManager, errorManager: authenticationManager.errorManager) {
                     viewModel.showLoginView = false
                 }
             }
@@ -251,7 +276,7 @@ struct AppUserView: View {
                     .clipShape(Capsule())
             }
             .fullScreenCover(isPresented: $viewModel.showRegistrationView) {
-                RegistrationView(viewModel: RegistrationViewModel(), authenticationManager: authenticationManager) {
+                RegistrationView(viewModel: RegistrationViewModel(), authenticationManager: authenticationManager, errorManager: authenticationManager.errorManager) {
                     viewModel.showRegistrationView = false
                 }
             }
@@ -294,7 +319,7 @@ struct AppUserView: View {
             .offset(x: 70)
             ForEach(likedPlaces.sorted(by: { $0.name < $1.name})) { place in
                 NavigationLink {
-                    PlaceView(place: place, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, authenticationManager: authenticationManager, showOpenInfo: false)
+                    PlaceView(place: place, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, authenticationManager: authenticationManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, showOpenInfo: false)
                 } label: {
                     PlaceCell(place: place, showOpenInfo: false, showDistance: false, showCountryCity: true, showLike: false)
                 }

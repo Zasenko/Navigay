@@ -15,6 +15,8 @@ enum EntryViewRouter {
 
 struct EntryView: View {
     
+    //MARK: - Private Properties
+    
     @Query private var appUsers: [AppUser]
     
     @AppStorage("firstTimeInApp") private var firstTimeInApp: Bool = true
@@ -26,17 +28,20 @@ struct EntryView: View {
     private let errorManager: ErrorManagerProtocol
     private let networkMonitor: NetworkMonitorManagerProtocol
     
+    //MARK: - Init
+    
     init() {
         let appSettingsManager = AppSettingsManager()
         let errorManager = ErrorManager()
         let keychainManager = KeychainManager()
-        let authNetworkManager = AuthNetworkManager(appSettingsManager: appSettingsManager)
-        let authenticationManager = AuthenticationManager(keychainManager: keychainManager, networkManager: authNetworkManager, errorManager: errorManager)
+        let networkMonitorManager = NetworkMonitorManager(errorManager: errorManager)
+        let authNetworkManager = AuthNetworkManager(networkMonitorManager: networkMonitorManager, appSettingsManager: appSettingsManager)
+        let authenticationManager = AuthenticationManager(keychainManager: keychainManager, networkMonitorManager: networkMonitorManager, networkManager: authNetworkManager, errorManager: errorManager)
+        
+        self.networkMonitor = networkMonitorManager
         self.appSettingsManager = appSettingsManager
         self.errorManager = errorManager
-        
-        self.networkMonitor = NetworkMonitorManager(errorManager: errorManager)
-        
+
         _authenticationManager = StateObject(wrappedValue: authenticationManager)
         _router = State(wrappedValue: EntryViewRouter.welcomeView)
         let id = authenticationManager.lastLoginnedUserId
@@ -44,6 +49,8 @@ struct EntryView: View {
             _appUsers = Query(filter: #Predicate<AppUser>{ $0.id == id })
         }
     }
+    
+    //MARK: - Body
     
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -59,16 +66,27 @@ struct EntryView: View {
             ErrorView(viewModel: ErrorViewModel(errorManager: errorManager))
         }
         .onAppear() {
-            if firstTimeInApp {
-                router = .welcomeView
-            } else {
-                router = .tabView
-                if let appUser = appUsers.first(where: { $0.id == authenticationManager.lastLoginnedUserId }),
-                   appUser.isUserLoggedIn {
-                    authenticationManager.authentificate(user: appUser)
-                }
-            }
+            setRouter()
         }
+    }
+    
+    //MARK: - Private Functions
+    
+    private func setRouter() {
+        if firstTimeInApp {
+            router = .welcomeView
+        } else {
+            router = .tabView
+            authentificate()
+        }
+    }
+    
+    private func authentificate() {
+        guard let appUser = appUsers.first(where: { $0.id == authenticationManager.lastLoginnedUserId }),
+              appUser.isUserLoggedIn else {
+            return
+        }
+        authenticationManager.authentificate(user: appUser)
     }
 }
 

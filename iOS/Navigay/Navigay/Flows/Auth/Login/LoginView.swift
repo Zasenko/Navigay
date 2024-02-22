@@ -19,6 +19,7 @@ struct LoginView: View {
     @StateObject var viewModel: LoginViewModel
     @ObservedObject var authenticationManager: AuthenticationManager
     
+    let errorManager: ErrorManagerProtocol
     let onDismiss: () -> Void
     
     // MARK: - Private Properties
@@ -31,23 +32,26 @@ struct LoginView: View {
     
     var body: some View {
         NavigationStack {
-            listView
-                .navigationBarBackButtonHidden()
-                .toolbarBackground(.hidden, for: .navigationBar)
-                .toolbarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button {
-                            focusedField = nil
-                            dismiss()
-                        } label: {
-                            AppImages.iconX
-                                .bold()
-                                .frame(width: 30, height: 30)
+            ZStack(alignment: .bottom) {
+                listView
+                    .navigationBarBackButtonHidden()
+                    .toolbarBackground(.hidden, for: .navigationBar)
+                    .toolbarTitleDisplayMode(.inline)
+                    .toolbar {
+                        ToolbarItem(placement: .topBarTrailing) {
+                            Button {
+                                focusedField = nil
+                                dismiss()
+                            } label: {
+                                AppImages.iconX
+                                    .bold()
+                                    .frame(width: 30, height: 30)
+                            }
+                            .tint(.primary)
                         }
-                        .tint(.primary)
                     }
-                }
+                ErrorView(viewModel: ErrorViewModel(errorManager: errorManager))
+            }
         }
     }
 //            .gesture(DragGesture(minimumDistance: 3.0, coordinateSpace: .local)
@@ -214,38 +218,73 @@ struct LoginView: View {
         viewModel.allViewsDisabled = true
         viewModel.buttonState = .loading
         Task {
-            let decodedUser = await authenticationManager.login(email: viewModel.email, password: viewModel.password)
-            
-            await MainActor.run {
-                guard let decodedUser else {
-                        viewModel.allViewsDisabled = false
-                        viewModel.buttonState = .normal
-                    return
-                }
-                do {
-                    let descriptor = FetchDescriptor(predicate: #Predicate<AppUser>{ $0.id == decodedUser.id })
+            let errorModel = ErrorModel(massage: "Что-то пошло не так. Повтарите попытку позже.", img: AppImages.iconPersonError, color: .red)
+            do {
+                let decodedAppUser = try await authenticationManager.login(email: viewModel.email, password: viewModel.password)
+                
+                    
+                    let descriptor = FetchDescriptor(predicate: #Predicate<AppUser>{ $0.id == decodedAppUser.id })
                     
                     if let user = try context.fetch(descriptor).first {
                         user.isUserLoggedIn = true
-                        user.updateUser(decodedUser: decodedUser)
+                        user.updateUser(decodedUser: decodedAppUser)
                         authenticationManager.appUser = user
-
+                        
                         setLikedItems(for: user)
                         
                     } else {
-                        let user = AppUser(decodedUser: decodedUser)
+                        let user = AppUser(decodedUser: decodedAppUser)
                         user.isUserLoggedIn = true
                         authenticationManager.appUser = user
                         context.insert(user)
                     }
-                    self.onDismiss()
-                    
-                } catch {
-                    viewModel.allViewsDisabled = false
-                    viewModel.buttonState = .normal
-                    print("Fetch failed")
-                }
+                    onDismiss()
+                
+            } catch NetworkErrors.apiError(let apiError) {
+                viewModel.allViewsDisabled = false
+                viewModel.buttonState = .normal
+                errorManager.showApiErrorOrMessage(apiError: apiError, or: errorModel)
+            } catch NetworkErrors.noConnection {
+                viewModel.allViewsDisabled = false
+                viewModel.buttonState = .normal
+                errorManager.showError(model: errorModel)
+            } catch {
+                viewModel.allViewsDisabled = false
+                viewModel.buttonState = .normal
+                errorManager.showError(model: errorModel)
             }
+            
+            
+//            await MainActor.run {
+//                guard let decodedUser else {
+//                        viewModel.allViewsDisabled = false
+//                        viewModel.buttonState = .normal
+//                    return
+//                }
+//                do {
+//                    let descriptor = FetchDescriptor(predicate: #Predicate<AppUser>{ $0.id == decodedUser.id })
+//                    
+//                    if let user = try context.fetch(descriptor).first {
+//                        user.isUserLoggedIn = true
+//                        user.updateUser(decodedUser: decodedUser)
+//                        authenticationManager.appUser = user
+//
+//                        setLikedItems(for: user)
+//                        
+//                    } else {
+//                        let user = AppUser(decodedUser: decodedUser)
+//                        user.isUserLoggedIn = true
+//                        authenticationManager.appUser = user
+//                        context.insert(user)
+//                    }
+//                    self.onDismiss()
+//                    
+//                } catch {
+//                    viewModel.allViewsDisabled = false
+//                    viewModel.buttonState = .normal
+//                    print("Fetch failed")
+//                }
+//            }
         }
     }
 
@@ -304,14 +343,14 @@ struct LoginView: View {
     }
 }
 
-#Preview {
-    let viewModel = LoginViewModel(email: nil)
-    let keychainManager = KeychainManager()
-    let appSettingsManager = AppSettingsManager()
-    let networkManager = AuthNetworkManager(appSettingsManager: appSettingsManager)
-    let errorManager = ErrorManager()
-    let authenticationManager = AuthenticationManager(keychainManager: keychainManager, networkManager: networkManager, errorManager: errorManager)
-    return LoginView(viewModel: viewModel, authenticationManager: authenticationManager) {
-        print("dissmised")
-    }
-}
+//#Preview {
+//    let viewModel = LoginViewModel(email: nil)
+//    let keychainManager = KeychainManager()
+//    let appSettingsManager = AppSettingsManager()
+//    let networkManager = AuthNetworkManager(appSettingsManager: appSettingsManager)
+//    let errorManager = ErrorManager()
+//    let authenticationManager = AuthenticationManager(keychainManager: keychainManager, networkManager: networkManager, errorManager: errorManager)
+//    return LoginView(viewModel: viewModel, authenticationManager: authenticationManager) {
+//        print("dissmised")
+//    }
+//}

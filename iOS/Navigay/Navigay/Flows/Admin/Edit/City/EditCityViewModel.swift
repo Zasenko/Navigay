@@ -163,7 +163,7 @@ extension EditCityViewModel {
                 let decodedResult = try await networkManager.deleteCityLibraryPhoto(cityId: id, photoId: photoId)
                 guard decodedResult.result else {
                     errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: deleteErrorModel)
-                    throw NetworkErrors.apiError
+                    throw NetworkErrors.apiErrorTest
                 }
                 await MainActor.run {
                     self.isLoadingLibraryPhoto = false
@@ -191,7 +191,7 @@ extension EditCityViewModel {
                 let decodedResult = try await networkManager.updateCityPhoto(cityId: id, uiImage: scaledImage)
                 guard decodedResult.result else {
                     errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: errorModel)
-                    throw NetworkErrors.apiError
+                    throw NetworkErrors.apiErrorTest
                 }
                 await MainActor.run {
                     self.isLoadingPhoto = false
@@ -214,7 +214,7 @@ extension EditCityViewModel {
                 let decodedResult = try await networkManager.updateCityLibraryPhoto(cityId: id, photoId: photoId, uiImage: scaledImage)
                 guard decodedResult.result else {
                     errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: loadErrorModel)
-                    throw NetworkErrors.apiError
+                    throw NetworkErrors.apiErrorTest
                 }
                 await MainActor.run {
                     self.isLoadingLibraryPhoto = false

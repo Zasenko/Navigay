@@ -7,11 +7,11 @@
 
 import SwiftUI
 
-enum UserAuthorizationStatus {
-    case authorized
-    case notAuthorized
-    case loading
-}
+//enum UserAuthorizationStatus {
+//    case authorized
+//    case notAuthorized
+//    case loading
+//}
 
 enum AuthManagerErrors: Error {
     case emptyEmail
@@ -29,24 +29,27 @@ final class AuthenticationManager: ObservableObject {
     
     @AppStorage("lastLoginnedUserId") var lastLoginnedUserId: Int = 0
     
- //   @Published var userAuthorizationStatus: UserAuthorizationStatus = .loading
+    //   @Published var userAuthorizationStatus: UserAuthorizationStatus = .loading
     @Published var appUser: AppUser? = nil
+    
     let errorManager: ErrorManagerProtocol
+    let networkManager: AuthNetworkManagerProtocol
     
     // MARK: - Private Properties
     
     private let keychainManager: KeychainManagerProtocol
-    let networkManager: AuthNetworkManagerProtocol
+    private let networkMonitorManager: NetworkMonitorManagerProtocol
     
-    // MARK: - Inits
+    // MARK: - Init
     
     init(keychainManager: KeychainManagerProtocol,
+         networkMonitorManager: NetworkMonitorManagerProtocol,
          networkManager: AuthNetworkManagerProtocol,
          errorManager: ErrorManagerProtocol) {
         self.keychainManager = keychainManager
+        self.networkMonitorManager = networkMonitorManager
         self.networkManager = networkManager
         self.errorManager = errorManager
-        
     }
 }
 
@@ -56,120 +59,82 @@ extension AuthenticationManager {
     
     func authentificate(user: AppUser) {
         appUser = user
+        guard networkMonitorManager.isConnected else {
+            //следим за обновлением networkMonitorManager.isConnected и когда оно подключится - делаем логин
+            return
+        }
+        auth(user: user)
+    }
+    
+    private func auth(user: AppUser) {
         Task {
+            let errorModel = ErrorModel(massage: "Что-то пошло не так, вы не вошли в свой аккаунт.", img: AppImages.iconPersonError, color: .red)
             do {
                 let password = try keychainManager.getGenericPasswordFor(account: user.email, service: "User login")
-                let result = try await networkManager.login(email: user.email, password: password)
+                let decodedAppUser = try await networkManager.login(email: user.email, password: password)
                 
                 await MainActor.run {
-                    
-                    guard result.result,
-                          let decodedUser = result.user
-                    else {
-                        errorManager.showApiError(error: result.error)
-                        
-                        user.isUserLoggedIn = false
-                        // userAccessRights = .anonim
-                        //userAuthorizationStatus = .notAuthorized
-                        return
-                    }
-                    user.updateUser(decodedUser: decodedUser)
+                    user.updateUser(decodedUser: decodedAppUser)
                     user.isUserLoggedIn = true
-                 //   self.userAuthorizationStatus = .authorized
                 }
                 
+            } catch NetworkErrors.apiError(let apiError) {
+                //TODO: обрабоать разные варианты ошибок
+                await MainActor.run {
+                    user.isUserLoggedIn = false
+                }
+                errorManager.showApiErrorOrMessage(apiError: apiError, or: errorModel)
             } catch {
-                errorManager.showError(error: error)
+                await MainActor.run {
+                    user.isUserLoggedIn = false
+                }
+                debugPrint(error.localizedDescription)
+                errorManager.showError(model: errorModel)
             }
         }
     }
     
     @MainActor
-    func registration(email: String, password: String) async -> AppUser? {
+    func registration(email: String, password: String) async throws -> AppUser {
         do {
-            let result = try await networkManager.registration(email: email, password: password)
-            guard result.result,
-                  let decodedUser = result.user
-            else  {
-                errorManager.showApiError(error: result.error)
-                
-                return nil
-            }
+            let decodedAppUser = try await networkManager.registration(email: email,
+                                                                       password: password)
             try keychainManager.storeGenericPasswordFor(account: email,
                                                         service: "User login",
                                                         password: password)
-            let user = AppUser(decodedUser: decodedUser)
+            let user = AppUser(decodedUser: decodedAppUser)
             user.isUserLoggedIn = true
             lastLoginnedUserId = user.id
             appUser = user
             return user
         } catch {
-            errorManager.showError(error: error)
-            return nil
+            throw error
         }
     }
     
     @MainActor
-    func login(email: String, password: String) async -> DecodedAppUser? {
+    func login(email: String, password: String) async throws -> DecodedAppUser {
         do {
-            let result = try await networkManager.login(email: email, password: password)
-            guard result.result,
-                  let decodedUser = result.user
-            else  {
-                errorManager.showApiError(error: result.error)
-                return nil
-            }
+            let decodedAppUser = try await networkManager.login(email: email,
+                                                                password: password)
             try keychainManager.storeGenericPasswordFor(account: email,
                                                         service: "User login",
                                                         password: password)
-            lastLoginnedUserId = decodedUser.id
-            return decodedUser
+            lastLoginnedUserId = decodedAppUser.id
+            return decodedAppUser
         } catch {
-            errorManager.showError(error: error)
-            return nil
+            throw error
         }
     }
     
-//    func checkEmail(email: String) {
-//        let emailRegEx = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
-//        let emailPred = NSPredicate(format:"SELF MATCHES %@", emailRegEx)
-//        if !emailPred.evaluate(with: email) {
-//            errorManager.showError(with: ErrorModel(id: UUID(), massage: "Неверный формат электронной почты.", img: Image(systemName: "at"), color: .red))
-//        }
-//    }
-    
-//    func checkPassword(password: String) {
-//        if password.count < 8 {
-//            errorManager.showError(with: ErrorModel(id: UUID(), massage: "Пароль должен быть не менее 8 символов.", img: Image(systemName: "lock"), color: .red))
-//        } else if (!NSPredicate(format:"SELF MATCHES %@", ".*[0-9]+.*").evaluate(with: password)) {
-//            errorManager.showError(with: ErrorModel(id: UUID(), massage: "Пароль должен содержать хотя бы одну цифру.", img: Image(systemName: "lock"), color: .red))
-//        } else if (!NSPredicate(format:"SELF MATCHES %@", ".*[a-z]+.*").evaluate(with: password)) {
-//            errorManager.showError(with: ErrorModel(id: UUID(), massage: "Пароль должен содержать как минимум одну букву.", img: Image(systemName: "lock"), color: .red))
-//        }
-//    }
+    func deleteAccount(user: AppUser) async throws {
+        do {
+            guard let sessionKey = user.sessionKey else {
+                throw NetworkErrors.noSessionKey
+            }
+            try await networkManager.deleteAccount(id: user.id, sessionKey: sessionKey)
+        } catch {
+            throw error
+        }
+    }
 }
-
-
-//extension AuthenticationManager {
-//    
-//    // MARK: - Private Functions
-//    
-//    private func checkEmailAndPassword(email: String, password: String) async throws {
-//        if email.isEmpty {
-//            throw AuthManagerErrors.emptyEmail
-//        }
-//        let emailRegEx = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
-//        let emailPred = NSPredicate(format:"SELF MATCHES %@", emailRegEx)
-//        if !emailPred.evaluate(with: email) {
-//            throw AuthManagerErrors.wrongEmail
-//        } else if password.isEmpty {
-//            throw AuthManagerErrors.emptyPassword
-//        } else if password.count < 8 {
-//            throw AuthManagerErrors.noMinCharacters
-//        } else if(!NSPredicate(format:"SELF MATCHES %@", ".*[0-9]+.*").evaluate(with: password)){
-//            throw AuthManagerErrors.noDigit
-//        } else if(!NSPredicate(format:"SELF MATCHES %@", ".*[a-z]+.*").evaluate(with: password)){
-//            throw AuthManagerErrors.noLowercase
-//        }
-//    }
-//}

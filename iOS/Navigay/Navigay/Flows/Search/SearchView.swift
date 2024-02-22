@@ -11,7 +11,7 @@ import SwiftData
 struct SearchView: View {
     
     @State private var viewModel: SearchViewModel
-    @ObservedObject var authenticationManager: AuthenticationManager // TODO: убрать юзера из вью модели так как он в authenticationManager
+    @ObservedObject var authenticationManager: AuthenticationManager
     @FocusState private var focused: Bool
     //  @Namespace var namespace
     
@@ -20,9 +20,13 @@ struct SearchView: View {
          placeNetworkManager: PlaceNetworkManagerProtocol,
          eventNetworkManager: EventNetworkManagerProtocol,
          errorManager: ErrorManagerProtocol,
-         user: AppUser?,
-         authenticationManager: AuthenticationManager) {
-        _viewModel = State(initialValue: SearchViewModel(modelContext: modelContext, catalogNetworkManager: catalogNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, user: user))
+         authenticationManager: AuthenticationManager,
+         placeDataManager: PlaceDataManagerProtocol,
+         eventDataManager: EventDataManagerProtocol,
+         catalogDataManager: CatalogDataManagerProtocol) {
+        let viewModel = SearchViewModel(modelContext: modelContext, catalogNetworkManager: catalogNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, catalogDataManager: catalogDataManager)
+        
+        _viewModel = State(initialValue: viewModel)
         _authenticationManager = ObservedObject(wrappedValue: authenticationManager)
         viewModel.getCountriesFromDB()
         viewModel.fetchCountries()
@@ -156,7 +160,7 @@ struct SearchView: View {
     private var allCountriesView: some View {
         ForEach(viewModel.countries) { country in
             NavigationLink {
-                CountryView(modelContext: viewModel.modelContext, country: country, catalogNetworkManager: viewModel.catalogNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, user: viewModel.user, authenticationManager: authenticationManager)
+                CountryView(modelContext: viewModel.modelContext, country: country, catalogNetworkManager: viewModel.catalogNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, authenticationManager: authenticationManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, catalogDataManager: viewModel.catalogDataManager)
             } label: {
                 countryCell(country: country)
             }
@@ -195,7 +199,7 @@ struct SearchView: View {
                             .offset(x: 70)
                         ForEach(viewModel.searchCountries) { country in
                             NavigationLink {
-                                CountryView(modelContext: viewModel.modelContext, country: country, catalogNetworkManager: viewModel.catalogNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, user: viewModel.user, authenticationManager: authenticationManager)
+                                CountryView(modelContext: viewModel.modelContext, country: country, catalogNetworkManager: viewModel.catalogNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, authenticationManager: authenticationManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, catalogDataManager: viewModel.catalogDataManager)
                             } label: {
                                 countryCell(country: country)
                             }
@@ -268,7 +272,7 @@ struct SearchView: View {
                             .offset(x: 70)
                         ForEach(viewModel.searchCities) { city in
                             NavigationLink {
-                                CityView(modelContext: viewModel.modelContext, city: city, catalogNetworkManager: viewModel.catalogNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, errorManager: viewModel.errorManager, authenticationManager: authenticationManager)
+                                CityView(modelContext: viewModel.modelContext, city: city, catalogNetworkManager: viewModel.catalogNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, errorManager: viewModel.errorManager, authenticationManager: authenticationManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, catalogDataManager: viewModel.catalogDataManager)
                             } label: {
                                 CityCell(city: city, showCountryRegion: true)
                             }
@@ -319,7 +323,7 @@ struct SearchView: View {
                     .offset(x: 70)
                 ForEach(viewModel.searchGroupedPlaces[key] ?? []) { place in
                     NavigationLink {
-                        PlaceView(place: place, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, authenticationManager: authenticationManager, showOpenInfo: false)
+                        PlaceView(place: place, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, authenticationManager: authenticationManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, showOpenInfo: false)
                     } label: {
                         PlaceCell(place: place, showOpenInfo: false, showDistance: false, showCountryCity: true, showLike: true)
                     }

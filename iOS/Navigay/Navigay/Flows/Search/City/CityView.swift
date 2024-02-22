@@ -20,13 +20,12 @@ struct CityView: View {
          eventNetworkManager: EventNetworkManagerProtocol,
          placeNetworkManager: PlaceNetworkManagerProtocol,
          errorManager: ErrorManagerProtocol,
-         authenticationManager: AuthenticationManager) {
-        _viewModel = State(initialValue: CityViewModel(modelContext: modelContext,
-                                                       city: city,
-                                                       catalogNetworkManager: catalogNetworkManager,
-                                                       placeNetworkManager: placeNetworkManager,
-                                                       eventNetworkManager: eventNetworkManager,
-                                                       errorManager: errorManager))
+         authenticationManager: AuthenticationManager,
+         placeDataManager: PlaceDataManagerProtocol,
+         eventDataManager: EventDataManagerProtocol,
+         catalogDataManager: CatalogDataManagerProtocol) {
+        let viewModel = CityViewModel(modelContext: modelContext, city: city, catalogNetworkManager: catalogNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, catalogDataManager: catalogDataManager)
+        _viewModel = State(initialValue: viewModel)
         _authenticationManager = ObservedObject(wrappedValue: authenticationManager)
     }
     
@@ -143,7 +142,7 @@ struct CityView: View {
                     .offset(x: 70)
                 ForEach(viewModel.groupedPlaces[key] ?? []) { place in
                     NavigationLink {
-                        PlaceView(place: place, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, authenticationManager: authenticationManager, showOpenInfo: false)
+                        PlaceView(place: place, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, authenticationManager: authenticationManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, showOpenInfo: false)
                     } label: {
                         PlaceCell(place: place, showOpenInfo: false, showDistance: false, showCountryCity: false, showLike: true)
                     }

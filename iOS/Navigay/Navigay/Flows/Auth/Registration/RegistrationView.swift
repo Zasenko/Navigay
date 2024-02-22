@@ -17,7 +17,7 @@ struct RegistrationView: View {
     
     @StateObject var viewModel: RegistrationViewModel = RegistrationViewModel()
     @ObservedObject var authenticationManager: AuthenticationManager
-    
+    let errorManager: ErrorManagerProtocol
     let onDismiss: () -> Void
     
     // MARK: - Private Properties
@@ -185,6 +185,7 @@ struct RegistrationView: View {
             .background(viewModel.isButtonValid ? .green : AppColors.lightGray5)
             .clipShape(Capsule())
         }
+        .frame(maxWidth: .infinity)
         .disabled(!viewModel.isButtonValid)
     }
         
@@ -196,12 +197,22 @@ struct RegistrationView: View {
         viewModel.allViewsDisabled = true
         viewModel.buttonState = .loading
         Task {
-            if let user = await authenticationManager.registration(email: viewModel.email, password: viewModel.password) {
-                context.insert(user)
+            let error = ErrorModel(massage: "Что-то пошло не так. Повтарите попытку позже.", img: AppImages.iconPersonError, color: .red)
+            do {
+                let appUser = try await authenticationManager.registration(email: viewModel.email, password: viewModel.password)
+                context.insert(appUser)
                 onDismiss()
-            } else{
+            } catch NetworkErrors.apiError(let apiError) {
                 viewModel.allViewsDisabled = false
                 viewModel.buttonState = .normal
+                errorManager.showApiErrorOrMessage(apiError: apiError, or: error)
+            } catch NetworkErrors.noConnection {
+                viewModel.allViewsDisabled = false
+                viewModel.buttonState = .normal
+            } catch {
+                viewModel.allViewsDisabled = false
+                viewModel.buttonState = .normal
+                errorManager.showError(error: error)
             }
         }
     }
@@ -239,14 +250,14 @@ struct RegistrationView: View {
     }
 }
 
-#Preview {
-    let viewModel = RegistrationViewModel()
-    let keychainManager = KeychainManager()
-    let appSettingsManager = AppSettingsManager()
-    let networkManager = AuthNetworkManager(appSettingsManager: appSettingsManager)
-    let errorManager = ErrorManager()
-    let authenticationManager = AuthenticationManager(keychainManager: keychainManager, networkManager: networkManager, errorManager: errorManager)
-    return RegistrationView(viewModel: viewModel, authenticationManager: authenticationManager) {
-        print("dissmised")
-    }
-}
+//#Preview {
+//    let viewModel = RegistrationViewModel()
+//    let keychainManager = KeychainManager()
+//    let appSettingsManager = AppSettingsManager()
+//    let networkManager = AuthNetworkManager(appSettingsManager: appSettingsManager)
+//    let errorManager = ErrorManager()
+//    let authenticationManager = AuthenticationManager(keychainManager: keychainManager, networkManager: networkManager, errorManager: errorManager)
+//    return RegistrationView(viewModel: viewModel, authenticationManager: authenticationManager) {
+//        print("dissmised")
+//    }
+//}

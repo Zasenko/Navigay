@@ -100,7 +100,8 @@ struct EditPhoneView: View {
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Готово") {
-                        onSave(mobPhoneNumber.isEmpty ? "" : "\(countryCode) \(mobPhoneNumber)")
+                        let number = mobPhoneNumber.replacingOccurrences(of: " ", with: "")
+                        onSave(mobPhoneNumber.isEmpty ? "" : "\(countryCode) \(number)")
                         dismiss()
                     }
                     .bold()

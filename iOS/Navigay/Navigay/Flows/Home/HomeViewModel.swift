@@ -57,17 +57,18 @@ extension HomeView {
              aroundNetworkManager: AroundNetworkManagerProtocol,
              placeNetworkManager: PlaceNetworkManagerProtocol,
              eventNetworkManager: EventNetworkManagerProtocol,
-             errorManager: ErrorManagerProtocol) {
+             errorManager: ErrorManagerProtocol,
+             placeDataManager: PlaceDataManagerProtocol,
+             eventDataManager: EventDataManagerProtocol,
+             catalogDataManager: CatalogDataManagerProtocol) {
             self.modelContext = modelContext
             self.aroundNetworkManager = aroundNetworkManager
             self.eventNetworkManager = eventNetworkManager
             self.placeNetworkManager = placeNetworkManager
             self.errorManager = errorManager
-            
-            //TODO: - Init!!!
-            self.placeDataManager = PlaceDataManager()
-            self.eventDataManager = EventDataManager()
-            self.catalogDataManager = CatalogDataManager()
+            self.placeDataManager = placeDataManager
+            self.eventDataManager = eventDataManager
+            self.catalogDataManager = catalogDataManager
         }
         
         //MARK: - Functions

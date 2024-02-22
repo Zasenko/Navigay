@@ -116,7 +116,7 @@ extension EditCountryViewModel {
                 let decodedResult = try await networkManager.updateCountryPhoto(countryId: id, uiImage: scaledImage)
                 guard decodedResult.result else {
                     errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: errorModel)
-                    throw NetworkErrors.apiError
+                    throw NetworkErrors.apiErrorTest
                 }
                 await MainActor.run {
                     self.isLoadingPhoto = false

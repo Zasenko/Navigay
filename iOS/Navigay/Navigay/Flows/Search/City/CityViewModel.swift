@@ -52,20 +52,27 @@ extension CityView {
         var showEditCityView: Bool = false
         var adminCity: AdminCity? = nil
         
-        init(modelContext: ModelContext, city: City, catalogNetworkManager: CatalogNetworkManagerProtocol, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol) {
+        init(modelContext: ModelContext,
+             city: City,
+             catalogNetworkManager: CatalogNetworkManagerProtocol,
+             placeNetworkManager: PlaceNetworkManagerProtocol,
+             eventNetworkManager: EventNetworkManagerProtocol,
+             errorManager: ErrorManagerProtocol,
+             placeDataManager: PlaceDataManagerProtocol,
+             eventDataManager: EventDataManagerProtocol,
+             catalogDataManager: CatalogDataManagerProtocol) {
             self.modelContext = modelContext
             self.city = city
             self.catalogNetworkManager = catalogNetworkManager
             self.eventNetworkManager = eventNetworkManager
             self.placeNetworkManager = placeNetworkManager
             self.errorManager = errorManager
+            self.placeDataManager = placeDataManager
+            self.eventDataManager = eventDataManager
+            self.catalogDataManager = catalogDataManager
+            
             let newPhotosLinks = city.getAllPhotos()
             allPhotos = newPhotosLinks
-            
-            //TODO: - Init!!!
-            self.placeDataManager = PlaceDataManager()
-            self.eventDataManager = EventDataManager()
-            self.catalogDataManager = CatalogDataManager()
         }
         
         func getPlacesAndEventsFromDB() {
