@@ -296,7 +296,9 @@ struct SearchView: View {
                             .offset(x: 90)
                         LazyVGrid(columns: viewModel.gridLayout, spacing: 20) {
                             ForEach(viewModel.searchEvents) { event in
-                                EventCell(event: event, width: (width / 2) - 30, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, showCountryCity: true, authenticationManager: authenticationManager, showStartDayInfo: true, showStartTimeInfo: false)
+                              //  EventCell(event: event, width: (width / 2) - 30, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, showCountryCity: true, authenticationManager: authenticationManager, showStartDayInfo: true, showStartTimeInfo: false)
+                                
+                                EventCell(event: event, showCountryCity: true, showStartDayInfo: true, showStartTimeInfo: false, width: (width / 2) - 30)
                             }
                         }
                         .padding(.horizontal, 20)

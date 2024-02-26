@@ -13,7 +13,7 @@ struct EventView: View {
     
     // MARK: - Properties
     
-    @Binding var isEventViewPresented: Bool
+ //   @Binding var isEventViewPresented: Bool
     
     // MARK: - Private Properties
     
@@ -23,11 +23,18 @@ struct EventView: View {
     
     // MARK: - Init
     
-    init(isEventViewPresented: Binding<Bool>, event: Event, modelContext: ModelContext, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol, authenticationManager: AuthenticationManager) {
+    init(
+        //isEventViewPresented: Binding<Bool>,
+         event: Event,
+         modelContext: ModelContext,
+         placeNetworkManager: PlaceNetworkManagerProtocol,
+         eventNetworkManager: EventNetworkManagerProtocol,
+         errorManager: ErrorManagerProtocol,
+         authenticationManager: AuthenticationManager) {
         debugPrint("init EventView, event id: ", event.id)
         let viewModel = EventViewModel(event: event, modelContext: modelContext, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager)
         _viewModel = State(wrappedValue: viewModel)
-        _isEventViewPresented = isEventViewPresented
+       // _isEventViewPresented = isEventViewPresented
         self.authenticationManager = authenticationManager
         viewModel.loadEvent()
     }
@@ -35,66 +42,127 @@ struct EventView: View {
     // MARK: - Body
     
     var body: some View {
-        NavigationStack {
-            ZStack(alignment: .topTrailing) {
-                listView
-                    .toolbar(.hidden, for: .navigationBar)
-               
-                HStack {
-                    Button {
-                        viewModel.event.isLiked.toggle()
-                        guard let user = authenticationManager.appUser else { return }
-                        
-                        if user.likedEvents.contains(where: {$0 == viewModel.event.id} ) {
-                            user.likedEvents.removeAll(where: {$0 == viewModel.event.id})
-                        } else {
-                            user.likedEvents.append(viewModel.event.id)
-                        }
-                    } label: {
-                        Image(systemName: viewModel.event.isLiked ? "heart.fill" : "heart")
-                            .bold()
-                            .frame(width: 30, height: 30, alignment: .leading)
-                    }
-                    .tint(viewModel.event.isLiked ? .red :  .secondary)
-                    if let user = authenticationManager.appUser, user.status == .admin {
-                        Menu {
-                            Button("Edit") {
-                                viewModel.showEditView = true
-                            }
-                            Button("Clone Event") {
-                                viewModel.showNewEvetnView = true
-                            }
-                        } label: {
-                            AppImages.iconSettings
-                                .bold()
-                                .frame(width: 30, height: 30, alignment: .leading)
-                        }
-                    }
-                    
-                    Button {
-                        isEventViewPresented.toggle()
-                    } label: {
-                        AppImages.iconX
-                            .bold()
-                            .foregroundStyle(.secondary)
-                            .padding(5)
-                            .background(.ultraThinMaterial)
-                            .clipShape(.circle)
-                    }
-                    .padding()
-                }
-                .fullScreenCover(isPresented: $viewModel.showEditView) {
-                    viewModel.showEditView = false
-                } content: {
-                    EditEventView(viewModel: EditEventViewModel(event: viewModel.event, networkManager: AdminNetworkManager(errorManager: viewModel.errorManager)))
-                }
-                .fullScreenCover(isPresented: $viewModel.showNewEvetnView) {
-                    viewModel.showNewEvetnView = false
-                } content: {
-                    NewEventView(viewModel: NewEventViewModel(place: nil, copy: viewModel.event, networkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager), authenticationManager: authenticationManager)
-                }
-            }
+      //  NavigationStack {
+       //     ZStack(alignment: .topTrailing) {
+        VStack {
+                                        HStack {
+                                            Button {
+                                                viewModel.event.isLiked.toggle()
+                                                guard let user = authenticationManager.appUser else { return }
+            
+                                                if user.likedEvents.contains(where: {$0 == viewModel.event.id} ) {
+                                                    user.likedEvents.removeAll(where: {$0 == viewModel.event.id})
+                                                } else {
+                                                    user.likedEvents.append(viewModel.event.id)
+                                                }
+                                            } label: {
+                                                Image(systemName: viewModel.event.isLiked ? "heart.fill" : "heart")
+                                                    .bold()
+                                                    .frame(width: 30, height: 30, alignment: .leading)
+                                            }
+                                            .tint(viewModel.event.isLiked ? .red :  .secondary)
+                                            if let user = authenticationManager.appUser, user.status == .admin {
+                                                Menu {
+                                                    Button("Edit") {
+                                                        viewModel.showEditView = true
+                                                    }
+                                                    Button("Clone Event") {
+                                                        viewModel.showNewEvetnView = true
+                                                    }
+                                                } label: {
+                                                    AppImages.iconSettings
+                                                        .bold()
+                                                        .frame(width: 30, height: 30, alignment: .leading)
+                                                }
+                                            }
+            
+                                            Button {
+                                                dismiss()
+                                                //isEventViewPresented.toggle()
+                                            } label: {
+                                                AppImages.iconX
+                                                    .bold()
+                                                    .foregroundStyle(.secondary)
+                                                    .padding(5)
+                                                    .background(.ultraThinMaterial)
+                                                    .clipShape(.circle)
+                                            }
+                                            .padding()
+                                        }
+                                        .fullScreenCover(isPresented: $viewModel.showEditView) {
+                                            viewModel.showEditView = false
+                                        } content: {
+                                            EditEventView(viewModel: EditEventViewModel(event: viewModel.event, networkManager: AdminNetworkManager(errorManager: viewModel.errorManager)))
+                                        }
+                                        .fullScreenCover(isPresented: $viewModel.showNewEvetnView) {
+                                            viewModel.showNewEvetnView = false
+                                        } content: {
+                                            NewEventView(viewModel: NewEventViewModel(place: nil, copy: viewModel.event, networkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager), authenticationManager: authenticationManager)
+                                        }
+            listView
         }
+                 //   .toolbar(.hidden, for: .navigationBar)
+             //       .toolbarTitleDisplayMode(.inline)
+//                    .toolbar {
+//                        ToolbarItem(placement: .topBarTrailing) {
+//                            HStack {
+//                                Button {
+//                                    viewModel.event.isLiked.toggle()
+//                                    guard let user = authenticationManager.appUser else { return }
+//                                    
+//                                    if user.likedEvents.contains(where: {$0 == viewModel.event.id} ) {
+//                                        user.likedEvents.removeAll(where: {$0 == viewModel.event.id})
+//                                    } else {
+//                                        user.likedEvents.append(viewModel.event.id)
+//                                    }
+//                                } label: {
+//                                    Image(systemName: viewModel.event.isLiked ? "heart.fill" : "heart")
+//                                        .bold()
+//                                        .frame(width: 30, height: 30, alignment: .leading)
+//                                }
+//                                .tint(viewModel.event.isLiked ? .red :  .secondary)
+//                                if let user = authenticationManager.appUser, user.status == .admin {
+//                                    Menu {
+//                                        Button("Edit") {
+//                                            viewModel.showEditView = true
+//                                        }
+//                                        Button("Clone Event") {
+//                                            viewModel.showNewEvetnView = true
+//                                        }
+//                                    } label: {
+//                                        AppImages.iconSettings
+//                                            .bold()
+//                                            .frame(width: 30, height: 30, alignment: .leading)
+//                                    }
+//                                }
+//                                
+//                                Button {
+//                                    dismiss()
+//                                    //isEventViewPresented.toggle()
+//                                } label: {
+//                                    AppImages.iconX
+//                                        .bold()
+//                                        .foregroundStyle(.secondary)
+//                                        .padding(5)
+//                                        .background(.ultraThinMaterial)
+//                                        .clipShape(.circle)
+//                                }
+//                                .padding()
+//                            }
+//                            .fullScreenCover(isPresented: $viewModel.showEditView) {
+//                                viewModel.showEditView = false
+//                            } content: {
+//                                EditEventView(viewModel: EditEventViewModel(event: viewModel.event, networkManager: AdminNetworkManager(errorManager: viewModel.errorManager)))
+//                            }
+//                            .fullScreenCover(isPresented: $viewModel.showNewEvetnView) {
+//                                viewModel.showNewEvetnView = false
+//                            } content: {
+//                                NewEventView(viewModel: NewEventViewModel(place: nil, copy: viewModel.event, networkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager), authenticationManager: authenticationManager)
+//                            }
+//                        }
+//                    }
+        //    }
+     //   }
     }
     
     // MARK: - Views

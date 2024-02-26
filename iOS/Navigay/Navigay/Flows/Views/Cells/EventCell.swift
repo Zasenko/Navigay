@@ -10,19 +10,17 @@ import SwiftData
 
 struct EventCell: View {
     
-    @ObservedObject var authenticationManager: AuthenticationManager
     
     // MARK: - Private Properties
     
-    private let event: Event
-    private let showCountryCity: Bool
-    private let showStartDayInfo: Bool
-    private let showStartTimeInfo: Bool
+    let event: Event
+    let showCountryCity: Bool
+    let showStartDayInfo: Bool
+    let showStartTimeInfo: Bool
     
     @State private var image: Image? = nil
-    @State private var isShowEvent: Bool = false
 
-    private let width: CGFloat
+    let width: CGFloat
     
     private var formattedDate: AttributedString {
         var formattedDate: AttributedString = event.startDate.formatted(Date.FormatStyle().month(.abbreviated).day().weekday(.wide).attributed)
@@ -31,48 +29,10 @@ struct EventCell: View {
       //  formattedDate.replaceAttributes(dayOfWeek, with: color)
         return formattedDate
     }
-    
-    private var modelContext: ModelContext
-    private let placeNetworkManager: PlaceNetworkManagerProtocol
-    private let eventNetworkManager: EventNetworkManagerProtocol
-    private let errorManager: ErrorManagerProtocol
-    
-    // MARK: - Init
-    
-    init(event: Event, width: CGFloat, modelContext: ModelContext, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol, showCountryCity: Bool, authenticationManager: AuthenticationManager, showStartDayInfo: Bool, showStartTimeInfo: Bool) {
-        self.event = event
-        self.width = width
-        self.modelContext = modelContext
-        self.eventNetworkManager = eventNetworkManager
-        self.placeNetworkManager = placeNetworkManager
-        self.errorManager = errorManager
-        self.showCountryCity = showCountryCity
-        self.authenticationManager = authenticationManager
-        self.showStartDayInfo = showStartDayInfo
-        self.showStartTimeInfo = showStartTimeInfo
-    }
-    
+
     // MARK: - Body
     
     var body: some View {
-        Button {
-            isShowEvent = true
-        } label: {
-            eventPosterLable
-        }
-        .sheet(isPresented: $isShowEvent) {
-            isShowEvent = false
-        } content: {
-            EventView(isEventViewPresented: $isShowEvent, event: event, modelContext: modelContext, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, authenticationManager: authenticationManager)
-                .presentationDragIndicator(.hidden)
-                .presentationDetents([.large])
-                .presentationCornerRadius(25)
-        }
-    }
-    
-    // MARK: - Views
-    
-    private var eventPosterLable: some View {
         VStack(alignment: .center, spacing: 0) {
             ZStack(alignment: .topTrailing) {
                 if let url = event.smallPoster {
@@ -150,8 +110,8 @@ struct EventCell: View {
             }
             .padding(.top, 5)
         }
-        
     }
+
     
     //TODO: неправильная сортировка!
 //    private func stringForToday() -> String {
