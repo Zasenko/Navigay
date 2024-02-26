@@ -32,7 +32,7 @@ struct LoginView: View {
     
     var body: some View {
         NavigationStack {
-            ZStack(alignment: .bottom) {
+            ZStack(alignment: .top) {
                 listView
                     .navigationBarBackButtonHidden()
                     .toolbarBackground(.hidden, for: .navigationBar)
@@ -50,7 +50,7 @@ struct LoginView: View {
                             .tint(.primary)
                         }
                     }
-                ErrorView(viewModel: ErrorViewModel(errorManager: errorManager))
+                ErrorView(viewModel: ErrorViewModel(errorManager: errorManager), edge: .top)
             }
         }
     }

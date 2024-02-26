@@ -12,7 +12,7 @@ protocol UserNetworkManagerProtocol {
     func updateUserName(id: Int, name: String, key: String) async -> Bool
     func updateUserBio(id: Int, bio: String?, key: String) async -> Bool
     func updateUserPhoto(id: Int, uiImage: UIImage, key: String) async throws -> ImageResult
-    func deleteUserPhoto()
+    func deleteUserPhoto(id: Int, key: String) async throws
 }
 
 final class UserNetworkManager {
@@ -27,6 +27,44 @@ final class UserNetworkManager {
 // MARK: - AuthNetworkManagerProtocol
 
 extension UserNetworkManager: UserNetworkManagerProtocol {
+    
+    func deleteUserPhoto(id: Int, key: String) async throws {
+        let path = "/api/user/delete-photo.php"
+        var urlComponents: URLComponents {
+            var components = URLComponents()
+            components.scheme = scheme
+            components.host = host
+            components.path = path
+            return components
+        }
+        do {
+            guard let url = urlComponents.url else {
+                throw NetworkErrors.bedUrl
+            }
+            let parameters = [
+                "user_id": String(id),
+                "session_key": key,
+            ]
+            let requestData = try JSONSerialization.data(withJSONObject: parameters)
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.httpBody = requestData
+            let (data, response) = try await URLSession.shared.data(for: request)
+            guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
+                throw NetworkErrors.invalidData
+            }
+            guard let decodedResult = try? JSONDecoder().decode(ApiResult.self, from: data) else {
+                throw NetworkErrors.decoderError
+            }
+            guard decodedResult.result else {
+                throw NetworkErrors.apiError(decodedResult.error)
+            }
+        } catch {
+            throw error
+        }
+    }
+    
     
     func updateUserName(id: Int, name: String, key: String) async -> Bool {
         let path = "/api/user/update-name.php"

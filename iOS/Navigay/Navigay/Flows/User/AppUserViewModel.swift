@@ -124,7 +124,27 @@ extension AppUserView {
             }
         }
         
-        func deletePhoto() {
+        func deletePhoto(for user: AppUser) {
+            self.isLoadingPhoto = true
+            Task {
+                guard let sessionKey = user.sessionKey else { return }
+                //let errorModel = ErrorModel(massage: "Something went wrong. The photo didn't load. Please try again later.", img: Image(systemName: "photo.fill"), color: .red)
+                do {
+                    try await userNetworkManager.deleteUserPhoto(id: user.id, key: sessionKey)
+                    await MainActor.run {
+                        self.isLoadingPhoto = false
+                        user.photo = nil
+                        userImage = nil
+                    }
+                } catch {
+                    debugPrint("ERROR - deletePhoto: ", error)
+                   // errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
+                    await MainActor.run {
+                        self.isLoadingPhoto = false
+                      //  self.photo = previousImage
+                    }
+                }
+            }
         }
         
         func changePassword() {

@@ -93,22 +93,22 @@ struct WelcomeView: View {
                 }
             }
             
-            Button {
-            } label: {
-                HStack(spacing: 10) {
-                    AppImages.iconGoogleG
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 20, height: 20)
-                    Text("Log In with Google")
-                        .font(.body)
-                        .bold()
-                }
-                .padding(12)
-                .padding(.horizontal)
-                .background(AppColors.lightGray6)
-                .clipShape(Capsule())
-            }
+//            Button {
+//            } label: {
+//                HStack(spacing: 10) {
+//                    AppImages.iconGoogleG
+//                        .resizable()
+//                        .scaledToFit()
+//                        .frame(width: 20, height: 20)
+//                    Text("Log In with Google")
+//                        .font(.body)
+//                        .bold()
+//                }
+//                .padding(12)
+//                .padding(.horizontal)
+//                .background(AppColors.lightGray6)
+//                .clipShape(Capsule())
+//            }
         }
     }
 }

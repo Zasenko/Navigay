@@ -63,7 +63,7 @@ struct EntryView: View {
             case .tabView:
                 TabBarView(authenticationManager: authenticationManager, appSettingsManager: appSettingsManager, errorManager: errorManager)
             }
-            ErrorView(viewModel: ErrorViewModel(errorManager: errorManager))
+            ErrorView(viewModel: ErrorViewModel(errorManager: errorManager), edge: .bottom)
         }
         .onAppear() {
             setRouter()

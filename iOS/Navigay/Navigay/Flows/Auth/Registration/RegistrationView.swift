@@ -30,23 +30,26 @@ struct RegistrationView: View {
     
     var body: some View {
         NavigationStack {
-            listView
-                .navigationBarBackButtonHidden()
-                .toolbarBackground(.hidden, for: .navigationBar)
-                .toolbarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button {
-                            focusedField = nil
-                            dismiss()
-                        } label: {
-                            AppImages.iconX
-                                .bold()
-                                .frame(width: 30, height: 30)
+            ZStack(alignment: .top) {
+                listView
+                    .navigationBarBackButtonHidden()
+                    .toolbarBackground(.hidden, for: .navigationBar)
+                    .toolbarTitleDisplayMode(.inline)
+                    .toolbar {
+                        ToolbarItem(placement: .topBarTrailing) {
+                            Button {
+                                focusedField = nil
+                                dismiss()
+                            } label: {
+                                AppImages.iconX
+                                    .bold()
+                                    .frame(width: 30, height: 30)
+                            }
+                            .tint(.primary)
                         }
-                        .tint(.primary)
                     }
-                }
+                ErrorView(viewModel: ErrorViewModel(errorManager: errorManager), edge: .top)
+            }
         }
     }
     

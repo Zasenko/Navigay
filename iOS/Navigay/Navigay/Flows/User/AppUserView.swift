@@ -49,6 +49,9 @@ struct AppUserView: View {
                     if !likedPlaces.isEmpty {
                         placesView
                     }
+                    Color.clear
+                        .frame(height: 50)
+                        .listSectionSeparator(.hidden)
                 }
                 .listStyle(.plain)
                 .scrollIndicators(.hidden)
@@ -164,7 +167,7 @@ struct AppUserView: View {
                 } onSave: { uiImage in
                     viewModel.updatePhoto(image: uiImage, for: user)
                 } onDelete: {
-                    //TODO
+                    viewModel.deletePhoto(for: user)
                 }
                 VStack(spacing: 10) {
                     Button {
@@ -281,23 +284,23 @@ struct AppUserView: View {
                 }
             }
             
-            Button {
-            } label: {
-                HStack(spacing: 10) {
-                    AppImages.iconGoogleG
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 20, height: 20)
-                    Text("Log In with Google")
-                        .font(.body)
-                        .bold()
-                }
-                .padding(12)
-                .padding(.horizontal)
-                .background(AppColors.lightGray6)
-                .clipShape(Capsule())
-                
-            }
+//            Button {
+//            } label: {
+//                HStack(spacing: 10) {
+//                    AppImages.iconGoogleG
+//                        .resizable()
+//                        .scaledToFit()
+//                        .frame(width: 20, height: 20)
+//                    Text("Log In with Google")
+//                        .font(.body)
+//                        .bold()
+//                }
+//                .padding(12)
+//                .padding(.horizontal)
+//                .background(AppColors.lightGray6)
+//                .clipShape(Capsule())
+//                
+//            }
         }
     }
     
