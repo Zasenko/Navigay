@@ -53,9 +53,16 @@ extension PlaceView {
         var showAddEventView: Bool = false
         var showEditView: Bool = false
         
-        //MARK: - Inits
+        //MARK: - Init
         
-        init(place: Place, modelContext: ModelContext, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol, showOpenInfo: Bool) {
+        init(place: Place,
+             modelContext: ModelContext,
+             placeNetworkManager: PlaceNetworkManagerProtocol,
+             eventNetworkManager: EventNetworkManagerProtocol,
+             errorManager: ErrorManagerProtocol,
+             placeDataManager: PlaceDataManagerProtocol,
+             eventDataManager: EventDataManagerProtocol,
+             showOpenInfo: Bool) {
             self.place = place
             self.showOpenInfo = showOpenInfo
             self.selectedTag = place.tag
@@ -63,10 +70,8 @@ extension PlaceView {
             self.eventNetworkManager = eventNetworkManager
             self.placeNetworkManager = placeNetworkManager
             self.errorManager = errorManager
-            
-            //TODO: - Init!!!
-            self.placeDataManager = PlaceDataManager()
-            self.eventDataManager = EventDataManager()
+            self.placeDataManager = placeDataManager
+            self.eventDataManager = eventDataManager
         }
         
         //MARK: - Functions

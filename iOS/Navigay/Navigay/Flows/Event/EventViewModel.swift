@@ -12,7 +12,7 @@ import MapKit
 extension EventView {
     
     @Observable
-    class EventViewModel {
+    final class EventViewModel {
         
         //MARK: - Properties
         

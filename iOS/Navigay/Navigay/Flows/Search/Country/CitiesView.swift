@@ -16,8 +16,11 @@ struct CitiesView: View {
     private let eventNetworkManager: EventNetworkManagerProtocol
     private let placeNetworkManager: PlaceNetworkManagerProtocol
     private let errorManager: ErrorManagerProtocol
-    private let user: AppUser?
-    @ObservedObject var authenticationManager: AuthenticationManager // TODO: убрать юзера из вью модели так как он в authenticationManager
+    private let placeDataManager: PlaceDataManagerProtocol
+    private let eventDataManager: EventDataManagerProtocol
+    private let catalogDataManager: CatalogDataManagerProtocol
+    
+    @ObservedObject var authenticationManager: AuthenticationManager
     
     init(modelContext: ModelContext,
          cities: [City],
@@ -25,15 +28,19 @@ struct CitiesView: View {
          eventNetworkManager: EventNetworkManagerProtocol,
          placeNetworkManager: PlaceNetworkManagerProtocol,
          errorManager: ErrorManagerProtocol,
-         user: AppUser?,
-         authenticationManager: AuthenticationManager) {
+         authenticationManager: AuthenticationManager,
+         placeDataManager: PlaceDataManagerProtocol,
+         eventDataManager: EventDataManagerProtocol,
+         catalogDataManager: CatalogDataManagerProtocol) {
         self.modelContext = modelContext
         self.cities = cities
         self.catalogNetworkManager = catalogNetworkManager
         self.eventNetworkManager = eventNetworkManager
         self.placeNetworkManager = placeNetworkManager
         self.errorManager = errorManager
-        self.user = user
+        self.placeDataManager = placeDataManager
+        self.eventDataManager = eventDataManager
+        self.catalogDataManager = catalogDataManager
         _authenticationManager = ObservedObject(wrappedValue: authenticationManager)
     }
     
@@ -42,7 +49,7 @@ struct CitiesView: View {
             Section {
                 ForEach(cities) { city in
                     NavigationLink {
-                        CityView(modelContext: modelContext, city: city, catalogNetworkManager: catalogNetworkManager, eventNetworkManager: eventNetworkManager, placeNetworkManager: placeNetworkManager, errorManager: errorManager, authenticationManager: authenticationManager)
+                        CityView(modelContext: modelContext, city: city, catalogNetworkManager: catalogNetworkManager, eventNetworkManager: eventNetworkManager, placeNetworkManager: placeNetworkManager, errorManager: errorManager, authenticationManager: authenticationManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, catalogDataManager: catalogDataManager)
                     } label: {
                         CityCell(city: city, showCountryRegion: false)
                     }

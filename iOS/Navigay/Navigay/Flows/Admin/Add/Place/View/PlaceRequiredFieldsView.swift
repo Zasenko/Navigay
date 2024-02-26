@@ -45,6 +45,10 @@ struct PlaceRequiredFieldsView: View {
                     } label: {
                         EditField(title: "Address", text: $viewModel.addressOrigin, emptyFieldColor: .red)
                     }
+                    Text(viewModel.countryOrigin)
+                    Text(viewModel.countryEnglish)
+                    Text(viewModel.regionOrigin)
+                    Text(viewModel.regionEnglish)
                     locationField
                     map
                 }

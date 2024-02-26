@@ -12,6 +12,10 @@ protocol AdminNetworkManagerProtocol {
     func updateCity(city: AdminCity) async -> Bool
     
     func getCountries() async -> [AdminCountry]?
+    
+  //  func fetchRegions(country id: Int) async -> AdminCountry?
+    
+    
     func fetchCountry(id: Int) async -> AdminCountry?
     func fetchCity(id: Int) async -> AdminCity?
     func fetchPlace(id: Int) async -> AdminPlace?
@@ -48,6 +52,8 @@ final class AdminNetworkManager {
 // MARK: - AuthNetworkManagerProtocol
 
 extension AdminNetworkManager: AdminNetworkManagerProtocol {
+    
+    
     
     func updateCity(city: AdminCity) async -> Bool {
         let errorModel = ErrorModel(massage: "Something went wrong. Please try again later.", img: nil, color: nil)

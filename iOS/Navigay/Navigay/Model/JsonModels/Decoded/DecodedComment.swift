@@ -8,7 +8,6 @@
 import Foundation
 
 struct DecodedComment: Identifiable, Codable {
-    
     enum CodingKeys: String, CodingKey {
         case id
         case comment
@@ -19,15 +18,14 @@ struct DecodedComment: Identifiable, Codable {
         case reply
         case user
     }
-    
     let id: Int
     let comment: String?
-    let rating: Int?
+    let rating: Int
     let photos: [String]?
     let isActive: Bool
     let createdAt: String
     let reply: DecodedCommentReply?
-    let user: DecodedUser
+    let user: DecodedUser?
 }
 
 struct DecodedCommentReply: Identifiable, Codable {
@@ -43,6 +41,13 @@ struct DecodedCommentReply: Identifiable, Codable {
     let comment: String
     let isActive: Bool
     let createdAt: String
+}
+
+struct DecodedUser: Codable, Identifiable {
+    let id: Int
+    let name: String
+    let bio: String?
+    let photo: String?
 }
 
 struct NewComment: Codable {

@@ -9,7 +9,10 @@ import Foundation
 import SwiftUI
 
 protocol UserNetworkManagerProtocol {
-    func setUserImage()
+    func updateUserName(id: Int, name: String, key: String) async -> Bool
+    func updateUserBio(id: Int, bio: String?, key: String) async -> Bool
+    func updateUserPhoto(id: Int, uiImage: UIImage, key: String) async throws -> ImageResult
+    func deleteUserPhoto(id: Int, key: String) async throws
 }
 
 final class UserNetworkManager {
@@ -25,8 +28,128 @@ final class UserNetworkManager {
 
 extension UserNetworkManager: UserNetworkManagerProtocol {
     
-    func setUserImage() {
-        let path = "/api/user/add-change-user-photo.php"
+    func deleteUserPhoto(id: Int, key: String) async throws {
+        let path = "/api/user/delete-photo.php"
+        var urlComponents: URLComponents {
+            var components = URLComponents()
+            components.scheme = scheme
+            components.host = host
+            components.path = path
+            return components
+        }
+        do {
+            guard let url = urlComponents.url else {
+                throw NetworkErrors.bedUrl
+            }
+            let parameters = [
+                "user_id": String(id),
+                "session_key": key,
+            ]
+            let requestData = try JSONSerialization.data(withJSONObject: parameters)
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.httpBody = requestData
+            let (data, response) = try await URLSession.shared.data(for: request)
+            guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
+                throw NetworkErrors.invalidData
+            }
+            guard let decodedResult = try? JSONDecoder().decode(ApiResult.self, from: data) else {
+                throw NetworkErrors.decoderError
+            }
+            guard decodedResult.result else {
+                throw NetworkErrors.apiError(decodedResult.error)
+            }
+        } catch {
+            throw error
+        }
+    }
+    
+    
+    func updateUserName(id: Int, name: String, key: String) async -> Bool {
+        let path = "/api/user/update-name.php"
+        var urlComponents: URLComponents {
+            var components = URLComponents()
+            components.scheme = scheme
+            components.host = host
+            components.path = path
+            return components
+        }
+        do {
+            guard let url = urlComponents.url else {
+                throw NetworkErrors.bedUrl
+            }
+            let parameters = [
+                "user_id": String(id),
+                "user_name": name,
+                "session_key": key,
+            ]
+            let requestData = try JSONSerialization.data(withJSONObject: parameters)
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.httpBody = requestData
+            let (data, response) = try await URLSession.shared.data(for: request)
+            guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
+                throw NetworkErrors.invalidData
+            }
+            guard let decodedResult = try? JSONDecoder().decode(ApiResult.self, from: data) else {
+                throw NetworkErrors.decoderError
+            }
+            guard decodedResult.result else {
+                debugPrint("-API ERROR- UserNetworkManager updateUserName user id \(id) : ", decodedResult.error?.message ?? "")
+                return false
+            }
+            return true
+        } catch {
+            debugPrint("-ERROR- UserNetworkManager updateUserName user id \(id) : ", error)
+            return false
+        }
+    }
+    
+    func updateUserBio(id: Int, bio: String?, key: String) async -> Bool {
+        let path = "/api/user/update-bio.php"
+        var urlComponents: URLComponents {
+            var components = URLComponents()
+            components.scheme = scheme
+            components.host = host
+            components.path = path
+            return components
+        }
+        do {
+            guard let url = urlComponents.url else {
+                throw NetworkErrors.bedUrl
+            }
+            let parameters = [
+                "user_id": String(id),
+                "user_bio": bio,
+                "session_key": key,
+            ]
+            let requestData = try JSONSerialization.data(withJSONObject: parameters)
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.httpBody = requestData
+            let (data, response) = try await URLSession.shared.data(for: request)
+            guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
+                throw NetworkErrors.invalidData
+            }
+            guard let decodedResult = try? JSONDecoder().decode(ApiResult.self, from: data) else {
+                throw NetworkErrors.decoderError
+            }
+            guard decodedResult.result else {
+                debugPrint(decodedResult.error?.message ?? "")
+                return false
+            }
+            return true
+        } catch {
+            debugPrint("-ERROR- UserNetworkManager updateUserBio user id \(id) : ", error)
+            return false
+        }
+    }
+    
+    func updateUserPhoto(id: Int, uiImage: UIImage, key: String) async throws -> ImageResult {
+        let path = "/api/user/update-photo.php"
         var urlComponents: URLComponents {
             var components = URLComponents()
             components.scheme = scheme
@@ -35,58 +158,61 @@ extension UserNetworkManager: UserNetworkManagerProtocol {
             return components
         }
         guard let url = urlComponents.url else {
-            return
+            throw NetworkErrors.bedUrl
         }
-        
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
-        
-        let boundary = "Boundary-\(UUID().uuidString)"
-        let contentType = "multipart/form-data; boundary=\(boundary)"
-        request.setValue(contentType, forHTTPHeaderField: "Content-Type")
-        request.httpBody = createBody(image: UIImage(named: "test200x200-2")!, userId: 29, boundary: boundary)
-        
-        let task = URLSession.shared.dataTask(with: request) { data, response, error in
-            if let error = error {
-                print("Error: \(error)")
-                return
+        let boundary = UUID().uuidString
+        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+        do {
+            request.httpBody = try await createBodyImageUpdating(userID: id, key: key, image: uiImage, boundary: boundary)
+            let (data, response) = try await URLSession.shared.data(for: request)
+            guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
+                throw NetworkErrors.invalidData
+            }
+            guard let decodedResult = try? JSONDecoder().decode(ImageResult.self, from: data) else {
+                throw NetworkErrors.decoderError
             }
             
-            if let httpResponse = response as? HTTPURLResponse {
-                if (200...299).contains(httpResponse.statusCode) {
-                    if let data = data {
-                        print("Server Response: \(String(data: data, encoding: .utf8) ?? "")")
-                        
-                        guard let decodedResult = try? JSONDecoder().decode(ImageResult.self, from: data) else {
-                            print("decoded error")
-                            return
-                        }
-                        print("---> decodedResult: ", decodedResult)
-                    }
-                } else {
-                    print("Error Status Code: \(httpResponse.statusCode)")
-                }
+            guard decodedResult.result else {
+                debugPrint(decodedResult.error?.message ?? "")
+                throw NetworkErrors.decoderError
             }
+            return decodedResult
+        } catch {
+            throw error
         }
-        task.resume()
     }
     
-    private func createBody(image: UIImage, userId: Int, boundary: String) -> Data {
+    func deleteUserPhoto() {
+        
+    }
+}
+
+extension UserNetworkManager {
+    
+    private func createBodyImageUpdating(userID: Int, key: String, image: UIImage, boundary: String) async throws -> Data {
         var body = Data()
+        
+        guard let imageData = image.jpegData(compressionQuality: 0.8) else {
+            throw NetworkErrors.imageDataError
+        }
         
         body.append("--\(boundary)\r\n".data(using: .utf8)!)
         body.append("Content-Disposition: form-data; name=\"user_id\"\r\n\r\n".data(using: .utf8)!)
-        body.append("\(userId)\r\n".data(using: .utf8)!)
+        body.append("\(userID)".data(using: .utf8)!)
         body.append("\r\n".data(using: .utf8)!)
         
-        if let imageData = image.jpegData(compressionQuality: 0.8) {
-            // Add images to the request body
-            body.append("--\(boundary)\r\n".data(using: .utf8)!)
-            body.append("Content-Disposition: form-data; name=\"image\"; filename=\"image.jpg\"\r\n".data(using: .utf8)!)
-            body.append("Content-Type: image/jpeg\r\n\r\n".data(using: .utf8)!)
-            body.append(imageData)
-            body.append("\r\n".data(using: .utf8)!)
-        }
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"session_key\"\r\n\r\n".data(using: .utf8)!)
+        body.append("\(key)".data(using: .utf8)!)
+        body.append("\r\n".data(using: .utf8)!)
+        
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"image\"; filename=\"image.jpg\"\r\n".data(using: .utf8)!)
+        body.append("Content-Type: image/jpeg\r\n\r\n".data(using: .utf8)!)
+        body.append(imageData)
+        body.append("\r\n".data(using: .utf8)!)
         
         body.append("--\(boundary)--\r\n".data(using: .utf8)!)
         return body

@@ -24,8 +24,12 @@ struct HomeView: View {
          eventNetworkManager: EventNetworkManagerProtocol,
          locationManager: LocationManager,
          errorManager: ErrorManagerProtocol,
-         authenticationManager: AuthenticationManager) {
-        _viewModel = State(initialValue: HomeViewModel(modelContext: modelContext, aroundNetworkManager: aroundNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager))
+         authenticationManager: AuthenticationManager,
+         placeDataManager: PlaceDataManagerProtocol,
+         eventDataManager: EventDataManagerProtocol,
+         catalogDataManager: CatalogDataManagerProtocol) {
+        let viewModel = HomeViewModel(modelContext: modelContext, aroundNetworkManager: aroundNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, catalogDataManager: catalogDataManager)
+        _viewModel = State(initialValue: viewModel)
         _locationManager = ObservedObject(wrappedValue: locationManager)
         _authenticationManager = ObservedObject(wrappedValue: authenticationManager)
     }
@@ -56,38 +60,37 @@ struct HomeView: View {
     
     private var mainView: some View {
         NavigationStack {
-                VStack(spacing: 0) {
-                    listView
+            VStack(spacing: 0) {
+                listView
+            }
+            .toolbarBackground(AppColors.background)
+            .toolbarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Text("Around you")
+                        .font(.title).bold()
                 }
-                .toolbarBackground(AppColors.background)
-                .toolbarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .topBarLeading) {
-                        Text("Around you")
-                            .font(.title).bold()
-                    }
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button {
-                            withAnimation {
-                                viewModel.selectedMapSortingCategory = .all
-                                viewModel.showMap.toggle()
-                            }
-                        } label: {
-                            HStack {
-                                AppImages.iconLocation
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 30, height: 30)
-                                Text("Show\non map")
-                                    .font(.caption).bold()
-                                    .multilineTextAlignment(.leading)
-                                    .lineSpacing(-10)
-                            }
-                            .tint(.blue)
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        withAnimation {
+                            viewModel.showMap.toggle()
+                            viewModel.selectedMapSortingCategory = .all
                         }
+                    } label: {
+                        HStack {
+                            AppImages.iconLocation
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 30, height: 30)
+                            Text("Show\non map")
+                                .font(.caption).bold()
+                                .multilineTextAlignment(.leading)
+                                .lineSpacing(-10)
+                        }
+                        .tint(.blue)
                     }
                 }
-            
+            }
         }
     }
     
@@ -146,7 +149,7 @@ struct HomeView: View {
                     .offset(x: 70)
                 ForEach(viewModel.groupedPlaces[key] ?? []) { place in
                     NavigationLink {
-                        PlaceView(place: place, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, authenticationManager: authenticationManager, showOpenInfo: true)
+                        PlaceView(place: place, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, authenticationManager: authenticationManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, showOpenInfo: true)
                     } label: {
                         PlaceCell(place: place, showOpenInfo: viewModel.isLocationsAround20Found ? true : false, showDistance: true, showCountryCity: viewModel.isLocationsAround20Found ? false : true, showLike: true)
                     }

@@ -16,6 +16,7 @@ struct AppImages {
     static let iconSearch = Image(systemName: "magnifyingglass")
     static let iconSearchLocation = Image(systemName: "location.magnifyingglass")
     static let iconPerson = Image(systemName: "person.fill")
+    static let iconPersonError = Image(systemName: "person.fill.xmark")
     static let iconSettings = Image(systemName: "gearshape.fill")
     static let iconAdmin = Image(systemName: "exclamationmark.shield.fill")
     static let iconEnvelope = Image(systemName: "envelope")
@@ -34,11 +35,16 @@ struct AppImages {
     static let iconClock = Image(systemName:"clock")
     static let iconPhotoPlus = Image(systemName:"photo.badge.plus")
     
+    static let iconWifi = Image(systemName:"wifi")
+    static let iconNoWifi = Image(systemName:"wifi.slash")
+    
+    
     
     static let iconFacebook = Image("icon_facebook")
     static let iconInstagram = Image("icon_instagram")
     static let iconLocation = Image("icon_location")
     static let iconWallet = Image("icon_wallet")
+    static let iconGoogleG = Image("icon_google_g")
     
 //    static let mapBarIcon = UIImage(named: "barIcon")
 //    static let mapCafeIcon = UIImage(named: "cafeIcon")

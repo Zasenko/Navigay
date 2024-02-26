@@ -58,39 +58,42 @@ while ($row = $result->fetch_assoc()) {
         $url = "https://www.navigay.me/" . $photo_path;
         array_push($photos_urls, $url);
     }
-
     $comment = array(
-        "id" => $row['id'],
-        'comment' => $row["comment"],
-        'rating' => $row['rating'],
+        'id' => $row['id'],
+        'comment' => $row['comment'],
+        'rating' => intval($row['rating']),
         'photos' => $photos_urls,
         'created_at' => $row['created_at'],
         'is_active' => $is_active,
     );
 
     $reply_id = $row['reply_id'];
-    $reply_text = $row['reply_id'];
+    $reply_text = $row['reply_text'];
     $reply_created_at = $row['reply_created_at'];
     $reply_is_active = (bool)$row['reply_is_active'];
     if (isset($reply_id) || isset($reply_text) || isset($reply_created_at)) {
         $reply = array(
-            "id" => $reply_id,
+            'id' => $reply_id,
             'comment' => $reply_text,
             'created_at' => $reply_created_at,
             'is_active' => $reply_is_active,
         );
         $comment += ['reply' => $reply];
     }
-    $user_photo = $row['user_photo'];
-    $user_photo_url = isset($user_photo) ? "https://www.navigay.me/" . $user_photo : null;
 
-    $user = array(
-        "id" => $row['user_id'],
-        'bio' => $row["user_bio"],
-        'name' => $row["user_name"],
-        'photo' => $user_photo_url
-    );
-    $comment += ['user' => $user];
+    if (isset($row['user_id']) || isset($row["user_name"])) {
+        $user_photo = $row['user_photo'];
+        $user_photo_url = isset($user_photo) ? "https://www.navigay.me/" . $user_photo : null;
+
+        $user = array(
+            "id" => $row['user_id'],
+            'bio' => $row["user_bio"],
+            'name' => $row["user_name"],
+            'photo' => $user_photo_url
+        );
+        $comment += ['user' => $user];
+    }
+
     array_push($comments, $comment);
 }
 $conn->close();

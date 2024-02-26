@@ -24,18 +24,26 @@ struct TabBarView: View {
     
     @State private var userImage: Image? = nil
 
-    @StateObject private var locationManager: LocationManager
+    @StateObject private var locationManager = LocationManager()
     @ObservedObject private var authenticationManager: AuthenticationManager
 
     private let appSettingsManager: AppSettingsManagerProtocol
     private let errorManager: ErrorManagerProtocol
+    
     private let aroundNetworkManager: AroundNetworkManagerProtocol
     private let catalogNetworkManager: CatalogNetworkManagerProtocol
     private let placeNetworkManager: PlaceNetworkManagerProtocol
     private let eventNetworkManager: EventNetworkManagerProtocol
+
+    private let placeDataManager: PlaceDataManagerProtocol
+    private let eventDataManager: EventDataManagerProtocol
+    private let catalogDataManager: CatalogDataManagerProtocol
     
-    init(locationManager: LocationManager = LocationManager(), authenticationManager: AuthenticationManager, appSettingsManager: AppSettingsManagerProtocol, errorManager: ErrorManagerProtocol) {
-        _locationManager = StateObject(wrappedValue: locationManager)
+    //MARK: - Init
+    
+    init(authenticationManager: AuthenticationManager,
+         appSettingsManager: AppSettingsManagerProtocol,
+         errorManager: ErrorManagerProtocol) {
         _authenticationManager = ObservedObject(wrappedValue: authenticationManager)
         self.authenticationManager = authenticationManager
         self.errorManager = errorManager
@@ -44,79 +52,80 @@ struct TabBarView: View {
         self.catalogNetworkManager = CatalogNetworkManager(appSettingsManager: appSettingsManager, errorManager: errorManager)
         self.eventNetworkManager = EventNetworkManager(appSettingsManager: appSettingsManager, errorManager: errorManager)
         self.placeNetworkManager = PlaceNetworkManager(appSettingsManager: appSettingsManager, errorManager: errorManager)
+        self.placeDataManager = PlaceDataManager()
+        self.eventDataManager = EventDataManager()
+        self.catalogDataManager = CatalogDataManager()
     }
     
     var body: some View {
-            VStack(spacing: 0) {
-                switch selectedPage {
-                case .home:
-                    HomeView(modelContext: modelContext, aroundNetworkManager: aroundNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, locationManager: locationManager, errorManager: errorManager, authenticationManager: authenticationManager)
-                case .search:
-                    SearchView(modelContext: modelContext, catalogNetworkManager: catalogNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, user: authenticationManager.appUser, authenticationManager: authenticationManager)
-                case .user:
-                    AppUserView(modelContext: modelContext, userNetworkManager: UserNetworkManager(), placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, authenticationManager: authenticationManager)
-                case .admin:
-                    if let user = authenticationManager.appUser, user.status == .admin {
-                        AdminView(viewModel: AdminViewModel(errorManager: errorManager, networkManager: AdminNetworkManager(errorManager: errorManager)), authenticationManager: authenticationManager)
-                    } else {
-                        EmptyView()
-                    }
-                }
-                tabBar
-            }
-            .ignoresSafeArea(.keyboard, edges: .bottom)
-            .onAppear() {
-                Task {
-                    if let url = authenticationManager.appUser?.photo {
-                        if let image = await ImageLoader.shared.loadImage(urlString: url) {
-                            await MainActor.run {
-                                self.userImage = image
-                            }
-                            
-                        }
-                    }
+        VStack(spacing: 0) {
+            switch selectedPage {
+            case .home:
+                HomeView(modelContext: modelContext, aroundNetworkManager: aroundNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, locationManager: locationManager, errorManager: errorManager, authenticationManager: authenticationManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, catalogDataManager: catalogDataManager)
+            case .search:
+                SearchView(modelContext: modelContext, catalogNetworkManager: catalogNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, authenticationManager: authenticationManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, catalogDataManager: catalogDataManager)
+            case .user:
+                AppUserView(modelContext: modelContext, userNetworkManager: UserNetworkManager(), placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, authenticationManager: authenticationManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager)
+            case .admin:
+                if let user = authenticationManager.appUser, user.status == .admin {
+                    AdminView(viewModel: AdminViewModel(errorManager: errorManager, networkManager: AdminNetworkManager(errorManager: errorManager)), authenticationManager: authenticationManager)
+                } else {
+                    EmptyView()
                 }
             }
-            .alert(isPresented: $locationManager.isAlertIfLocationDeniedDisplayed) {
-                //TODO!!!! текст
-                Alert(title: Text("Location access"),
-                      message: Text("Go to Settings?"),
-                      primaryButton: .default(Text("Settings"), action: {
-                    selectedPage = .search
-                    guard let url = URL(string: UIApplication.openSettingsURLString) else {
-                        return
-                    }
-                    UIApplication.shared.open(url)
-                }),
-                      secondaryButton: .default(Text("Cancel"), action: {
-                    selectedPage = .search
-                }))
+            tabBar
+        }
+        .ignoresSafeArea(.keyboard, edges: .bottom)
+//        .onAppear() {
+//            Task {
+//                if let url = authenticationManager.appUser?.photo {
+//                    if let image = await ImageLoader.shared.loadImage(urlString: url) {
+//                        await MainActor.run {
+//                            self.userImage = image
+//                        }
+//                        
+//                    }
+//                }
+//            }
+//        }
+        .alert(isPresented: $locationManager.isAlertIfLocationDeniedDisplayed) {
+            //TODO!!!! текст
+            Alert(title: Text("Location access"),
+                  message: Text("Go to Settings?"),
+                  primaryButton: .default(Text("Settings"), action: {
+                selectedPage = .search
+                guard let url = URL(string: UIApplication.openSettingsURLString) else {
+                    return
+                }
+                UIApplication.shared.open(url)
+            }),
+                  secondaryButton: .default(Text("Cancel"), action: {
+                selectedPage = .search
+            }))
+        }
+        .onChange(of: locationManager.authorizationStatus) { oldValue, newValue in
+            switch newValue {
+            case .loading, .authorized:
+                selectedPage = .home
+            case .denied:
+                selectedPage = .search
             }
-            .onChange(of: locationManager.authorizationStatus) { oldValue, newValue in
-                switch newValue {
-                case .loading, .authorized:
-                    selectedPage = .home
-                case .denied:
-                    selectedPage = .search
+        }
+        .onChange(of: authenticationManager.appUser?.photo, initial: true) { oldValue, newValue in
+            guard let url = newValue else {
+                self.userImage = nil
+                return
+            }
+            Task {
+                if let image = await ImageLoader.shared.loadImage(urlString: url) {
+                    await MainActor.run {
+                        self.userImage = image
+                    }
                 }
             }
-            .onChange(of: authenticationManager.appUser?.photo) { oldValue, newValue in
-                Task {
-                    if let url = newValue {
-                        if let image = await ImageLoader.shared.loadImage(urlString: url) {
-                            await MainActor.run {
-                                self.userImage = image
-                            }
-                            
-                        }
-                    }
-                }
-            }
-            .environmentObject(authenticationManager)
-       // }
+        }
     }
-    
-    
+
     private var tabBar: some View {
         VStack(spacing: 0) {
             Divider()
@@ -135,12 +144,12 @@ struct TabBarView: View {
                         img
                             .resizable()
                             .scaledToFit()
-                            .frame(width: 25, height: 25)
+                            .frame(width: 22, height: 22)
                             .clipShape(Circle())
-                            .padding(3)
+                            .padding(1)
                             .overlay(
                                 Circle()
-                                    .stroke(AppColors.lightGray5, lineWidth: 3)
+                                    .stroke(AppColors.lightGray5, lineWidth: 2)
                             )
                     }
                 } else {

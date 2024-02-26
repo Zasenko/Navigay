@@ -43,6 +43,13 @@ struct EventView: View {
                 HStack {
                     Button {
                         viewModel.event.isLiked.toggle()
+                        guard let user = authenticationManager.appUser else { return }
+                        
+                        if user.likedEvents.contains(where: {$0 == viewModel.event.id} ) {
+                            user.likedEvents.removeAll(where: {$0 == viewModel.event.id})
+                        } else {
+                            user.likedEvents.append(viewModel.event.id)
+                        }
                     } label: {
                         Image(systemName: viewModel.event.isLiked ? "heart.fill" : "heart")
                             .bold()

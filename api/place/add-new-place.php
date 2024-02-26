@@ -29,6 +29,11 @@ function getOrCreateRegionId($conn, $country_id, $region_name, $region_name_eng)
     $sql = "SELECT id FROM Region WHERE country_id = ? AND name_origin = ? LIMIT 1";
     $params = [$country_id, $region_name];
     $types = "is";
+
+    $sql = "SELECT id FROM Region WHERE country_id = ? AND (name_origin = ? OR (name_origin IS NULL AND ? IS NULL)) LIMIT 1";
+    $params = [$country_id, $region_name, $region_name];
+    $types = "iss";
+
     $stmt = executeQuery($conn, $sql, $params, $types);
     $region_result = $stmt->get_result();
     $stmt->close();

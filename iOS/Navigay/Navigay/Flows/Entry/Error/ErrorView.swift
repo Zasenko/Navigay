@@ -12,7 +12,7 @@ struct ErrorView: View {
     // MARK: - Properties
     
     @StateObject var viewModel: ErrorViewModel
-
+    let edge: Edge
     // MARK: - Body
     
     var body: some View {
@@ -37,11 +37,10 @@ struct ErrorView: View {
                 .background(AppColors.lightGray6)
                 .cornerRadius(12)
                 .shadow(color: .black.opacity(0.2), radius: 2, x: 0, y: 1)
-                .transition(.move(edge: .top))
+                .transition(.move(edge: edge).combined(with: .opacity))
             }
         }
         .padding(.horizontal)
-        
     }
 }
 

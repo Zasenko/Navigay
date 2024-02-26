@@ -19,81 +19,84 @@ struct LoginView: View {
     @StateObject var viewModel: LoginViewModel
     @ObservedObject var authenticationManager: AuthenticationManager
     
+    let errorManager: ErrorManagerProtocol
     let onDismiss: () -> Void
     
     // MARK: - Private Properties
     
     @Environment(\.modelContext) private var context
-    
-    
     @Environment(\.dismiss) private var dismiss
     @FocusState private var focusedField: FocusField?
     
     // MARK: - Body
     
     var body: some View {
-        ZStack {
-            AppColors.background
-            authView
-            
+        NavigationStack {
+            ZStack(alignment: .top) {
+                listView
+                    .navigationBarBackButtonHidden()
+                    .toolbarBackground(.hidden, for: .navigationBar)
+                    .toolbarTitleDisplayMode(.inline)
+                    .toolbar {
+                        ToolbarItem(placement: .topBarTrailing) {
+                            Button {
+                                focusedField = nil
+                                dismiss()
+                            } label: {
+                                AppImages.iconX
+                                    .bold()
+                                    .frame(width: 30, height: 30)
+                            }
+                            .tint(.primary)
+                        }
+                    }
+                ErrorView(viewModel: ErrorViewModel(errorManager: errorManager), edge: .top)
+            }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+//            .gesture(DragGesture(minimumDistance: 3.0, coordinateSpace: .local)
+//                .onEnded { value in
+//                    switch(value.translation.width, value.translation.height) {
+//                    case (0..., -30...30):
+//                        dismiss()
+//                    default:  break
+//                    }
+//                }
+//            )
+    
+    // MARK: - Views
+
+    private var listView: some View {
+        List {
+            Text("Sign in\nto your Account")
+                .font(.largeTitle)
+                .bold()
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity)
+                .padding(.bottom, 20)
+                .listRowSeparator(.hidden)
+            
+            VStack {
+                VStack(spacing: 20) {
+                    emailView
+                    passwordView
+                }
+                .frame(maxWidth: 400)
+            }
+            .frame(maxWidth: .infinity)
+            .listRowSeparator(.hidden)
+            
+            loginButtonView
+                .listRowSeparator(.hidden)
+        }
+        .listStyle(.plain)
+        .buttonStyle(.plain)
+        .scrollIndicators(.hidden)
         .onTapGesture {
             focusedField = nil
         }
         .onSubmit(focusNextField)
         .disabled(viewModel.allViewsDisabled)
-        .navigationBarBackButtonHidden()
-        .toolbarBackground(AppColors.background)
-        .toolbarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                Button {
-                    withAnimation {
-                        focusedField = nil
-                        dismiss()
-                    }
-                } label: {
-                    AppImages.iconLeft
-                        .bold()
-                        .frame(width: 30, height: 30, alignment: .leading)
-                }
-                .tint(.primary)
-            }
-        }
-        .gesture(DragGesture(minimumDistance: 3.0, coordinateSpace: .local)
-            .onEnded { value in
-                switch(value.translation.width, value.translation.height) {
-                    case (0..., -30...30):
-                    dismiss()
-                    default:  break
-                }
-            }
-        )
-    }
-    
-    // MARK: - Views
-
-    var authView: some View {
-        VStack {
-            Spacer()
-            Text("Sign in\nto your Account")
-                .font(.largeTitle)
-                .bold()
-                .multilineTextAlignment(.center)
-                .lineSpacing(0)
-            Spacer()
-            emailView
-                .padding(.bottom,10)
-            passwordView
-                .padding(.bottom,10)
-            Spacer()
-            loginButtonView
-            Spacer()
-            
-        }
-        .padding()
-        .frame(maxWidth: 400)
     }
     
     var emailView: some View {
@@ -125,7 +128,6 @@ struct LoginView: View {
         .padding(.horizontal, 10)
         .background(AppColors.lightGray6)
         .cornerRadius(16)
-        .shadow(color: .black.opacity(0.2), radius: 10, x: 0, y: 5)
         .onTapGesture {
             focusedField = .email
         }
@@ -160,7 +162,6 @@ struct LoginView: View {
             .padding(.horizontal, 10)
             .background(AppColors.lightGray6)
             .cornerRadius(16)
-            .shadow(color: .black.opacity(0.2), radius: 10, x: 0, y: 5)
             .onTapGesture {
                 focusedField = .password
             }
@@ -217,33 +218,73 @@ struct LoginView: View {
         viewModel.allViewsDisabled = true
         viewModel.buttonState = .loading
         Task {
-            let decodedUser = await authenticationManager.login(email: viewModel.email, password: viewModel.password)
-            guard let decodedUser else {
+            let errorModel = ErrorModel(massage: "Что-то пошло не так. Повтарите попытку позже.", img: AppImages.iconPersonError, color: .red)
+            do {
+                let decodedAppUser = try await authenticationManager.login(email: viewModel.email, password: viewModel.password)
+                
+                    
+                    let descriptor = FetchDescriptor(predicate: #Predicate<AppUser>{ $0.id == decodedAppUser.id })
+                    
+                    if let user = try context.fetch(descriptor).first {
+                        user.isUserLoggedIn = true
+                        user.updateUser(decodedUser: decodedAppUser)
+                        authenticationManager.appUser = user
+                        
+                        setLikedItems(for: user)
+                        
+                    } else {
+                        let user = AppUser(decodedUser: decodedAppUser)
+                        user.isUserLoggedIn = true
+                        authenticationManager.appUser = user
+                        context.insert(user)
+                    }
+                    onDismiss()
+                
+            } catch NetworkErrors.apiError(let apiError) {
                 viewModel.allViewsDisabled = false
                 viewModel.buttonState = .normal
-                return
-            }
-            
-            do {
-                let descriptor = FetchDescriptor(predicate: #Predicate<AppUser>{ $0.id == decodedUser.id })
-                
-                if let user = try context.fetch(descriptor).first {
-                    user.isUserLoggedIn = true
-                    user.updateUser(decodedUser: decodedUser)
-                    authenticationManager.appUser = user
-                } else {
-                    let user = AppUser(decodedUser: decodedUser)
-                    user.isUserLoggedIn = true
-                    authenticationManager.appUser = user
-                    context.insert(user)
-                }
-                onDismiss()
-                
+                errorManager.showApiErrorOrMessage(apiError: apiError, or: errorModel)
+            } catch NetworkErrors.noConnection {
+                viewModel.allViewsDisabled = false
+                viewModel.buttonState = .normal
+                errorManager.showError(model: errorModel)
             } catch {
                 viewModel.allViewsDisabled = false
                 viewModel.buttonState = .normal
-                print("Fetch failed")
+                errorManager.showError(model: errorModel)
             }
+            
+            
+//            await MainActor.run {
+//                guard let decodedUser else {
+//                        viewModel.allViewsDisabled = false
+//                        viewModel.buttonState = .normal
+//                    return
+//                }
+//                do {
+//                    let descriptor = FetchDescriptor(predicate: #Predicate<AppUser>{ $0.id == decodedUser.id })
+//                    
+//                    if let user = try context.fetch(descriptor).first {
+//                        user.isUserLoggedIn = true
+//                        user.updateUser(decodedUser: decodedUser)
+//                        authenticationManager.appUser = user
+//
+//                        setLikedItems(for: user)
+//                        
+//                    } else {
+//                        let user = AppUser(decodedUser: decodedUser)
+//                        user.isUserLoggedIn = true
+//                        authenticationManager.appUser = user
+//                        context.insert(user)
+//                    }
+//                    self.onDismiss()
+//                    
+//                } catch {
+//                    viewModel.allViewsDisabled = false
+//                    viewModel.buttonState = .normal
+//                    print("Fetch failed")
+//                }
+//            }
         }
     }
 
@@ -278,16 +319,38 @@ struct LoginView: View {
             return true
         }
     }
-}
-
-#Preview {
-    let viewModel = LoginViewModel(email: nil)
-    let keychainManager = KeychainManager()
-    let appSettingsManager = AppSettingsManager()
-    let networkManager = AuthNetworkManager(appSettingsManager: appSettingsManager)
-    let errorManager = ErrorManager()
-    let authenticationManager = AuthenticationManager(keychainManager: keychainManager, networkManager: networkManager, errorManager: errorManager)
-    return LoginView(viewModel: viewModel, authenticationManager: authenticationManager) {
-        print("dissmised")
+    
+    private func setLikedItems(for user: AppUser) {
+        do {
+            let placeDescriptor = FetchDescriptor<Place>()
+            let eventDescriptor = FetchDescriptor<Event>()
+            let places = try context.fetch(placeDescriptor)
+            let events = try context.fetch(eventDescriptor)
+            places.forEach { place in
+                if user.likedPlaces.contains(where: { $0 == place.id } ) {
+                    place.isLiked = true
+                }
+            }
+            events.forEach { event in
+                if user.likedEvents.contains(where: { $0 == event.id } ) {
+                    event.isLiked = true
+                }
+            }
+            //запрос в сеть на локации, которых нет в базе.
+        } catch {
+            debugPrint("-Error- LoginView setLikedItems: ", error)
+        }
     }
 }
+
+//#Preview {
+//    let viewModel = LoginViewModel(email: nil)
+//    let keychainManager = KeychainManager()
+//    let appSettingsManager = AppSettingsManager()
+//    let networkManager = AuthNetworkManager(appSettingsManager: appSettingsManager)
+//    let errorManager = ErrorManager()
+//    let authenticationManager = AuthenticationManager(keychainManager: keychainManager, networkManager: networkManager, errorManager: errorManager)
+//    return LoginView(viewModel: viewModel, authenticationManager: authenticationManager) {
+//        print("dissmised")
+//    }
+//}

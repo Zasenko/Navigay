@@ -15,22 +15,33 @@ enum EntryViewRouter {
 
 struct EntryView: View {
     
+    //MARK: - Private Properties
+    
     @Query private var appUsers: [AppUser]
+    
     @AppStorage("firstTimeInApp") private var firstTimeInApp: Bool = true
+    
     @State private var router: EntryViewRouter = .welcomeView
     @StateObject private var authenticationManager: AuthenticationManager
+    
     private let appSettingsManager: AppSettingsManagerProtocol
     private let errorManager: ErrorManagerProtocol
+    private let networkMonitor: NetworkMonitorManagerProtocol
     
+    //MARK: - Init
     
     init() {
         let appSettingsManager = AppSettingsManager()
         let errorManager = ErrorManager()
         let keychainManager = KeychainManager()
-        let authNetworkManager = AuthNetworkManager(appSettingsManager: appSettingsManager)
-        let authenticationManager = AuthenticationManager(keychainManager: keychainManager, networkManager: authNetworkManager, errorManager: errorManager)
+        let networkMonitorManager = NetworkMonitorManager(errorManager: errorManager)
+        let authNetworkManager = AuthNetworkManager(networkMonitorManager: networkMonitorManager, appSettingsManager: appSettingsManager)
+        let authenticationManager = AuthenticationManager(keychainManager: keychainManager, networkMonitorManager: networkMonitorManager, networkManager: authNetworkManager, errorManager: errorManager)
+        
+        self.networkMonitor = networkMonitorManager
         self.appSettingsManager = appSettingsManager
         self.errorManager = errorManager
+
         _authenticationManager = StateObject(wrappedValue: authenticationManager)
         _router = State(wrappedValue: EntryViewRouter.welcomeView)
         let id = authenticationManager.lastLoginnedUserId
@@ -39,32 +50,43 @@ struct EntryView: View {
         }
     }
     
+    //MARK: - Body
+    
     var body: some View {
-        ZStack(alignment: .top) {
+        ZStack(alignment: .bottom) {
             switch router {
             case .welcomeView:
-                RegistrationView(authenticationManager: authenticationManager) {
+                WelcomeView(authenticationManager: authenticationManager) {
                     firstTimeInApp = false
-                    withAnimation {
                         router = .tabView
-                    }
                 }
             case .tabView:
                 TabBarView(authenticationManager: authenticationManager, appSettingsManager: appSettingsManager, errorManager: errorManager)
             }
-            ErrorView(viewModel: ErrorViewModel(errorManager: errorManager))
+            ErrorView(viewModel: ErrorViewModel(errorManager: errorManager), edge: .bottom)
         }
         .onAppear() {
-            if firstTimeInApp {
-                router = .welcomeView
-            } else {
-                router = .tabView
-                if let appUser = appUsers.first,
-                   appUser.isUserLoggedIn {
-                    authenticationManager.authentificate(user: appUser)
-                }
-            }
+            setRouter()
         }
+    }
+    
+    //MARK: - Private Functions
+    
+    private func setRouter() {
+        if firstTimeInApp {
+            router = .welcomeView
+        } else {
+            router = .tabView
+            authentificate()
+        }
+    }
+    
+    private func authentificate() {
+        guard let appUser = appUsers.first(where: { $0.id == authenticationManager.lastLoginnedUserId }),
+              appUser.isUserLoggedIn else {
+            return
+        }
+        authenticationManager.authentificate(user: appUser)
     }
 }
 

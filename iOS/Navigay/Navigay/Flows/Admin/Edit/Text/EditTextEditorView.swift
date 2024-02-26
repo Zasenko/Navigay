@@ -74,7 +74,6 @@ struct EditTextEditorView: View {
                         dismiss()
                     }
                     .bold()
-                    .disabled(text.isEmpty || text.count < 3)
                 }
             }
             .onAppear {

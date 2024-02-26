@@ -2,10 +2,6 @@
 
 require_once('../error-handler.php');
 
-if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
-    sendError('Invalid request method.');
-}
-
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     sendError('Invalid request method.');
 }
@@ -14,6 +10,11 @@ $postData = file_get_contents('php://input');
 $data = json_decode($postData, true);
 if (empty($data)) {
     sendError('Invalid or empty request data.');
+}
+
+$country_id = isset($data["country_id"]) ? intval($data["country_id"]) : 0;
+if ($country_id <= 0) {
+    sendError('Invalid country ID.');
 }
 
 $user_id = isset($data["user_id"]) ? intval($data["user_id"]) : 0;
@@ -25,8 +26,6 @@ $session_key = isset($data["session_key"]) ? $data["session_key"] : '';
 if (empty($session_key)) {
     sendError('Session key is required.');
 }
-
-//TODO! проверка юзера на то, что он администратор
 
 require_once('../dbconfig.php');
 
@@ -44,7 +43,7 @@ if ($result->num_rows === 0) {
 
 $row = $result->fetch_assoc();
 
-$status = $row['status'];
+$status = isset($row['status']) ? $row['status'] : '';
 if (!($status === "admin")) {
     $conn->close();
     sendError('Admin access only.');
@@ -57,36 +56,28 @@ if (!hash_equals($hashed_session_key, $stored_hashed_session_key)) {
     sendError('Wrong key.');
 }
 
-$sql = "SELECT id, isoCountryCode, name_origin, name_en, show_regions, is_active, is_checked FROM Country";
-$stmt = $conn->prepare($sql);
-if (!$stmt) {
-    $stmt->close();
-    $conn->close();
-    sendError('Failed to prepare statement for Country.');
-}
-if (!$stmt->execute()) {
-    $stmt->close();
-    $conn->close();
-    sendError('Failed to execute a prepared statement for Country.');
-}
+$sql = "SELECT id, name_origin, name_en, is_active, is_checked FROM Region WHERE country_id = ?";
+$params = [$country_id];
+$types = "i";
+$stmt = executeQuery($conn, $sql, $params, $types);
 $result = $stmt->get_result();
 $stmt->close();
-$countries = array();
+
+$regions = array();
 while ($row = $result->fetch_assoc()) {
-    $show_regions = (bool)$row['show_regions'];
     $is_active = (bool)$row['is_active'];
     $is_checked = (bool)$row['is_checked'];
-    $country = array(
+    $region = array(
         'id' => $row['id'],
-        'isoCountryCode' => $row["isoCountryCode"],
         'name_origin' => $row['name_origin'],
         'name_en' => $row['name_en'],
         'is_active' => $is_active,
         'is_checked' => $is_checked,
     );
-    array_push($countries, $country);
+    array_push($regions, $region);
 }
+
 $conn->close();
-$json = ['result' => true, 'countries' => $countries];
-echo json_encode($json, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
+$json = ['result' => true, 'regions' => $regions];
+echo json_encode($json, JSON_UNESCAPED_UNICODE);
 exit;

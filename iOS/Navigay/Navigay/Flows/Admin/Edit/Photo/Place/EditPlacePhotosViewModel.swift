@@ -107,7 +107,7 @@ extension EditPlacePhotosViewModel {
                 let decodedResult = try await networkManager.deleteLibraryPhoto(placeId: placeId, photoId: libraryPhotoId)
                 guard decodedResult.result else {
                     errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: deleteErrorModel)
-                    throw NetworkErrors.apiError
+                    throw NetworkErrors.apiErrorTest
                 }
                 await MainActor.run {
                     self.libraryPhotoLoading = false
@@ -134,7 +134,7 @@ extension EditPlacePhotosViewModel {
                 let decodedResult = try await networkManager.updateAvatar(placeId: placeId, uiImage: scaledImage)
                 guard decodedResult.result else {
                     errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: loadErrorModel)
-                    throw NetworkErrors.apiError
+                    throw NetworkErrors.apiErrorTest
                 }
                 await MainActor.run {
                     self.avatarLoading = false
@@ -157,7 +157,7 @@ extension EditPlacePhotosViewModel {
                 let decodedResult = try await networkManager.updateMainPhoto(placeId: placeId, uiImage: scaledImage)
                 guard decodedResult.result else {
                     errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: loadErrorModel)
-                    throw NetworkErrors.apiError
+                    throw NetworkErrors.apiErrorTest
                 }
                 await MainActor.run {
                     self.mainPhotoLoading = false
@@ -180,7 +180,7 @@ extension EditPlacePhotosViewModel {
                 let decodedResult = try await networkManager.updateLibraryPhoto(placeId: placeId, photoId: libraryPhotoId, uiImage: scaledImage)
                 guard decodedResult.result else {
                     errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: loadErrorModel)
-                    throw NetworkErrors.apiError
+                    throw NetworkErrors.apiErrorTest
                 }
                 await MainActor.run {
                     self.libraryPhotoLoading = false

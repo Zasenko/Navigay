@@ -14,7 +14,7 @@ extension SearchView {
     class SearchViewModel {
         
         var modelContext: ModelContext
-        let user: AppUser?
+        //let user: AppUser?
         
         var isLoading: Bool = false
         var countries: [Country] = []
@@ -35,7 +35,9 @@ extension SearchView {
         let placeNetworkManager: PlaceNetworkManagerProtocol
         let eventNetworkManager: EventNetworkManagerProtocol
         let errorManager: ErrorManagerProtocol
-        
+        let placeDataManager: PlaceDataManagerProtocol
+        let eventDataManager: EventDataManagerProtocol
+        let catalogDataManager: CatalogDataManagerProtocol
         //   private var cancellables = Set<AnyCancellable>()
         
         // Создаем объект PassthroughSubject для передачи значений
@@ -46,13 +48,23 @@ extension SearchView {
         private var cancellable: AnyCancellable?
         private var cancellable2: AnyCancellable?
         
-        init(modelContext: ModelContext, catalogNetworkManager: CatalogNetworkManagerProtocol, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol, user: AppUser?) {
+        init(modelContext: ModelContext,
+             catalogNetworkManager: CatalogNetworkManagerProtocol,
+             placeNetworkManager: PlaceNetworkManagerProtocol,
+             eventNetworkManager: EventNetworkManagerProtocol,
+             errorManager: ErrorManagerProtocol,
+             placeDataManager: PlaceDataManagerProtocol,
+             eventDataManager: EventDataManagerProtocol,
+             catalogDataManager: CatalogDataManagerProtocol) {
             self.modelContext = modelContext
             self.catalogNetworkManager = catalogNetworkManager
             self.eventNetworkManager = eventNetworkManager
             self.placeNetworkManager = placeNetworkManager
             self.errorManager = errorManager
-            self.user = user
+            self.placeDataManager = placeDataManager
+            self.eventDataManager = eventDataManager
+            self.catalogDataManager = catalogDataManager
+         //   self.user = user
             
             cancellable = textSubject
                 .debounce(for: .seconds(2), scheduler: DispatchQueue.main)

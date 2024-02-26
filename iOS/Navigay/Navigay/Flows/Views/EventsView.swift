@@ -20,7 +20,7 @@ struct EventsView: View {
     @Binding var upcomingEvents: [Event]
     @Binding var eventsDates: [Date]
     
-    @State private var gridLayout: [GridItem] = Array(repeating: GridItem(.flexible(), spacing: 20), count: 2)
+    @State private var gridLayout: [GridItem] = Array(repeating: GridItem(.flexible(), spacing: 20, alignment: .top), count: 2)
     @State private var showCalendar: Bool = false
     
     let size: CGSize
@@ -102,6 +102,15 @@ struct EventsView: View {
                         .presentationDragIndicator(.visible)
                         .presentationCornerRadius(25)
                 }
+                //                if selectedDate == nil {
+                //                    let count = actualEvents.count - todayEvents.count - displayedEvents.count
+                //                    if count > 0 {
+                //                        Text("and \(count) more...")
+                //                            .frame(maxWidth: .infinity)
+                //                            .font(.caption)
+                //                            .foregroundStyle(.secondary)
+                //                    }
+                //                }
             }
         }
     }

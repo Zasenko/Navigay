@@ -17,101 +17,74 @@ struct RegistrationView: View {
     
     @StateObject var viewModel: RegistrationViewModel = RegistrationViewModel()
     @ObservedObject var authenticationManager: AuthenticationManager
-    
-   // let showSkip: Bool
+    let errorManager: ErrorManagerProtocol
     let onDismiss: () -> Void
     
     // MARK: - Private Properties
     
     @Environment(\.modelContext) private var context
+    @Environment(\.dismiss) private var dismiss
     @FocusState private var focusedField: FocusField?
     
     // MARK: - Body
     
     var body: some View {
         NavigationStack {
-            ZStack {
-                AppColors.background
-                VStack {
-                    authView
-                    signInView
-                }
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .onTapGesture {
-                focusedField = nil
-            }
-            .onSubmit(focusNextField)
-            .disabled(viewModel.allViewsDisabled)
-            .navigationBarBackButtonHidden()
-            .toolbarBackground(AppColors.background)
-            .toolbarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        focusedField = nil
-                        onDismiss()
-                    } label: {
-                        HStack {
-                            //   if showSkip {
-                            Text("skip")
-                                .foregroundColor(.secondary)
-                                .font(.footnote)
-                            //   }
-                            AppImages.iconX
-                                .bold()
-                                .frame(width: 30, height: 30, alignment: .leading)
+            ZStack(alignment: .top) {
+                listView
+                    .navigationBarBackButtonHidden()
+                    .toolbarBackground(.hidden, for: .navigationBar)
+                    .toolbarTitleDisplayMode(.inline)
+                    .toolbar {
+                        ToolbarItem(placement: .topBarTrailing) {
+                            Button {
+                                focusedField = nil
+                                dismiss()
+                            } label: {
+                                AppImages.iconX
+                                    .bold()
+                                    .frame(width: 30, height: 30)
+                            }
+                            .tint(.primary)
                         }
                     }
-                    .tint(.primary)
-                }
+                ErrorView(viewModel: ErrorViewModel(errorManager: errorManager), edge: .top)
             }
         }
     }
     
     // MARK: - Views
     
-//    var skipView: some View {
-//        HStack {
-//            Spacer()
-//            Button {
-//                focusedField = nil
-//                onDismiss()
-//            } label: {
-//                HStack {
-//                 //   if showSkip {
-//                        Text("skip")
-//                            .foregroundColor(.secondary)
-//                            .font(.footnote)
-//                 //   }
-//                    AppImages.iconX
-//                        .font(.title2)
-//                        .bold()
-//                }
-//            }
-//            .padding()
-//        }
-//        
-//    }
-    
-    var authView: some View {
-        VStack {
-            Spacer()
+    private var listView: some View {
+        List {
             Text("Create Account")
-            .font(.largeTitle)
-            .bold()
-            Spacer()
-            emailView
-                .padding(.bottom, 10)
-            passwordView
-                .padding(.bottom, 10)
-            Spacer()
-            registrationButtonView
-            Spacer()
+                .font(.largeTitle)
+                .bold()
+                .frame(maxWidth: .infinity)
+                .padding(.bottom, 20)
+                .listRowSeparator(.hidden)
             
+            VStack {
+                VStack(spacing: 20) {
+                    emailView
+                    passwordView
+                }
+                .frame(maxWidth: 400)
+            }
+            .frame(maxWidth: .infinity)
+            .listRowSeparator(.hidden)
+            
+            registrationButtonView
+                .listRowSeparator(.hidden)
         }
-        .padding()
-        .frame(maxWidth: 400)
+        .listStyle(.plain)
+        .buttonStyle(.plain)
+        .scrollIndicators(.hidden)
+        .onTapGesture {
+            focusedField = nil
+        }
+        .onSubmit(focusNextField)
+        .disabled(viewModel.allViewsDisabled)
     }
     
     var emailView: some View {
@@ -143,7 +116,6 @@ struct RegistrationView: View {
         .padding(.horizontal, 10)
         .background(AppColors.lightGray6)
         .cornerRadius(16)
-        .shadow(color: .black.opacity(0.2), radius: 10, x: 0, y: 5)
         .onTapGesture {
             focusedField = .email
         }
@@ -178,11 +150,10 @@ struct RegistrationView: View {
             .padding(.horizontal, 10)
             .background(AppColors.lightGray6)
             .cornerRadius(16)
-            .shadow(color: .black.opacity(0.2), radius: 10, x: 0, y: 5)
             .onTapGesture {
                 focusedField = .password
             }
-            Text("The password must consist of at least 8 characters,\nat least one number and one letter.")
+            Text("The password must consist of at least 8 characters, at least one number and one letter.")
                 .foregroundColor(.secondary)
                 .font(.caption)
                 .multilineTextAlignment(.center)
@@ -217,26 +188,10 @@ struct RegistrationView: View {
             .background(viewModel.isButtonValid ? .green : AppColors.lightGray5)
             .clipShape(Capsule())
         }
+        .frame(maxWidth: .infinity)
         .disabled(!viewModel.isButtonValid)
     }
-    
-    var signInView: some View {
-        HStack {
-            Text("Already a member?")
-            NavigationLink {
-                LoginView(viewModel: LoginViewModel(), authenticationManager: authenticationManager) {
-                    onDismiss()
-                }
-            } label: {
-                Text("Sign In")
-                .bold()
-                .foregroundColor(.blue)
-            }
-        }
-        .font(.subheadline)
-        .padding()
-    }
-    
+        
     // MARK: - Private Functions
     
     @MainActor
@@ -245,12 +200,22 @@ struct RegistrationView: View {
         viewModel.allViewsDisabled = true
         viewModel.buttonState = .loading
         Task {
-            if let user = await authenticationManager.registration(email: viewModel.email, password: viewModel.password) {
-                context.insert(user)
+            let error = ErrorModel(massage: "Что-то пошло не так. Повтарите попытку позже.", img: AppImages.iconPersonError, color: .red)
+            do {
+                let appUser = try await authenticationManager.registration(email: viewModel.email, password: viewModel.password)
+                context.insert(appUser)
                 onDismiss()
-            } else{
+            } catch NetworkErrors.apiError(let apiError) {
                 viewModel.allViewsDisabled = false
                 viewModel.buttonState = .normal
+                errorManager.showApiErrorOrMessage(apiError: apiError, or: error)
+            } catch NetworkErrors.noConnection {
+                viewModel.allViewsDisabled = false
+                viewModel.buttonState = .normal
+            } catch {
+                viewModel.allViewsDisabled = false
+                viewModel.buttonState = .normal
+                errorManager.showError(error: error)
             }
         }
     }
@@ -288,14 +253,14 @@ struct RegistrationView: View {
     }
 }
 
-#Preview {
-    let viewModel = RegistrationViewModel()
-    let keychainManager = KeychainManager()
-    let appSettingsManager = AppSettingsManager()
-    let networkManager = AuthNetworkManager(appSettingsManager: appSettingsManager)
-    let errorManager = ErrorManager()
-    let authenticationManager = AuthenticationManager(keychainManager: keychainManager, networkManager: networkManager, errorManager: errorManager)
-    return RegistrationView(viewModel: viewModel, authenticationManager: authenticationManager) {
-        print("dissmised")
-    }
-}
+//#Preview {
+//    let viewModel = RegistrationViewModel()
+//    let keychainManager = KeychainManager()
+//    let appSettingsManager = AppSettingsManager()
+//    let networkManager = AuthNetworkManager(appSettingsManager: appSettingsManager)
+//    let errorManager = ErrorManager()
+//    let authenticationManager = AuthenticationManager(keychainManager: keychainManager, networkManager: networkManager, errorManager: errorManager)
+//    return RegistrationView(viewModel: viewModel, authenticationManager: authenticationManager) {
+//        print("dissmised")
+//    }
+//}

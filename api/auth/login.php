@@ -1,8 +1,8 @@
 <?php
 
-require_once('auth-user-error.php');
 require_once('../error-handler.php');
 require_once('../languages.php');
+require_once('auth-user-error.php');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     sendError('Invalid request method.');
@@ -53,10 +53,26 @@ if (!($result->num_rows > 0)) {
 }
 
 $row = $result->fetch_assoc();
-if (password_verify($user_password, $row['password'])) {
-    $user_id = $row['id'];
+$user_id = $row['id'];
+
+if (!password_verify($user_password, $row['password'])) {
+    $conn->close();
+    $errorDescription = getAuthErrorMessage(7, $user_language);
+    sendUserError($errorDescription);
+}
+
+$session_key = bin2hex(random_bytes(16));
+$hashed_session_key = hash('sha256', $session_key);
+
+// $sql = "UPDATE User SET last_time_online = CURRENT_TIMESTAMP() WHERE id = ?";
+$sql = "UPDATE User SET session_key = ? WHERE id = ?";
+$params = [$hashed_session_key, $user_id];
+$types = "si";
+$stmt = executeQuery($conn, $sql, $params, $types);
+
+if (checkInsertResult($stmt, $conn, 'Failed to update user with ID ' . $user_id)) {
     $photo = $row['photo'];
-    $photo_url = isset($photo) ? "https://www.navigay.me/" . $photo : null;
+    $photo_url = isset($photo) ? "https://www.navigay.me/images/users/" . $photo : null;
     $user = array(
         'id' => $user_id,
         'name' => $row['name'],
@@ -65,21 +81,11 @@ if (password_verify($user_password, $row['password'])) {
         'bio' => $row["bio"],
         'photo' => $photo_url,
         'updated_at' => $row['updated_at'],
+        'session_key' => $session_key,
     );
-} else {
-    $conn->close();
-    $errorDescription = getAuthErrorMessage(7, $user_language);
-    sendUserError($errorDescription);
-}
 
-$sql = "UPDATE User SET last_time_online = CURRENT_TIMESTAMP() WHERE id = ?";
-$params = [$user_id];
-$types = "i";
-$stmt = executeQuery($conn, $sql, $params, $types);
-
-if (checkInsertResult($stmt, $conn, 'Failed to update the last online time of the user with ID ' . $user_id)) {
     $conn->close();
     $json = array('result' => true, 'user' => $user);
-    echo json_encode($json, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
+    echo json_encode($json, JSON_UNESCAPED_UNICODE);
     exit;
 }

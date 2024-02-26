@@ -21,8 +21,16 @@ struct PlaceView: View {
     @ObservedObject private var authenticationManager: AuthenticationManager // TODO: убрать юзера из вью модели так как он в authenticationManager
     // MARK: - Inits
     
-    init(place: Place, modelContext: ModelContext, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol, authenticationManager: AuthenticationManager, showOpenInfo: Bool) {
-        let viewModel = PlaceViewModel(place: place, modelContext: modelContext, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, showOpenInfo: showOpenInfo)
+    init(place: Place,
+         modelContext: ModelContext,
+         placeNetworkManager: PlaceNetworkManagerProtocol,
+         eventNetworkManager: EventNetworkManagerProtocol,
+         errorManager: ErrorManagerProtocol,
+         authenticationManager: AuthenticationManager,
+         placeDataManager: PlaceDataManagerProtocol,
+         eventDataManager: EventDataManagerProtocol,
+         showOpenInfo: Bool) {
+        let viewModel = PlaceViewModel(place: place, modelContext: modelContext, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, showOpenInfo: showOpenInfo)
         _viewModel = State(wrappedValue: viewModel)
         self.authenticationManager = authenticationManager
     }
@@ -34,26 +42,24 @@ struct PlaceView: View {
             GeometryReader { outsideProxy in
             VStack(spacing: 0) {
                 Divider()
-                    
                         createList(outsideProxy: outsideProxy)
                     }
             }
             .navigationBarBackButtonHidden()
             .toolbarBackground(AppColors.background)
-            // .toolbarBackground(viewModel.showHeaderTitle ? .visible : .hidden, for: .navigationBar)
             .toolbarTitleDisplayMode(.inline)
             .toolbar {
-                  if viewModel.showHeaderTitle {
-                ToolbarItem(placement: .principal) {
-                    VStack(spacing: 0) {
-                        Text(viewModel.place.type.getName().uppercased())
-                            .font(.caption).bold()
-                            .foregroundStyle(.secondary)
-                        Text(viewModel.place.name)
-                            .font(.headline).bold()
+                if viewModel.showHeaderTitle {
+                    ToolbarItem(placement: .principal) {
+                        VStack(spacing: 0) {
+                            Text(viewModel.place.type.getName().uppercased())
+                                .font(.caption).bold()
+                                .foregroundStyle(.secondary)
+                            Text(viewModel.place.name)
+                                .font(.headline).bold()
+                        }
                     }
                 }
-                 }
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
                         withAnimation {
@@ -70,6 +76,13 @@ struct PlaceView: View {
                     HStack {
                         Button {
                             viewModel.place.isLiked.toggle()
+                            guard let user = authenticationManager.appUser else { return }
+                            
+                            if let index = user.likedPlaces.firstIndex(where: {$0 == viewModel.place.id} ) {
+                                user.likedPlaces.remove(at: index)
+                            } else {
+                                user.likedPlaces.append(viewModel.place.id)
+                            }
                         } label: {
                             Image(systemName: viewModel.place.isLiked ? "heart.fill" : "heart")
                                 .bold()
@@ -89,9 +102,6 @@ struct PlaceView: View {
                                     .bold()
                                     .frame(width: 30, height: 30, alignment: .leading)
                             }
-                            
-                            
-                            
                         }
                     }
                 }
@@ -121,7 +131,7 @@ struct PlaceView: View {
     @ViewBuilder
     private func createList(outsideProxy: GeometryProxy) -> some View {
         List {
-            
+            headerView
             headerSection(width: outsideProxy.size.width)
             
             TagsView(tags: viewModel.place.tags)
@@ -208,7 +218,7 @@ struct PlaceView: View {
                                 .foregroundStyle(.blue)
                         }
                         .fullScreenCover(isPresented: $viewModel.showRegistrationView) {
-                            RegistrationView(authenticationManager: authenticationManager) {
+                            RegistrationView(authenticationManager: authenticationManager, errorManager: authenticationManager.errorManager) {
                                 viewModel.showRegistrationView = false
                             }
                         }
@@ -225,11 +235,11 @@ struct PlaceView: View {
                     ForEach(viewModel.comments) { comment in
                         VStack(spacing: 0) {
                             VStack(spacing: 10) {
-                                if let rating = comment.rating {
+                                if comment.rating != 0 {
                                     HStack {
                                         ForEach(1..<6) { int in
                                             Image(systemName: "star.fill")
-                                                .foregroundStyle(int <= rating ? .yellow : .secondary)
+                                                .foregroundStyle(int <= comment.rating ? .yellow : .secondary)
                                         }
                                     }
                                 }
@@ -256,22 +266,24 @@ struct PlaceView: View {
                             .background(AppColors.lightGray6)
                             .clipShape(RoundedRectangle(cornerRadius: 20))
                             HStack {
-                                if let url = comment.user.photo {
-                                    ImageLoadingView(url: url, width: 50, height: 50, contentMode: .fill) {
-                                        AppColors.lightGray6 // TODO: animation in ImageLoadingView
+                                if let user = comment.user {
+                                    if let url = user.photo {
+                                        ImageLoadingView(url: url, width: 50, height: 50, contentMode: .fill) {
+                                            AppColors.lightGray6 // TODO: animation in ImageLoadingView
+                                        }
+                                        .clipped()
+                                        .listRowSeparator(.hidden)
+                                        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                                    } else {
+                                        AppImages.iconPerson
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: 20, height: 20)
                                     }
-                                    .clipped()
-                                    .listRowSeparator(.hidden)
-                                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                                } else {
-                                    AppImages.iconPerson
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(width: 20, height: 20)
+                                    Text(user.name)
+                                        .bold()
+                                        .frame(maxWidth: .infinity, alignment: .leading)
                                 }
-                                Text(comment.user.name)
-                                    .bold()
-                                    .frame(maxWidth: .infinity, alignment: .leading)
                                 Text(comment.createdAt)
                             }
                             .font(.caption)
@@ -295,33 +307,42 @@ struct PlaceView: View {
         .buttonStyle(PlainButtonStyle())
     }
     
+    private var headerView: some View {
+        HStack(spacing: 20) {
+            if let url = viewModel.place.avatar {
+                ImageLoadingView(url: url, width: 60, height: 60, contentMode: .fill) {
+                    Color.orange
+                }
+                .clipShape(Circle())
+                .overlay(Circle().stroke(AppColors.lightGray5, lineWidth: 1))
+            }
+            VStack(alignment: .leading, spacing: 4) {
+                Text(viewModel.place.name)
+                    .font(.title2).bold()
+                    .foregroundColor(.primary)
+                Text(viewModel.place.address)
+                    .font(.body)
+                    .foregroundColor(.secondary)
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .listRowSeparator(.hidden)
+        .listRowInsets(EdgeInsets(top: 10, leading: 20, bottom: 10, trailing: 20))
+        .onAppear {
+            viewModel.showHeaderTitle = false
+        }
+        .onDisappear {
+            viewModel.showHeaderTitle = true
+        }
+    }
+    
     @ViewBuilder
     private func headerSection(width: CGFloat) -> some View {
-        VStack {
+        ZStack {
             if !viewModel.allPhotos.isEmpty {
                 PhotosTabView(allPhotos: $viewModel.allPhotos, width: width)
                     .frame(width: width, height: ((width / 4) * 5) + 20)///20 is spase after tabview for circls
             }
-            HStack(spacing: 20) {
-                if let url = viewModel.place.avatar {
-                    ImageLoadingView(url: url, width: 60, height: 60, contentMode: .fill) {
-                        Color.orange
-                    }
-                    .clipShape(Circle())
-                    .overlay(Circle().stroke(AppColors.lightGray5, lineWidth: 1))
-                }
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(viewModel.place.name)
-                        .font(.title2).bold()
-                        .foregroundColor(.primary)
-                    Text(viewModel.place.address)
-                        .font(.body)
-                        .foregroundColor(.secondary)
-                }
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.top, 10)
-            .padding(.horizontal, 20)
         }
         .listRowSeparator(.hidden)
         .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
