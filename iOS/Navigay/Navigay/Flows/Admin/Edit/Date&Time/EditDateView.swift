@@ -33,9 +33,8 @@ struct EditDateView: View {
     
     //MARK: - Inits
     
-
     init(date: Date?, pickerStartDate: Date?, editType: EditDateType, onSave: @escaping (Date) -> Void, onDelete: @escaping () -> Void) {
-        _date = State(initialValue: date ?? Date())
+        _date = State(initialValue: date ?? pickerStartDate ?? Date())
         self.pickerStartDay = pickerStartDate ?? Date()
         self.editType = editType
         self.showDeleteInfo = date != nil && editType == .finish ? true : false

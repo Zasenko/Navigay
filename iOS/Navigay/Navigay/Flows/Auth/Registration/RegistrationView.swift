@@ -93,7 +93,7 @@ struct RegistrationView: View {
                 HStack {
                     Text("Email")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                     Spacer()
                 }
                 TextField("", text: $viewModel.email) {

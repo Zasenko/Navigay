@@ -165,15 +165,18 @@ struct CityView: View {
 
 struct CapsuleSmall: ViewModifier {
     
-    let background: Color
     let foreground: Color
+    
+    init(foreground: Color = .primary) {
+        self.foreground = foreground
+    }
     
     func body(content: Content) -> some View {
         content
             .padding(5)
             .padding(.horizontal, 5)
             .foregroundColor(foreground)
-            .background(background)
+            .background(.ultraThinMaterial)
             .clipShape(Capsule(style: .continuous))
     }
 }

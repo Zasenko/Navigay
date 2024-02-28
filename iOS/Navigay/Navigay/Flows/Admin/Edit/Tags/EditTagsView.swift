@@ -116,8 +116,11 @@ struct EditTagsView: View {
         Text(tag.getString())
             .font(.caption)
             .bold()
-            .foregroundColor(selectedTags.contains(where: { $0 == tag } ) ? .white: .primary)
-            .modifier(CapsuleSmall(background: selectedTags.contains(where: { $0 == tag } ) ? color :  AppColors.lightGray6, foreground: .white))
+            .foregroundColor(selectedTags.contains(where: { $0 == tag } ) ? .white : .primary)
+            .padding(5)
+            .padding(.horizontal, 5)
+            .background(selectedTags.contains(where: { $0 == tag } ) ? color :  AppColors.lightGray6)
+            .clipShape(Capsule(style: .continuous))
     }
 
     private func viewHeightReader(_ binding: Binding<CGFloat>) -> some View {

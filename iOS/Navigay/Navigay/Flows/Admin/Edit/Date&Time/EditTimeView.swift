@@ -32,9 +32,9 @@ struct EditTimeView: View {
     
     //MARK: - Inits
     
-
     init(time: Date?, editType: EditDateType, onSave: @escaping (Date) -> Void, onDelete: @escaping () -> Void) {
-        _time = State(initialValue: time ?? Date())
+        let zeroTime = Calendar.current.date(bySettingHour: 0, minute: 0, second: 0, of: Date()) ?? Date()
+        _time = State(initialValue: time ?? zeroTime)
         self.editType = editType
         self.showDeleteInfo = time != nil ? true : false
         self.onSave = onSave

@@ -16,6 +16,8 @@ struct HomeView: View {
     @State private var viewModel: HomeViewModel
     @ObservedObject var authenticationManager: AuthenticationManager
     
+    @State private var showSorting: Bool = false
+    @State private var test: SortingMapCategory?
     // MARK: - Init
     
     init(modelContext: ModelContext,
@@ -58,17 +60,68 @@ struct HomeView: View {
     
     // MARK: - Views
     
+//    ScrollViewReader { scrollProxy in
+//        ScrollView(showsIndicators: false) {
+//            ZStack(alignment: .bottomLeading) {
+//                bigPhoto(width: proxy.size.width)
+//                smallPhoto
+//            }
+//            Text("Add avatar and main photo to the place. You can also add 9 additional photos.")
+//                .foregroundStyle(.secondary)
+//                .multilineTextAlignment(.leading)
+//                .frame(maxWidth: .infinity, alignment: .leading)
+//                .padding()
+//                .padding(.bottom)
+//            library(width: proxy.size.width)
+//                .id(1)
+//        }
+//        .onChange(of: viewModel.photos, initial: false) { oldValue, newValue in
+//            scrollProxy.scrollTo(1, anchor: .bottom)
+//        }
+//    }
+    
     private var mainView: some View {
         NavigationStack {
             VStack(spacing: 0) {
+                if showSorting {
+                    VStack(spacing: 0) {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            LazyHGrid(rows: [GridItem(.flexible(minimum: 100, maximum: 150))], alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/, spacing: /*@START_MENU_TOKEN@*/nil/*@END_MENU_TOKEN@*/, pinnedViews: /*@START_MENU_TOKEN@*/[]/*@END_MENU_TOKEN@*/) {
+                                ForEach(viewModel.sortingHomeCategories, id: \.self) { category in
+                                    Button {
+                                        test = category
+                                    } label: {
+                                        Text(category.getName())
+                                            .foregroundColor(.primary)
+                                            .modifier(CapsuleSmall(foreground: .primary))
+                                    }
+                                }
+                            }
+                        }
+                        .frame(height: 40)
+                    }
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                }
+                Divider()
                 listView
             }
             .toolbarBackground(AppColors.background)
             .toolbarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Text("Around you")
-                        .font(.title).bold()
+                    HStack(alignment: .lastTextBaseline) {
+                        Text("Around you")
+                            .font(.title).bold()
+                        Button {
+                            withAnimation {
+                                showSorting.toggle()
+                            }
+                        } label: {
+                            Image(systemName: "chevron.down")
+                                .bold()
+                        }
+                    }
+                    .foregroundColor(.primary)
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
@@ -96,26 +149,34 @@ struct HomeView: View {
     
     private var listView: some View {
         GeometryReader { proxy in
-            List {
-                if !viewModel.isLocationsAround20Found {
-                    notFountView
-                        .listRowSeparator(.hidden)
+            ScrollViewReader { scrollProxy in
+                List {
+                    if !viewModel.isLocationsAround20Found {
+                        notFountView
+                            .listRowSeparator(.hidden)
+                    }
+                    if viewModel.actualEvents.count > 0 {
+                        EventsView(modelContext: viewModel.modelContext, authenticationManager: authenticationManager, selectedDate: $viewModel.selectedDate, displayedEvents: $viewModel.displayedEvents, actualEvents: $viewModel.actualEvents, todayEvents: $viewModel.todayEvents, upcomingEvents: $viewModel.upcomingEvents, eventsDates: $viewModel.eventsDates, size: proxy.size, eventDataManager: viewModel.eventDataManager, eventNetworkManager: viewModel.eventNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, errorManager: viewModel.errorManager)
+                            .listRowSeparator(.hidden)
+                            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                            .id(SortingMapCategory.events)
+                    }
+                    placesView
+                    
+                    Color.clear
+                        .frame(height: 50)
+                        .listSectionSeparator(.hidden)
                 }
-                if viewModel.actualEvents.count > 0 {
-                    EventsView(modelContext: viewModel.modelContext, authenticationManager: authenticationManager, selectedDate: $viewModel.selectedDate, displayedEvents: $viewModel.displayedEvents, actualEvents: $viewModel.actualEvents, todayEvents: $viewModel.todayEvents, upcomingEvents: $viewModel.upcomingEvents, eventsDates: $viewModel.eventsDates, size: proxy.size, eventDataManager: viewModel.eventDataManager, eventNetworkManager: viewModel.eventNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, errorManager: viewModel.errorManager)
-                        .listRowSeparator(.hidden)
-                        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                .listSectionSeparator(.hidden)
+                .listStyle(.plain)
+                .scrollIndicators(.hidden)
+                .buttonStyle(PlainButtonStyle())
+                .onChange(of: test, initial: false) { oldValue, newValue in
+                    withAnimation {
+                        scrollProxy.scrollTo(newValue, anchor: .top)
+                    }
                 }
-                placesView
-                
-                Color.clear
-                    .frame(height: 50)
-                    .listSectionSeparator(.hidden)
             }
-            .listSectionSeparator(.hidden)
-            .listStyle(.plain)
-            .scrollIndicators(.hidden)
-            .buttonStyle(PlainButtonStyle())
         }
     }
     
@@ -157,6 +218,7 @@ struct HomeView: View {
             }
             .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
             .listRowSeparator(.hidden)
+            .id(key.getSortingMapCategory())
         }
     }
 }

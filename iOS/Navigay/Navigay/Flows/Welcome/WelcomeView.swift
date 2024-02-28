@@ -46,7 +46,7 @@ struct WelcomeView: View {
                     AppImages.iconX
                         .bold()
                         .frame(width: 30, height: 30)
-                        .foregroundColor(.primary)
+                        .foregroundStyle(.primary)
                     Text("skip")
                     
                         .font(.subheadline)

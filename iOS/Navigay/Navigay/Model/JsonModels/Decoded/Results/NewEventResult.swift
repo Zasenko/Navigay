@@ -10,5 +10,5 @@ import Foundation
 struct NewEventResult: Codable {
     let result: Bool
     let error: ApiError?
-    let id: Int?
+    let ids: [Int]?
 }

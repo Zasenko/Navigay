@@ -13,7 +13,6 @@ struct EventAdditionalFieldsView: View {
     ///place_id?
     ///placeName?
 
-    @Binding var about: String
     @Binding var tags: [Tag]
     @Binding var isoCountryCode: String
     @Binding var phone: String
@@ -26,14 +25,7 @@ struct EventAdditionalFieldsView: View {
         NavigationStack {
             ScrollView(showsIndicators: false) {
                 LazyVStack(spacing: 0) {
-                    NavigationLink {
-                        EditTextEditorView(title: "About", text: about, characterLimit: 3000, onSave: { string in
-                            about = string
-                        })
-                    } label: {
-                        EditField(title: "About", text: $about, emptyFieldColor: .secondary)
-                    }
-                    
+                  
                     TagsEditView
                     VStack(spacing: 0) {
                         NavigationLink {
@@ -104,6 +96,6 @@ struct EventAdditionalFieldsView: View {
     }
 }
 
-#Preview {
-    EventAdditionalFieldsView(about: .constant(""), tags: .constant([]), isoCountryCode: .constant(""), phone: .constant(""), email: .constant(""), www: .constant(""), facebook: .constant(""), instagram: .constant(""))
-}
+//#Preview {
+//    EventAdditionalFieldsView(about: .constant(""), tags: .constant([]), isoCountryCode: .constant(""), phone: .constant(""), email: .constant(""), www: .constant(""), facebook: .constant(""), instagram: .constant(""))
+//}

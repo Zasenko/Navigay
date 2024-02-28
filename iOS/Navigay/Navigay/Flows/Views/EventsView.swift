@@ -129,14 +129,15 @@ struct EventsView: View {
                     //                }
                 }
             }
-            .fullScreenCover(item: $selectedEvent) {
+            
+           // .fullScreenCover(item: $selectedEvent) {
+            .sheet(item: $selectedEvent) {
                 selectedEvent = nil
             } content: { event in
                 EventView(event: event, modelContext: modelContext, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, authenticationManager: authenticationManager)
-                   // .presentationDragIndicator(.visible)
-                  //  .presentationDetents([.large])
-                  //  .presentationBackground(.red)
-                    .presentationCornerRadius(50)
+                    .presentationDragIndicator(.hidden)
+                    .presentationDetents([.large])
+                    //.presentationCornerRadius(25)
             }
 //            .sheet(item: $selectedEvent) {
 //                selectedEvent = nil

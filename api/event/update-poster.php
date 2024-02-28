@@ -1,6 +1,7 @@
 <?php
 
 require_once('../error-handler.php');
+require_once('../error-handler.php');
 
 function generateUniqueFilename($extension)
 {
@@ -59,7 +60,54 @@ if ($poster_size > $max_file_size) {
 if ($small_poster_size > $max_file_size) {
     sendUserError('Small poster size is too large. Max file size is 5 MB.');
 }
+
+
+
 require_once('../dbconfig.php');
+
+//-------- проверка юзера
+if (empty($_POST["event_id"])) {
+    sendError('Place ID are required.');
+}
+$event_id = intval($_POST["event_id"]);
+if ($event_id <= 0) {
+    sendError('Invalid place ID.');
+}
+
+$user_id = isset($decodedEvent["addedBy"]) ? intval($decodedEvent["addedBy"]) : 0;
+if ($user_id <= 0) {
+    sendError('Invalid user ID.');
+}
+$session_key = isset($decodedEvent["sessionKey"]) ? $decodedEvent["sessionKey"] : '';
+if (empty($decodedEvent)) {
+    sendError('Session key is required.');
+}
+$hashed_session_key = hash('sha256', $session_key);
+
+$sql = "SELECT session_key, status FROM User WHERE id = ?";
+$params = [$user_id];
+$types = "i";
+$stmt = executeQuery($conn, $sql, $params, $types);
+$result = $stmt->get_result();
+$stmt->close();
+
+if ($result->num_rows === 0) {
+    $conn->close();
+    sendError('User not found.');
+}
+$row = $result->fetch_assoc();
+
+if (!($status === "admin" || !($status === "moderator") || !($status === "partner"))) {
+    $conn->close();
+    sendError('Admin access only.');
+}
+
+$stored_hashed_session_key = $row['session_key'];
+if (!hash_equals($hashed_session_key, $stored_hashed_session_key)) {
+    $conn->close();
+    sendError('Wrong session key.');
+}
+//------------
 
 $sql = "SELECT Event.poster as poster, Event.poster_small as poster_small, Country.isoCountryCode as isoCountryCode FROM Event INNER JOIN Country ON Country.id = Event.country_id WHERE Event.id = ?";
 $params = [$event_id];

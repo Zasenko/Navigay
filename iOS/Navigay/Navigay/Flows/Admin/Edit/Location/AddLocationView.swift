@@ -76,6 +76,8 @@ struct AddLocationView: View {
                 .safeAreaInset(edge: .bottom) {
                     if let placemark = selectedPlacemark {
                         VStack {
+                            
+                            Divider()
                             let thoroughfare = placemark.thoroughfare
                             let subThoroughfare = placemark.subThoroughfare
                             let locality = placemark.locality
@@ -150,6 +152,28 @@ struct AddLocationView: View {
                     let subThoroughfare = place.subThoroughfare ?? ""
                     let comma = thoroughfare.isEmpty || subThoroughfare.isEmpty  ? "" : ", "
                     self.addressOrigin = "\(thoroughfare)\(comma)\(subThoroughfare)"
+                    
+                    
+//                    var addressString = ""
+//                    if let thoroughfare = place.thoroughfare {
+//                        addressString += "\(thoroughfare), "
+//                    }
+//                    if let subThoroughfare = place.subThoroughfare {
+//                        addressString += "\(subThoroughfare), "
+//                    }
+//                    if let locality = place.locality {
+//                        addressString += "\(locality), "
+//                    }
+//                    if let administrativeArea = place.administrativeArea {
+//                        addressString += "\(administrativeArea), "
+//                    }
+//                    if let postalCode = place.postalCode {
+//                        addressString += "\(postalCode), "
+//                    }
+//                    if let country = place.country {
+//                        addressString += "\(country)"
+//                    }
+//                    self.addressOrigin = addressString
                 }
                 let preferredLocale = Locale(identifier: "en")
                 geocoder.reverseGeocodeLocation(location, preferredLocale: preferredLocale) { placemarks, error in

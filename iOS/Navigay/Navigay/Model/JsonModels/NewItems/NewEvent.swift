@@ -20,10 +20,8 @@ struct NewEvent: Codable {
     let address: String
     let latitude: Double
     let longitude: Double
-    let startDate: String
-    let startTime: String?
-    let finishDate: String?
-    let finishTime: String?
+
+    let repeatDates: [EventTimeToSend]
     let location: String?
     let about: String?
     let isFree: Bool
@@ -37,7 +35,8 @@ struct NewEvent: Codable {
     let tags: [Int]?
     let ownderId: Int?
     let placeId: Int?
-    let addedBy: Int?
+    let addedBy: Int
+    let sessionKey: String
     let isActive: Bool
     let isChecked: Bool
     
@@ -45,7 +44,7 @@ struct NewEvent: Codable {
     let regionId: Int?
     let cityId: Int?
     
-    init(name: String, type: Int, isoCountryCode: String, countryOrigin: String?, countryEnglish: String?, regionOrigin: String?, regionEnglish: String?, cityOrigin: String?, cityEnglish: String?, address: String, latitude: Double, longitude: Double, startDate: String, startTime: String?, finishDate: String?, finishTime: String?, location: String?, about: String?, isFree: Bool, tickets: String?, fee: String?, email: String?, phone: String?, www: String?, facebook: String?, instagram: String?, tags: [Int]?, ownderId: Int?, placeId: Int?, addedBy: Int?, isActive: Bool, isChecked: Bool, countryId: Int?, regionId: Int?, cityId: Int?) {
+    init(name: String, type: Int, isoCountryCode: String, countryOrigin: String?, countryEnglish: String?, regionOrigin: String?, regionEnglish: String?, cityOrigin: String?, cityEnglish: String?, address: String, latitude: Double, longitude: Double, repeatDates: [EventTimeToSend], location: String?, about: String?, isFree: Bool, tickets: String?, fee: String?, email: String?, phone: String?, www: String?, facebook: String?, instagram: String?, tags: [Int]?, ownderId: Int?, placeId: Int?, isActive: Bool, isChecked: Bool, countryId: Int?, regionId: Int?, cityId: Int?, userId: Int, sessionKey: String) {
         self.name = name
         self.type = type
         self.isoCountryCode = isoCountryCode
@@ -58,10 +57,7 @@ struct NewEvent: Codable {
         self.address = address
         self.latitude = latitude
         self.longitude = longitude
-        self.startDate = startDate
-        self.startTime = startTime
-        self.finishDate = finishDate
-        self.finishTime = finishTime
+        self.repeatDates = repeatDates
         self.location = location
         self.about = about
         self.isFree = isFree
@@ -75,7 +71,8 @@ struct NewEvent: Codable {
         self.tags = tags
         self.ownderId = ownderId
         self.placeId = placeId
-        self.addedBy = addedBy
+        self.addedBy = userId
+        self.sessionKey = sessionKey
         self.isActive = isActive
         self.isChecked = isChecked
         self.countryId = countryId

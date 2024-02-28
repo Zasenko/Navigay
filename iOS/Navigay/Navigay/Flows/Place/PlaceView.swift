@@ -473,8 +473,8 @@ struct TagsView: View {
         Text(tag.getString())
             .font(.caption)
             .bold()
-            .foregroundColor(.primary)
-            .modifier(CapsuleSmall(background: AppColors.lightGray6, foreground: .primary))
+            .foregroundColor(tag.getColor())
+            .modifier(CapsuleSmall(foreground: .primary))
     }
     
     private func viewHeightReader(_ binding: Binding<CGFloat>) -> some View {

@@ -11,8 +11,6 @@ struct NewEventView: View {
     
     @ObservedObject private var authenticationManager: AuthenticationManager
     @StateObject private var viewModel: NewEventViewModel
-    private var infoTitle: String = "New event"
-    private var posterTitle: String = "Event's poster"
     @Environment(\.dismiss) private var dismiss
     
     
@@ -38,16 +36,33 @@ struct NewEventView: View {
             GeometryReader { geometry in
                 VStack(spacing: 0) {
                     Divider()
-                    switch viewModel.router {
-                    case .info:
+                    
+                    if !viewModel.isEventAdded {
                         NewEventInfoView(viewModel: viewModel, authenticationManager: authenticationManager)
                             .disabled(viewModel.isLoading)
-                    case .poster:
-                        if let id = viewModel.id {
-                            EditEventCoverView(viewModel: EditEventCoverViewModel(poster: nil, eventId: id, networkManager: viewModel.networkManager, errorManager: viewModel.errorManager))
-                        } else {
-                            //TODO: вью с ошибкой
-                           EmptyView()
+                    } else {
+                        Color.green
+                            .ignoresSafeArea()
+                    }
+                }
+                .navigationDestination(isPresented: $viewModel.showAddPosterView) {
+                    EditEventCoverView(viewModel: EditEventCoverViewModel(poster: nil, smallPoster: nil)) { poster, smallPoster in
+                            guard let user = authenticationManager.appUser,
+                              let sessionKey = user.sessionKey,
+                              let ids = viewModel.ids,
+                              !ids.isEmpty else {
+                            return
+                        }
+                        Task {
+                            let result = await viewModel.addPoster(to: ids, poster: poster, smallPoster: smallPoster, addedBy: user.id, sessionKey: sessionKey)
+                            if result {
+                                dismiss()
+                            } else {
+                                viewModel.showAddPosterView = false
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                    viewModel.showAddPosterView = true
+                                }
+                            }
                         }
                     }
                 }
@@ -56,15 +71,10 @@ struct NewEventView: View {
                 .toolbarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .principal) {
-                        switch viewModel.router {
-                        case .info:
-                            Text(infoTitle)
+                            Text("New Event")
                                 .font(.headline.bold())
-                        case .poster:
-                            Text(posterTitle)
-                                .font(.headline.bold())
-                        }
                     }
+                    
                     ToolbarItem(placement: .topBarLeading) {
                         Button {
                             dismiss()
@@ -75,33 +85,54 @@ struct NewEventView: View {
                         }
                         .tint(.primary)
                     }
+                    
                     ToolbarItem(placement: .topBarTrailing) {
-                        switch viewModel.router {
-                        case .info:
-                            if viewModel.isLoading {
-                                ProgressView()
-                                    .tint(.blue)
-                            } else {
-                                Button("Add") {
-                                    guard let user = authenticationManager.appUser, user.status == .admin else {
-                                        return
-                                    }
-                                    viewModel.addNewEvent(user: user)
+                        if viewModel.isLoading {
+                            ProgressView()
+                                .tint(.blue)
+                        } else {
+                            Button("Add") {
+                                guard let user = authenticationManager.appUser, user.status == .admin else {
+                                    return
                                 }
-                                .disabled(viewModel.name.isEmpty)
-                                .disabled(viewModel.addressOrigin.isEmpty == true)
-                                .disabled(viewModel.type == nil)
-                                .disabled(viewModel.longitude == nil)
-                                .disabled(viewModel.latitude == nil)
-                                .disabled(viewModel.startDate == nil)
+                                viewModel.addNewEvent(user: user)
                             }
-                        case .poster:
-                            Button("Готово") {
-                                dismiss()
-                            }
+                            .bold()
+                            .disabled(viewModel.name.isEmpty)
+                            .disabled(viewModel.addressOrigin.isEmpty == true)
+                            .disabled(viewModel.type == nil)
+                            .disabled(viewModel.longitude == nil)
+                            .disabled(viewModel.latitude == nil)
+                            .disabled(viewModel.startDate == nil)
                         }
+//                        switch viewModel.router {
+//                        case .info:
+//                            if viewModel.isLoading {
+//                                ProgressView()
+//                                    .tint(.blue)
+//                            } else {
+//                                Button("Add") {
+//                                    guard let user = authenticationManager.appUser, user.status == .admin else {
+//                                        return
+//                                    }
+//                                    viewModel.addNewEvent(user: user)
+//                                }
+//                                .bold()
+//                                .disabled(viewModel.name.isEmpty)
+//                                .disabled(viewModel.addressOrigin.isEmpty == true)
+//                                .disabled(viewModel.type == nil)
+//                                .disabled(viewModel.longitude == nil)
+//                                .disabled(viewModel.latitude == nil)
+//                                .disabled(viewModel.startDate == nil)
+//                            }
+//                        case .poster:
+//                            Button("Done") {
+//                                dismiss()
+//                            }
+//                        }
                     }
                 }
+                
             }
         }
     }
@@ -115,3 +146,14 @@ struct NewEventView: View {
 //    let networkManager = EventNetworkManager(appSettingsManager: appSettingsManager)
 //    return NewEventView(viewModel: NewEventViewModel(user: user, place: nil, networkManager: networkManager, errorManager: errorManager))
 //}
+
+
+struct NewEventPosterView: View {
+    
+    var body: some View {
+        VStack {
+            
+        }
+    }
+    
+}

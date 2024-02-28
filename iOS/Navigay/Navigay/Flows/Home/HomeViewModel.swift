@@ -213,8 +213,15 @@ extension HomeView {
   
         private func updateSortingMapCategories() async {
             var categories: [SortingMapCategory] = []
+            var categories2: [SortingMapCategory] = []
+            
+            if actualEvents.count > 0 {
+                categories2.append(.events)
+            }
+            
             let placesTypes = groupedPlaces.keys.compactMap( { SortingMapCategory(placeType: $0)} )
             placesTypes.forEach { categories.append($0) }
+            placesTypes.forEach { categories2.append($0) }
             
             if !todayEvents.isEmpty {
                 categories.append(.events)
@@ -222,9 +229,12 @@ extension HomeView {
             if categories.count > 1 {
                 categories.append(.all)
             }
-            await MainActor.run { [categories] in
+            
+            
+            await MainActor.run { [categories, categories2] in
                 withAnimation {
                     sortingMapCategories = categories
+                    sortingHomeCategories = categories2
                 }
             }
         }
