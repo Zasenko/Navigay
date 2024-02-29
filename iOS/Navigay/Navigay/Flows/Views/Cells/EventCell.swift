@@ -36,27 +36,33 @@ struct EventCell: View {
         VStack(alignment: .center, spacing: 0) {
             ZStack(alignment: .topTrailing) {
                 if let url = event.smallPoster {
-                    Group {
+                    ZStack {
                         if let image = image  {
                             image
                                 .resizable()
-                                .scaledToFill()
-                                .frame(width: width, height: width)
+                                .aspectRatio(contentMode: .fit)
                                 .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                                 .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous).stroke(AppColors.lightGray5, lineWidth: 1))
-                        } else {
-                            AppColors.lightGray6
-                                .frame(width: width, height: width)
-                                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                                .transition(.scale.combined(with: .opacity).animation(.easeInOut))
                         }
+//                        else {
+//                            AppColors.lightGray6
+//                                .frame(width: .infinity, height: 30)//TODO!
+//                                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+//                        }
                     }
                     .onAppear() {
                         Task {
                             if let image = await ImageLoader.shared.loadImage(urlString: url) {
-                                await MainActor.run {
+                                
+                                DispatchQueue.main.asyncAfter(deadline: .now() + .random(in: 0...1)) {
                                     self.image = image
                                     self.event.image = image
                                 }
+//                                await MainActor.run {
+//                                    self.image = image
+//                                    self.event.image = image
+//                                }
                             }
                         }
                     }
@@ -78,13 +84,17 @@ struct EventCell: View {
                     .font(.footnote)
                     .bold()
                     .foregroundColor(.primary)
-                    .lineLimit(1)
+                    .lineSpacing(-10)
+                    .multilineTextAlignment(.center)
+                   // .lineLimit(1)
                 if showStartDayInfo {
                     Text(formattedDate)
                         .bold()
                         .font(.footnote)
                         .foregroundStyle(.secondary)
-                        .lineLimit(1)
+                        .lineSpacing(-10)
+                        .multilineTextAlignment(.center)
+                      //  .lineLimit(1)
                 }
 //                if showStartTimeInfo {
 //                    Text(stringForToday())
@@ -94,8 +104,9 @@ struct EventCell: View {
                 if let location = event.location {
                     Text(location)
                         .font(.caption)
-                        .lineLimit(1)
                         .foregroundStyle(.secondary)
+                        .lineSpacing(-10)
+                        .multilineTextAlignment(.center)
                 }
                 if showCountryCity {
                     HStack(spacing: 5) {
@@ -110,6 +121,10 @@ struct EventCell: View {
             }
             .padding(.top, 5)
         }
+        .background(AppColors.lightGray6)
+        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+        .padding(.bottom)
+        
     }
 
     

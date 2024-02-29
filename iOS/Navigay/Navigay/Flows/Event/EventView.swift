@@ -45,37 +45,15 @@ struct EventView: View {
         
         ZStack {
             GeometryReader { geometry in
-                let size = geometry.size
-                let width = geometry.size.width
-                ZStack(alignment: .center) {
-                    if let image = viewModel.image {
-                        image
-                            .resizable()
-                            .scaledToFill()
-                            .ignoresSafeArea()
-                            .scaleEffect(CGSize(width: 1.2, height: 1.2))
-                            .blur(radius: 100)
-                    } else {
-                        if let image = viewModel.event.image {
-                            image
-                                .resizable()
-                                .scaledToFill()
-                                .ignoresSafeArea()
-                                .scaleEffect(CGSize(width: 1.2, height: 1.2))
-                                .blur(radius: 100)
-                        }
-                    }
-                    Rectangle()
-                        .fill(.ultraThinMaterial)
-                        .ignoresSafeArea()
-                }
+//                let size = geometry.size
+//                let width = geometry.size.width
                 
                 ZStack(alignment: .top) {
                     listView
                     
                     if !viewModel.showHeader {
                         Capsule()
-                            .fill(.ultraThinMaterial)
+                            .fill(.thinMaterial)
                             .frame(width: 40, height: 5)
                             .padding(.top, 20)
                     }
@@ -143,6 +121,31 @@ struct EventView: View {
                 }
                 
             }
+        }
+        .background {
+            ZStack(alignment: .center) {
+                if let image = viewModel.image {
+                    image
+                        .resizable()
+                        .scaledToFill()
+                        .ignoresSafeArea()
+                        .scaleEffect(CGSize(width: 1.2, height: 1.2))
+                        .blur(radius: 100)
+                } else {
+                    if let image = viewModel.event.image {
+                        image
+                            .resizable()
+                            .scaledToFill()
+                            .ignoresSafeArea()
+                            .scaleEffect(CGSize(width: 1.2, height: 1.2))
+                            .blur(radius: 100)
+                    }
+                }
+                Rectangle()
+                    .fill(.ultraThinMaterial)
+                    .ignoresSafeArea()
+            }
+
         }
     }
     
@@ -555,8 +558,13 @@ struct EventView: View {
 }
 
 //#Preview {
+//        let errorManager = ErrorManager()
+//        let appSettingsManager = AppSettingsManager()
+//        let networkManager = EventNetworkManager(appSettingsManager: appSettingsManager)
 //    
-//    EventView3()
+//    let decodedEvent = DecodedEvent(id: <#T##Int#>, name: <#T##String#>, type: <#T##EventType#>, startDate: <#T##String#>, address: <#T##String#>, latitude: <#T##Double#>, longitude: <#T##Double#>, isFree: <#T##Bool#>, lastUpdate: <#T##String#>)
+//    let event = Event(decodedEvent: decodedEvent)
+//    EventView(event: Event, modelContext: <#T##ModelContext#>, placeNetworkManager: <#T##PlaceNetworkManagerProtocol#>, eventNetworkManager: <#T##EventNetworkManagerProtocol#>, errorManager: errorManager, authenticationManager: <#T##AuthenticationManager#>)
 //}
 
  

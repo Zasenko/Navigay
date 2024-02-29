@@ -23,6 +23,8 @@ struct EventsView: View {
     @State private var gridLayout: [GridItem] = Array(repeating: GridItem(.flexible(), spacing: 20, alignment: .top), count: 2)
     @State private var showCalendar: Bool = false
     
+    @Namespace var animation
+    
     let size: CGSize
     let eventDataManager: EventDataManagerProtocol
     let eventNetworkManager: EventNetworkManagerProtocol
@@ -31,6 +33,8 @@ struct EventsView: View {
     
     @State private var selectedEvent: Event?
     @State private var showEvent: Bool = false
+    
+    @State var columns: Int = 3
     
     var body: some View {
         NavigationStack {
@@ -44,17 +48,16 @@ struct EventsView: View {
                         .offset(x: 70)
                         .padding(.top, 30)
                         .padding(.bottom, 10)
-                    LazyVGrid(columns: gridLayout, spacing: 20) {
-                        ForEach(todayEvents) { event in
-                            Button {
-                                selectedEvent = event
-                                showEvent = true
-                            } label: {
-                                EventCell(event: event, showCountryCity: false, showStartDayInfo: true, showStartTimeInfo: false, width: (size.width / 2) - 30)
-                            }
+                    StaggeredGrid(columns: 2, showsIndicators: false, spacing: 10, list: todayEvents) { event in
+                        Button {
+                            selectedEvent = event
+                            showEvent = true
+                        } label: {
+                            EventCell(event: event, showCountryCity: false, showStartDayInfo: false, showStartTimeInfo: false, width: 20)
+                                .matchedGeometryEffect(id: "TE\(event.id)", in: animation)
                         }
                     }
-                    .padding(.horizontal, 20)
+                    .padding(.horizontal, 10)
                 }
                 
                 if upcomingEvents.count > 0 {
@@ -83,26 +86,18 @@ struct EventsView: View {
                         }
                     }
                     .padding(.horizontal, 20)
-                    .padding(.top, 30)
+                    .padding(.top, 20)
                     .padding(.bottom, 10)
-                    LazyVGrid(columns: gridLayout, spacing: 20) {
-                        ForEach(displayedEvents) { event in
-                            //                    NavigationLink {
-                            //                        EventView(isEventViewPresented: <#T##Binding<Bool>#>, event: event, modelContext: modelContext, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, authenticationManager: authenticationManager)
-                            //                    } label: {
-//                            EventCell(event: event, width: (size.width / 2) - 30, modelContext: modelContext, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, showCountryCity: false, authenticationManager: authenticationManager, showStartDayInfo: true, showStartTimeInfo: false)
-                            //  }
-                                                        
-                            Button {
-                                selectedEvent = event
-                                showEvent = true
-                            } label: {
-                                EventCell(event: event, showCountryCity: false, showStartDayInfo: true, showStartTimeInfo: false, width: (size.width / 2) - 30)
-                            }
-                            
+                    StaggeredGrid(columns: columns, showsIndicators: false, spacing: 10, list: displayedEvents) { event in
+                        Button {
+                            selectedEvent = event
+                            showEvent = true
+                        } label: {
+                            EventCell(event: event, showCountryCity: false, showStartDayInfo: true, showStartTimeInfo: false, width: 20)
+                                .matchedGeometryEffect(id: "DE\(event.id)", in: animation)
                         }
                     }
-                    .padding(.horizontal, 20)
+                    .padding(.horizontal, 10)
                     .onChange(of: selectedDate, initial: false) { oldValue, newValue in
                         showCalendar = false
                         if let date = newValue {
@@ -129,45 +124,15 @@ struct EventsView: View {
                     //                }
                 }
             }
-            
            // .fullScreenCover(item: $selectedEvent) {
             .sheet(item: $selectedEvent) {
-                selectedEvent = nil
+                //selectedEvent = nil
             } content: { event in
                 EventView(event: event, modelContext: modelContext, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, authenticationManager: authenticationManager)
                     .presentationDragIndicator(.hidden)
                     .presentationDetents([.large])
                     //.presentationCornerRadius(25)
             }
-//            .sheet(item: $selectedEvent) {
-//                selectedEvent = nil
-//            } content: { event in
-//                EventView(event: event, modelContext: modelContext, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, authenticationManager: authenticationManager)
-//                                        .presentationDragIndicator(.hidden)
-//                                        .presentationDetents([.large])
-//                                        .presentationCornerRadius(25)
-//            }
-
-//            .sheet(isPresented: $showEvent) {
-//                showEvent = false
-//                selectedEvent = nil
-//            } content: {
-//                if let selectedEvent {
-//                    EventView(isEventViewPresented: $showEvent, event: selectedEvent, modelContext: modelContext, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, authenticationManager: authenticationManager)
-//                        .presentationDragIndicator(.hidden)
-//                        .presentationDetents([.large])
-//                        .presentationCornerRadius(25)
-//                } else {
-//                    EmptyView()
-//                }
-//            }
-//            .navigationDestination(isPresented: $showEvent) {
-//                if let selectedEvent {
-//                    EventView(isEventViewPresented: $showEvent, event: selectedEvent, modelContext: modelContext, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, authenticationManager: authenticationManager)
-//                } else {
-//                    EmptyView()
-//                }
-//            }
         }
     }
     
@@ -188,3 +153,79 @@ struct EventsView: View {
 //#Preview {
 //    EventsView()
 //}
+
+struct SizeCalculator: ViewModifier {
+    
+    @Binding var size: CGSize
+    
+    func body(content: Content) -> some View {
+        content
+            .background(
+                GeometryReader { proxy in
+                    Color.clear // we just want the reader to get triggered, so let's use an empty color
+                        .onAppear {
+                            size = proxy.size
+                        }
+                }
+            )
+    }
+}
+
+extension View {
+    func saveSize(in size: Binding<CGSize>) -> some View {
+        modifier(SizeCalculator(size: size))
+    }
+}
+
+struct StaggeredGrid<Content: View, T: Identifiable>: View where T: Hashable {
+    var content: (T) -> Content
+    var list: [T]
+    var columns: Int
+    var showsIndicators: Bool
+    var spacing: CGFloat
+    
+    @State private var size: CGSize = .zero
+    
+    init(columns: Int,
+         showsIndicators: Bool,
+         spacing: CGFloat,
+         list: [T],
+         content: @escaping (T) -> Content) {
+        self.content = content
+        self.list = list
+        self.columns = columns
+        self.showsIndicators = showsIndicators
+        self.spacing = spacing
+    }
+    
+    func setUpList() -> [[T]] {
+        var gridArray: [[T]] = Array(repeating: [], count: columns)
+        var currentIndex: Int = 0
+        for object in list {
+            gridArray[currentIndex].append(object)
+            if currentIndex == (columns - 1) {
+                currentIndex = 0
+            } else {
+                currentIndex += 1
+            }
+        }
+        return gridArray
+    }
+    
+    var body: some View {
+     //   ScrollView(.vertical) {
+            HStack(alignment: .top, spacing: /*@START_MENU_TOKEN@*/nil/*@END_MENU_TOKEN@*/) {
+                ForEach(setUpList(), id: \.self) { columnsData in
+                    LazyVStack(alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/, spacing: spacing) {
+                        ForEach(columnsData) { object in
+                           content(object)
+                        }
+                    }
+                }
+            }
+            .padding(.vertical)
+            .saveSize(in: $size)
+            
+     //   .scrollIndicators(showsIndicators ? .visible : .hidden )
+    }
+}

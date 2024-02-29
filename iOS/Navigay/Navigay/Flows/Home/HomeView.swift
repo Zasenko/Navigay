@@ -104,6 +104,7 @@ struct HomeView: View {
                 }
                 Divider()
                 listView
+                    .animation(.easeInOut, value: viewModel.displayedEvents)
             }
             .toolbarBackground(AppColors.background)
             .toolbarTitleDisplayMode(.inline)

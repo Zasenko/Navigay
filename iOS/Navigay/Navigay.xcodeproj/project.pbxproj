@@ -612,8 +612,8 @@
 			isa = PBXGroup;
 			children = (
 				0FC9652B2ADD2E1900108443 /* Cells */,
-				0F4997052B36F216003E4E2B /* PhotosTabView.swift */,
 				0FBF06302B666903006AE078 /* EventsView.swift */,
+				0F4997052B36F216003E4E2B /* PhotosTabView.swift */,
 				0F198EBC2B67CCD8005D3E12 /* ContactInfoView.swift */,
 				0F198EBE2B67CD28005D3E12 /* TimetableView.swift */,
 			);

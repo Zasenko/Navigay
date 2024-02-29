@@ -136,11 +136,10 @@ extension NewEventViewModel {
             }
         }
         let newEventTime = EventTime(startDate: newDate, startTime: startTime, finishDate: updatedFinishDate, finishTime: finishTime)
-               repeatDates.append(newEventTime)
+        repeatDates.append(newEventTime)
     }
     
     func addNewEvent(user: AppUser) {
-        
         isLoading = true
         Task {
             guard let sessionKey = user.sessionKey else {
@@ -149,28 +148,33 @@ extension NewEventViewModel {
                 }
                 return
             }
-                  
-                    
             guard !name.isEmpty,
                   let type = type?.rawValue,
                   !isoCountryCode.isEmpty,
                   !addressOrigin.isEmpty,
                   let latitude,
                   let longitude
-                ///  let startDateString = startDate?.format("yyyy-MM-dd")
             else {
                 await MainActor.run {
                     isLoading = false
                 }
                 return
             }
-          ///  let startTimeString = startTime?.format("HH:mm")
-           /// let finishDateString = finishDate?.format("yyyy-MM-dd")
-           /// let finishTimeString = finishTime?.format("HH:mm")
             let tags = tags.map( { $0.rawValue} )
             
+            var datestToSend: [EventTimeToSend] = []
+            guard let startDateString = startDate?.format("yyyy-MM-dd") else {
+                await MainActor.run {
+                    isLoading = false
+                }
+                return
+            }
+            let startTimeString = startTime?.format("HH:mm")
+            let finishDateString = finishDate?.format("yyyy-MM-dd")
+            let finishTimeString = finishTime?.format("HH:mm")
+            datestToSend.append(EventTimeToSend(startDate: startDateString, startTime: startTimeString, finishDate: finishDateString, finishTime: finishTimeString))
+            
             let repeatDatesToSend: [EventTimeToSend] = repeatDates.compactMap { repeatDate in
-                
                 guard let startDateString = repeatDate.startDate?.format("yyyy-MM-dd") else {
                     return nil
                 }
@@ -179,7 +183,11 @@ extension NewEventViewModel {
                 let finishTimeString = repeatDate.finishTime?.format("HH:mm")
                 return EventTimeToSend(startDate: startDateString, startTime: startTimeString, finishDate: finishDateString, finishTime: finishTimeString)
             }
-            guard !repeatDatesToSend.isEmpty else {
+            datestToSend.append(contentsOf: repeatDatesToSend)
+            
+
+            
+            guard !datestToSend.isEmpty else {
                 await MainActor.run {
                     isLoading = false
                 }
@@ -197,7 +205,7 @@ extension NewEventViewModel {
                                               address: addressOrigin,
                                               latitude: latitude,
                                               longitude: longitude,
-                                              repeatDates: repeatDatesToSend,
+                                              repeatDates: datestToSend,
                                               location: location.isEmpty ? nil : location,
                                               about: about.isEmpty ? nil : about,
                                               isFree: isFree,
