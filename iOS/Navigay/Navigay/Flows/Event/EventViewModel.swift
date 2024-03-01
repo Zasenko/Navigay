@@ -19,7 +19,7 @@ extension EventView {
         var modelContext: ModelContext
         
         let event: Event
-        var image: Image? = nil
+        var image: Image?
         
         var isShowPlace: Bool = true //????
         var isPosterLoaded: Bool = false //?????????
@@ -42,6 +42,7 @@ extension EventView {
         
         init(event: Event, modelContext: ModelContext, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol) {
             self.event = event
+            self.image = event.image
             self.modelContext = modelContext
             self.eventNetworkManager = eventNetworkManager
             self.placeNetworkManager = placeNetworkManager
@@ -49,6 +50,20 @@ extension EventView {
         }
         
         //MARK: - Functions
+        
+        func loadPoster() {
+            Task {
+                if let url = event.poster {
+                    if let image = await ImageLoader.shared.loadImage(urlString: url) {
+                        await MainActor.run {
+                            self.image = image
+                            event.image = image
+                            isPosterLoaded = true
+                        }
+                    }
+                }
+            }
+        }
         
         func loadEvent() {
             print("loadEvent()")
@@ -91,6 +106,9 @@ extension EventView {
             if let decodedPlace = decodedEvent.place {
                 updatePlace(decodedPlace: decodedPlace)
             }
+            if let owner = decodedEvent.owner {
+                updateOwner(decodedUser: owner)
+            }
         }
         private func updatePlace(decodedPlace: DecodedPlace) {
                 do {
@@ -110,6 +128,24 @@ extension EventView {
                 } catch {
                     debugPrint("ERROR - EventViewModel updatePlace id \(decodedPlace.id): ", error)
                 }
+        }
+        
+        private func updateOwner(decodedUser: DecodedUser) {
+            do {
+                let descriptor = FetchDescriptor<User>()
+                let allUsers = try modelContext.fetch(descriptor)
+                var eventOwner: User?
+                if let owner = allUsers.first(where: { $0.id == decodedUser.id} ) {
+                    owner.updateUser(decodedUser: decodedUser)
+                    eventOwner = owner
+                } else {
+                    let owner = User(decodedUser: decodedUser)
+                    eventOwner = owner
+                }
+                event.owner = eventOwner
+            } catch {
+                debugPrint("ERROR - EventViewModel updateOwner id \(decodedUser.id): ", error)
+            }
         }
         
         //TOD double

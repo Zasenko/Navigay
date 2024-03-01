@@ -44,10 +44,20 @@ struct DecodedCommentReply: Identifiable, Codable {
 }
 
 struct DecodedUser: Codable, Identifiable {
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case name
+        case bio
+        case photo
+        case updatedAt = "updated_at"
+    }
+    
     let id: Int
     let name: String
     let bio: String?
     let photo: String?
+    let updatedAt: String?
 }
 
 struct NewComment: Codable {

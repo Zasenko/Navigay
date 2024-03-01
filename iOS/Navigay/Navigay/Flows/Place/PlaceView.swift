@@ -427,7 +427,7 @@ struct TagsView: View {
         VStack(spacing: 0) {
             VStack {
                 GeometryReader { geometry in
-                    self.generateContent(for: tags, color: .red, in: geometry, totalHeight: $totalHeight)
+                    self.generateContent(for: tags, color: .secondary, in: geometry, totalHeight: $totalHeight)
                 }
             }
             .frame(height: totalHeight)
@@ -443,7 +443,7 @@ struct TagsView: View {
         
         return ZStack(alignment: .topLeading) {
             ForEach(tags, id: \.self) { tag in
-                item(tag: tag)
+                item(tag: tag, color: color)
                     .padding([.horizontal, .vertical], 4)
                     .alignmentGuide(.leading, computeValue: { d in
                         if (abs(width - d.width) > g.size.width) {
@@ -469,11 +469,11 @@ struct TagsView: View {
         }.background(viewHeightReader(totalHeight))
     }
     
-    private func item(tag: Tag) -> some View {
+    private func item(tag: Tag, color: Color) -> some View {
         Text(tag.getString())
             .font(.caption)
             .bold()
-            .foregroundColor(tag.getColor())
+            .foregroundColor(color)
             .modifier(CapsuleSmall(foreground: .primary))
     }
     

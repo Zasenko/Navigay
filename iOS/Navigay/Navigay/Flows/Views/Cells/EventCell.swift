@@ -20,7 +20,7 @@ struct EventCell: View {
     
     @State private var image: Image? = nil
 
-    let width: CGFloat
+   // let width: CGFloat
     
     private var formattedDate: AttributedString {
         var formattedDate: AttributedString = event.startDate.formatted(Date.FormatStyle().month(.abbreviated).day().weekday(.wide).attributed)
@@ -41,28 +41,18 @@ struct EventCell: View {
                             image
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
-                                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-                                .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous).stroke(AppColors.lightGray5, lineWidth: 1))
-                                .transition(.scale.combined(with: .opacity).animation(.easeInOut))
+                                .clipShape(Rectangle())
+                                .overlay(Rectangle().stroke(AppColors.lightGray5, lineWidth: 1))
+                                .transition(.scale.animation(.easeInOut))
                         }
-//                        else {
-//                            AppColors.lightGray6
-//                                .frame(width: .infinity, height: 30)//TODO!
-//                                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-//                        }
                     }
                     .onAppear() {
                         Task {
                             if let image = await ImageLoader.shared.loadImage(urlString: url) {
-                                
-                                DispatchQueue.main.asyncAfter(deadline: .now() + .random(in: 0...1)) {
+                                await MainActor.run {
                                     self.image = image
                                     self.event.image = image
                                 }
-//                                await MainActor.run {
-//                                    self.image = image
-//                                    self.event.image = image
-//                                }
                             }
                         }
                     }
@@ -71,10 +61,9 @@ struct EventCell: View {
                     Text("free")
                         .font(.footnote)
                         .bold()
-                        .foregroundColor(.white)
+                        .foregroundColor(AppColors.background)
                         .padding(5)
                         .padding(.horizontal, 5)
-                        .foregroundColor(.white)
                         .background(.green)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
@@ -87,10 +76,16 @@ struct EventCell: View {
                     .lineSpacing(-10)
                     .multilineTextAlignment(.center)
                    // .lineLimit(1)
+                
+                if (showStartDayInfo || event.location != nil || showCountryCity) {
+                    Color.clear
+                        .frame(height: 5)
+                }
+                
                 if showStartDayInfo {
                     Text(formattedDate)
                         .bold()
-                        .font(.footnote)
+                        .font(.caption)
                         .foregroundStyle(.secondary)
                         .lineSpacing(-10)
                         .multilineTextAlignment(.center)
@@ -119,12 +114,10 @@ struct EventCell: View {
                     .foregroundColor(.secondary)
                 }
             }
-            .padding(.top, 5)
+            .padding(.vertical, 10)
         }
         .background(AppColors.lightGray6)
-        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-        .padding(.bottom)
-        
+        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))        
     }
 
     

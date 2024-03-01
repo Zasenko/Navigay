@@ -40,6 +40,7 @@ extension ImageLoader {
             }
             let data = try await fetch(stringUrl: urlString)
             cache.set(object: data, forKey: urlString)
+            debugPrint("loaded image")
             return try await makeImageFromData(data: data)
         } catch {
             // TODO

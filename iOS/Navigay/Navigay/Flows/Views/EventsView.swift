@@ -53,11 +53,12 @@ struct EventsView: View {
                             selectedEvent = event
                             showEvent = true
                         } label: {
-                            EventCell(event: event, showCountryCity: false, showStartDayInfo: false, showStartTimeInfo: false, width: 20)
+                            EventCell(event: event, showCountryCity: false, showStartDayInfo: false, showStartTimeInfo: false)
                                 .matchedGeometryEffect(id: "TE\(event.id)", in: animation)
                         }
                     }
                     .padding(.horizontal, 10)
+                    .padding(.bottom, 10)
                 }
                 
                 if upcomingEvents.count > 0 {
@@ -93,7 +94,7 @@ struct EventsView: View {
                             selectedEvent = event
                             showEvent = true
                         } label: {
-                            EventCell(event: event, showCountryCity: false, showStartDayInfo: true, showStartTimeInfo: false, width: 20)
+                            EventCell(event: event, showCountryCity: false, showStartDayInfo: true, showStartTimeInfo: false)
                                 .matchedGeometryEffect(id: "DE\(event.id)", in: animation)
                         }
                     }

@@ -21,10 +21,21 @@ struct Test: View {
                     let width = geometry.size.width
 //                    let size = geometry.size
                     List {
-                        VStack(spacing: 0) {
+                        
+                    
+       
                             Color.clear
                                 .frame(width: 40, height: 5)
                                 .listRowBackground(Color.clear)
+                        
+                        VStack(spacing: 0) {
+                            Image("12")
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 50, height: 50)
+                                .clipShape(Circle())
+                                .overlay(Circle().stroke(.ultraThinMaterial, lineWidth: 2))
+                            
                             ZStack() {
                                 image
                                     .resizable()
