@@ -152,11 +152,11 @@ struct EditEventCoverView: View {
 //    }
 }
 
-#Preview {
-    let appSettingsManager = AppSettingsManager()
-    let errorManager = ErrorManager()
-    let networkManager = EventNetworkManager(appSettingsManager: appSettingsManager, errorManager: errorManager)
-    /// Image("12")
-    /// Image("eventPinImage")
-    return EditEventCoverView(viewModel: EditEventCoverViewModel(poster: nil, smallPoster: nil), onSave: { i in })
-}
+//#Preview {
+//    let appSettingsManager = AppSettingsManager()
+//    let errorManager = ErrorManager()
+//    let networkManager = EventNetworkManager(appSettingsManager: appSettingsManager, errorManager: errorManager)
+//    /// Image("12")
+//    /// Image("eventPinImage")
+//    return EditEventCoverView(viewModel: EditEventCoverViewModel(poster: nil, smallPoster: nil), onSave: { i in })
+//}

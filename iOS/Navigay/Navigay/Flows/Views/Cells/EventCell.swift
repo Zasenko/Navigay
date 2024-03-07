@@ -35,19 +35,17 @@ struct EventCell: View {
     var body: some View {
         VStack(alignment: .center, spacing: 0) {
             ZStack(alignment: .topTrailing) {
-                if let url = event.smallPoster {
                     ZStack {
-                        if let image = image  {
-                            image
+                            image?
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
                                 .clipShape(Rectangle())
                                 .overlay(Rectangle().stroke(AppColors.lightGray5, lineWidth: 1))
                                 .transition(.scale.animation(.easeInOut))
-                        }
                     }
                     .onAppear() {
                         Task {
+                            guard let url = event.smallPoster else { return } 
                             if let image = await ImageLoader.shared.loadImage(urlString: url) {
                                 await MainActor.run {
                                     self.image = image
@@ -56,7 +54,21 @@ struct EventCell: View {
                             }
                         }
                     }
-                }
+                    .onChange(of: event.smallPoster) { oldValue, newValue in
+                        Task {
+                            guard let url = newValue else {
+                                return
+                            }
+                            
+                            if let image = await ImageLoader.shared.loadImage(urlString: url) {
+                                await MainActor.run {
+                                    self.image = image
+                                  //  self.event.image = image
+                                }
+                            }
+                        }
+                    }
+
                 if event.isFree {
                     Text("free")
                         .font(.footnote)

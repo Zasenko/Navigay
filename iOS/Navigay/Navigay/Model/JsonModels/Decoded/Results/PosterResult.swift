@@ -9,12 +9,15 @@ import Foundation
 
 struct PosterResult: Codable {
     let result: Bool
-    let posterUrl: String?
-    let smallPosterUrl: String?
+    let poster: PosterUrls?
     let error: ApiError?
+}
+
+struct PosterUrls: Codable {
+    let posterUrl: String
+    let smallPosterUrl: String
     
     enum CodingKeys: String, CodingKey {
-        case result, error
         case posterUrl = "poster_url"
         case smallPosterUrl = "small_poster_url"
     }

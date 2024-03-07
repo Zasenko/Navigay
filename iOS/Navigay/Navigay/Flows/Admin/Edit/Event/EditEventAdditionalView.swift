@@ -25,8 +25,8 @@ struct EditEventAdditionalView: View {
                 VStack(alignment: .leading) {
                     Divider()
                     ScrollView {
-                        EventFeeFieldsView(isFree: $vm.isFree, fee: $vm.fee, tickets: $vm.tickets)
-                        EventAdditionalFieldsView(tags: $vm.tags, isoCountryCode: $vm.isoCountryCode, phone: $vm.phone, email: $vm.email, www: $vm.www, facebook: $vm.facebook, instagram: $vm.instagram)
+//                        EventFeeFieldsView(isFree: $vm.isFree, fee: $vm.fee, tickets: $vm.tickets)
+//                        EventAdditionalFieldsView(tags: $vm.tags, isoCountryCode: $vm.isoCountryCode, phone: $vm.phone, email: $vm.email, www: $vm.www, facebook: $vm.facebook, instagram: $vm.instagram)
                     }
                     .scrollIndicators(.hidden)
                 }

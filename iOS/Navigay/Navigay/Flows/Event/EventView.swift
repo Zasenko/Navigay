@@ -87,7 +87,7 @@ struct EventView: View {
                                 .fullScreenCover(isPresented: $viewModel.showEditView) {
                                     viewModel.showEditView = false
                                 } content: {
-                                    EditEventView(viewModel: EditEventViewModel(event: viewModel.event, networkManager: AdminNetworkManager(errorManager: viewModel.errorManager)))
+                                    EditEventView(viewModel: EditEventViewModel(eventID: viewModel.event.id, event: viewModel.event, networkManager: AdminNetworkManager(errorManager: viewModel.errorManager)))
                                 }
                                 .fullScreenCover(isPresented: $viewModel.showNewEvetnView) {
                                     viewModel.showNewEvetnView = false
@@ -118,15 +118,13 @@ struct EventView: View {
         }
         .background {
             ZStack(alignment: .center) {
-                if let image = viewModel.image {
-                    image
+                viewModel.image?
                         .resizable()
                         .scaledToFill()
                         .ignoresSafeArea()
                         .scaleEffect(CGSize(width: 1.2, height: 1.2))
                         .blur(radius: 100)
                         .clipped()
-                }
                 Rectangle()
                     .fill(.ultraThinMaterial)
                     .ignoresSafeArea()
@@ -162,13 +160,9 @@ struct EventView: View {
                         .listRowSeparator(.hidden)
                         .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                 }
-                
-               
-                
-                
+
                 ZStack {
-                    if let image = viewModel.image {
-                        image
+                    viewModel.image?
                             .resizable()
                             .scaledToFit()
                             .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
@@ -176,13 +170,20 @@ struct EventView: View {
                             .shadow(color: .black.opacity(0.4), radius: 16, x: 0, y: 8)
                             .padding(.horizontal)
                             .frame(width: width)
-                    }
                 }
                 .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                 .listRowBackground(Color.clear)
                 .listRowSeparator(.hidden)
-                .onAppear() {
-                        viewModel.loadPoster()
+                .onChange(of: viewModel.event.poster) { oldValue, newValue in
+                    Task {
+                        guard let url = newValue else { return }
+                        if let image = await ImageLoader.shared.loadImage(urlString: url) {
+                            await MainActor.run {
+                                self.viewModel.image = image
+                                self.viewModel.event.image = image
+                            }
+                        }
+                    }
                 }
 
                 Section {
@@ -290,21 +291,7 @@ struct EventView: View {
                     .listRowBackground(Color.clear)
                     .listRowSeparator(.hidden)
                     .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 20, trailing: 0))
-//                if !viewModel.event.isFree {
-//                    Section {
-//                        if let fee = viewModel.event.fee {
-//                            Text(fee)
-//                                .font(.caption)
-//                                .foregroundStyle(.secondary)
-//                        }
-//                    }
-//                    .padding()
-//                    .listRowBackground(Color.clear)
-//                    .listRowSeparator(.hidden)
-//                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-//                    
-//                }
-                
+
                 Section {
                     VStack {
                         if let about = viewModel.event.about {
@@ -508,12 +495,24 @@ struct EventView: View {
                         }
                         .padding(.horizontal)
                         .frame(maxWidth: .infinity, alignment: .center)
+                        
+                        //TODO: - upcoming events from organizers
                     }
                   
                 }
                 .listRowBackground(Color.clear)
                 .listRowSeparator(.hidden)
                 .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                
+                // TODO:
+//                Section {
+//                    Button {
+//                        EventNetworkManager.sendComplaint(eventId: Int, user: AppUser, reason: String) async throws
+//                    } label: {
+//                        Text("Пожаловаться")
+//                    }
+//
+//                }
                 
                 Color.clear
                     .frame(height: 50)
@@ -527,6 +526,7 @@ struct EventView: View {
            // .background(AppColors.background)
         }
     }
+    
     @ViewBuilder
     private func map(size: CGSize) -> some View {
         Section {
@@ -576,35 +576,35 @@ struct EventView: View {
     }
 }
 
-#Preview {
-    let errorManager = ErrorManager()
-    let appSettingsManager = AppSettingsManager()
-    let eventNetworkManager = EventNetworkManager(appSettingsManager: appSettingsManager, errorManager: errorManager)
-    let placeNetworkManager = PlaceNetworkManager(appSettingsManager: appSettingsManager, errorManager: errorManager)
-    let keychainManager = KeychainManager()
-    let networkMonitorManager = NetworkMonitorManager(errorManager: errorManager)
-    let authNetworkManager = AuthNetworkManager(networkMonitorManager: networkMonitorManager, appSettingsManager: appSettingsManager)
-    let authenticationManager = AuthenticationManager(keychainManager: keychainManager, networkMonitorManager: networkMonitorManager, networkManager: authNetworkManager, errorManager: errorManager)
-    
-    let decodedEvent = DecodedEvent(id: 207, name: "P*rno", type: .party, startDate: "2024-03-23", startTime: "10:00:00", finishDate: "2024-03-23", finishTime: "23:23:00", address: "Ломоносова 43", latitude: 47.8086381, longitude: 13.0476341, poster: "https://i.pinimg.com/originals/dc/1e/f7/dc1ef756fb28855c5ecc23f5aa824733.jpg", smallPoster: "https://catherineasquithgallery.com/uploads/posts/2023-02/1676619417_catherineasquithgallery-com-p-zelenaya-kartinka-fon-bez-nichego-196.jpg", isFree: true, tags: [.adultsOnly, .bar, .cruise], location: nil, lastUpdate: "2024-01-19 07:07:10", about: nil, fee: nil, tickets: nil, www: nil, facebook: nil, instagram: nil, phone: nil, place: nil, owner: nil, city: nil, cityId: nil)
-
-    let event = Event(decodedEvent: decodedEvent)
-    event.image = Image("14")
-   
- //   let user = User(decodedUser: DecodedUser(id: 1, name: "Dima", bio: "NO BIO", photo: "https://ez-frag.ru/files/avatars/1622268427.jpg"))
-    let schema = Schema([
-        AppUser.self, Country.self, Region.self, City.self, Event.self, Place.self, User.self
-    ])
-    
-    let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
-    do {
-        let container = try ModelContainer(for: schema, configurations: [modelConfiguration])
-        return EventView(event: event, modelContext: container.mainContext, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, authenticationManager: authenticationManager)
-    } catch {
-        debugPrint(error)
-        return EmptyView()
-    }
-    return EmptyView()
-}
+//#Preview {
+//    let errorManager = ErrorManager()
+//    let appSettingsManager = AppSettingsManager()
+//    let eventNetworkManager = EventNetworkManager(appSettingsManager: appSettingsManager, errorManager: errorManager)
+//    let placeNetworkManager = PlaceNetworkManager(appSettingsManager: appSettingsManager, errorManager: errorManager)
+//    let keychainManager = KeychainManager()
+//    let networkMonitorManager = NetworkMonitorManager(errorManager: errorManager)
+//    let authNetworkManager = AuthNetworkManager(networkMonitorManager: networkMonitorManager, appSettingsManager: appSettingsManager)
+//    let authenticationManager = AuthenticationManager(keychainManager: keychainManager, networkMonitorManager: networkMonitorManager, networkManager: authNetworkManager, errorManager: errorManager)
+//    
+//    let decodedEvent = DecodedEvent(id: 207, name: "P*rno", type: .party, startDate: "2024-03-23", startTime: "10:00:00", finishDate: "2024-03-23", finishTime: "23:23:00", address: "Ломоносова 43", latitude: 47.8086381, longitude: 13.0476341, poster: "https://i.pinimg.com/originals/dc/1e/f7/dc1ef756fb28855c5ecc23f5aa824733.jpg", smallPoster: "https://catherineasquithgallery.com/uploads/posts/2023-02/1676619417_catherineasquithgallery-com-p-zelenaya-kartinka-fon-bez-nichego-196.jpg", isFree: true, tags: [.adultsOnly, .bar, .cruise], location: nil, lastUpdate: "2024-01-19 07:07:10", about: nil, fee: nil, tickets: nil, www: nil, facebook: nil, instagram: nil, phone: nil, place: nil, owner: nil, city: nil, cityId: nil)
+//
+//    let event = Event(decodedEvent: decodedEvent)
+//    event.image = Image("14")
+//   
+// //   let user = User(decodedUser: DecodedUser(id: 1, name: "Dima", bio: "NO BIO", photo: "https://ez-frag.ru/files/avatars/1622268427.jpg"))
+//    let schema = Schema([
+//        AppUser.self, Country.self, Region.self, City.self, Event.self, Place.self, User.self
+//    ])
+//    
+//    let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+//    do {
+//        let container = try ModelContainer(for: schema, configurations: [modelConfiguration])
+//        return EventView(event: event, modelContext: container.mainContext, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, authenticationManager: authenticationManager)
+//    } catch {
+//        debugPrint(error)
+//        return EmptyView()
+//    }
+//    return EmptyView()
+//}
 
  

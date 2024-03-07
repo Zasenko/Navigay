@@ -41,6 +41,7 @@ struct NewEventView: View {
                         NewEventInfoView(viewModel: viewModel, authenticationManager: authenticationManager)
                             .disabled(viewModel.isLoading)
                     } else {
+                        //youe event Added
                         Color.green
                             .ignoresSafeArea()
                     }

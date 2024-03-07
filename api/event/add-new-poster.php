@@ -23,7 +23,6 @@ if (empty($session_key)) {
 $hashed_session_key = hash('sha256', $session_key);
 
 //---------- photos
-
 if (!isset($_FILES['poster']['tmp_name']) || !file_exists($_FILES['poster']['tmp_name'])) {
     $conn->close();
     sendError('The poster file does not exist.');
@@ -33,9 +32,11 @@ if (!isset($_FILES['small_poster']['tmp_name']) || !file_exists($_FILES['small_p
     sendError('The small poster file does not exist.');
 }
 if (empty($_FILES['poster']['name'])) {
+    $conn->close();
     sendError('poster file is required.');
 }
 if (empty($_FILES['small_poster']['name'])) {
+    $conn->close();
     sendError('Small poster file is required.');
 }
 $allowed_extensions = ['jpeg', 'jpg', 'png'];
@@ -98,7 +99,6 @@ foreach ($events_ids as $event_id) {
     $result = $stmt->get_result();
     $stmt->close();
 
-    // TODO: добавить ко всему коду перед поиска 1 результа
     if (!($result->num_rows > 0)) {
         $conn->close();
         sendError('Event with id: ' . $event_id . ' not found in the database');
@@ -128,14 +128,6 @@ foreach ($events_ids as $event_id) {
 
         $poster_path = "images/events/$created_year/$created_month/$created_day/$event_id/" . $poster_name_unique;
         $small_poster_path = "images/events/$created_year/$created_month/$created_day/$event_id/" . $small_poster_name_unique;
-
-        if (!isset($_FILES['poster']['tmp_name']) || !file_exists($_FILES['poster']['tmp_name'])) {
-            sendError('The poster file does not exist. Event id: ' . $event_id);
-        }
-
-        if (!isset($_FILES['small_poster']['tmp_name']) || !file_exists($_FILES['small_poster']['tmp_name'])) {
-            sendError('The small poster file does not exist. Event id: ' . $event_id);
-        }
 
         if (!copy($_FILES['poster']['tmp_name'], $poster_upload_path)) {
 

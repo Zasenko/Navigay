@@ -25,8 +25,21 @@ struct EditEventRequiredView: View {
             VStack(alignment: .leading) {
                 Divider()
                 ScrollView {
-                    EventRequiredFieldsView(name: $vm.name, type: $vm.type, isoCountryCode: $vm.isoCountryCode, countryOrigin: $vm.countryOrigin, countryEnglish: $vm.cityEnglish, regionOrigin: $vm.regionOrigin, regionEnglish: $vm.regionEnglish, cityOrigin: $vm.cityOrigin, cityEnglish: $vm.cityEnglish, addressOrigin: $vm.address, latitude: $vm.latitude, longitude: $vm.longitude)
-                    EventTimeFieldsView(startDate: $vm.startDate, startTime: $vm.startTime, finishDate: $vm.finishDate, finishTime: $vm.finishTime)
+                 //   EventRequiredFieldsView(name: $vm.name, type: $vm.type, isoCountryCode: $vm.isoCountryCode, countryOrigin: $vm.countryOrigin, countryEnglish: $vm.cityEnglish, regionOrigin: $vm.regionOrigin, regionEnglish: $vm.regionEnglish, cityOrigin: $vm.cityOrigin, cityEnglish: $vm.cityEnglish, addressOrigin: $vm.address, latitude: $vm.latitude, longitude: $vm.longitude)
+                 //   EventTimeFieldsView(startDate: $vm.startDate, startTime: $vm.startTime, finishDate: $vm.finishDate, finishTime: $vm.finishTime)
+                    
+                    
+//                    if let user = authManager.appUser, user.status == .admin {
+//                        
+//                        Text(viewModel.ownerId)
+//                        Text(viewModel.placeId)
+//                        //    let countryId: Int
+//                        //   let regionId: Int?
+//                        //   let cityId: Int?
+//                        //   let latitude: Double?
+//                        // let longitude: Double?
+//                        
+//                    }
                 }
                 .scrollIndicators(.hidden)
             }

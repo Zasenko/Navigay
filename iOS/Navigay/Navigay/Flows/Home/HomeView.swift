@@ -45,11 +45,11 @@ struct HomeView: View {
                     .tint(.blue)
                     .frame(maxHeight: .infinity)
             } else {
-                if viewModel.showMap {
-                    MapView(viewModel: MapViewModel(showMap: $viewModel.showMap, events: $viewModel.todayEvents, places: $viewModel.aroundPlaces, categories: $viewModel.sortingMapCategories, selectedCategory: $viewModel.selectedMapSortingCategory))
-                } else {
-                    mainView
-                }
+                mainView
+                    .fullScreenCover(isPresented: $viewModel.showMap) {
+                        MapView(viewModel: MapViewModel(showMap: $viewModel.showMap, events: $viewModel.todayEvents, places: $viewModel.aroundPlaces, categories: $viewModel.sortingMapCategories, selectedCategory: $viewModel.selectedMapSortingCategory))
+                    }
+                
             }
         }
         .onChange(of: locationManager.userLocation, initial: true) { _, newValue in
@@ -59,27 +59,7 @@ struct HomeView: View {
     }
     
     // MARK: - Views
-    
-//    ScrollViewReader { scrollProxy in
-//        ScrollView(showsIndicators: false) {
-//            ZStack(alignment: .bottomLeading) {
-//                bigPhoto(width: proxy.size.width)
-//                smallPhoto
-//            }
-//            Text("Add avatar and main photo to the place. You can also add 9 additional photos.")
-//                .foregroundStyle(.secondary)
-//                .multilineTextAlignment(.leading)
-//                .frame(maxWidth: .infinity, alignment: .leading)
-//                .padding()
-//                .padding(.bottom)
-//            library(width: proxy.size.width)
-//                .id(1)
-//        }
-//        .onChange(of: viewModel.photos, initial: false) { oldValue, newValue in
-//            scrollProxy.scrollTo(1, anchor: .bottom)
-//        }
-//    }
-    
+
     private var mainView: some View {
         NavigationStack {
             VStack(spacing: 0) {
@@ -92,6 +72,8 @@ struct HomeView: View {
                                         test = category
                                     } label: {
                                         Text(category.getName())
+                                            .font(.caption)
+                                            .bold()
                                             .foregroundColor(.primary)
                                             .modifier(CapsuleSmall(foreground: .primary))
                                     }
@@ -119,8 +101,11 @@ struct HomeView: View {
                             }
                         } label: {
                             Image(systemName: "chevron.down")
-                                .bold()
+                                .font(.caption)
+                                .fontWeight(.black)
+                                .foregroundStyle(.blue)
                         }
+                        
                     }
                     .foregroundColor(.primary)
                 }

@@ -62,6 +62,7 @@ struct EntryView: View {
                 }
             case .tabView:
                 TabBarView(authenticationManager: authenticationManager, appSettingsManager: appSettingsManager, errorManager: errorManager)
+                    .environmentObject(authenticationManager)
             }
             ErrorView(viewModel: ErrorViewModel(errorManager: errorManager), edge: .bottom)
         }

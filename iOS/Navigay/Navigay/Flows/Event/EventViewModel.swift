@@ -51,22 +51,9 @@ extension EventView {
         
         //MARK: - Functions
         
-        func loadPoster() {
-            Task {
-                if let url = event.poster {
-                    if let image = await ImageLoader.shared.loadImage(urlString: url) {
-                        await MainActor.run {
-                            self.image = image
-                            event.image = image
-                            isPosterLoaded = true
-                        }
-                    }
-                }
-            }
-        }
-        
         func loadEvent() {
             print("loadEvent()")
+            loadPoster()
             Task {
                 guard !eventNetworkManager.loadedEvents.contains(where: { $0 == event.id}) else {
                     return
@@ -100,6 +87,20 @@ extension EventView {
         }
         
         //MARK: - Private Functions
+        
+        private func loadPoster() {
+            Task {
+                if let url = event.poster {
+                    if let image = await ImageLoader.shared.loadImage(urlString: url) {
+                        await MainActor.run {
+                            self.image = image
+                            event.image = image
+                            isPosterLoaded = true
+                        }
+                    }
+                }
+            }
+        }
 
         private func updateEvent(decodedEvent: DecodedEvent) {
             event.updateEventComplete(decodedEvent: decodedEvent)

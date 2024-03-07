@@ -40,8 +40,8 @@ if ($result->num_rows === 0) {
     sendError('User not found.');
 }
 $row = $result->fetch_assoc();
-
-if (!($status === "admin" || !($status === "moderator") || !($status === "partner"))) {
+$status = isset($row['status']) ? $row['status'] : '';
+if (!($status === "admin" || $status === "moderator" || $status === "partner")) {
     $conn->close();
     sendError('Admin access only.');
 }
