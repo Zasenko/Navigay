@@ -473,7 +473,7 @@ struct TagsView: View {
         Text(tag.getString())
             .font(.caption)
             .bold()
-            .foregroundColor(color)
+            .foregroundStyle(color)
             .modifier(CapsuleSmall(foreground: .primary))
     }
     

@@ -35,6 +35,7 @@ extension ImageLoader {
     func loadImage(urlString: String) async -> Image? {
         do {
             if let imageData = cache.object(forKey: urlString) {
+                debugPrint("image from cache \(urlString)")
                 let image = try await makeImageFromData(data: imageData)
                 return image
             }
