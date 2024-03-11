@@ -41,8 +41,13 @@ struct EditEventView: View {
                 .toolbarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .principal) {
-                        Text("Edit Event")
-                            .font(.headline.bold())
+                        if viewModel.isLoading {
+                            ProgressView()
+                                .tint(.blue)
+                        } else {
+                            Text("Edit Event")
+                                .font(.headline.bold())
+                        }
                             
                     }
                     ToolbarItem(placement: .topBarLeading) {
@@ -55,28 +60,6 @@ struct EditEventView: View {
                         }
                         .tint(.primary)
                     }
-//                    ToolbarItem(placement: .topBarTrailing) {
-//                        if viewModel.isLoading {
-//                            ProgressView()
-//                                .tint(.blue)
-//                        } else {
-//                            Button("Save") {
-//                                viewModel.isLoading = true
-//                                Task {
-//                                    let result = await viewModel.updateInfo()
-//                                    await MainActor.run {
-//                                        if result {
-//                                            self.viewModel.isLoading = false
-//                                            self.dismiss()
-//                                        } else {
-//                                            self.viewModel.isLoading = false
-//                                        }
-//                                    }
-//                                }
-//                            }
-//                            .bold()
-//                        }
-//                    }
                 }
 //                .disabled(viewModel.isLoadingPhoto)
 //                .disabled(viewModel.isLoading)
@@ -277,8 +260,25 @@ struct EditEventView: View {
                 }
             }
            
+            Button("Delete Event") {
+                viewModel.showDeleteSheet.toggle()
+            }
+            
         }
         .listStyle(.insetGrouped)
+        .alert("Delete Event", isPresented: $viewModel.showDeleteSheet) {
+            Button("Delete", role: .destructive) {
+                guard let user = authenticationManager.appUser else {
+                    return
+                }
+                viewModel.deleteEvent(user: user)
+            }
+            Button("Cancel", role: .cancel) {
+                viewModel.showDeleteSheet.toggle()
+            }
+        } message: {
+            Text("Are you shure you want to delete this Event?")
+        }
     }
 }
 

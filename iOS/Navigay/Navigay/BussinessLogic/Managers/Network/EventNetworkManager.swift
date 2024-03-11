@@ -11,12 +11,9 @@ protocol EventNetworkManagerProtocol {
     var loadedEvents: [Int] { get set }
     func addToLoadedEvents(id: Int)
     func fetchEvent(id: Int) async -> DecodedEvent?
-        
     func addNewEvent(event: NewEvent) async throws -> [Int]
     func addPosterToEvents(with ids: [Int], poster: UIImage, smallPoster: UIImage, addedBy: Int, sessionKey: String) async throws
     func updatePoster(eventId: Int, poster: UIImage, smallPoster: UIImage, user: AppUser) async throws -> PosterUrls
-    
-    
     func deletePoster(eventId: Int, user: AppUser) async throws
     func deleteEvent(eventId: Int, user: AppUser) async throws
     func sendComplaint(eventId: Int, user: AppUser, reason: String) async throws
@@ -87,7 +84,41 @@ extension EventNetworkManager: EventNetworkManagerProtocol {
     }
     
     func deleteEvent(eventId: Int, user: AppUser) async throws {
-        
+        debugPrint("-EventNetworkManager- deleteEvent eventId: \(eventId)")
+        guard let sessionKey = user.sessionKey else {
+            throw NetworkErrors.noSessionKey
+        }
+        let path = "/api/event/delete-event.php"
+        var urlComponents: URLComponents {
+            var components = URLComponents()
+            components.scheme = scheme
+            components.host = host
+            components.path = path
+            return components
+        }
+        guard let url = urlComponents.url else {
+            throw NetworkErrors.bedUrl
+        }
+        let parameters = [
+            "event_id": String(eventId),
+            "user_id": String(user.id),
+            "session_key": sessionKey,
+        ]
+        let requestData = try JSONSerialization.data(withJSONObject: parameters)
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = requestData
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
+            throw NetworkErrors.invalidData
+        }
+        guard let decodedResult = try? JSONDecoder().decode(ApiResult.self, from: data) else {
+            throw NetworkErrors.decoderError
+        }
+        guard decodedResult.result else {
+            throw NetworkErrors.apiError(decodedResult.error)
+        }
     }
     
     func sendComplaint(eventId: Int, user: AppUser, reason: String) async throws {

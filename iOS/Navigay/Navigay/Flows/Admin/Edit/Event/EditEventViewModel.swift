@@ -13,7 +13,7 @@ final class EditEventViewModel: ObservableObject {
 
     let id: Int
     let event: Event?
-    
+
     @Published var eventDidLoad: Bool = false
     
     @Published var isLoading: Bool = false
@@ -61,7 +61,7 @@ final class EditEventViewModel: ObservableObject {
     @Published var cityEnglish: String? = nil
     
     
-    @Published var showPicker: Bool = false
+  //  @Published var showPicker: Bool = false
 //    @Published var pickerImage: UIImage? {
 //        didSet {
 //            if let pickerImage {
@@ -71,6 +71,8 @@ final class EditEventViewModel: ObservableObject {
 //    }
     
     @Published var showEditPosterView: Bool = false
+    @Published var showDeleteSheet: Bool = false
+    
    // @Published var showEditTitle: Bool = false
     
     //TODO Объеденить из AdminNetworkManagerProtocol в eventNetworkManager
@@ -92,6 +94,7 @@ extension EditEventViewModel {
     //MARK: - Functions
     
     func fetchEvent(for user: AppUser) {
+        isLoading = true
         Task {
             do {
                 let event = try await networkManager.fetchEvent(id: id, for: user)
@@ -127,9 +130,11 @@ extension EditEventViewModel {
                     self.updatedAt = event.updatedAt
                     
                     self.eventDidLoad = true
+                    self.isLoading = false
                 }
             } catch {
                 debugPrint(error)
+                self.isLoading = false
             }
         }
     }
@@ -220,6 +225,22 @@ extension EditEventViewModel {
                 debugPrint("ERROR - updateAvatar: ", error)
                 // errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
                 self.isLoadingPoster = false
+            }
+        }
+    }
+    
+    func deleteEvent(user: AppUser) {
+        self.isLoading = true
+        Task {
+            do {
+                try await eventNetworkManager.deleteEvent(eventId: id, user: user)
+                await MainActor.run {
+                    self.isLoading = false
+                }
+            } catch {
+                debugPrint("ERROR - deleteEvent: ", error)
+                // errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
+                self.isLoading = false
             }
         }
     }
