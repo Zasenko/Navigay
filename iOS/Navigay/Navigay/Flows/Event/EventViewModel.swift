@@ -21,13 +21,13 @@ extension EventView {
         let event: Event
         var image: Image?
         
+        var showInfo: Bool = false
+        
         var isShowPlace: Bool = true //????
         var isPosterLoaded: Bool = false //?????????
         
         var place: Place? = nil //????????? -> event.place
         var position: MapCameraPosition = .automatic
-        
-        var showInfo: Bool = false
         
         var showEditView: Bool = false
         var showNewEvetnView: Bool = false
@@ -48,6 +48,7 @@ extension EventView {
             self.eventNetworkManager = eventNetworkManager
             self.placeNetworkManager = placeNetworkManager
             self.errorManager = errorManager
+            position = .camera(MapCamera(centerCoordinate: event.coordinate, distance: 2000))
         }
         
         //MARK: - Functions

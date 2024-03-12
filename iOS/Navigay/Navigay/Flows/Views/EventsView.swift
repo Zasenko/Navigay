@@ -125,14 +125,8 @@ struct EventsView: View {
                     //                }
                 }
             }
-           .fullScreenCover(item: $selectedEvent) {
-           // .sheet(item: $selectedEvent) {
-                //selectedEvent = nil
-            } content: { event in
-                EventView(event: event, modelContext: modelContext, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, authenticationManager: authenticationManager)
-                    .presentationBackground {
-                        Color.clear
-                    }
+            .fullScreenCover(item: $selectedEvent) { event in
+                EventView(viewModel: EventView.EventViewModel.init(event: event, modelContext: modelContext, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager))
             }
         }
     }
@@ -155,28 +149,7 @@ struct EventsView: View {
 //    EventsView()
 //}
 
-struct SizeCalculator: ViewModifier {
-    
-    @Binding var size: CGSize
-    
-    func body(content: Content) -> some View {
-        content
-            .background(
-                GeometryReader { proxy in
-                    Color.clear // we just want the reader to get triggered, so let's use an empty color
-                        .onAppear {
-                            size = proxy.size
-                        }
-                }
-            )
-    }
-}
-
-extension View {
-    func saveSize(in size: Binding<CGSize>) -> some View {
-        modifier(SizeCalculator(size: size))
-    }
-}
+/// Grid Layout
 
 struct StaggeredGrid<Content: View, T: Identifiable>: View where T: Hashable {
     var content: (T) -> Content
@@ -214,7 +187,6 @@ struct StaggeredGrid<Content: View, T: Identifiable>: View where T: Hashable {
     }
     
     var body: some View {
-     //   ScrollView(.vertical) {
             HStack(alignment: .top, spacing: /*@START_MENU_TOKEN@*/nil/*@END_MENU_TOKEN@*/) {
                 ForEach(setUpList(), id: \.self) { columnsData in
                     LazyVStack(alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/, spacing: spacing) {
@@ -226,7 +198,29 @@ struct StaggeredGrid<Content: View, T: Identifiable>: View where T: Hashable {
             }
             .padding(.vertical)
             .saveSize(in: $size)
-            
-     //   .scrollIndicators(showsIndicators ? .visible : .hidden )
+    }
+}
+
+
+struct SizeCalculator: ViewModifier {
+    
+    @Binding var size: CGSize
+    
+    func body(content: Content) -> some View {
+        content
+            .background(
+                GeometryReader { proxy in
+                    Color.clear
+                        .onAppear {
+                            size = proxy.size
+                        }
+                }
+            )
+    }
+}
+
+extension View {
+    func saveSize(in size: Binding<CGSize>) -> some View {
+        modifier(SizeCalculator(size: size))
     }
 }
