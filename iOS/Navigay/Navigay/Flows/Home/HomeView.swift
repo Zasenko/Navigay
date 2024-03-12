@@ -12,7 +12,7 @@ struct HomeView: View {
     
     // MARK: - Private Properties
     
-    @ObservedObject private var locationManager: LocationManager
+    @EnvironmentObject private var locationManager: LocationManager
     @State private var viewModel: HomeViewModel
     @ObservedObject var authenticationManager: AuthenticationManager
     
@@ -24,7 +24,6 @@ struct HomeView: View {
          aroundNetworkManager: AroundNetworkManagerProtocol,
          placeNetworkManager: PlaceNetworkManagerProtocol,
          eventNetworkManager: EventNetworkManagerProtocol,
-         locationManager: LocationManager,
          errorManager: ErrorManagerProtocol,
          authenticationManager: AuthenticationManager,
          placeDataManager: PlaceDataManagerProtocol,
@@ -32,7 +31,6 @@ struct HomeView: View {
          catalogDataManager: CatalogDataManagerProtocol) {
         let viewModel = HomeViewModel(modelContext: modelContext, aroundNetworkManager: aroundNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, catalogDataManager: catalogDataManager)
         _viewModel = State(initialValue: viewModel)
-        _locationManager = ObservedObject(wrappedValue: locationManager)
         _authenticationManager = ObservedObject(wrappedValue: authenticationManager)
     }
 
@@ -47,7 +45,7 @@ struct HomeView: View {
             } else {
                 mainView
                     .fullScreenCover(isPresented: $viewModel.showMap) {
-                        MapView(viewModel: MapViewModel(showMap: $viewModel.showMap, events: $viewModel.todayEvents, places: $viewModel.aroundPlaces, categories: $viewModel.sortingMapCategories, selectedCategory: $viewModel.selectedMapSortingCategory))
+                        MapView(viewModel: MapViewModel(events: viewModel.todayEvents, places: viewModel.aroundPlaces, categories: viewModel.sortingMapCategories, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager))
                     }
                 
             }
@@ -113,7 +111,6 @@ struct HomeView: View {
                     Button {
                         withAnimation {
                             viewModel.showMap.toggle()
-                            viewModel.selectedMapSortingCategory = .all
                         }
                     } label: {
                         HStack {

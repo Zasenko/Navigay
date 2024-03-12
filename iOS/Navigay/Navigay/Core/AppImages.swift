@@ -34,6 +34,7 @@ struct AppImages {
     static let iconXCircle = Image(systemName: "xmark.circle.fill")
     static let iconClock = Image(systemName:"clock")
     static let iconPhotoPlus = Image(systemName:"photo.badge.plus")
+    static let iconInfoCircle = Image(systemName:"info.circle")
     
     static let iconWifi = Image(systemName:"wifi")
     static let iconNoWifi = Image(systemName:"wifi.slash")

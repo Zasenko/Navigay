@@ -30,35 +30,44 @@ struct EventView: View {
     // MARK: - Body
     
     var body: some View {
-        GeometryReader { proxy in
-            ZStack(alignment: .topTrailing) {
-                listView(size: proxy.size)
-                headerView
-            }
-            .background {
-                ZStack(alignment: .center) {
-                    viewModel.image?
-                        .resizable()
-                        .scaledToFill()
-                        .ignoresSafeArea()
-                        .scaleEffect(CGSize(width: 2, height: 2))
-                        .blur(radius: 100)
-                        .saturation(2)
-                    AppColors.background
-                        .opacity(viewModel.showInfo ? 0.8 : 0)
-                        .ignoresSafeArea()
-                    Rectangle()
-                        .fill(.ultraThinMaterial)
-                        .ignoresSafeArea()
+        NavigationStack {
+            GeometryReader { proxy in
+                ZStack(alignment: .topTrailing) {
+                    listView(size: proxy.size)
+                    ErrorView(viewModel: ErrorViewModel(errorManager: viewModel.errorManager), edge: .bottom)
                 }
-                .ignoresSafeArea(.container, edges: .bottom)
-                .frame(width: proxy.size.width, height: proxy.size.height, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
+                .background {
+                    ZStack(alignment: .center) {
+                        viewModel.image?
+                            .resizable()
+                            .scaledToFill()
+                            .ignoresSafeArea()
+                            .scaleEffect(CGSize(width: 2, height: 2))
+                            .blur(radius: 100)
+                            .saturation(2)
+                        AppColors.background
+                            .opacity(viewModel.showInfo ? 0.8 : 0)
+                            .ignoresSafeArea()
+                        Rectangle()
+                            .fill(.ultraThinMaterial)
+                            .ignoresSafeArea()
+                    }
+                    .ignoresSafeArea(.container, edges: .bottom)
+                    .frame(width: proxy.size.width, height: proxy.size.height, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
+                }
+                .mask {
+                    Rectangle()
+                        .ignoresSafeArea(.all)
+                }
+                .animation(.snappy, value: viewModel.showInfo)
             }
-            .mask {
-                Rectangle()
-                    .ignoresSafeArea(.all)
+            .toolbarBackground(.hidden, for: .navigationBar)
+            .toolbarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    headerView
+                }
             }
-            .animation(.snappy, value: viewModel.showInfo)
         }
     }
     
@@ -68,15 +77,12 @@ struct EventView: View {
         Button {
             dismiss()
         } label: {
-            AppImages.iconX
-                .font(.title2)
-                .bold()
-                .foregroundStyle(.primary)
-                .padding(10)
-                .background(.ultraThinMaterial)
-                .clipShape(.circle)
+            AppImages.iconXCircle
+                .resizable()
+                .scaledToFit()
+                .frame(width: 30, height: 30)
+                .tint(.primary)
         }
-        .padding(.trailing)
     }
     
     private func listView(size: CGSize) -> some View {
@@ -453,39 +459,42 @@ struct EventView: View {
                             }
                         }
                         if let place = viewModel.event.place {
-                            HStack(spacing: 20) {
-                                if let url = place.avatar {
-                                    ImageLoadingView(url: url, width: 50, height: 50, contentMode: .fill) {
-                                        AppColors.lightGray6
+                            NavigationLink {
+                                PlaceView(place: place, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, authenticationManager: authenticationManager, placeDataManager: PlaceDataManager(), eventDataManager: EventDataManager(), showOpenInfo: false)
+                            } label: {
+                                HStack(spacing: 20) {
+                                    if let url = place.avatar {
+                                        ImageLoadingView(url: url, width: 50, height: 50, contentMode: .fill) {
+                                            AppColors.lightGray6
+                                        }
+                                        .background(.regularMaterial)
+                                        .clipShape(Circle())
+                                        .overlay(Circle().stroke(.ultraThinMaterial, lineWidth: 1))
+                                        
+                                    } else {
+                                        if viewModel.event.owner != nil {
+                                            Color.clear
+                                                .frame(width: 50, height: 50)
+                                        }
                                     }
-                                    .background(.regularMaterial)
-                                    .clipShape(Circle())
-                                    .overlay(Circle().stroke(.ultraThinMaterial, lineWidth: 1))
                                     
-                                } else {
-                                    if viewModel.event.owner != nil {
-                                        Color.clear
-                                            .frame(width: 50, height: 50)
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        HStack(spacing: 10) {
+                                            Text(place.name)
+                                                .multilineTextAlignment(.leading)
+                                                .font(.body)
+                                                .bold()
+                                                .foregroundColor(.primary)
+                                            AppImages.iconHeartFill
+                                                .font(.body)
+                                                .foregroundColor(.red)
+                                        }
+                                        Text(place.type.getName())
+                                            .font(.footnote)
+                                            .foregroundColor(.secondary)
                                     }
-                                }
-                                
-                                VStack(alignment: .leading, spacing: 4) {
-                                    HStack(spacing: 10) {
-                                        Text(place.name)
-                                            .multilineTextAlignment(.leading)
-                                            .font(.body)
-                                            .bold()
-                                            .foregroundColor(.primary)
-                                        AppImages.iconHeartFill
-                                            .font(.body)
-                                            .foregroundColor(.red)
-                                    }
-                                    Text(place.type.getName())
-                                        .font(.footnote)
-                                        .foregroundColor(.secondary)
                                 }
                             }
-                            
                         }
                     }
                     .padding(.horizontal)
@@ -557,36 +566,5 @@ struct EventView: View {
         .padding(.bottom)
     }
 }
-
-//#Preview {
-//    let errorManager = ErrorManager()
-//    let appSettingsManager = AppSettingsManager()
-//    let eventNetworkManager = EventNetworkManager(appSettingsManager: appSettingsManager, errorManager: errorManager)
-//    let placeNetworkManager = PlaceNetworkManager(appSettingsManager: appSettingsManager, errorManager: errorManager)
-//    let keychainManager = KeychainManager()
-//    let networkMonitorManager = NetworkMonitorManager(errorManager: errorManager)
-//    let authNetworkManager = AuthNetworkManager(networkMonitorManager: networkMonitorManager, appSettingsManager: appSettingsManager)
-//    let authenticationManager = AuthenticationManager(keychainManager: keychainManager, networkMonitorManager: networkMonitorManager, networkManager: authNetworkManager, errorManager: errorManager)
-//
-//    let decodedEvent = DecodedEvent(id: 207, name: "P*rno", type: .party, startDate: "2024-03-23", startTime: "10:00:00", finishDate: "2024-03-23", finishTime: "23:23:00", address: "Ломоносова 43", latitude: 47.8086381, longitude: 13.0476341, poster: "https://i.pinimg.com/originals/dc/1e/f7/dc1ef756fb28855c5ecc23f5aa824733.jpg", smallPoster: "https://catherineasquithgallery.com/uploads/posts/2023-02/1676619417_catherineasquithgallery-com-p-zelenaya-kartinka-fon-bez-nichego-196.jpg", isFree: true, tags: [.adultsOnly, .bar, .cruise], location: nil, lastUpdate: "2024-01-19 07:07:10", about: nil, fee: nil, tickets: nil, www: nil, facebook: nil, instagram: nil, phone: nil, place: nil, owner: nil, city: nil, cityId: nil)
-//
-//    let event = Event(decodedEvent: decodedEvent)
-//    event.image = Image("14")
-//
-// //   let user = User(decodedUser: DecodedUser(id: 1, name: "Dima", bio: "NO BIO", photo: "https://ez-frag.ru/files/avatars/1622268427.jpg"))
-//    let schema = Schema([
-//        AppUser.self, Country.self, Region.self, City.self, Event.self, Place.self, User.self
-//    ])
-//
-//    let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
-//    do {
-//        let container = try ModelContainer(for: schema, configurations: [modelConfiguration])
-//        return EventView(event: event, modelContext: container.mainContext, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, authenticationManager: authenticationManager)
-//    } catch {
-//        debugPrint(error)
-//        return EmptyView()
-//    }
-//    return EmptyView()
-//}
 
  

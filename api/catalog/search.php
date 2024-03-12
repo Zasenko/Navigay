@@ -24,6 +24,7 @@ $sql = "SELECT
 City.id, 
 City.name_en, 
 City.photo, 
+City.small_photo,
 City.updated_at, 
 City.region_id, 
 City.country_id, 
@@ -39,12 +40,10 @@ Country.updated_at AS country_updated_at
 FROM City 
 LEFT JOIN Region ON Region.id = City.region_id 
 LEFT JOIN Country ON Country.id = City.country_id 
-WHERE 
-(City.name_origin LIKE ? OR City.name_en LIKE ?) 
+WHERE (City.name_origin LIKE ? OR City.name_en LIKE ?) 
 AND City.is_active = true";
-
 $param = "%" . $search_text . "%";
-$params = [$param, $param, $param, $param, $param, $param, $param];
+$params = [$param, $param];
 $types = "ss";
 $stmt = executeQuery($conn, $sql, $params, $types);
 $cities_result = $stmt->get_result();
@@ -52,6 +51,9 @@ $stmt->close();
 while ($row = $cities_result->fetch_assoc()) {
     $photo = $row['photo'];
     $photo_url = isset($photo) ? "https://www.navigay.me/" . $photo : null;
+
+    $small_photo = $row['small_photo'];
+    $small_photo_url = isset($small_photo) ? "https://www.navigay.me/" . $small_photo : null;
 
     $region_photo = $row['region_photo'];
     $region_photo_url = isset($region_photo) ? "https://www.navigay.me/" . $region_photo : null;
@@ -73,12 +75,13 @@ while ($row = $cities_result->fetch_assoc()) {
         'id' => $row['region_id'],
         'name' => $row["region_name"],
         'photo' => $region_photo_url,
-        'updated_at' => $row['region_updated_at']
+        'updated_at' => $row['region_updated_at'],
         'country' => $country,
     );
     $city = array(
         'id' => $row['id'],
         'name' => $row["name_en"],
+        'small_photo' => $small_photo_url,
         'photo' => $photo_url,
         'updated_at' => $row['updated_at'],
         'region' => $region,
@@ -100,15 +103,13 @@ Country.flag_emoji,
 Country.photo AS country_photo, 
 Country.show_regions, 
 Country.updated_at AS country_updated_at 
-FROM Region";
-$sql .= " LEFT JOIN Country ON Country.id = Region.country_id";
-$sql .= " WHERE";
-$sql .= " (Region.name_origin LIKE ?";
-$sql .= " OR Region.name_en LIKE ?)";
-$sql .= " AND Region.is_active = true";
+FROM Region 
+LEFT JOIN Country ON Country.id = Region.country_id 
+WHERE (Region.name_origin LIKE ? OR Region.name_en LIKE ?) 
+AND Region.is_active = true";
 
 $param = "%" . $search_text . "%";
-$params = [$param, $param, $param, $param, $param, $param, $param];
+$params = [$param, $param];
 $types = "ss";
 $stmt = executeQuery($conn, $sql, $params, $types);
 $regions_result = $stmt->get_result();
@@ -142,7 +143,7 @@ while ($row = $regions_result->fetch_assoc()) {
         'country' => $country,
     );
 
-    $sql = "SELECT id, name_en, photo, updated_at FROM City WHERE region_id = ? AND is_active = true";
+    $sql = "SELECT id, name_en, small_photo, photo, updated_at FROM City WHERE region_id = ? AND is_active = true";
     $params = [$region_id];
     $types = "i";
     $stmt = executeQuery($conn, $sql, $params, $types);
@@ -153,11 +154,16 @@ while ($row = $regions_result->fetch_assoc()) {
     while ($row = $cities_result->fetch_assoc()) {
         $photo = $row['photo'];
         $photo_url = isset($photo) ? "https://www.navigay.me/" . $photo : null;
+
+        $small_photo = $row['small_photo'];
+        $small_photo_url = isset($small_photo) ? "https://www.navigay.me/" . $small_photo : null;
+
         $region_city = array(
             'id' => $row['id'],
             'name' => $row["name_en"],
+            'small_photo' => $small_photo_url,
             'photo' => $photo_url,
-            'updated_at' => $row['updated_at']
+            'updated_at' => $row['updated_at'],
         );
     }
     $region += ['cities' => $region_cities];
@@ -194,6 +200,7 @@ Region.photo AS region_photo,
 Region.updated_at AS region_updated_at, 
 City.name_en AS city_name, 
 City.photo AS city_photo, 
+City.small_photo AS city_small_photo, 
 City.updated_at AS city_updated_at 
 FROM Place
 LEFT JOIN Country ON Country.id = Place.country_id
@@ -222,6 +229,9 @@ while ($row = $result->fetch_assoc()) {
     $city_photo = $row['city_photo'];
     $city_photo_url = isset($city_photo) ? "https://www.navigay.me/" . $city_photo : null;
 
+    $city_small_photo = $row['city_small_photo'];
+    $city_small_photo_url = isset($city_small_photo) ? "https://www.navigay.me/" . $city_small_photo : null;
+
     $region_photo = $row['region_photo'];
     $region_photo_url = isset($region_photo) ? "https://www.navigay.me/" . $region_photo : null;
 
@@ -244,6 +254,7 @@ while ($row = $result->fetch_assoc()) {
         'city' => array(
             'id' => $row['city_id'],
             'name' => $row["city_name"],
+            'small_photo' => $city_small_photo_url,
             'photo' => $city_photo_url,
             'updated_at' => $row['city_updated_at'],
             'region' => array(
@@ -297,6 +308,7 @@ Region.name_en AS region_name,
 Region.photo AS region_photo, 
 Region.updated_at AS region_updated_at, 
 City.name_en AS city_name, 
+City.small_photo AS city_small_photo, 
 City.photo AS city_photo, 
 City.updated_at AS city_updated_at 
 FROM Event";
@@ -322,6 +334,9 @@ while ($row = $result->fetch_assoc()) {
     $poster_small_url = isset($poster_small) ? "https://www.navigay.me/" . $poster_small : null;
     $poster = $row['poster'];
     $poster_url = isset($poster) ? "https://www.navigay.me/" . $poster : null;
+
+    $city_small_photo = $row['city_small_photo'];
+    $city_small_photo_url = isset($city_small_photo) ? "https://www.navigay.me/" . $city_small_photo : null;
 
     $city_photo = $row['city_photo'];
     $city_photo_url = isset($city_photo) ? "https://www.navigay.me/" . $city_photo : null;
@@ -353,6 +368,7 @@ while ($row = $result->fetch_assoc()) {
         'city' => array(
             'id' => $row['city_id'],
             'name' => $row["city_name"],
+            'small_photo' => $city_small_photo_url,
             'photo' => $city_photo_url,
             'updated_at' => $row['city_updated_at'],
             'region' => array(

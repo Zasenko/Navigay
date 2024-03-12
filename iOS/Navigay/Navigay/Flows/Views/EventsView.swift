@@ -32,7 +32,6 @@ struct EventsView: View {
     let errorManager: ErrorManagerProtocol
     
     @State private var selectedEvent: Event?
-    @State private var showEvent: Bool = false
     
     @State var columns: Int = 3
     
@@ -51,7 +50,6 @@ struct EventsView: View {
                     StaggeredGrid(columns: 2, showsIndicators: false, spacing: 10, list: todayEvents) { event in
                         Button {
                             selectedEvent = event
-                            showEvent = true
                         } label: {
                             EventCell(event: event, showCountryCity: false, showStartDayInfo: false, showStartTimeInfo: false)
                                 .matchedGeometryEffect(id: "TE\(event.id)", in: animation)
@@ -92,7 +90,6 @@ struct EventsView: View {
                     StaggeredGrid(columns: columns, showsIndicators: false, spacing: 10, list: displayedEvents) { event in
                         Button {
                             selectedEvent = event
-                            showEvent = true
                         } label: {
                             EventCell(event: event, showCountryCity: false, showStartDayInfo: true, showStartTimeInfo: false)
                                 .matchedGeometryEffect(id: "DE\(event.id)", in: animation)

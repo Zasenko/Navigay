@@ -20,11 +20,13 @@ struct MapEventPin: View {
     private var image2 = Image("eventPinImage")
     private let url: String
     
+    private let with: CGFloat
     //MARK: - Init
     
-    init(event: Event, url: String, selectedTag: Binding<UUID?>) {
+    init(event: Event, url: String, selectedTag: Binding<UUID?>, with: CGFloat) {
         self.event = event
         self.url = url
+        self.with = with
         _selectedTag = selectedTag
         if let image = event.image {
             self.image = image
@@ -37,12 +39,13 @@ struct MapEventPin: View {
         if let image = event.image {
             image
                 .resizable()
-                .scaledToFill()
-                .frame(width: event.tag == selectedTag ? 100 : 40, height: event.tag == selectedTag ? 100 : 40)
+                .aspectRatio(contentMode: event.tag == selectedTag ? .fit : .fill)
                 .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                 .padding(event.tag == selectedTag ? 5 : 2)
                 .background(AppColors.background)
                 .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                .shadow(color: .black.opacity(0.1), radius: event.tag == selectedTag ? 10 : 5, x: 0, y: 0)
+                .frame(maxWidth: event.tag == selectedTag ? (with / 5 ) * 2 : 40, maxHeight: event.tag == selectedTag ? (with / 5 ) * 4 : 40, alignment: .bottom)
                 .overlay(alignment: .bottom) {
                     Image(systemName: "arrowtriangle.left.fill")
                         .resizable()
@@ -50,7 +53,7 @@ struct MapEventPin: View {
                         .rotationEffect (Angle(degrees: 270))
                         .foregroundColor(AppColors.background)
                         .frame(width: 10, height: 10)
-                        .offset(y: 8) /// height 10 - padding(2)
+                        .offset(y: event.tag == selectedTag ? 10 : 8)
                 }
                 .animation(.spring(), value: event.tag == selectedTag)
         } else {
@@ -59,7 +62,7 @@ struct MapEventPin: View {
                 .scaledToFill()
                 .frame(width: event.tag == selectedTag ? 100 : 40, height: event.tag == selectedTag ? 100 : 40)
                 .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-                .padding(event.tag == selectedTag ? 5 : 2)
+                .padding(event.tag == selectedTag ? 10 : 2)
                 .background(AppColors.background)
                 .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                 .overlay(alignment: .bottom) {

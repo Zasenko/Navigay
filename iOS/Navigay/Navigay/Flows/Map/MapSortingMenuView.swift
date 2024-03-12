@@ -116,13 +116,8 @@ struct MapSortingMenuView: View {
         
     //MARK: - Properties
     
-    @Binding var categories: [SortingMapCategory]
+    let categories: [SortingMapCategory]
     @Binding var selectedCategory: SortingMapCategory
-    
-    init(categories: Binding<[SortingMapCategory]>, selectedCategory: Binding<SortingMapCategory>) {
-        _categories = categories
-        _selectedCategory = selectedCategory
-    }
 
     //MARK: - Body
     
@@ -143,7 +138,9 @@ struct MapSortingMenuView: View {
                     Text(selectedCategory.getName())
                         .font(.title).bold()
                     Image(systemName: "chevron.down")
-                        .bold()
+                        .font(.caption)
+                        .fontWeight(.black)
+                        .foregroundStyle(.blue)
                 }
                 .foregroundColor(.primary)
             }
@@ -152,5 +149,5 @@ struct MapSortingMenuView: View {
 }
 
 #Preview {
-    MapSortingMenuView(categories: .constant([.all, .bar, .cafe]), selectedCategory: .constant(.all))
+    MapSortingMenuView(categories: [.all, .bar, .cafe], selectedCategory: .constant(.all))
 }

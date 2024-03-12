@@ -40,7 +40,6 @@ extension HomeView {
         var selectedHomeSortingCategory: SortingMapCategory = .all
         
         var sortingMapCategories: [SortingMapCategory] = []
-        var selectedMapSortingCategory: SortingMapCategory = .all
         
         let placeDataManager: PlaceDataManagerProtocol
         let eventDataManager: EventDataManagerProtocol

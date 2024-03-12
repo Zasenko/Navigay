@@ -17,27 +17,15 @@ extension EventView {
         //MARK: - Properties
         
         var modelContext: ModelContext
-        
         let event: Event
         var image: Image?
-        
         var showInfo: Bool = false
-        
-        var isShowPlace: Bool = true //????
-        var isPosterLoaded: Bool = false //?????????
-        
-        var place: Place? = nil //????????? -> event.place
         var position: MapCameraPosition = .automatic
-        
         var showEditView: Bool = false
         var showNewEvetnView: Bool = false
-        
         let placeNetworkManager: PlaceNetworkManagerProtocol //?????????
         let eventNetworkManager: EventNetworkManagerProtocol
         let errorManager: ErrorManagerProtocol
-        
-     //   var isLoading: Bool = false //todo если event.complite == nil
-     //   var allPlaces: [Place] = []// обновление ?????????
 
         //MARK: - Inits
         
@@ -60,11 +48,17 @@ extension EventView {
                 guard !eventNetworkManager.loadedEvents.contains(where: { $0 == event.id}) else {
                     return
                 }
-                guard let decodedEvent = await eventNetworkManager.fetchEvent(id: event.id) else {
-                    return
-                }
-                await MainActor.run {
-                    updateEvent(decodedEvent: decodedEvent)
+                let errorModel = ErrorModel(massage: "Something went wrong. The information has not been updated. Please try again later.", img: nil, color: nil)
+                do {
+                    let decodedEvent = try await eventNetworkManager.fetchEvent(id: event.id)
+                    await MainActor.run {
+                        updateEvent(decodedEvent: decodedEvent)
+                    }
+                } catch NetworkErrors.apiError(let apiError) {
+                    errorManager.showApiErrorOrMessage(apiError: apiError, or: errorModel)
+                } catch {
+                    debugPrint(error)
+                    errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
                 }
             }
         }
@@ -97,7 +91,6 @@ extension EventView {
                         await MainActor.run {
                             self.image = image
                             event.image = image
-                            isPosterLoaded = true
                         }
                     }
                 }
