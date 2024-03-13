@@ -75,6 +75,22 @@ extension AuthenticationManager {
         }
     }
     
+    func resetPassword(email: String) async -> Bool {
+        do {
+            try await networkManager.resetPassword(email: email)
+            return true
+        } catch NetworkErrors.apiError(let apiError) {
+            let errorModel = ErrorModel(massage: "Что-то пошло не так.", img: nil, color: nil)
+            errorManager.showApiErrorOrMessage(apiError: apiError, or: errorModel)
+            return false
+        } catch {
+            debugPrint(error.localizedDescription)
+            let errorModel = ErrorModel(massage: "Что-то пошло не так.", img: nil, color: nil)
+            errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
+            return false
+        }
+    }
+    
     private func auth(user: AppUser) {
         Task {
             let errorModel = ErrorModel(massage: "Что-то пошло не так, вы не вошли в свой аккаунт.", img: AppImages.iconPersonError, color: .red)

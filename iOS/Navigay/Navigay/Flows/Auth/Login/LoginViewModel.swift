@@ -19,6 +19,8 @@ final class LoginViewModel: ObservableObject {
     @Published var buttonState: ButtonStates = .normal
     @Published var isButtonValid = false
     
+    @Published var showForgetPasswordView = false
+    
     // MARK: - Private Properties
         
     // MARK: - Inits

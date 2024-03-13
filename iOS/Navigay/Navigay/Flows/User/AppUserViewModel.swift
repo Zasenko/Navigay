@@ -18,11 +18,14 @@ extension AppUserView {
         
         var gridLayout: [GridItem] = Array(repeating: GridItem(.flexible(), spacing: 20), count: 2)
         
+        var showTitle: Bool = false
+        
         var showEditNameView: Bool = false
         var showEditBioView: Bool = false
         
         var showLoginView: Bool = false
         var showRegistrationView: Bool = false
+        var showResetPasswordView: Bool = false
         
         var showDeleteAccountAlert: Bool = false
         
@@ -135,10 +138,6 @@ extension AppUserView {
                     }
                 }
             }
-        }
-        
-        func changePassword() {
-            
         }
     }
 }

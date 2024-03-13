@@ -12,6 +12,8 @@ protocol AuthNetworkManagerProtocol {
     func registration(email: String, password: String) async throws -> DecodedAppUser
     func logout(id: Int, sessionKey: String) async
     func deleteAccount(id: Int, sessionKey: String) async throws
+    
+    func resetPassword(email: String) async throws
 }
 
 final class AuthNetworkManager {
@@ -36,7 +38,45 @@ final class AuthNetworkManager {
 
 extension AuthNetworkManager: AuthNetworkManagerProtocol {
     
+    func resetPassword(email: String) async throws {
+        debugPrint("--- resetPassword(email: \(email)")
+        guard networkMonitorManager.isConnected else {
+            throw NetworkErrors.noConnection
+        }
+        let path = "/api/auth/reset-password.php"
+        var urlComponents: URLComponents {
+            var components = URLComponents()
+            components.scheme = scheme
+            components.host = host
+            components.path = path
+            return components
+        }
+        guard let url = urlComponents.url else {
+            throw NetworkErrors.bedUrl
+        }
+        let parameters = [
+            "email": email
+        ]
+        let requestData = try JSONSerialization.data(withJSONObject: parameters)
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = requestData
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
+            throw NetworkErrors.invalidData
+        }
+        guard let decodedResult = try? JSONDecoder().decode(ApiResult.self, from: data) else {
+            throw NetworkErrors.decoderError
+        }
+        guard decodedResult.result else {
+            throw NetworkErrors.apiError(decodedResult.error)
+        }
+    }
+    
+    
     func logout(id: Int, sessionKey: String) async {
+        debugPrint("--- logout()")
         do {
             guard networkMonitorManager.isConnected else {
                 throw NetworkErrors.noConnection

@@ -141,6 +141,8 @@
 		0F7F25B52B333712004F6C75 /* CalendarDay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F7F25B42B333712004F6C75 /* CalendarDay.swift */; };
 		0F80E9DF2B068499006ABBF0 /* AroundNetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F80E9DE2B068499006ABBF0 /* AroundNetworkManager.swift */; };
 		0F80E9E12B0696DC006ABBF0 /* AroundResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F80E9E02B0696DC006ABBF0 /* AroundResult.swift */; };
+		0F81F52B2BA1F72100BECAA7 /* ForgetPasswordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F81F52A2BA1F72100BECAA7 /* ForgetPasswordView.swift */; };
+		0F81F52E2BA1FCF700BECAA7 /* ResetPasswordMessageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F81F52D2BA1FCF700BECAA7 /* ResetPasswordMessageView.swift */; };
 		0F8917AF2B62E00200FB4D7D /* AdminCountryResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F8917AE2B62E00200FB4D7D /* AdminCountryResult.swift */; };
 		0F8917B22B6396B500FB4D7D /* PlaceDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F8917B12B6396B500FB4D7D /* PlaceDataManager.swift */; };
 		0F89545D2AF420B900CE46EC /* PlaceAdditionalInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F89545C2AF420B900CE46EC /* PlaceAdditionalInfo.swift */; };
@@ -338,6 +340,8 @@
 		0F7F25B42B333712004F6C75 /* CalendarDay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarDay.swift; sourceTree = "<group>"; };
 		0F80E9DE2B068499006ABBF0 /* AroundNetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AroundNetworkManager.swift; sourceTree = "<group>"; };
 		0F80E9E02B0696DC006ABBF0 /* AroundResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AroundResult.swift; sourceTree = "<group>"; };
+		0F81F52A2BA1F72100BECAA7 /* ForgetPasswordView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForgetPasswordView.swift; sourceTree = "<group>"; };
+		0F81F52D2BA1FCF700BECAA7 /* ResetPasswordMessageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResetPasswordMessageView.swift; sourceTree = "<group>"; };
 		0F8917AE2B62E00200FB4D7D /* AdminCountryResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdminCountryResult.swift; sourceTree = "<group>"; };
 		0F8917B12B6396B500FB4D7D /* PlaceDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceDataManager.swift; sourceTree = "<group>"; };
 		0F89545C2AF420B900CE46EC /* PlaceAdditionalInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceAdditionalInfo.swift; sourceTree = "<group>"; };
@@ -1123,6 +1127,8 @@
 			children = (
 				0FF5C7262B1F44B900D9EA57 /* LoginViewModel.swift */,
 				0FD617AA2ACC3C5C00877C70 /* LoginView.swift */,
+				0F81F52A2BA1F72100BECAA7 /* ForgetPasswordView.swift */,
+				0F81F52D2BA1FCF700BECAA7 /* ResetPasswordMessageView.swift */,
 			);
 			path = Login;
 			sourceTree = "<group>";
@@ -1346,6 +1352,7 @@
 				0F28EC4D2B5916610069B5C2 /* EditEventView.swift in Sources */,
 				0F8917B22B6396B500FB4D7D /* PlaceDataManager.swift in Sources */,
 				0FC9652D2ADD2E2500108443 /* PlaceCell.swift in Sources */,
+				0F81F52B2BA1F72100BECAA7 /* ForgetPasswordView.swift in Sources */,
 				0F79B2532AF24C7800FCAED2 /* EditTimetableView.swift in Sources */,
 				0F5DE3912B04E511007D5238 /* EditCityViewModel.swift in Sources */,
 				0FD617A42ACC3AF500877C70 /* DecodedUser.swift in Sources */,
@@ -1410,6 +1417,7 @@
 				0F80E9E12B0696DC006ABBF0 /* AroundResult.swift in Sources */,
 				0FFB3A372AF0FB56001CF946 /* EditTextFieldView.swift in Sources */,
 				0F354CBB2AFE81F300594AE0 /* DecodedPhoto.swift in Sources */,
+				0F81F52E2BA1FCF700BECAA7 /* ResetPasswordMessageView.swift in Sources */,
 				0FFB3A422AF14F66001CF946 /* PlaceRequiredFieldsView.swift in Sources */,
 				0F4997032B36DC5A003E4E2B /* PlaceViewModel.swift in Sources */,
 				0F69D5CC2B8E6FA0007C7D63 /* EditEventAdditionalView.swift in Sources */,

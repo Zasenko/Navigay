@@ -169,13 +169,19 @@ struct LoginView: View {
                 Text("Forgot your password?")
                     .foregroundColor(.secondary)
                 Button("Reset") {
-                    //TODO!
+                    viewModel.showForgetPasswordView.toggle()
                 }
                 .bold()
+                .foregroundStyle(.blue)
             }
             .font(.footnote)
 //            .padding(.top, 20)
             .padding()
+            .navigationDestination(isPresented: $viewModel.showForgetPasswordView) {
+                ForgetPasswordView(email: viewModel.email) { email in
+                    viewModel.email = email
+                }
+            }
         }
     }
     
@@ -206,6 +212,7 @@ struct LoginView: View {
             .background(viewModel.isButtonValid ? .green : AppColors.lightGray5)
             .clipShape(Capsule())
         }
+        .frame(maxWidth: .infinity)
         .disabled(!viewModel.isButtonValid)
         .padding()
     }
