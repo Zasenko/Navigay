@@ -13,9 +13,9 @@ final class MapViewModel: ObservableObject {
 
     let events: [Event]
     let places: [Place]
-    let categories: [SortingMapCategory]
+    let categories: [SortingCategory]
     
-    @Published var selectedCategory: SortingMapCategory = .all
+    @Published var selectedCategory: SortingCategory = .all
     
     @Published var filteredPlaces: [Place] = []
     @Published var filteredEvents: [Event] = []
@@ -34,7 +34,7 @@ final class MapViewModel: ObservableObject {
     let placeNetworkManager: PlaceNetworkManagerProtocol
     let errorManager: ErrorManagerProtocol
     
-    init(events: [Event], places: [Place], categories: [SortingMapCategory], modelContext: ModelContext, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol, placeDataManager: PlaceDataManagerProtocol, eventDataManager: EventDataManagerProtocol) {
+    init(events: [Event], places: [Place], categories: [SortingCategory], modelContext: ModelContext, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol, placeDataManager: PlaceDataManagerProtocol, eventDataManager: EventDataManagerProtocol) {
         self.events = events
         self.places = places
         self.categories = categories
@@ -49,7 +49,7 @@ final class MapViewModel: ObservableObject {
 
 extension MapViewModel {
     
-    func filterLocations(category: SortingMapCategory) {
+    func filterLocations(category: SortingCategory) {
         selectedPlace = nil
         selectedEvent = nil
         selectedTag = nil

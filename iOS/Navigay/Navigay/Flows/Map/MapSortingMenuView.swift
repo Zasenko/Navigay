@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-enum SortingMapCategory {
+enum SortingCategory {
     case events
     case bar
     case cafe
@@ -110,14 +110,100 @@ enum SortingMapCategory {
             return "Rights"
         }
     }
+    
+    func getSortPreority() -> Int {
+        switch self {
+        case .events:
+            1
+        case .bar:
+            2
+        case .club:
+            3
+        case .cafe:
+            4
+        case .restaurant:
+            5
+        case .sauna:
+            6
+        case .cruiseBar:
+            7
+        case .cruiseClub:
+            8
+        case .shop:
+            9
+        case .hotel:
+            10
+        case .hostel:
+            11
+        case .beach:
+            12
+        case .gym:
+            13
+        case .culture:
+            14
+        case .community:
+            15
+        case .medicine:
+            16
+        case .rights:
+            17
+        case .other:
+            18
+        case .all:
+            19
+        }
+    }
+    
+    func getImage() -> String {
+        switch self {
+        case .bar:
+            return "🍷"
+        case .cafe:
+            return "☕️"
+        case .restaurant:
+            return "🍴"
+        case .club:
+            return "💃"
+        case .hotel:
+            return "🛏️"
+        case .sauna:
+            return "🧖‍♂️"
+        case .cruiseBar:
+            return "😈"
+        case .beach:
+            return "⛱️"
+        case .shop:
+            return "🛍️"
+        case .gym:
+            return "💪"
+        case .culture:
+            return "🎭"
+        case .community:
+            return "👥"
+        case .other:
+            return "🏳️‍🌈"
+        case .hostel:
+            return "🛏️"
+        case .medicine:
+            return "😷"
+        case .cruiseClub:
+            return "🔥"
+        case .rights:
+            return "🏛️"
+        case .events:
+            return ""
+        case .all:
+            return ""
+        }
+    }
 }
 
 struct MapSortingMenuView: View {
         
     //MARK: - Properties
     
-    let categories: [SortingMapCategory]
-    @Binding var selectedCategory: SortingMapCategory
+    let categories: [SortingCategory]
+    @Binding var selectedCategory: SortingCategory
 
     //MARK: - Body
     

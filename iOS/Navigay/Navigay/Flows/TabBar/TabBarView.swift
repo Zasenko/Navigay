@@ -25,7 +25,7 @@ struct TabBarView: View {
     @State private var userImage: Image? = nil
 
     @StateObject private var locationManager = LocationManager()
-    @ObservedObject private var authenticationManager: AuthenticationManager
+    @EnvironmentObject private var authenticationManager: AuthenticationManager
 
     private let appSettingsManager: AppSettingsManagerProtocol
     private let errorManager: ErrorManagerProtocol
@@ -41,11 +41,8 @@ struct TabBarView: View {
     
     //MARK: - Init
     
-    init(authenticationManager: AuthenticationManager,
-         appSettingsManager: AppSettingsManagerProtocol,
+    init(appSettingsManager: AppSettingsManagerProtocol,
          errorManager: ErrorManagerProtocol) {
-        _authenticationManager = ObservedObject(wrappedValue: authenticationManager)
-        self.authenticationManager = authenticationManager
         self.errorManager = errorManager
         self.appSettingsManager = appSettingsManager
         self.aroundNetworkManager = AroundNetworkManager(appSettingsManager: appSettingsManager, errorManager: errorManager)
@@ -61,15 +58,15 @@ struct TabBarView: View {
         VStack(spacing: 0) {
             switch selectedPage {
             case .home:
-                HomeView(modelContext: modelContext, aroundNetworkManager: aroundNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, authenticationManager: authenticationManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, catalogDataManager: catalogDataManager)
+                HomeView(modelContext: modelContext, aroundNetworkManager: aroundNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, catalogDataManager: catalogDataManager)
                     .environmentObject(locationManager)
             case .search:
-                SearchView(modelContext: modelContext, catalogNetworkManager: catalogNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, authenticationManager: authenticationManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, catalogDataManager: catalogDataManager)
+                SearchView(modelContext: modelContext, catalogNetworkManager: catalogNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, catalogDataManager: catalogDataManager)
             case .user:
-                AppUserView(modelContext: modelContext, userNetworkManager: UserNetworkManager(), placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, authenticationManager: authenticationManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager)
+                AppUserView(modelContext: modelContext, userNetworkManager: UserNetworkManager(), placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager)
             case .admin:
                 if let user = authenticationManager.appUser, user.status == .admin {
-                    AdminView(viewModel: AdminViewModel(errorManager: errorManager, networkManager: AdminNetworkManager(errorManager: errorManager)), authenticationManager: authenticationManager)
+                    AdminView(viewModel: AdminViewModel(errorManager: errorManager, networkManager: AdminNetworkManager(errorManager: errorManager)))
                 } else {
                     EmptyView()
                 }
@@ -163,7 +160,9 @@ struct TabBarView: View {
                                      button: adminButton)
                 }
             }
-            .padding(8)
+            .padding(.top, 10)
+            .padding(.horizontal)
+            .padding(.bottom, 10)
         }
     }
 }

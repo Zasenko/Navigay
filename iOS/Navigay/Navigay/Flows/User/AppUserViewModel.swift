@@ -30,7 +30,6 @@ extension AppUserView {
         let eventNetworkManager: EventNetworkManagerProtocol
         let placeNetworkManager: PlaceNetworkManagerProtocol
         let userNetworkManager: UserNetworkManagerProtocol
-        let authNetworkManager: AuthNetworkManagerProtocol
         let placeDataManager: PlaceDataManagerProtocol
         let eventDataManager: EventDataManagerProtocol
         let errorManager: ErrorManagerProtocol
@@ -40,7 +39,6 @@ extension AppUserView {
         init(modelContext: ModelContext,
              placeNetworkManager: PlaceNetworkManagerProtocol,
              eventNetworkManager: EventNetworkManagerProtocol,
-             authNetworkManager: AuthNetworkManagerProtocol,
              errorManager: ErrorManagerProtocol,
              userNetworkManager: UserNetworkManagerProtocol,
              placeDataManager: PlaceDataManagerProtocol,
@@ -49,17 +47,9 @@ extension AppUserView {
             self.eventNetworkManager = eventNetworkManager
             self.placeNetworkManager = placeNetworkManager
             self.userNetworkManager = userNetworkManager
-            self.authNetworkManager = authNetworkManager
             self.errorManager = errorManager
             self.placeDataManager = placeDataManager
             self.eventDataManager = eventDataManager
-        }
-        
-        func logoutButtonTapped(user: AppUser) {
-            Task {
-                guard let sessionKey = user.sessionKey else { return }
-                await authNetworkManager.logout(id: user.id, sessionKey: sessionKey)
-            }
         }
         
         func deleteAccountButtonTapped(for user: AppUser) {

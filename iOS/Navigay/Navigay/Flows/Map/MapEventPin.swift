@@ -41,7 +41,7 @@ struct MapEventPin: View {
                 .resizable()
                 .aspectRatio(contentMode: event.tag == selectedTag ? .fit : .fill)
                 .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-                .padding(event.tag == selectedTag ? 5 : 2)
+                .padding(event.tag == selectedTag ? 3 : 2)
                 .background(AppColors.background)
                 .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                 .shadow(color: .black.opacity(0.1), radius: event.tag == selectedTag ? 10 : 5, x: 0, y: 0)

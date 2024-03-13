@@ -88,25 +88,25 @@ struct EventView: View {
     private func listView(size: CGSize) -> some View {
         List {
             Section {
-                Color.clear
-                    .frame(height: 40)
-                    .onAppear {
-                        viewModel.showInfo = false
+                VStack {
+                    if viewModel.event.isFree {
+                        Text("free event")
+                            .font(.footnote)
+                            .bold()
+                            .foregroundStyle((AppColors.background))
+                            .padding(5)
+                            .padding(.horizontal, 5)
+                            .background(.green)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .padding(.bottom)
                     }
-                    .onDisappear {
-                        viewModel.showInfo = true
-                    }
-                if viewModel.event.isFree {
-                    Text("free event")
-                        .font(.footnote)
-                        .bold()
-                        .foregroundStyle((AppColors.background))
-                        .padding(5)
-                        .padding(.horizontal, 5)
-                        .background(.green)
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                        .frame(maxWidth: .infinity)
-                        .padding(.bottom)
+                }
+                .frame(maxWidth: .infinity)
+                .onAppear {
+                    viewModel.showInfo = false
+                }
+                .onDisappear {
+                    viewModel.showInfo = true
                 }
                 viewModel.image?
                     .resizable()
@@ -115,7 +115,8 @@ struct EventView: View {
                     .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous).stroke(.ultraThinMaterial, lineWidth: 1))
                     .shadow(color: .black.opacity(0.2), radius: 16, x: 0, y: 10)
                     .padding(.horizontal)
-                    .padding()
+                    .padding(.horizontal)
+                    .padding(.bottom)
                     .padding(.bottom)
                     .padding(.bottom)
                 Text(viewModel.event.name)

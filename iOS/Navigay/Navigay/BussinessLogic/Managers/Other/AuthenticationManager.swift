@@ -66,6 +66,15 @@ extension AuthenticationManager {
         auth(user: user)
     }
     
+    func logOut(user: AppUser) {
+        user.isUserLoggedIn = false
+        appUser = nil
+        Task {
+            guard let sessionKey = user.sessionKey else { return }
+            await networkManager.logout(id: user.id, sessionKey: sessionKey)
+        }
+    }
+    
     private func auth(user: AppUser) {
         Task {
             let errorModel = ErrorModel(massage: "Что-то пошло не так, вы не вошли в свой аккаунт.", img: AppImages.iconPersonError, color: .red)

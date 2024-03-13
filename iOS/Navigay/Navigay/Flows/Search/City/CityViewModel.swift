@@ -26,19 +26,20 @@ extension CityView {
         var todayEvents: [Event] = []
         var upcomingEvents: [Event] = []
         var displayedEvents: [Event] = []
+        
+        var showCalendar: Bool = false
         var eventsDates: [Date] = []
         var selectedDate: Date? = nil
-        var showCalendar: Bool = false // - убрать???
         
         var gridLayout: [GridItem] = Array(repeating: GridItem(.flexible(), spacing: 20), count: 2)
         
         
-        var sortingHomeCategories: [SortingMapCategory] = []
-        var selectedHomeSortingCategory: SortingMapCategory = .all
+        var sortingHomeCategories: [SortingCategory] = []
+        var selectedHomeSortingCategory: SortingCategory = .all
         
         var showMap: Bool = false
-        var sortingMapCategories: [SortingMapCategory] = []
-        var selectedMapSortingCategory: SortingMapCategory = .all
+        var sortingMapCategories: [SortingCategory] = []
+        var selectedMapSortingCategory: SortingCategory = .all
         
         let catalogNetworkManager: CatalogNetworkManagerProtocol
         let placeNetworkManager: PlaceNetworkManagerProtocol

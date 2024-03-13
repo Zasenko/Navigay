@@ -54,11 +54,10 @@ extension AdminViewModel {
 struct AdminView: View {
 
     @StateObject private var viewModel: AdminViewModel
-    @ObservedObject private var authenticationManager: AuthenticationManager
+    @EnvironmentObject private var authenticationManager: AuthenticationManager
     
-    init(viewModel: AdminViewModel, authenticationManager: AuthenticationManager) {
+    init(viewModel: AdminViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel)
-        self.authenticationManager = authenticationManager
     }
     
     //MARK: - Body

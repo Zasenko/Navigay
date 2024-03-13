@@ -56,19 +56,19 @@ struct EntryView: View {
         ZStack(alignment: .bottom) {
             switch router {
             case .welcomeView:
-                WelcomeView(authenticationManager: authenticationManager) {
+                WelcomeView {
                     firstTimeInApp = false
-                        router = .tabView
+                    router = .tabView
                 }
             case .tabView:
-                TabBarView(authenticationManager: authenticationManager, appSettingsManager: appSettingsManager, errorManager: errorManager)
-                    .environmentObject(authenticationManager)
+                TabBarView(appSettingsManager: appSettingsManager, errorManager: errorManager)
             }
             ErrorView(viewModel: ErrorViewModel(errorManager: errorManager), edge: .bottom)
         }
         .onAppear() {
             setRouter()
         }
+        .environmentObject(authenticationManager)
     }
     
     //MARK: - Private Functions

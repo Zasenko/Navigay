@@ -182,7 +182,7 @@ enum PlaceType: Int, Codable, CaseIterable, Comparable {
         }
     }
     
-    func getSortingMapCategory() -> SortingMapCategory {
+    func getSortingMapCategory() -> SortingCategory {
         switch self {
         case .other:
             return .other

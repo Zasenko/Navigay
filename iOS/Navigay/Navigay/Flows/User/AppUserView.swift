@@ -17,20 +17,17 @@ struct AppUserView: View {
     private var likedEvents: [Event]
     
     @State private var viewModel: AppUserViewModel
-    @ObservedObject var authenticationManager: AuthenticationManager
-    
+    @EnvironmentObject private var authenticationManager: AuthenticationManager
     
     init(modelContext: ModelContext,
          userNetworkManager: UserNetworkManagerProtocol,
          placeNetworkManager: PlaceNetworkManagerProtocol,
          eventNetworkManager: EventNetworkManagerProtocol,
          errorManager: ErrorManagerProtocol,
-         authenticationManager: AuthenticationManager,
          placeDataManager: PlaceDataManagerProtocol,
          eventDataManager: EventDataManagerProtocol) {
-        let viewModel = AppUserViewModel(modelContext: modelContext, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, authNetworkManager: authenticationManager.networkManager, errorManager: errorManager, userNetworkManager: userNetworkManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager)
+        let viewModel = AppUserViewModel(modelContext: modelContext, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, userNetworkManager: userNetworkManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager)
         _viewModel = State(initialValue: viewModel)
-        _authenticationManager = ObservedObject(wrappedValue: authenticationManager)
     }
 
     var body: some View {
@@ -71,13 +68,10 @@ struct AppUserView: View {
                                         icon: { AppImages.iconLock }
                                     )
                                 }
-                                
                                 Button {
-                                    user.isUserLoggedIn = false
                                     likedPlaces.forEach( { $0.isLiked = false } )
                                     likedEvents.forEach( { $0.isLiked = false } )
-                                    viewModel.logoutButtonTapped(user: user)
-                                    authenticationManager.appUser = nil
+                                    authenticationManager.logOut(user: user)
                                 } label: {
                                     Text("Log Out")
                                 }
