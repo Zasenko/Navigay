@@ -30,10 +30,12 @@ struct AppImages {
     static let iconArrowRight = Image(systemName: "arrow.forward")
     static let iconRight = Image(systemName: "chevron.right")
     static let iconLeft = Image(systemName: "chevron.left")
+    static let iconDown = Image(systemName: "chevron.down")
     static let iconX = Image(systemName: "xmark")
     static let iconXCircle = Image(systemName: "xmark.circle.fill")
     static let iconClock = Image(systemName:"clock")
     static let iconPhotoPlus = Image(systemName:"photo.badge.plus")
+    static let iconInfoCircle = Image(systemName:"info.circle")
     
     static let iconWifi = Image(systemName:"wifi")
     static let iconNoWifi = Image(systemName:"wifi.slash")

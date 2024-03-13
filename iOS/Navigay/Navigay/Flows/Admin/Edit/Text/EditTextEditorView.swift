@@ -23,8 +23,8 @@ struct EditTextEditorView: View {
     
     //MARK: - Inits
 
-    init(title: String, text: String, characterLimit: Int, onSave: @escaping (String) -> Void) {
-        _text = State(initialValue: text)
+    init(title: String, text: String?, characterLimit: Int, onSave: @escaping (String) -> Void) {
+        _text = State(initialValue: text ?? "")
         self.characterLimit = characterLimit
         self.title = title
         self.onSave = onSave

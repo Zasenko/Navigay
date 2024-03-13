@@ -20,7 +20,7 @@ struct PhotoEditView<Content: View>: View {
     private let canDelete: Bool
     private let canAddFromUrl: Bool
     @State private var showPicker: Bool = false
-    @State var pickerImage: UIImage?
+    @State private var image: UIImage?
     
     //MARK: - Inits
     
@@ -45,7 +45,7 @@ struct PhotoEditView<Content: View>: View {
                     if canAddFromUrl {
                         NavigationLink("Add from url") {
                             AddPhotoFromUrlView { uiImage in
-                                pickerImage = uiImage
+                                image = uiImage
                             }
                         }
                     }
@@ -61,9 +61,9 @@ struct PhotoEditView<Content: View>: View {
                 content()
             }
             .fullScreenCover(isPresented: $showPicker) {
-                ImagePicker(selectedImage: $pickerImage)
+                ImagePicker(selectedImage: $image)
             }
-            .onChange(of: pickerImage) { oldValue, newValue in
+            .onChange(of: image) { oldValue, newValue in
                 if let newValue = newValue {
                     onSave(newValue)
                 }

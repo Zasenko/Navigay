@@ -1,12 +1,11 @@
 <?php
 
 require_once('../error-handler.php');
+require_once('../languages.php');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     sendError('Invalid request method.');
 }
-
-require_once('../languages.php');
 
 if (empty($_GET["event_id"])) {
     sendError('Event ID are required.');
@@ -20,7 +19,7 @@ $language = isset($_GET['language']) && in_array($_GET['language'], $languages) 
 
 require_once('../dbconfig.php');
 
-$sql = "SELECT id, name, type_id, country_id, region_id, city_id, latitude, longitude, address, start_date, start_time, finish_date, finish_time, poster, poster_small, location, about, is_free, tickets, fee, phone, www, facebook, instagram, tags, place_id, is_active, updated_at FROM Event WHERE id = ?";
+$sql = "SELECT id, name, type_id, country_id, region_id, city_id, latitude, longitude, address, start_date, start_time, finish_date, finish_time, poster, poster_small, location, about, is_free, tickets, fee, phone, www, facebook, instagram, tags, owner_id, place_id, is_active, updated_at FROM Event WHERE id = ?";
 $params = [$event_id];
 $types = "i";
 $stmt = executeQuery($conn, $sql, $params, $types);
@@ -72,6 +71,7 @@ $event = array(
     'updated_at' => $row['updated_at']
 );
 $place_id = $row['place_id'];
+$owner_id = $row['owner_id'];
 if (isset($place_id)) {
     $sql = "SELECT id, name, type_id, avatar, main_photo, address, latitude, longitude, tags, timetable, is_active, updated_at FROM Place WHERE id = ?";
     $params = [$place_id]; /////////
@@ -103,6 +103,29 @@ if (isset($place_id)) {
         'updated_at' => $row['updated_at'],
     );
     $event += ['place' => $place];
+}
+
+if (isset($owner_id)) {
+    $sql = "SELECT id, name, bio, photo, updated_at FROM User WHERE id = ?";
+    $params = [$owner_id];
+    $types = "i";
+    $stmt = executeQuery($conn, $sql, $params, $types);
+    $result = $stmt->get_result();
+    $stmt->close();
+    $user = array();
+    $row = $result->fetch_assoc();
+
+    $photo = $row['photo'];
+    $photo_url = isset($photo) ? "https://www.navigay.me/images/users/" . $photo : null;
+
+    $user = array(
+        'id' => $row['id'],
+        'name' => $row["name"],
+        'bio' => $row['bio'],
+        'photo' => $photo_url,
+        'updated_at' => $row['updated_at'],
+    );
+    $event += ['owner' => $user];
 }
 $conn->close();
 $json = ['result' => true, 'event' => $event];

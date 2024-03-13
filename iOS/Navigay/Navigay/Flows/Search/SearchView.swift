@@ -11,7 +11,7 @@ import SwiftData
 struct SearchView: View {
     
     @State private var viewModel: SearchViewModel
-    @ObservedObject var authenticationManager: AuthenticationManager
+    @EnvironmentObject private var authenticationManager: AuthenticationManager
     @FocusState private var focused: Bool
     //  @Namespace var namespace
     
@@ -20,14 +20,11 @@ struct SearchView: View {
          placeNetworkManager: PlaceNetworkManagerProtocol,
          eventNetworkManager: EventNetworkManagerProtocol,
          errorManager: ErrorManagerProtocol,
-         authenticationManager: AuthenticationManager,
          placeDataManager: PlaceDataManagerProtocol,
          eventDataManager: EventDataManagerProtocol,
          catalogDataManager: CatalogDataManagerProtocol) {
         let viewModel = SearchViewModel(modelContext: modelContext, catalogNetworkManager: catalogNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, catalogDataManager: catalogDataManager)
-        
         _viewModel = State(initialValue: viewModel)
-        _authenticationManager = ObservedObject(wrappedValue: authenticationManager)
         viewModel.getCountriesFromDB()
         viewModel.fetchCountries()
     }
@@ -296,7 +293,9 @@ struct SearchView: View {
                             .offset(x: 90)
                         LazyVGrid(columns: viewModel.gridLayout, spacing: 20) {
                             ForEach(viewModel.searchEvents) { event in
-                                EventCell(event: event, width: (width / 2) - 30, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, showCountryCity: true, authenticationManager: authenticationManager, showStartDayInfo: true, showStartTimeInfo: false)
+                              //  EventCell(event: event, width: (width / 2) - 30, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, showCountryCity: true, authenticationManager: authenticationManager, showStartDayInfo: true, showStartTimeInfo: false)
+                                
+                                EventCell(event: event, showCountryCity: true, showStartDayInfo: true, showStartTimeInfo: false)//, width: (width / 2) - 30)
                             }
                         }
                         .padding(.horizontal, 20)

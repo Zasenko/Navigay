@@ -25,8 +25,8 @@ struct EditTextFieldView: View {
     
     //MARK: - Inits
     
-    init(text: String, characterLimit: Int, minHaracters: Int, title: String, placeholder: String?, onSave: @escaping (String) -> Void) {
-        self._text = State(initialValue: text)
+    init(text: String?, characterLimit: Int, minHaracters: Int, title: String, placeholder: String?, onSave: @escaping (String) -> Void) {
+        self._text = State(initialValue: text ?? "")
         self.characterLimit = characterLimit
         self.minHaracters = minHaracters
         self.title = title

@@ -161,11 +161,11 @@ struct ImageLoadingView<Content: View>: View {
     
     @State private var image: Image?
     let url: String
-    let width: CGFloat
-    let height: CGFloat
+    let width: CGFloat?
+    let height: CGFloat?
     let contentMode: ContentMode
     
-    init(url: String, width: CGFloat, height: CGFloat, contentMode: ContentMode, @ViewBuilder content: @escaping () -> Content) {
+    init(url: String, width: CGFloat?, height: CGFloat?, contentMode: ContentMode, @ViewBuilder content: @escaping () -> Content) {
         self.loadView = content
         self.url = url
         self.width = width

@@ -45,6 +45,7 @@ final class ErrorManager: ErrorManagerProtocol {
             }
         } else {
             showError(model: error)
+            
         }
     }
     

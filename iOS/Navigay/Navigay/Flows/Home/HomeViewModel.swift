@@ -23,8 +23,11 @@ extension HomeView {
         var upcomingEvents: [Event] = []
         var displayedEvents: [Event] = []
         
+        var showCalendar: Bool = false
         var eventsDates: [Date] = []
         var selectedDate: Date? = nil
+        
+        var selectedEvent: Event?
         
         var aroundPlaces: [Place] = [] /// for Map
         var groupedPlaces: [PlaceType: [Place]] = [:]
@@ -36,11 +39,10 @@ extension HomeView {
         
         var showMap: Bool = false
         
-        var sortingHomeCategories: [SortingMapCategory] = []
-        var selectedHomeSortingCategory: SortingMapCategory = .all
+        var sortingHomeCategories: [SortingCategory] = []
+        var selectedHomeSortingCategory: SortingCategory = .all
         
-        var sortingMapCategories: [SortingMapCategory] = []
-        var selectedMapSortingCategory: SortingMapCategory = .all
+        var sortingMapCategories: [SortingCategory] = []
         
         let placeDataManager: PlaceDataManagerProtocol
         let eventDataManager: EventDataManagerProtocol
@@ -212,19 +214,25 @@ extension HomeView {
         }
   
         private func updateSortingMapCategories() async {
-            var categories: [SortingMapCategory] = []
-            let placesTypes = groupedPlaces.keys.compactMap( { SortingMapCategory(placeType: $0)} )
-            placesTypes.forEach { categories.append($0) }
+            var mapCategories: [SortingCategory] = []
+            var homeCategories: [SortingCategory] = []
             
+            if actualEvents.count > 0 {
+                homeCategories.append(.events)
+            }
+            let placesTypes = groupedPlaces.keys.compactMap( { SortingCategory(placeType: $0)} )
+            placesTypes.forEach { mapCategories.append($0) }
+            placesTypes.forEach { homeCategories.append($0) }
             if !todayEvents.isEmpty {
-                categories.append(.events)
+                mapCategories.append(.events)
             }
-            if categories.count > 1 {
-                categories.append(.all)
+            if mapCategories.count > 1 {
+                mapCategories.append(.all)
             }
-            await MainActor.run { [categories] in
+            await MainActor.run { [mapCategories, homeCategories] in
                 withAnimation {
-                    sortingMapCategories = categories
+                    sortingMapCategories = mapCategories.sorted(by: {$0.getSortPreority() < $1.getSortPreority()})
+                    sortingHomeCategories = homeCategories.sorted(by: {$0.getSortPreority() < $1.getSortPreority()})
                 }
             }
         }

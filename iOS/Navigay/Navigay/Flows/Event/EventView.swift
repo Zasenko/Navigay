@@ -13,49 +13,231 @@ struct EventView: View {
     
     // MARK: - Properties
     
-    @Binding var isEventViewPresented: Bool
-    
+    @EnvironmentObject var authenticationManager: AuthenticationManager
+
     // MARK: - Private Properties
     
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel: EventViewModel
-    @ObservedObject var authenticationManager: AuthenticationManager
     
     // MARK: - Init
     
-    init(isEventViewPresented: Binding<Bool>, event: Event, modelContext: ModelContext, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol, authenticationManager: AuthenticationManager) {
-        debugPrint("init EventView, event id: ", event.id)
-        let viewModel = EventViewModel(event: event, modelContext: modelContext, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager)
+    init(viewModel: EventViewModel) {
         _viewModel = State(wrappedValue: viewModel)
-        _isEventViewPresented = isEventViewPresented
-        self.authenticationManager = authenticationManager
         viewModel.loadEvent()
     }
-  
+    
     // MARK: - Body
     
     var body: some View {
         NavigationStack {
-            ZStack(alignment: .topTrailing) {
-                listView
-                    .toolbar(.hidden, for: .navigationBar)
-               
-                HStack {
-                    Button {
-                        viewModel.event.isLiked.toggle()
-                        guard let user = authenticationManager.appUser else { return }
-                        
-                        if user.likedEvents.contains(where: {$0 == viewModel.event.id} ) {
-                            user.likedEvents.removeAll(where: {$0 == viewModel.event.id})
-                        } else {
-                            user.likedEvents.append(viewModel.event.id)
-                        }
-                    } label: {
-                        Image(systemName: viewModel.event.isLiked ? "heart.fill" : "heart")
-                            .bold()
-                            .frame(width: 30, height: 30, alignment: .leading)
+            GeometryReader { proxy in
+                ZStack(alignment: .topTrailing) {
+                    listView(size: proxy.size)
+                    ErrorView(viewModel: ErrorViewModel(errorManager: viewModel.errorManager), edge: .bottom)
+                }
+                .background {
+                    ZStack(alignment: .center) {
+                        viewModel.image?
+                            .resizable()
+                            .scaledToFill()
+                            .ignoresSafeArea()
+                            .scaleEffect(CGSize(width: 2, height: 2))
+                            .blur(radius: 100)
+                            .saturation(2)
+                        AppColors.background
+                            .opacity(viewModel.showInfo ? 0.8 : 0)
+                            .ignoresSafeArea()
+                        Rectangle()
+                            .fill(.ultraThinMaterial)
+                            .ignoresSafeArea()
                     }
-                    .tint(viewModel.event.isLiked ? .red :  .secondary)
+                    .ignoresSafeArea(.container, edges: .bottom)
+                    .frame(width: proxy.size.width, height: proxy.size.height, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
+                }
+                .mask {
+                    Rectangle()
+                        .ignoresSafeArea(.all)
+                }
+                .animation(.snappy, value: viewModel.showInfo)
+            }
+            .toolbarBackground(.hidden, for: .navigationBar)
+            .toolbarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    headerView
+                }
+            }
+        }
+    }
+    
+    // MARK: - Views
+    
+    private var headerView: some View {
+        Button {
+            dismiss()
+        } label: {
+            AppImages.iconXCircle
+                .resizable()
+                .scaledToFit()
+                .frame(width: 30, height: 30)
+                .tint(.primary)
+        }
+    }
+    
+    private func listView(size: CGSize) -> some View {
+        List {
+            Section {
+                VStack {
+                    if viewModel.event.isFree {
+                        Text("free event")
+                            .font(.footnote)
+                            .bold()
+                            .foregroundStyle((AppColors.background))
+                            .padding(5)
+                            .padding(.horizontal, 5)
+                            .background(.green)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .padding(.bottom)
+                    }
+                }
+                .frame(maxWidth: .infinity)
+                .onAppear {
+                    viewModel.showInfo = false
+                }
+                .onDisappear {
+                    viewModel.showInfo = true
+                }
+                viewModel.image?
+                    .resizable()
+                    .scaledToFit()
+                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                    .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous).stroke(.ultraThinMaterial, lineWidth: 1))
+                    .shadow(color: .black.opacity(0.2), radius: 16, x: 0, y: 10)
+                    .padding(.horizontal)
+                    .padding(.horizontal)
+                    .padding(.bottom)
+                    .padding(.bottom)
+                    .padding(.bottom)
+                Text(viewModel.event.name)
+                    .font(.title).bold()
+                    .foregroundStyle(.primary)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity)
+                    .padding(.horizontal)
+                    .padding(.bottom)
+                VStack(spacing: 5) {
+                    if let finishDate = viewModel.event.finishDate {
+                        if finishDate.isSameDayWithOtherDate(viewModel.event.startDate) {
+                            Text(viewModel.event.startDate.formatted(date: .long, time: .omitted))
+                                .font(.title3)
+                                .bold()
+                            HStack {
+                                if let startTime = viewModel.event.startTime {
+                                    HStack(spacing: 5) {
+                                        AppImages.iconClock
+                                            .font(.callout)
+                                        Text(startTime.formatted(date: .omitted, time: .shortened))
+                                            .font(.callout)
+                                    }
+                                    .foregroundStyle(.secondary)
+                                }
+                                if let finishTime = viewModel.event.finishTime {
+                                    Text("—")
+                                        .foregroundStyle(.secondary)
+                                        .frame(width: 20, alignment: .center)
+                                    HStack(spacing: 5) {
+                                        AppImages.iconClock
+                                            .font(.callout)
+                                        Text(finishTime.formatted(date: .omitted, time: .shortened))
+                                            .font(.callout)
+                                    }
+                                    .foregroundStyle(.secondary)
+                                }
+                            }
+                            
+                        } else {
+                            HStack(alignment: .top) {
+                                VStack(spacing: 5) {
+                                    Text(viewModel.event.startDate.formatted(date: .long, time: .omitted))
+                                        .font(.title3)
+                                        .bold()
+                                    if let startTime = viewModel.event.startTime {
+                                        HStack(spacing: 5) {
+                                            AppImages.iconClock
+                                                .font(.callout)
+                                            Text(startTime.formatted(date: .omitted, time: .shortened))
+                                                .font(.callout)
+                                        }
+                                        .foregroundStyle(.secondary)
+                                    }
+                                }
+                                Text("—")
+                                    .frame(width: 20, alignment: .center)
+                                VStack(spacing: 5) {
+                                    Text(finishDate.formatted(date: .long, time: .omitted))
+                                        .font(.title3)
+                                        .bold()
+                                    if let finishTime = viewModel.event.finishTime {
+                                        HStack(spacing: 5) {
+                                            AppImages.iconClock
+                                                .font(.callout)
+                                            Text(finishTime.formatted(date: .omitted, time: .shortened))
+                                                .font(.callout)
+                                        }
+                                        .foregroundStyle(.secondary)
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        Text(viewModel.event.startDate.formatted(date: .long, time: .omitted))
+                            .font(.title3)
+                            .bold()
+                        if let startTime = viewModel.event.startTime {
+                            HStack(spacing: 5) {
+                                AppImages.iconClock
+                                    .font(.callout)
+                                Text(startTime.formatted(date: .omitted, time: .shortened))
+                                    .font(.callout)
+                            }
+                            .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+                .frame(maxWidth: .infinity)
+                .padding()
+                Button {
+                    viewModel.goToMaps()
+                } label: {
+                    HStack(spacing: 10) {
+                        AppImages.iconLocation
+                            .resizable()
+                            .scaledToFit()
+                            .foregroundStyle(.blue)
+                            .frame(width: 25, height: 25, alignment: .leading)
+                        VStack(alignment: .leading, spacing: 0) {
+                            if let locationName = viewModel.event.location {
+                                Text(locationName)
+                                    .bold()
+                                    .font(.callout)
+                            }
+                            Text(viewModel.event.address)
+                                .font(.footnote)
+                        }
+                        .foregroundStyle(.primary)
+                        .multilineTextAlignment(.leading)
+                    }
+                }
+                .padding()
+                .background(viewModel.showInfo ? .ultraThickMaterial : .ultraThinMaterial)
+                .clipShape(Capsule(style: .continuous))
+                .frame(maxWidth: .infinity, alignment: .center)
+                .padding(.vertical)
+                .padding(.bottom)
+                
+                HStack(spacing: 10) {
+                    
                     if let user = authenticationManager.appUser, user.status == .admin {
                         Menu {
                             Button("Edit") {
@@ -66,207 +248,74 @@ struct EventView: View {
                             }
                         } label: {
                             AppImages.iconSettings
-                                .bold()
-                                .frame(width: 30, height: 30, alignment: .leading)
-                        }
-                    }
-                    
-                    Button {
-                        isEventViewPresented.toggle()
-                    } label: {
-                        AppImages.iconX
-                            .bold()
-                            .foregroundStyle(.secondary)
-                            .padding(5)
-                            .background(.ultraThinMaterial)
-                            .clipShape(.circle)
-                    }
-                    .padding()
-                }
-                .fullScreenCover(isPresented: $viewModel.showEditView) {
-                    viewModel.showEditView = false
-                } content: {
-                    EditEventView(viewModel: EditEventViewModel(event: viewModel.event, networkManager: AdminNetworkManager(errorManager: viewModel.errorManager)))
-                }
-                .fullScreenCover(isPresented: $viewModel.showNewEvetnView) {
-                    viewModel.showNewEvetnView = false
-                } content: {
-                    NewEventView(viewModel: NewEventViewModel(place: nil, copy: viewModel.event, networkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager), authenticationManager: authenticationManager)
-                }
-            }
-        }
-    }
-    
-    // MARK: - Views
-    
-    private var listView: some View {
-        GeometryReader { geometry in
-            let width = geometry.size.width
-            List {
-                ZStack() {
-                    if viewModel.event.poster != nil {
-                        if !viewModel.isPosterLoaded {
-                            if let image = viewModel.event.image  {
-                                image
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: width)
-                                    .clipped()
-                            }  else {
-                                Color.red
-                                    .frame(width: width, height: (width / 4) * 3)
-                            }
-                        } else {
-                            if let image = viewModel.image  {
-                                image
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: width)
-                                    .clipped()
-                            }
-                        }
-                    }
-                }
-                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                .ignoresSafeArea(.all, edges: .top)
-                .listRowSeparator(.hidden)
-                .onAppear() {
-                    
-                    // TODO!!!!!!!!!!!!!!!!!
-                    // убрать во вью модель
-                    Task {
-                        if let url = viewModel.event.poster {
-                            if let image = await ImageLoader.shared.loadImage(urlString: url) {
-                                await MainActor.run {
-                                    viewModel.image = image
-                                    viewModel.event.image = image
-                                    viewModel.isPosterLoaded = true
-                                }
-                            }
-                        }
-                    }
-                }
-                
-                Section {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(viewModel.event.name)
-                            .font(.title2).bold()
-                            .foregroundColor(.primary)
-                        Text(viewModel.event.address)
-                            .font(.body)
-                            .foregroundColor(.secondary)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                    }
-                    
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                }
-                .padding()
-                .listRowSeparator(.hidden)
-                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                
-                HStack(alignment: .top) {
-                    VStack(alignment: .leading) {
-                        Text("Start")
-                            .font(.title2)
-                            .bold()
-                            .offset(x: 30)
-                        HStack(spacing: 10) {
-                            AppImages.iconCalendar
                                 .resizable()
                                 .scaledToFit()
-                                .foregroundStyle(AppColors.lightGray5)
-                                .frame(width: 20, height: 20, alignment: .leading)
-                            Text(viewModel.event.startDate.formatted(date: .abbreviated, time: .omitted))
-                                .font(.callout)
+                                .frame(width: 25, height: 25, alignment: .leading)
+                                .foregroundStyle(.primary)
+                                .padding()
+                                .background(viewModel.showInfo ? .ultraThickMaterial : .ultraThinMaterial)
+                                .clipShape(.circle)
                         }
-                        if let startTime = viewModel.event.startTime {
-                            HStack {
-                                AppImages.iconClock
-                                    .resizable()
-                                    .scaledToFit()
-                                    .foregroundStyle(AppColors.lightGray5)
-                                    .frame(width: 20, height: 20, alignment: .leading)
-                                Text(startTime.formatted(date: .omitted, time: .shortened))
-                                    .font(.callout)
-                            }
+                        .fullScreenCover(isPresented: $viewModel.showEditView) {
+                            viewModel.showEditView = false
+                        } content: {
+                            EditEventView(viewModel: EditEventViewModel(eventID: viewModel.event.id, event: viewModel.event, networkManager: AdminNetworkManager(errorManager: viewModel.errorManager)))
+                        }
+                        .fullScreenCover(isPresented: $viewModel.showNewEvetnView) {
+                            viewModel.showNewEvetnView = false
+                        } content: {
+                            NewEventView(viewModel: NewEventViewModel(place: nil, copy: viewModel.event, networkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager), authenticationManager: authenticationManager)
                         }
                     }
-                    .padding()
-                    .foregroundColor(.primary)
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    
-                    if let finishDate = viewModel.event.finishDate {
-                        VStack(alignment: .leading) {
-                            Text("Finish")
-                                .font(.title2)
-                                .bold()
-                                .offset(x: 30)
-                            HStack(spacing: 10) {
-                                AppImages.iconCalendar
-                                    .resizable()
-                                    .scaledToFit()
-                                    .foregroundStyle(AppColors.lightGray5)
-                                    .frame(width: 20, height: 20, alignment: .leading)
-                                Text(finishDate.formatted(date: .abbreviated, time: .omitted))
-                                    .font(.callout)
-                            }
-                            if let finishTime = viewModel.event.finishTime {
-                                HStack {
-                                    AppImages.iconClock
-                                        .resizable()
-                                        .scaledToFit()
-                                        .foregroundStyle(AppColors.lightGray5)
-                                        .frame(width: 20, height: 20, alignment: .leading)
-                                    Text(finishTime.formatted(date: .omitted, time: .shortened))
-                                        .font(.callout)
-                                }
-                            }
+                    Button {
+                        // douplicate button - to do function
+                        viewModel.event.isLiked.toggle()
+                        guard let user = authenticationManager.appUser else { return }
+                        if user.likedEvents.contains(where: {$0 == viewModel.event.id} ) {
+                            user.likedEvents.removeAll(where: {$0 == viewModel.event.id})
+                        } else {
+                            user.likedEvents.append(viewModel.event.id)
                         }
-                        .padding()
-                        .foregroundColor(.primary)
-                        .frame(maxWidth: .infinity, alignment: .center)
+                    } label: {
+                        Image(systemName: viewModel.event.isLiked ? "heart.fill" : "heart")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 25, height: 25, alignment: .leading)
+                            .foregroundStyle(.red)
+                            .symbolEffect(.bounce.up.byLayer, value: viewModel.event.isLiked)
+                            .padding()
+                            .background(viewModel.showInfo ? .ultraThickMaterial : .ultraThinMaterial)
+                            .clipShape(.circle)
                     }
                 }
-                .padding()
-                .listRowSeparator(.hidden)
-                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                
-                TagsView(tags: viewModel.event.tags)
-                    .padding(.bottom)
-                    .listRowSeparator(.hidden)
-                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                
+                .frame(maxWidth: .infinity)
+                .padding(.horizontal)
+            }
+            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+            .listRowSeparator(.hidden)
+            .listRowBackground(Color.clear)
+            
+            Section {
                 if let about = viewModel.event.about {
                     Text(about)
                         .font(.callout)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.primary)
+                        .lineSpacing(9)
+                        .frame(maxWidth: .infinity, alignment: .center)
                         .padding()
-                        .padding(.bottom, 40)
-                        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                    //    .listRowSeparator(.hidden)
+                        .padding(.vertical, 40)
                 }
-                
-                if viewModel.event.isFree {
-                    //todo
-                    Text("Free event")
+                if !viewModel.event.tags.isEmpty {
+                    TagsView(tags: viewModel.event.tags)
                         .padding()
-                        .listRowSeparator(.hidden)
-                        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                } else {
-                    Section {
-                        if let fee = viewModel.event.fee {
-                            Text(fee)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                    .padding()
-                    .listRowSeparator(.hidden)
-                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                    
                 }
-                
-                VStack(spacing: 10) {
+            }
+            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+            .listRowSeparator(.hidden)
+            .listRowBackground(Color.clear)
+            
+            Section {
+                VStack {
                     if let phone = viewModel.event.phone {
                         Button {
                             viewModel.call(phone: phone)
@@ -282,12 +331,14 @@ struct EventView: View {
                             }
                         }
                         .padding()
-                        .foregroundColor(.black)
-                        .background(AppColors.lightGray6)
+                        .foregroundStyle(.primary)
+                        .background(viewModel.showInfo ? .ultraThickMaterial : .ultraThinMaterial)
                         .clipShape(Capsule(style: .continuous))
-                        .buttonStyle(.borderless)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .padding(.bottom)
                     }
-                    HStack {
+                    
+                    HStack(spacing: 10) {
                         if let tickets = viewModel.event.tickets {
                             Button {
                                 viewModel.goToWebSite(url: tickets)
@@ -303,11 +354,11 @@ struct EventView: View {
                                 }
                             }
                             .padding()
-                            .foregroundColor(.primary)
-                            .background(AppColors.lightGray6)
+                            .foregroundStyle(.primary)
+                            .background(viewModel.showInfo ? .ultraThickMaterial : .ultraThinMaterial)
                             .clipShape(Capsule(style: .continuous))
-                            .buttonStyle(.borderless)
                         }
+                        
                         if let www = viewModel.event.www {
                             Button {
                                 viewModel.goToWebSite(url: www)
@@ -322,12 +373,13 @@ struct EventView: View {
                                         .bold()
                                 }
                             }
-                            .buttonStyle(.borderless)
-                            .foregroundColor(.primary)
                             .padding()
-                            .background(AppColors.lightGray6)
+                            .foregroundStyle(.primary)
+                            .background(viewModel.showInfo ? .ultraThickMaterial : .ultraThinMaterial)
                             .clipShape(Capsule(style: .continuous))
                         }
+                        
+                        
                         if let facebook = viewModel.event.facebook {
                             Button {
                                 viewModel.goToWebSite(url: facebook)
@@ -336,12 +388,11 @@ struct EventView: View {
                                     .resizable()
                                     .scaledToFit()
                                     .frame(width: 25, height: 25, alignment: .leading)
+                                    .foregroundStyle(.primary)
+                                    .padding()
+                                    .background(viewModel.showInfo ? .ultraThickMaterial : .ultraThinMaterial)
+                                    .clipShape(.circle)
                             }
-                            .buttonStyle(.borderless)
-                            .foregroundColor(.primary)
-                            .padding()
-                            .background(AppColors.lightGray6)
-                            .clipShape(.circle)
                         }
                         
                         if let instagram = viewModel.event.instagram {
@@ -352,100 +403,148 @@ struct EventView: View {
                                     .resizable()
                                     .scaledToFit()
                                     .frame(width: 25, height: 25, alignment: .leading)
+                                    .foregroundStyle(.primary)
+                                    .padding()
+                                    .background(viewModel.showInfo ? .ultraThickMaterial : .ultraThinMaterial)
+                                    .clipShape(.circle)
                             }
-                            .buttonStyle(.borderless)
-                            .foregroundColor(.primary)
-                            .padding()
-                            .background(AppColors.lightGray6)
-                            .clipShape(.circle)
                         }
                     }
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(.bottom)
+                    
                 }
                 .frame(maxWidth: .infinity, alignment: .center)
-                .padding()
-                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                .listSectionSeparator(.hidden)
-                .listRowBackground(AppColors.background)
                 
-                if let place = viewModel.event.place {
-                    VStack( alignment: .leading, spacing: 0) {
-                        Text("Location:")
-                            .bold()
-                            .foregroundStyle(.secondary)
-                            .offset(x: 70)
-                        HStack(spacing: 20) {
-                            if let url = place.avatar {
-                                ImageLoadingView(url: url, width: 50, height: 50, contentMode: .fill) {
-                                    Color.orange
-                                }
-                                .background(.regularMaterial)
-                                .mask(Circle())
-                            } else {
-                                Text(place.type.getImage())
-                                    .frame(width: 50, height: 50)
-                                    .background(.regularMaterial)
-                                    .mask(Circle())
-                            }
-                            VStack(alignment: .leading, spacing: 4) {
-                                HStack(alignment: .firstTextBaseline, spacing: 4) {
-                                    if place.isLiked {
-                                        AppImages.iconHeartFill
-                                            .font(.body)
-                                            .foregroundColor(.red)
+                map(size: size)
+                    .padding(.top)
+                    .padding(.top)
+                
+                if (viewModel.event.owner != nil || viewModel.event.place != nil) {
+                    Text(viewModel.event.owner != nil && viewModel.event.place != nil ? "Organizers:" : "Organizer:")
+                        .bold()
+                        .foregroundStyle(.secondary)
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .padding(.top)
+                    
+                    VStack(alignment: .leading, spacing: 10) {
+                        if let owner = viewModel.event.owner {
+                            HStack(spacing: 20) {
+                                if let url = owner.photo {
+                                    ImageLoadingView(url: url, width: 50, height: 50, contentMode: .fill) {
+                                        AppColors.lightGray6
                                     }
-                                    Text(place.name)
+                                    .background(.regularMaterial)
+                                    .clipShape(Circle())
+                                    .overlay(Circle().stroke(.ultraThinMaterial, lineWidth: 1))
+                                } else {
+                                    if viewModel.event.place != nil {
+                                        Color.clear
+                                            .frame(width: 50, height: 50)
+                                    }
+                                }
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(owner.name)
                                         .multilineTextAlignment(.leading)
                                         .font(.body)
                                         .bold()
-                                        .foregroundColor(.primary)
-                                    
-                                    
+                                        .foregroundStyle(.primary)
+                                    if let bio = owner.bio {
+                                        Text(bio)
+                                            .font(.footnote)
+                                            .foregroundStyle(.secondary)
+                                            .multilineTextAlignment(.leading)
+                                    }
                                 }
-                                Text(place.type.getName())
-                                    .font(.footnote)
-                                    .foregroundColor(.secondary)
                             }
-                            Spacer()
-                            
                         }
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                        if let place = viewModel.event.place {
+                            NavigationLink {
+                                PlaceView(place: place, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, authenticationManager: authenticationManager, placeDataManager: PlaceDataManager(), eventDataManager: EventDataManager(), showOpenInfo: false)
+                            } label: {
+                                HStack(spacing: 20) {
+                                    if let url = place.avatar {
+                                        ImageLoadingView(url: url, width: 50, height: 50, contentMode: .fill) {
+                                            AppColors.lightGray6
+                                        }
+                                        .background(.regularMaterial)
+                                        .clipShape(Circle())
+                                        .overlay(Circle().stroke(.ultraThinMaterial, lineWidth: 1))
+                                        
+                                    } else {
+                                        if viewModel.event.owner != nil {
+                                            Color.clear
+                                                .frame(width: 50, height: 50)
+                                        }
+                                    }
+                                    
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        HStack(spacing: 10) {
+                                            Text(place.name)
+                                                .multilineTextAlignment(.leading)
+                                                .font(.body)
+                                                .bold()
+                                                .foregroundColor(.primary)
+                                            AppImages.iconHeartFill
+                                                .font(.body)
+                                                .foregroundColor(.red)
+                                        }
+                                        Text(place.type.getName())
+                                            .font(.footnote)
+                                            .foregroundColor(.secondary)
+                                    }
+                                }
+                            }
+                        }
                     }
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                    .listRowSeparator(.hidden)
-                    //                .onTapGesture {
-                    //                    self.place = place
-                    //                }
+                    .padding(.horizontal)
+                    .frame(maxWidth: .infinity, alignment: .center)
                     
+                    //TODO: - upcoming events from organizers
                 }
+                // TODO:
+                //                Section {
+                //                    Button {
+                //                        EventNetworkManager.sendComplaint(eventId: Int, user: AppUser, reason: String) async throws
+                //                    } label: {
+                //                        Text("Пожаловаться")
+                //                    }
+                //
+                //                }
                 
-                map
+                Color.clear
+                    .frame(height: 50)
             }
-            .listStyle(.plain)
-            .scrollIndicators(.hidden)
-            .scrollContentBackground(.hidden)
-            .background(AppColors.background)
+            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+            .listRowSeparator(.hidden)
+            .listRowBackground(Color.clear)
         }
+        .listStyle(.plain)
+        .listSectionSeparator(.hidden)
+        .scrollIndicators(.hidden)
+        
     }
     
-    private var map: some View {
-        VStack {
-            Map(position: $viewModel.position, interactionModes: []) {
-                Marker("", monogram: Text("🎉"), coordinate: viewModel.event.coordinate)
-                    .tint(.red)
-            }
-            .mapStyle(.standard(elevation: .flat, pointsOfInterest: .including([.publicTransport])))
-            .mapControlVisibility(.hidden)
-            .frame(height: 300)
-            .clipShape(RoundedRectangle(cornerRadius: 0))
-            .onAppear {
-                viewModel.position = .camera(MapCamera(centerCoordinate: viewModel.event.coordinate, distance: 500))
-            }
+    @ViewBuilder
+    private func map(size: CGSize) -> some View {
+        Map(position: $viewModel.position, interactionModes: []) {
+            Marker("", monogram: Text(viewModel.event.address), coordinate: viewModel.event.coordinate)
+                .tint(.red)
+        }
+        .mapStyle(.standard(elevation: .flat, pointsOfInterest: .including([.publicTransport])))
+        .mapControlVisibility(.hidden)
+        .frame(maxWidth: .infinity)
+        .frame(height: size.height / 2)
+        .padding(.vertical)
+        
+        HStack {
             Text(viewModel.event.address)
                 .font(.callout)
                 .foregroundColor(.secondary)
-                .padding()
+                .bold()
+                .multilineTextAlignment(.leading)
+                .frame(maxWidth: .infinity)
             Button {
                 viewModel.goToMaps()
             } label: {
@@ -460,17 +559,13 @@ struct EventView: View {
                 }
             }
             .padding()
-            .foregroundColor(.primary)
-            .background(AppColors.lightGray6)
+            .foregroundStyle(.primary)
+            .background(.ultraThickMaterial)
             .clipShape(Capsule(style: .continuous))
-            .buttonStyle(.borderless)
-            .padding(.bottom, 40)
         }
-        .listRowSeparator(.hidden)
-        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+        .padding(.horizontal)
+        .padding(.bottom)
     }
 }
 
-//#Preview {
-//    EventView()
-//}
+ 

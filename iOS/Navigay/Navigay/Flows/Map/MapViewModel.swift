@@ -7,37 +7,49 @@
 
 import SwiftUI
 import MapKit
+import SwiftData
 
 final class MapViewModel: ObservableObject {
 
-    @Binding var showMap: Bool
-    @Binding var events: [Event]
-    @Binding var places: [Place]
-    @Binding var categories: [SortingMapCategory]
-    @Binding var selectedCategory: SortingMapCategory
+    let events: [Event]
+    let places: [Place]
+    let categories: [SortingCategory]
+    
+    @Published var selectedCategory: SortingCategory = .all
     
     @Published var filteredPlaces: [Place] = []
     @Published var filteredEvents: [Event] = []
     
-    @Published var selectedTag: UUID? = nil //!!!!!!!!!!!!!!!
+    @Published var selectedTag: UUID? = nil
     @Published var selectedPlace: Place? = nil
     @Published var selectedEvent: Event? = nil
     
     @Published var showInfo: Bool = false
-    @Published  var position: MapCameraPosition = .automatic
+    @Published var position: MapCameraPosition = .automatic
     
-    init(showMap: Binding<Bool>, events: Binding<[Event]>, places: Binding<[Place]>, categories: Binding<[SortingMapCategory]>, selectedCategory: Binding<SortingMapCategory>) {
-        _showMap = showMap
-        _events = events
-        _places = places
-        _categories = categories
-        _selectedCategory = selectedCategory
+    var modelContext: ModelContext
+    let placeDataManager: PlaceDataManagerProtocol
+    let eventDataManager: EventDataManagerProtocol
+    let eventNetworkManager: EventNetworkManagerProtocol
+    let placeNetworkManager: PlaceNetworkManagerProtocol
+    let errorManager: ErrorManagerProtocol
+    
+    init(events: [Event], places: [Place], categories: [SortingCategory], modelContext: ModelContext, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol, placeDataManager: PlaceDataManagerProtocol, eventDataManager: EventDataManagerProtocol) {
+        self.events = events
+        self.places = places
+        self.categories = categories
+        self.modelContext = modelContext
+        self.eventNetworkManager = eventNetworkManager
+        self.placeNetworkManager = placeNetworkManager
+        self.errorManager = errorManager
+        self.placeDataManager = placeDataManager
+        self.eventDataManager = eventDataManager
     }
 }
 
 extension MapViewModel {
     
-    func filterLocations(category: SortingMapCategory) {
+    func filterLocations(category: SortingCategory) {
         selectedPlace = nil
         selectedEvent = nil
         selectedTag = nil
@@ -83,53 +95,15 @@ extension MapViewModel {
         case .rights:
             getPlaces(type: .rights)
         }
-        withAnimation(.spring()) {
-            if filteredPlaces.count == 1, let place = filteredPlaces.first {
-                selectedTag = place.tag
-                showInfo = true
-            } else if filteredPlaces.isEmpty, filteredEvents.count == 1, let event = filteredEvents.first {
-                selectedTag = event.tag
-                showInfo = true
-            } else {
-                position  = .automatic
-                showInfo = false
-            }
+        withAnimation {
+            position  = .automatic
+            showInfo = false
         }
     }
     
     private func getPlaces(type: PlaceType) {
         filteredPlaces = places.filter( { $0.type == type } )
         filteredEvents = []
-//        let newFilteredPlaces = places.filter { $0.type == type }
-//        
-//        // Retain or add filteredPlaces that are present in the original places array
-//        var updatedFilteredPlaces: [Place] = []
-//        
-//        filteredPlaces.forEach { place in
-//            
-//            if pla
-//            
-//            
-//        }
-//        
-//        for filteredPlace in filteredPlaces {
-//            
-//            for newFilteredPlace in newFilteredPlaces {
-//                
-//                if
-//                
-//                if let matchingPlace = places.first(where: { $0 == filteredPlace }) {
-//                    updatedFilteredPlaces.append(matchingPlace)
-//                } else {
-//                    
-//                }
-//                
-//            }
-//            
-//        }
-//        
-//        self.filteredPlaces = updatedFilteredPlaces
-//        self.filteredEvents = []
     }
 }
 

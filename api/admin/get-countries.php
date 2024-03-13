@@ -44,8 +44,8 @@ if ($result->num_rows === 0) {
 
 $row = $result->fetch_assoc();
 
-$status = $row['status'];
-if (!($status === "admin")) {
+$status = isset($row['status']) ? $row['status'] : '';
+if (!($status === "admin" || $status === "moderator")) {
     $conn->close();
     sendError('Admin access only.');
 }

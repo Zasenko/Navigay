@@ -10,19 +10,17 @@ import SwiftData
 
 struct EventCell: View {
     
-    @ObservedObject var authenticationManager: AuthenticationManager
     
     // MARK: - Private Properties
     
-    private let event: Event
-    private let showCountryCity: Bool
-    private let showStartDayInfo: Bool
-    private let showStartTimeInfo: Bool
+    let event: Event
+    let showCountryCity: Bool
+    let showStartDayInfo: Bool
+    let showStartTimeInfo: Bool
     
     @State private var image: Image? = nil
-    @State private var isShowEvent: Bool = false
 
-    private let width: CGFloat
+   // let width: CGFloat
     
     private var formattedDate: AttributedString {
         var formattedDate: AttributedString = event.startDate.formatted(Date.FormatStyle().month(.abbreviated).day().weekday(.wide).attributed)
@@ -31,67 +29,23 @@ struct EventCell: View {
       //  formattedDate.replaceAttributes(dayOfWeek, with: color)
         return formattedDate
     }
-    
-    private var modelContext: ModelContext
-    private let placeNetworkManager: PlaceNetworkManagerProtocol
-    private let eventNetworkManager: EventNetworkManagerProtocol
-    private let errorManager: ErrorManagerProtocol
-    
-    // MARK: - Init
-    
-    init(event: Event, width: CGFloat, modelContext: ModelContext, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol, showCountryCity: Bool, authenticationManager: AuthenticationManager, showStartDayInfo: Bool, showStartTimeInfo: Bool) {
-        self.event = event
-        self.width = width
-        self.modelContext = modelContext
-        self.eventNetworkManager = eventNetworkManager
-        self.placeNetworkManager = placeNetworkManager
-        self.errorManager = errorManager
-        self.showCountryCity = showCountryCity
-        self.authenticationManager = authenticationManager
-        self.showStartDayInfo = showStartDayInfo
-        self.showStartTimeInfo = showStartTimeInfo
-    }
-    
+
     // MARK: - Body
     
     var body: some View {
-        Button {
-            isShowEvent = true
-        } label: {
-            eventPosterLable
-        }
-        .sheet(isPresented: $isShowEvent) {
-            isShowEvent = false
-        } content: {
-            EventView(isEventViewPresented: $isShowEvent, event: event, modelContext: modelContext, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, authenticationManager: authenticationManager)
-                .presentationDragIndicator(.hidden)
-                .presentationDetents([.large])
-                .presentationCornerRadius(25)
-        }
-    }
-    
-    // MARK: - Views
-    
-    private var eventPosterLable: some View {
         VStack(alignment: .center, spacing: 0) {
             ZStack(alignment: .topTrailing) {
-                if let url = event.smallPoster {
-                    Group {
-                        if let image = image  {
-                            image
+                    ZStack {
+                            image?
                                 .resizable()
-                                .scaledToFill()
-                                .frame(width: width, height: width)
-                                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-                                .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous).stroke(AppColors.lightGray5, lineWidth: 1))
-                        } else {
-                            AppColors.lightGray6
-                                .frame(width: width, height: width)
-                                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-                        }
+                                .aspectRatio(contentMode: .fit)
+                                .clipShape(Rectangle())
+                                .overlay(Rectangle().stroke(AppColors.lightGray5, lineWidth: 1))
+                                .transition(.scale.animation(.easeInOut))
                     }
                     .onAppear() {
                         Task {
+                            guard let url = event.smallPoster else { return } 
                             if let image = await ImageLoader.shared.loadImage(urlString: url) {
                                 await MainActor.run {
                                     self.image = image
@@ -100,15 +54,28 @@ struct EventCell: View {
                             }
                         }
                     }
-                }
+                    .onChange(of: event.smallPoster) { oldValue, newValue in
+                        Task {
+                            guard let url = newValue else {
+                                return
+                            }
+                            
+                            if let image = await ImageLoader.shared.loadImage(urlString: url) {
+                                await MainActor.run {
+                                    self.image = image
+                                  //  self.event.image = image
+                                }
+                            }
+                        }
+                    }
+
                 if event.isFree {
                     Text("free")
                         .font(.footnote)
                         .bold()
-                        .foregroundColor(.white)
+                        .foregroundColor(AppColors.background)
                         .padding(5)
                         .padding(.horizontal, 5)
-                        .foregroundColor(.white)
                         .background(.green)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
@@ -118,13 +85,23 @@ struct EventCell: View {
                     .font(.footnote)
                     .bold()
                     .foregroundColor(.primary)
-                    .lineLimit(1)
+                    .lineSpacing(-10)
+                    .multilineTextAlignment(.center)
+                   // .lineLimit(1)
+                
+                if (showStartDayInfo || event.location != nil || showCountryCity) {
+                    Color.clear
+                        .frame(height: 5)
+                }
+                
                 if showStartDayInfo {
                     Text(formattedDate)
                         .bold()
-                        .font(.footnote)
+                        .font(.caption)
                         .foregroundStyle(.secondary)
-                        .lineLimit(1)
+                        .lineSpacing(-10)
+                        .multilineTextAlignment(.center)
+                      //  .lineLimit(1)
                 }
 //                if showStartTimeInfo {
 //                    Text(stringForToday())
@@ -134,8 +111,9 @@ struct EventCell: View {
                 if let location = event.location {
                     Text(location)
                         .font(.caption)
-                        .lineLimit(1)
                         .foregroundStyle(.secondary)
+                        .lineSpacing(-10)
+                        .multilineTextAlignment(.center)
                 }
                 if showCountryCity {
                     HStack(spacing: 5) {
@@ -148,10 +126,12 @@ struct EventCell: View {
                     .foregroundColor(.secondary)
                 }
             }
-            .padding(.top, 5)
+            .padding(.vertical, 10)
         }
-        
+        .background(AppColors.lightGray6)
+        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))        
     }
+
     
     //TODO: неправильная сортировка!
 //    private func stringForToday() -> String {

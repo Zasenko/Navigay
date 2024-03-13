@@ -82,6 +82,7 @@ struct CalendarView: View {
                 Text("Show upcoming events")
             }
         }
+        .background(.ultraThinMaterial)
         .onChange(of: eventsDates, initial: true) { _, newValue in
             if let maxDate = newValue.max() {
                 maxEventDate = maxDate

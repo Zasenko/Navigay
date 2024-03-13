@@ -11,13 +11,17 @@ struct WelcomeView: View {
     
     // MARK: - Properties
     
-    @ObservedObject var authenticationManager: AuthenticationManager
+    @EnvironmentObject private var authenticationManager: AuthenticationManager
     let onFinish: () -> Void
     
     // MARK: - Private Properties
     
     @State private var showLoginView = false
     @State private var showRegistrationView = false
+    
+    init(onFinish: @escaping () -> Void) {
+        self.onFinish = onFinish
+    }
     
     // MARK: - Body
     
@@ -46,7 +50,7 @@ struct WelcomeView: View {
                     AppImages.iconX
                         .bold()
                         .frame(width: 30, height: 30)
-                        .foregroundColor(.primary)
+                        .foregroundStyle(.primary)
                     Text("skip")
                     
                         .font(.subheadline)

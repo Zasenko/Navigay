@@ -35,16 +35,14 @@ $types = "i";
 $stmt = executeQuery($conn, $sql, $params, $types);
 $result = $stmt->get_result();
 $stmt->close();
-
 if ($result->num_rows === 0) {
     $conn->close();
     sendError('User not found.');
 }
-
 $row = $result->fetch_assoc();
 
 $status = isset($row['status']) ? $row['status'] : '';
-if (!($status === "admin")) {
+if (!($status === "admin" || $status === "moderator")) {
     $conn->close();
     sendError('Admin access only.');
 }

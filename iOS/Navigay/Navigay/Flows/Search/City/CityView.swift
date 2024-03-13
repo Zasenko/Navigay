@@ -83,7 +83,7 @@ struct CityView: View {
             }
             
             if viewModel.actualEvents.count > 0 {
-                EventsView(modelContext: viewModel.modelContext, authenticationManager: authenticationManager, selectedDate: $viewModel.selectedDate, displayedEvents: $viewModel.displayedEvents, actualEvents: $viewModel.actualEvents, todayEvents: $viewModel.todayEvents, upcomingEvents: $viewModel.upcomingEvents, eventsDates: $viewModel.eventsDates, size: size, eventDataManager: viewModel.eventDataManager, eventNetworkManager: viewModel.eventNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, errorManager: viewModel.errorManager)
+                EventsView(modelContext: viewModel.modelContext, selectedDate: $viewModel.selectedDate, displayedEvents: $viewModel.displayedEvents, actualEvents: $viewModel.actualEvents, todayEvents: $viewModel.todayEvents, upcomingEvents: $viewModel.upcomingEvents, eventsDates: $viewModel.eventsDates, showCalendar: $viewModel.showCalendar, size: size, eventDataManager: viewModel.eventDataManager, eventNetworkManager: viewModel.eventNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, errorManager: viewModel.errorManager)
                     .listRowSeparator(.hidden)
                     .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
             }
@@ -165,15 +165,18 @@ struct CityView: View {
 
 struct CapsuleSmall: ViewModifier {
     
-    let background: Color
     let foreground: Color
+    
+    init(foreground: Color = .primary) {
+        self.foreground = foreground
+    }
     
     func body(content: Content) -> some View {
         content
             .padding(5)
             .padding(.horizontal, 5)
             .foregroundColor(foreground)
-            .background(background)
+            .background(.ultraThinMaterial)
             .clipShape(Capsule(style: .continuous))
     }
 }

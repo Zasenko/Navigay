@@ -12,53 +12,80 @@ final class EditEventViewModel: ObservableObject {
     //MARK: - Properties
 
     let id: Int
-    //TODO: поля не соответствуют Event (просто скопированно с Place) - доделать полностью редактирование
+    let event: Event?
+
+    @Published var eventDidLoad: Bool = false
+    
+    @Published var isLoading: Bool = false
+
     @Published var name: String = ""
-    @Published var type: EventType? = nil
-    @Published var isoCountryCode: String = ""
+    @Published var type: EventType = .other
+    @Published var isoCountryCode: String? = nil
+    @Published var countryId: Int? = nil
+    @Published var regionId: Int? = nil
+    @Published var cityId: Int? = nil
+    @Published var latitude: Double = 0
+    @Published var longitude: Double = 0
     @Published var address: String = ""
-    @Published var latitude: Double? = nil
-    @Published var longitude: Double? = nil
-    @Published var tags: [Tag] = []
+    @Published var startDate: Date = .now
+    @Published var startTime: Date? = nil
+    @Published var finishDate: Date? = nil
+    @Published var finishTime: Date? = nil
+    @Published var location: String = ""
     @Published var about: String = ""
+    @Published var isFree: Bool = false
+    @Published var fee: String = ""
+    @Published var tickets: String = ""
+    @Published var tags: [Tag] = []
     @Published var phone: String = ""
     @Published var email: String = ""
     @Published var www: String = ""
     @Published var facebook: String = ""
     @Published var instagram: String = ""
-    @Published var isOwned: Bool = false
     @Published var isActive: Bool = false
     @Published var isChecked: Bool = false
     
-//    @Published var avatar: AdminPhoto?
-//    @Published var mainPhoto: AdminPhoto?
-//    @Published var photos: [AdminPhoto] = []
+    @Published var createdAt: String = ""
+    @Published var updatedAt: String = ""
     
-//    @Published var showMap: Bool = false // TODO! убрать
-//    @Published var isLoading: Bool = false
     
-    let networkManager: AdminNetworkManagerProtocol
-//
-//    // MARK: - Inits
-//
-    init(event: Event, networkManager: AdminNetworkManagerProtocol) {
-        debugPrint("init EditEventViewModel event id: \(event.id)")
+    @Published var isLoadingPoster: Bool = false
+    @Published var poster: AdminPhoto?
+    @Published var smallPoster: AdminPhoto?
+    
+    @Published var countryOrigin: String? = nil
+    @Published var countryEnglish: String? = nil
+    @Published var regionOrigin: String? = nil
+    @Published var regionEnglish: String? = nil
+    @Published var cityOrigin: String? = nil
+    @Published var cityEnglish: String? = nil
+    
+    
+  //  @Published var showPicker: Bool = false
+//    @Published var pickerImage: UIImage? {
+//        didSet {
+//            if let pickerImage {
+//                loadPoster(uiImage: pickerImage)
+//            }
+//        }
+//    }
+    
+    @Published var showEditPosterView: Bool = false
+    @Published var showDeleteSheet: Bool = false
+    
+   // @Published var showEditTitle: Bool = false
+    
+    //TODO Объеденить из AdminNetworkManagerProtocol в eventNetworkManager
+  let networkManager: AdminNetworkManagerProtocol
+    let eventNetworkManager: EventNetworkManagerProtocol = EventNetworkManager(appSettingsManager: AppSettingsManager(), errorManager: ErrorManager())
+    
+    // MARK: - Inits
+
+    init(eventID: Int, event: Event?, networkManager: AdminNetworkManagerProtocol) {
+        debugPrint("init EditEventViewModel event id: \(eventID)")
         self.networkManager = networkManager
-        self.id = event.id
-        self.name = event.name
-        self.type = event.type
-        self.address = event.address
-        self.latitude = event.latitude
-        self.longitude = event.longitude
-        self.tags = event.tags
-        self.about = event.about ?? ""
-        self.phone = event.phone ?? ""
-        self.www = event.www ?? ""
-        self.facebook = event.facebook ?? ""
-        self.instagram = event.instagram ?? ""
-       // self.isActive = event.isActive
-//        self.avatar = AdminPhoto(id: UUID().uuidString, image: nil, url: place.avatar)
-//        self.mainPhoto = AdminPhoto(id: UUID().uuidString, image: nil, url: place.mainPhoto)
+        self.event = event
+        self.id = eventID
     }
 }
 
@@ -66,24 +93,84 @@ extension EditEventViewModel {
     
     //MARK: - Functions
     
-    func fetchEvent() {
-//        Task {
-//            guard let decodedPlace = await networkManager.fetchPlace(id: id) else {
-//                //TODO!!!!!!!!!!!! на вью назад
-//                return
-//            }
-//            await MainActor.run {
-//                self.email = decodedPlace.email ?? ""
-//                self.isChecked = decodedPlace.isChecked
-//                if let photos = decodedPlace.photos, !photos.isEmpty {
-//                    let adminPhotos = photos.compactMap( { AdminPhoto(id: $0.id, image: nil, url: $0.url)})
-//                    self.photos = adminPhotos
-//                } else {
-//                    self.photos = []
-//                }
-//            }
-//        }
+    func fetchEvent(for user: AppUser) {
+        isLoading = true
+        Task {
+            do {
+                let event = try await networkManager.fetchEvent(id: id, for: user)
+                await MainActor.run {
+                    self.name = event.name
+                    self.type = event.type
+                    self.countryId = event.countryId
+                    self.regionId = event.regionId
+                    self.cityId = event.cityId
+                    self.latitude = event.latitude ?? 0.0
+                    self.longitude = event.longitude ?? 0.0
+                    self.address = event.address ?? ""
+                    self.startDate = event.startDate.dateFromString(format: "yyyy-MM-dd") ?? .now
+                    self.startTime = event.startTime?.dateFromString(format: "HH:mm:ss")
+                    self.finishDate = event.finishDate?.dateFromString(format: "yyyy-MM-dd")
+                    self.finishTime = event.finishTime?.dateFromString(format: "HH:mm:ss")
+                    self.location = event.location ?? ""
+                    self.about = event.about ?? ""
+                    self.poster = AdminPhoto(id: UUID().uuidString, image: nil, url: event.poster)
+                    self.smallPoster = AdminPhoto(id: UUID().uuidString, image: nil, url: event.smallPoster)
+                    self.isFree = event.isFree
+                    self.tickets = event.tickets ?? ""
+                    self.fee = event.fee ?? ""
+                    self.email = event.email ?? ""
+                    self.phone = event.phone ?? ""
+                    self.www = event.www ?? ""
+                    self.facebook = event.facebook ?? ""
+                    self.instagram = event.instagram ?? ""
+                    self.tags = event.tags ?? []
+                    self.isActive = event.isActive
+                    self.isChecked = event.isChecked
+                    self.createdAt = event.createdAt
+                    self.updatedAt = event.updatedAt
+                    
+                    self.eventDidLoad = true
+                    self.isLoading = false
+                }
+            } catch {
+                debugPrint(error)
+                self.isLoading = false
+            }
+        }
     }
+    
+    func updateTitle() {
+    }
+    
+    func updateAbout() {
+    }
+    
+    func updatePoster(user: AppUser, uiImage: UIImage) {
+        self.isLoadingPoster = true
+        Task {
+            do {
+                let scaledImage = uiImage.cropImage(maxWidth: 750, maxHeight: 750)
+                let scaledSmallImage = uiImage.cropImage(maxWidth: 350, maxHeight: 350)
+                let urls = try await eventNetworkManager.updatePoster(eventId: id, poster: scaledImage, smallPoster: scaledSmallImage, user: user)
+                let image = Image(uiImage: uiImage)
+                await MainActor.run {
+                    self.poster = AdminPhoto(id: UUID().uuidString, image: image, url: urls.posterUrl)
+                    self.smallPoster = AdminPhoto(id: UUID().uuidString, image: image, url: urls.smallPosterUrl)
+                    if let event {
+                        event.poster = urls.posterUrl
+                        event.smallPoster = urls.smallPosterUrl
+                        event.image = image
+                    }
+                    self.isLoadingPoster = false
+                }
+            } catch {
+                debugPrint("ERROR - updateAvatar: ", error)
+                // errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
+                self.isLoadingPoster = false
+            }
+        }
+    }
+    
     
 //    func updateInfo() async -> Bool {
 //        let errorModel = ErrorModel(massage: "Something went wrong. The city didn't update in database. Please try again later.", img: nil, color: nil)
@@ -117,106 +204,44 @@ extension EditEventViewModel {
 //            return false
 //        }
 //    }
+
     
-//    func loadImage(uiImage: UIImage) {
-//        isLoadingPhoto = true
-//        let previousImage = photo
-//        photo = AdminPhoto(id: UUID().uuidString, image: Image(uiImage: uiImage), url: nil)
-//        updateImage(uiImage: uiImage, previousImage: previousImage)
-//    }
+    func deletePoster(user: AppUser) {
+        self.isLoadingPoster = true
+        Task {
+            do {
+                try await eventNetworkManager.deletePoster(eventId: id, user: user)
+                await MainActor.run {
+                    self.poster = nil
+                    self.smallPoster = nil
+                    if let event {
+                        event.poster = nil
+                        event.smallPoster = nil
+                        event.image = nil
+                    }
+                    self.isLoadingPoster = false
+                }
+            } catch {
+                debugPrint("ERROR - updateAvatar: ", error)
+                // errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
+                self.isLoadingPoster = false
+            }
+        }
+    }
     
-//    func loadLibraryPhoto(photoId: String, uiImage: UIImage) {
-//        isLoadingLibraryPhoto = true
-//        var previousImage: Image? = nil
-//        if let index = photos.firstIndex(where: { $0.id == photoId }) {
-//            previousImage = photos[index].image
-//            photos[index].updateImage(image: Image(uiImage: uiImage))
-//        } else {
-//            guard let photo = AdminPhoto(id: photoId, image: Image(uiImage: uiImage), url: nil) else {
-//                return
-//            }
-//            photos.append(photo)
-//        }
-//        updateLibraryPhoto(photoId: photoId, uiImage: uiImage, previousImage: previousImage)
-//    }
-    
-//    func deleteLibraryPhoto(photoId: String) {
-//        isLoadingLibraryPhoto = true
-//        Task {
-//            do {
-//                let decodedResult = try await networkManager.deleteCityLibraryPhoto(cityId: id, photoId: photoId)
-//                guard decodedResult.result else {
-//                    errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: deleteErrorModel)
-//                    throw NetworkErrors.apiError
-//                }
-//                await MainActor.run {
-//                    self.isLoadingLibraryPhoto = false
-//                    if let index = photos.firstIndex(where: { $0.id == photoId }) {
-//                        photos.remove(at: index)
-//                    }
-//                }
-//            } catch {
-//                debugPrint("ERROR - deleteLibraryPhoto: ", error)
-//                errorManager.showApiErrorOrMessage(apiError: nil, or: deleteErrorModel)
-//                await MainActor.run {
-//                    self.isLoadingLibraryPhoto = false
-//                }
-//            }
-//        }
-//    }
-    
-    //MARK: - Private Functions
-    
-//    private func updateImage(uiImage: UIImage, previousImage: AdminPhoto?) {
-//        Task {
-//            let scaledImage = uiImage.cropImage(width: 600, height: 750)
-//            let errorModel = ErrorModel(massage: "Something went wrong. The photo didn't load. Please try again later.", img: Image(systemName: "photo.fill"), color: .red)
-//            do {
-//                let decodedResult = try await networkManager.updateCityPhoto(cityId: id, uiImage: scaledImage)
-//                guard decodedResult.result else {
-//                    errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: errorModel)
-//                    throw NetworkErrors.apiError
-//                }
-//                await MainActor.run {
-//                    self.isLoadingPhoto = false
-//                }
-//            } catch {
-//                debugPrint("ERROR - update city image: ", error)
-//                errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
-//                await MainActor.run {
-//                    self.isLoadingPhoto = false
-//                    self.photo = previousImage
-//                }
-//            }
-//        }
-//    }
-    
-//    private func updateLibraryPhoto(photoId: String, uiImage: UIImage, previousImage: Image?) {
-//        Task {
-//            let scaledImage = uiImage.cropImage(width: 600, height: 750)
-//            do {
-//                let decodedResult = try await networkManager.updateCityLibraryPhoto(cityId: id, photoId: photoId, uiImage: scaledImage)
-//                guard decodedResult.result else {
-//                    errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: loadErrorModel)
-//                    throw NetworkErrors.apiError
-//                }
-//                await MainActor.run {
-//                    self.isLoadingLibraryPhoto = false
-//                }
-//            } catch {
-//                debugPrint("ERROR - update city library photo: ", error)
-//                errorManager.showApiErrorOrMessage(apiError: nil, or: loadErrorModel)
-//                await MainActor.run {
-//                    if let index = photos.firstIndex(where: { $0.id == photoId }) {
-//                        if let previousImage = previousImage {
-//                            photos[index].updateImage(image: previousImage)
-//                        } else {
-//                            photos.remove(at: index)
-//                        }
-//                    }
-//                    self.isLoadingLibraryPhoto = false
-//                }
-//            }
-//        }
-//    }
+    func deleteEvent(user: AppUser) {
+        self.isLoading = true
+        Task {
+            do {
+                try await eventNetworkManager.deleteEvent(eventId: id, user: user)
+                await MainActor.run {
+                    self.isLoading = false
+                }
+            } catch {
+                debugPrint("ERROR - deleteEvent: ", error)
+                // errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
+                self.isLoading = false
+            }
+        }
+    }
 }

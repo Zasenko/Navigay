@@ -182,6 +182,45 @@ enum PlaceType: Int, Codable, CaseIterable, Comparable {
         }
     }
     
+    func getSortingMapCategory() -> SortingCategory {
+        switch self {
+        case .other:
+            return .other
+        case .bar:
+            return .bar
+        case .cafe:
+            return .cafe
+        case .restaurant:
+            return .restaurant
+        case .club:
+            return .club
+        case .hotel:
+            return .hotel
+        case .sauna:
+            return .sauna
+        case .cruiseBar:
+            return .cruiseBar
+        case .beach:
+            return .beach
+        case .shop:
+            return .shop
+        case .gym:
+            return .gym
+        case .culture:
+            return .culture
+        case .community:
+            return .community
+        case .hostel:
+            return .hostel
+        case .medicine:
+            return .medicine
+        case .cruiseClub:
+            return .cruiseClub
+        case .rights:
+            return .rights
+        }
+    }
+    
     static func < (lhs: PlaceType, rhs: PlaceType) -> Bool {
             return lhs.rawValue < rhs.rawValue
         }

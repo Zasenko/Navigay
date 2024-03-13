@@ -7,18 +7,30 @@
 
 import SwiftUI
 
-enum NewEventRouter {
-    case info
-    case poster
+struct EventTime: Identifiable {
+    let id: UUID = .init()
+    var startDate: Date?
+    var startTime: Date?
+    var finishDate: Date?
+    var finishTime: Date?
+}
+
+struct EventTimeToSend: Codable {
+    let startDate: String
+    let startTime: String?
+    let finishDate: String?
+    let finishTime: String?
 }
 
 final class NewEventViewModel: ObservableObject {
     
     //MARK: - Properties
     
-    var id: Int? = nil
+    var ids: [Int]? = nil
     
-    @Published var router: NewEventRouter = .info
+    @Published var showAddPosterView: Bool = false
+    @Published var isEventAdded: Bool = false
+    
     @Published var name: String = ""
     @Published var type: EventType? = nil
     @Published var isoCountryCode: String = ""
@@ -36,6 +48,8 @@ final class NewEventViewModel: ObservableObject {
     @Published var startTime: Date? = nil
     @Published var finishDate: Date? = nil
     @Published var finishTime: Date? = nil
+    
+    @Published var repeatDates: [EventTime] = []
     
     @Published var isFree: Bool = false
     @Published var fee: String = ""
@@ -67,13 +81,7 @@ final class NewEventViewModel: ObservableObject {
 
     //MARK: - Inits
     
-    init(place: Place?, copy event: Event?, networkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol) {
-        
-        let zeroTime = Calendar.current.date(bySettingHour: 0, minute: 0, second: 0, of: Date()) ?? Date()
-        
-        self.startTime = zeroTime
-        self.finishTime = zeroTime
-        
+    init(place: Place?, copy event: Event?, networkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol) {        
         if let place,
            let isoCountryCode = place.city?.region?.country?.isoCountryCode,
            place.city?.region?.country?.id != nil,
@@ -115,17 +123,47 @@ final class NewEventViewModel: ObservableObject {
 
 extension NewEventViewModel {
     
+    func cloneDate(newDate: Date) {
+        guard let existingStartDate = startDate else {
+            return
+        }
+        var updatedFinishDate: Date? = nil
+        if let existingFinishDate = finishDate {
+            let calendar = Calendar.current
+            let difference = calendar.dateComponents([.day], from: existingStartDate, to: existingFinishDate)
+            if let updatedFinish = calendar.date(byAdding: difference, to: newDate) {
+                updatedFinishDate = updatedFinish
+            }
+        }
+        let newEventTime = EventTime(startDate: newDate, startTime: startTime, finishDate: updatedFinishDate, finishTime: finishTime)
+        repeatDates.append(newEventTime)
+    }
+    
     func addNewEvent(user: AppUser) {
         isLoading = true
         Task {
+            guard let sessionKey = user.sessionKey else {
+                await MainActor.run {
+                    isLoading = false
+                }
+                return
+            }
             guard !name.isEmpty,
                   let type = type?.rawValue,
                   !isoCountryCode.isEmpty,
                   !addressOrigin.isEmpty,
                   let latitude,
-                  let longitude,
-                  let startDateString = startDate?.format("yyyy-MM-dd")
+                  let longitude
             else {
+                await MainActor.run {
+                    isLoading = false
+                }
+                return
+            }
+            let tags = tags.map( { $0.rawValue} )
+            
+            var datestToSend: [EventTimeToSend] = []
+            guard let startDateString = startDate?.format("yyyy-MM-dd") else {
                 await MainActor.run {
                     isLoading = false
                 }
@@ -134,7 +172,27 @@ extension NewEventViewModel {
             let startTimeString = startTime?.format("HH:mm")
             let finishDateString = finishDate?.format("yyyy-MM-dd")
             let finishTimeString = finishTime?.format("HH:mm")
-            let tags = tags.map( { $0.rawValue} )
+            datestToSend.append(EventTimeToSend(startDate: startDateString, startTime: startTimeString, finishDate: finishDateString, finishTime: finishTimeString))
+            
+            let repeatDatesToSend: [EventTimeToSend] = repeatDates.compactMap { repeatDate in
+                guard let startDateString = repeatDate.startDate?.format("yyyy-MM-dd") else {
+                    return nil
+                }
+                let startTimeString = repeatDate.startTime?.format("HH:mm")
+                let finishDateString = repeatDate.finishDate?.format("yyyy-MM-dd")
+                let finishTimeString = repeatDate.finishTime?.format("HH:mm")
+                return EventTimeToSend(startDate: startDateString, startTime: startTimeString, finishDate: finishDateString, finishTime: finishTimeString)
+            }
+            datestToSend.append(contentsOf: repeatDatesToSend)
+            
+
+            
+            guard !datestToSend.isEmpty else {
+                await MainActor.run {
+                    isLoading = false
+                }
+                return
+            }
             let newEvent: NewEvent = NewEvent(name: name,
                                               type: type,
                                               isoCountryCode: isoCountryCode,
@@ -147,10 +205,7 @@ extension NewEventViewModel {
                                               address: addressOrigin,
                                               latitude: latitude,
                                               longitude: longitude,
-                                              startDate: startDateString,
-                                              startTime: startTimeString,
-                                              finishDate: finishDateString,
-                                              finishTime: finishTimeString,
+                                              repeatDates: datestToSend,
                                               location: location.isEmpty ? nil : location,
                                               about: about.isEmpty ? nil : about,
                                               isFree: isFree,
@@ -164,24 +219,76 @@ extension NewEventViewModel {
                                               tags: tags.isEmpty ? nil : tags,
                                               ownderId: isOwned ? user.id : nil,
                                               placeId: place?.id,
-                                              addedBy: user.id,
                                               isActive: isActive,
                                               isChecked: isChecked,
                                               countryId: place?.city?.region?.country?.id,
                                               regionId: place?.city?.region?.id,
-                                              cityId: place?.city?.id)
-            let id = await networkManager.addNewEvent(event: newEvent)
-            await MainActor.run {
-                if let id {
-                    self.id = id
+                                              cityId: place?.city?.id,
+                                              userId: user.id,
+                                              sessionKey: sessionKey)
+            do {
+                let ids = try await networkManager.addNewEvent(event: newEvent)
+                await MainActor.run {
+                    self.ids = ids
                     self.isLoading = false
                     withAnimation {
-                        self.router = .poster
+                        self.isEventAdded = true
                     }
-                } else {
-                    self.isLoading = false
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                        self.showAddPosterView = true
+                    }
+                    
+                }
+            } catch {
+                let errorModel = ErrorModel(massage: "Something went wrong. The event didn't load to database. Please try again later.", img: nil, color: nil)
+                debugPrint("--ERROR---", error)
+                errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
+                await MainActor.run {
+                    isLoading = false
                 }
             }
         }
     }
+    
+    @MainActor
+    func addPoster(to eventsIDs: [Int], poster: UIImage, smallPoster: UIImage, addedBy: Int, sessionKey: String) async -> Bool {
+        self.isLoading = true
+        do {
+            try await networkManager.addPosterToEvents(with: eventsIDs, poster: poster, smallPoster: smallPoster, addedBy: addedBy, sessionKey: sessionKey)
+            self.isLoading = false
+            return true
+        } catch {
+            debugPrint("ERROR - updateAvatar: ", error)
+            // errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
+            self.isLoading = false
+            return false
+        }
+    }
+    
+        //MARK: - Private Functions
+        
+    //    private func update(uiImage: UIImage, previousImage: Image?) {
+    //        Task {
+    //            let scaledImage = uiImage.cropImage(maxWidth: 750, maxHeight: 750)
+    //            let scaledImageSmall = uiImage.cropImage(maxWidth: 350, maxHeight: 350)
+    //            do {
+    //                let decodedResult = try await networkManager.updatePoster(eventId: eventId, poster: scaledImage, smallPoster: scaledImageSmall)
+    //                guard decodedResult.result else {
+    //                    errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: errorModel)
+    //                    throw NetworkErrors.apiErrorTest
+    //                }
+    //                await MainActor.run {
+    //                    self.isLoading = false
+    //                }
+    //            } catch {
+    //                debugPrint("ERROR - updateAvatar: ", error)
+    //                errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
+    //                await MainActor.run {
+    //                    self.isLoading = false
+    //                    self.poster = previousImage
+    //                }
+    //            }
+    //        }
+    //    }
+    
 }

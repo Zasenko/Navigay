@@ -10,89 +10,83 @@ import SwiftData
 import MapKit
 
 struct MapView: View {
-    
-    //    @State private var selectedResult: MKMapItem?
-    //    @State private var route: MKRoute?
-    
-    @ObservedObject var viewModel: MapViewModel
+
+    @StateObject private var viewModel: MapViewModel
+    @EnvironmentObject private var locationManager: LocationManager
+    @EnvironmentObject private var authenticationManager: AuthenticationManager
+    @Environment(\.dismiss) private var dismiss
+    @State private var selectedEvent: Event?
     
     init(viewModel: MapViewModel) {
-        _viewModel = ObservedObject(wrappedValue: viewModel)
+        _viewModel = StateObject(wrappedValue: viewModel)
     }
     
     var body: some View {
         NavigationStack {
-            Map(position: $viewModel.position, selection: $viewModel.selectedTag) {
-                ForEach(viewModel.filteredPlaces) {
-                    Marker($0.name, monogram: Text($0.type.getImage()), coordinate: $0.coordinate)
-                        .tint($0.type.getColor())
-                        .tag($0.tag)
-                }
-                .annotationTitles(.hidden)
-                ForEach(viewModel.filteredEvents) { event in
-                    if let url = event.smallPoster {
-                        Annotation(event.name, coordinate: event.coordinate, anchor: .bottom) {
-                            MapEventPin(event: event, url: url, selectedTag: $viewModel.selectedTag)
-                        }
-                        .tag(event.tag)
-                    } else {
-                        Marker(event.name, monogram: Text("🎉"), coordinate: event.coordinate)
-                            .tint(Color.black)
+            GeometryReader { proxy in
+                Map(position: $viewModel.position, selection: $viewModel.selectedTag) {
+                    ForEach(viewModel.filteredPlaces) {
+                        Marker($0.name, monogram: Text($0.type.getImage()), coordinate: $0.coordinate)
+                            .tint($0.type.getColor())
+                            .tag($0.tag)
+                    }
+                    .annotationTitles(.hidden)
+                    ForEach(viewModel.filteredEvents) { event in
+                        if let url = event.smallPoster {
+                            Annotation(event.name, coordinate: event.coordinate, anchor: .bottom) {
+                                MapEventPin(event: event, url: url, selectedTag: $viewModel.selectedTag, with: proxy.size.width)
+                            }
                             .tag(event.tag)
+                        } else {
+                            Marker(event.name, monogram: Text("🎉"), coordinate: event.coordinate)
+                                .tint(Color.black)
+                                .tag(event.tag)
+                        }
+                    }
+                    .annotationTitles(.hidden)
+                    
+                    if let userLocation = locationManager.userLocation {
+                        Marker("", monogram: Text("👤"), coordinate: userLocation.coordinate)
+                            .tint(Color.black)
+                            .annotationTitles(.hidden)
+                    }
+                        
+                    //                if let route {
+                    //                    MapPolyline(route)
+                    //                        .stroke(.blue, lineWidth: 5)
+                    //                }
+                }
+                .animation(.default, value: viewModel.position)
+                .mapStyle(.standard(elevation: .flat, pointsOfInterest: .including([.publicTransport])))
+                .mapControlVisibility(.hidden)
+                .safeAreaInset(edge: .bottom) {
+                    if viewModel.showInfo {
+                        if let selectedEvent = viewModel.selectedEvent {
+                            eventCell(event: selectedEvent)
+                            
+                                .transition(.move(edge: .bottom).combined(with: .opacity))
+                        } else if let selectedPlace = viewModel.selectedPlace {
+                            placeCell(place: selectedPlace)
+                                .transition(.move(edge: .bottom).combined(with: .opacity))
+                        }
                     }
                 }
-                .annotationTitles(.hidden)
-                
-                //     UserAnnotation()
-                
-                //                if let route {
-                //                    MapPolyline(route)
-                //                        .stroke(.blue, lineWidth: 5)
-                //                }
-            }
-            .mapStyle(.standard(elevation: .flat, pointsOfInterest: .including([.publicTransport])))
-            .mapControlVisibility(.hidden)
-            .sheet(isPresented: $viewModel.showInfo){
-                viewModel.showInfo = false
-                viewModel.selectedPlace = nil
-                viewModel.selectedEvent = nil
-                viewModel.selectedTag = nil
-            } content: {
-                VStack {
-                    if let selectedEvent = viewModel.selectedEvent {
-                        makeEventInfoView(event: selectedEvent)
-                    } else if let selectedPlace = viewModel.selectedPlace {
-                        makePlaceInfoView(place: selectedPlace)
-                    } else {
-                        EmptyView()
-                            .frame(width: 1, height: 1)
-                    }
-                }
-                .presentationDetents([.height(300)])
-                .presentationDragIndicator(.visible)
-                .presentationCornerRadius(25)           
             }
             .toolbarBackground(.hidden, for: .navigationBar)
             .toolbarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    if !viewModel.showInfo {
-                        MapSortingMenuView(categories: $viewModel.categories, selectedCategory: $viewModel.selectedCategory)
-                    }
+                    MapSortingMenuView(categories: viewModel.categories, selectedCategory: $viewModel.selectedCategory)
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    if !viewModel.showInfo {
-                        Button {
-                            withAnimation {
-                                viewModel.showMap.toggle()
-                            }
-                        } label: {
-                            AppImages.iconXCircle
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 30, height: 30, alignment: .leading)
-                                .tint(.primary)
-                        }
+                    Button {
+                        dismiss()
+                    } label: {
+                        AppImages.iconXCircle
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 30, height: 30)
+                            .tint(.primary)
                     }
                 }
             }
@@ -103,21 +97,21 @@ struct MapView: View {
                 if newValue == nil {
                     viewModel.selectedEvent = nil
                     viewModel.selectedPlace = nil
-                    withAnimation(.spring()) {
+                    withAnimation {
                         viewModel.position = .automatic
                         viewModel.showInfo = false
                     }
                 } else if let place = viewModel.filteredPlaces.first(where: { $0.tag == newValue}) {
                     viewModel.selectedEvent = nil
                     viewModel.selectedPlace = place
-                    withAnimation(.spring()) {
+                    withAnimation {
                         viewModel.position = .camera(MapCamera(centerCoordinate: place.coordinate, distance: 500))
                     }
                     viewModel.showInfo = true
                 } else if let event = viewModel.filteredEvents.first(where: { $0.tag == newValue}) {
                     viewModel.selectedPlace = nil
                     viewModel.selectedEvent = event
-                    withAnimation(.spring()) {
+                    withAnimation {
                         viewModel.position = .camera(MapCamera(centerCoordinate: event.coordinate, distance: 500))
                         viewModel.showInfo = true
                     }
@@ -126,164 +120,210 @@ struct MapView: View {
         }
     }
     
-    @ViewBuilder
-    private func makePlaceInfoView(place: Place) -> some View {
-        // todo get fuul info (placeNetworkManager)
-        ScrollView {
+    private func placeCell(place: Place) -> some View {
+        NavigationLink {
+            PlaceView(place: place, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, authenticationManager: authenticationManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, showOpenInfo: true)
+        } label: {
             HStack {
-                if let url = place.avatar {
-                    ImageLoadingView(url: url, width: 80, height: 80, contentMode: .fill) {
-                        Color.orange
+                HStack(spacing: 20) {
+                    if let url = place.avatar {
+                        ImageLoadingView(url: url, width: 50, height: 50, contentMode: .fill) {
+                            AppColors.lightGray6
+                        }
+                        .clipShape(.circle)
+                        .overlay(Circle().stroke(AppColors.lightGray5, lineWidth: 1))
                     }
-                    .clipShape(Circle())
-                    .padding()
-                }
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(place.type.getName().uppercased())
-                        .font(.caption).bold()
-                        .foregroundStyle(.secondary)
-                    Text(place.name)
-                        .font(.title).bold()
-                        .foregroundColor(.primary)
-                    Text(place.address)
-                        .font(.body)
-                        .foregroundColor(.secondary)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                }
-            }
-            .padding()
-            .frame(maxWidth: .infinity, alignment: .leading)
-            TagsView(tags: place.tags)
-                .padding()
-            
-            VStack {
-                ForEach(place.timetable.sorted(by: { $0.day.rawValue < $1.day.rawValue } )) { day in
-                    let dayOfWeek = Date().dayOfWeek
-                    HStack {
-                        Text(day.day.getString())
-                            .bold()
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                        if dayOfWeek == day.day {
-                            if place.isOpenNow() {
-                                Text("open now")
-                                    .font(.footnote).bold()
-                                    .foregroundColor(.green)
-                                    .padding(.trailing)
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(place.name)
+                                .multilineTextAlignment(.leading)
+                                .font(.body)
+                                .bold()
+                                .foregroundStyle(.primary)
+                        if place.isOpenNow() {
+                            Text("open now")
+                                .bold()
+                                .foregroundColor(.green)
+                        }
+                        HStack(alignment: .top, spacing: 5) {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(place.address)
+//                                                    if showCountryCity {
+//                                                        HStack(spacing: 5) {
+//                                                            Text(place.city?.name ?? "")
+//                                                                .bold()
+//                                                            Text("•")
+//                                                            Text(place.city?.region?.country?.name ?? "")
+//                                                        }
+//                                                    }
+                            }
+                            HStack(alignment: .top, spacing: 5) {
+                                Text("•")
+                                Text(place.distanceText)
                             }
                         }
-                        Text(day.open.formatted(date: .omitted, time: .shortened))
-                        Text("—")
-                        Text(day.close.formatted(date: .omitted, time: .shortened))
                     }
-                    .font(.caption)
-                    Divider()
+                    .font(.footnote)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.leading)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    if place.isLiked {
+                        AppImages.iconHeartFill
+                            .foregroundColor(.red)
+                    }
                 }
+                AppImages.iconRight
+                    .foregroundStyle(.secondary)
+                    .bold()
+                
             }
             .padding()
+            .background(.ultraThinMaterial)
+            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+            .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 0)
+            .frame(maxWidth: .infinity)
+            .padding(.horizontal)
+            .padding(.bottom)
         }
-        .padding(.horizontal)
-        .padding(.top)
-        .scrollIndicators(.hidden)
     }
     
-    @ViewBuilder
-    private func makeEventInfoView(event: Event) -> some View {
-        // todo get fuul info (EventnetworkManager)
-        ScrollView {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(event.name)
-                    .font(.title).bold()
-                    .foregroundColor(.primary)
-                Text(event.address)
-                    .font(.body)
-                    .foregroundColor(.secondary)
-                //   .frame(maxWidth: .infinity, alignment: .leading)
-            }
-            .padding()
-            .frame(maxWidth: .infinity, alignment: .leading)
-            // location = decodedEvent.location
-//            type = decodedEvent.type
-            HStack(alignment: .top) {
-                VStack(alignment: .leading) {
-                    Text("Start")
-                        .font(.title2)
+    private func eventCell(event: Event) -> some View {
+        Button {
+            selectedEvent = event
+        } label: {
+            HStack(spacing: 20) {
+                VStack(spacing: 0) {
+                    Text(event.name)
+                        .font(.body)
                         .bold()
-                        .offset(x: 30)
-                    HStack(spacing: 10) {
-                        AppImages.iconCalendar
-                            .resizable()
-                            .scaledToFit()
-                            .foregroundStyle(AppColors.lightGray5)
-                            .frame(width: 20, height: 20, alignment: .leading)
-                        Text(event.startDate.formatted(date: .abbreviated, time: .omitted))
-                            .font(.callout)
-                    }
-                    if let startTime = event.startTime {
-                        HStack {
-                            AppImages.iconClock
-                                .resizable()
-                                .scaledToFit()
-                                .foregroundStyle(AppColors.lightGray5)
-                                .frame(width: 20, height: 20, alignment: .leading)
-                            Text(startTime.formatted(date: .omitted, time: .shortened))
-                                .font(.callout)
-                        }
-                    }
-                }
-                .padding()
-                .foregroundColor(.black)
-                .frame(maxWidth: .infinity, alignment: .center)
-                
-                if let finishDate = event.finishDate {
-                    VStack(alignment: .leading) {
-                        Text("Finish")
-                            .font(.title2)
+                        .tint(.primary)
+     
+                    if let location = event.location {
+                        Text(location)
+                            .font(.footnote)
                             .bold()
-                            .offset(x: 30)
-                        HStack(spacing: 10) {
-                            AppImages.iconCalendar
-                                .resizable()
-                                .scaledToFit()
-                                .foregroundStyle(AppColors.lightGray5)
-                                .frame(width: 20, height: 20, alignment: .leading)
-                            Text(finishDate.formatted(date: .abbreviated, time: .omitted))
-                                .font(.callout)
-                        }
-                        if let finishTime = event.finishTime {
+                            .tint(.secondary)
+                    }
+                    Text(event.address)
+                        .font(.footnote)
+                        .tint(.secondary)
+                    
+                    // todo тот же код в EventView
+                    if let finishDate = event.finishDate {
+                        if finishDate.isSameDayWithOtherDate(event.startDate) {
+                            Text(event.startDate.formatted(date: .long, time: .omitted))
+                                .font(.footnote)
+                                .bold()
+                                .tint(.primary)
                             HStack {
-                                AppImages.iconClock
-                                    .resizable()
-                                    .scaledToFit()
-                                    .foregroundStyle(AppColors.lightGray5)
-                                    .frame(width: 20, height: 20, alignment: .leading)
-                                Text(finishTime.formatted(date: .omitted, time: .shortened))
-                                    .font(.callout)
+                                if let startTime = event.startTime {
+                                    HStack(spacing: 5) {
+                                        AppImages.iconClock
+                                            .font(.caption)
+                                        Text(startTime.formatted(date: .omitted, time: .shortened))
+                                            .font(.caption)
+                                    }
+                                    .tint(.secondary)
+                                }
+                                if let finishTime = event.finishTime {
+                                    Text("—")
+                                        .tint(.secondary)
+                                        .frame(width: 20, alignment: .center)
+                                    HStack(spacing: 5) {
+                                        AppImages.iconClock
+                                            .font(.caption)
+                                        Text(finishTime.formatted(date: .omitted, time: .shortened))
+                                            .font(.caption)
+                                    }
+                                    .tint(.secondary)
+                                }
+                            }
+                            
+                        } else {
+                            HStack(alignment: .top) {
+                                VStack(spacing: 5) {
+                                    Text(event.startDate.formatted(date: .long, time: .omitted))
+                                        .font(.footnote)
+                                        .bold()
+                                        .tint(.primary)
+                                    if let startTime = event.startTime {
+                                        HStack(spacing: 5) {
+                                            AppImages.iconClock
+                                                .font(.caption)
+                                            Text(startTime.formatted(date: .omitted, time: .shortened))
+                                                .font(.caption)
+                                        }
+                                        .tint(.secondary)
+                                    }
+                                }
+                                Text("—")
+                                    .frame(width: 20, alignment: .center)
+                                VStack(spacing: 5) {
+                                    Text(finishDate.formatted(date: .long, time: .omitted))
+                                        .font(.footnote)
+                                        .bold()
+                                        .tint(.primary)
+                                    if let finishTime = event.finishTime {
+                                        HStack(spacing: 5) {
+                                            AppImages.iconClock
+                                                .font(.caption)
+                                            Text(finishTime.formatted(date: .omitted, time: .shortened))
+                                                .font(.caption)
+                                        }
+                                        .tint(.secondary)
+                                    }
+                                }
                             }
                         }
+                    } else {
+                        Text(event.startDate.formatted(date: .long, time: .omitted))
+                            .font(.footnote)
+                            .bold()
+                            .tint(.primary)
+                        if let startTime = event.startTime {
+                            HStack(spacing: 5) {
+                                AppImages.iconClock
+                                    .font(.caption)
+                                Text(startTime.formatted(date: .omitted, time: .shortened))
+                                    .font(.caption)
+                            }
+                            .tint(.secondary)
+                        }
                     }
-                    .padding()
-                    .foregroundColor(.black)
-                    .frame(maxWidth: .infinity, alignment: .center)
+                }
+                .frame(maxWidth: .infinity)
+                VStack(spacing: 10) {
+                    AppImages.iconInfoCircle
+                        .foregroundStyle(.secondary)
+                        .bold()
+                    if event.isLiked {
+                        AppImages.iconHeartFill
+                            .foregroundStyle(.red)
+                    }
+                    if event.isFree {
+                        Text("free")
+                            .font(.footnote)
+                            .bold()
+                            .foregroundStyle(AppColors.background)
+                            .padding(5)
+                            .padding(.horizontal, 5)
+                            .background(.green)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                    }
                 }
             }
             .padding()
-            TagsView(tags: event.tags)
-                .padding(.bottom)
-//            poster = decodedEvent.poster
-            
-            if event.isFree {
-                //todo
-                Text("Free event")
-                    .padding()
-                    .listRowSeparator(.hidden)
-                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-            }
+            .background(.ultraThinMaterial)
+            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+            .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 0)
         }
         .padding(.horizontal)
-        .padding(.top)
-        .scrollIndicators(.hidden)
+        .padding(.bottom)
+        .transition(.move(edge: .bottom).combined(with: .opacity))
+        .fullScreenCover(item: $selectedEvent) { event in
+            EventView(viewModel: EventView.EventViewModel.init(event: event, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager))
+        }
     }
-//
+
 //    func getDirections() {
 //        route = nil
 //        guard let selectedResult else { return }
