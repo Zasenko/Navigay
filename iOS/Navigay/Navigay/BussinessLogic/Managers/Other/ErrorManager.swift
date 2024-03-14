@@ -14,7 +14,6 @@ protocol ErrorManagerProtocol {
     func showError(error: Error)
     func showError(text: String)
     func showError(model: ErrorModel)
-    func showApiError(error: ApiError?)
     func showApiErrorOrMessage(apiError: ApiError?, or error: ErrorModel)
 }
 
@@ -25,15 +24,7 @@ final class ErrorManager: ErrorManagerProtocol {
     var getError: ((ErrorModel) -> Void)?
     
     // MARK: - Functions
-    
-    func showApiError(error: ApiError?) {
-        guard let error = error else { return }
-        if error.show {
-            getError?(ErrorModel.init(massage: error.message, img: Image(systemName: "exclamationmark.triangle"), color: .red))
-        } else {
-            showError()
-        }
-    }
+
     
     func showApiErrorOrMessage(apiError: ApiError?, or error: ErrorModel) {
         if let apiError = apiError {

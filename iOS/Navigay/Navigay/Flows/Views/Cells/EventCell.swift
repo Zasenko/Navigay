@@ -19,8 +19,6 @@ struct EventCell: View {
     let showStartTimeInfo: Bool
     
     @State private var image: Image? = nil
-
-   // let width: CGFloat
     
     private var formattedDate: AttributedString {
         var formattedDate: AttributedString = event.startDate.formatted(Date.FormatStyle().month(.abbreviated).day().weekday(.wide).attributed)

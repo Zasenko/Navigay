@@ -37,11 +37,11 @@ extension SearchView {
         
         // Создаем объект PassthroughSubject для передачи значений
         let textSubject = PassthroughSubject<String, Never>()
-        let textSubject2 = PassthroughSubject<String, Never>()
+     //   let textSubject2 = PassthroughSubject<String, Never>()
         
         // Создаем подписку на изменения текста
         private var cancellable: AnyCancellable?
-        private var cancellable2: AnyCancellable?
+     //   private var cancellable2: AnyCancellable?
         
         init(modelContext: ModelContext,
              catalogNetworkManager: CatalogNetworkManagerProtocol,
@@ -62,99 +62,112 @@ extension SearchView {
          //   self.user = user
             
             cancellable = textSubject
-                .debounce(for: .seconds(2), scheduler: DispatchQueue.main)
+                .debounce(for: .seconds(1.5), scheduler: DispatchQueue.main)
                 .sink { [weak self] searchText in
-                    guard !searchText.isEmpty, searchText.first != " ", searchText.count > 2 else {
+                    guard !searchText.isEmpty, searchText.count > 2 else {
+                        DispatchQueue.main.async {
+                            withAnimation {
+                                self?.searchCountries = []
+                                self?.searchRegions = []
+                                self?.searchCities = []
+                                self?.searchEvents = []
+                                self?.searchGroupedPlaces = [:]
+                            }
+                        }
                         return
                     }
                     self?.fetchSearchResults(text: searchText)
                 }
             
-            cancellable2 = textSubject2
-                .debounce(for: .seconds(0), scheduler: DispatchQueue.main)
-                .sink { [weak self] searchText in
-                    DispatchQueue.main.async {
-                        self?.searchInDB(text: searchText)
-                    }
-                }
+//            cancellable2 = textSubject2
+//                .debounce(for: .seconds(0), scheduler: DispatchQueue.main)
+//                .sink { [weak self] searchText in
+//                    guard !searchText.isEmpty else {
+//                        withAnimation {
+//                            self?.searchCountries = []
+//                            self?.searchRegions = []
+//                            self?.searchCities = []
+//                            self?.searchEvents = []
+//                            self?.searchGroupedPlaces = [:]
+//                        }
+//                        return
+//                    }
+//                    guard searchText.count > 1 else {
+//                        return
+//                    }
+//                    DispatchQueue.main.async {
+//                        self?.searchInDB(text: searchText)
+//                    }
+//                }
         }
         
         func searchInDB(text: String) {
-            guard !searchText.isEmpty else {
-                withAnimation {
-                    searchCountries = []
-                    searchRegions = []
-                    searchCities = []
-                    searchEvents = []
-                    searchGroupedPlaces = [:]
-                }
-                return
-            }
-            
             do {
-                if catalogNetworkManager.loadedSearchText.keys.contains(where: { $0 == text } ),
-                   let result = catalogNetworkManager.loadedSearchText[text] {
-                    withAnimation {
+                let countryDescriptor = FetchDescriptor<Country>()
+                let countries = try modelContext.fetch(countryDescriptor)
+                self.searchCountries = countries.filter({ $0.name.lowercased().contains(text.lowercased()) }).sorted(by: { $0.name < $1.name} )
+                
+                let regionDescriptor = FetchDescriptor<Region>()
+                let regions = try modelContext.fetch(regionDescriptor)
+                self.searchRegions = regions.filter({ region in
+                    if let name = region.name {
+                        return name.lowercased().contains(text)
+                    } else {
+                        return false
+                    }
+                }).sorted(by: { $0.id < $1.id} )
+                
+                let cityDescriptor = FetchDescriptor<City>()
+                let cities = try modelContext.fetch(cityDescriptor)
+                self.searchCities = cities.filter({ city in
+                    return city.name.lowercased().contains(text)
+                }).sorted(by: { $0.name < $1.name} )
+                
+                let eventDescriptor = FetchDescriptor<Event>()
+                let events = try modelContext.fetch(eventDescriptor)
+                self.searchEvents = events.filter({ event in
+                    return event.name.lowercased().contains(text)
+                }).sorted(by: { $0.startDate < $1.startDate } )
+                
+                let placeDescriptor = FetchDescriptor<Place>()
+                let allPlaces = try modelContext.fetch(placeDescriptor)
+                let places = allPlaces.filter({ place in
+                    return place.name.lowercased().contains(text)
+                })
+                let groupedPlaces = createGroupedPlaces(places: places)
+                self.searchGroupedPlaces = groupedPlaces
+            } catch {
+                debugPrint(error)
+            }
+        }
+        
+        
+        private func fetchSearchResults(text: String) {
+            Task {
+                await MainActor.run {
+                    isSearching = true
+                }
+                if let result = catalogNetworkManager.loadedSearchText[text] {
+                    await MainActor.run {
                         self.searchRegions = result.regions
                         self.searchCities = result.cities
                         self.searchEvents = result.events
                         self.searchGroupedPlaces = result.places
                     }
                 } else {
-                    let countryDescriptor = FetchDescriptor<Country>()
-                    let countries = try modelContext.fetch(countryDescriptor)
-                    self.searchCountries = countries.filter({ $0.name.lowercased().contains(text.lowercased()) }).sorted(by: { $0.name < $1.name} )
-                    
-                    let regionDescriptor = FetchDescriptor<Region>()
-                    let regions = try modelContext.fetch(regionDescriptor)
-                    self.searchRegions = regions.filter({ region in
-                        if let name = region.name {
-                            return name.lowercased().contains(text)
-                        } else {
-                            return false
-                        }
-                    }).sorted(by: { $0.id < $1.id} )
-                    
-                    let cityDescriptor = FetchDescriptor<City>()
-                    let cities = try modelContext.fetch(cityDescriptor)
-                    self.searchCities = cities.filter({ city in
-                        return city.name.lowercased().contains(text)
-                    }).sorted(by: { $0.name < $1.name} )
-                    
-                    let eventDescriptor = FetchDescriptor<Event>()
-                    let events = try modelContext.fetch(eventDescriptor)
-                    self.searchEvents = events.filter({ event in
-                        return event.name.lowercased().contains(text)
-                    }).sorted(by: { $0.startDate < $1.startDate } )
-                    
-                    let placeDescriptor = FetchDescriptor<Place>()
-                    let allPlaces = try modelContext.fetch(placeDescriptor)
-                    let places = allPlaces.filter({ place in
-                        return place.name.lowercased().contains(text)
-                    })
-                    let groupedPlaces = createGroupedPlaces(places: places)
-                    self.searchGroupedPlaces = groupedPlaces
-                }
-            } catch {
-                debugPrint(error)
-            }
-        }
-        
-        private func fetchSearchResults(text: String) {
-            isSearching = true
-            Task {
-                guard !catalogNetworkManager.loadedSearchText.keys.contains(where: { $0 == text } ),
-                      let result = await catalogNetworkManager.search(text: text) else {
-                    await MainActor.run {
+                    if let result = await catalogNetworkManager.search(text: text) {
+                        await MainActor.run {
+                            updateSearchResult(result: result, for: text)
                             isSearching = false
+                        }
+                    } else {
+                        await MainActor.run {
+                            searchInDB(text: text)
+                        }
                     }
-                    return
                 }
                 await MainActor.run {
-                    updateSearchResult(result: result, for: text)
-                    withAnimation {
-                        isSearching = false
-                    }
+                    isSearching = false
                 }
             }
         }

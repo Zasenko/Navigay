@@ -17,9 +17,6 @@ enum NetworkErrors: Error {
     case bedUrl
     case invalidData
     case bedResponse
-    case apiErrorTest
-    case apiError(ApiError?) //!
+    case apiError(ApiError?)
     case dataConversionError
-//    case noUser
-//    case apiErrorWithMassage(String)
 }

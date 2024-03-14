@@ -106,8 +106,7 @@ extension EditRegionViewModel {
             do {
                 let decodedResult = try await networkManager.updateRegionPhoto(regionId: id, uiImage: scaledImage)
                 guard decodedResult.result else {
-                    errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: errorModel)
-                    throw NetworkErrors.apiErrorTest
+                    throw NetworkErrors.apiError(decodedResult.error)
                 }
                 await MainActor.run {
                     self.isLoadingPhoto = false

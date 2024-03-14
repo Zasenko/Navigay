@@ -147,26 +147,28 @@ extension HomeView {
         //MARK: - Private Functions
         
         private func fetch(location: CLLocation) async {
-            guard let decodedResult = await aroundNetworkManager.fetchLocations(location: location) else {
-                return
-            }
-            await MainActor.run {
-                
-                if decodedResult.foundAround {
-                    isLocationsAround20Found = true
-                } else {
-                    isLocationsAround20Found = false
+            let errorModel = ErrorModel(massage: "Something went wrong. The information didn't update. Please try again later.", img: nil, color: nil)
+            do {
+                let decodedResult = try await aroundNetworkManager.fetchLocations(location: location)
+                await MainActor.run {
+                    if decodedResult.foundAround {
+                        isLocationsAround20Found = true
+                    } else {
+                        isLocationsAround20Found = false
+                    }
+                    let cities = catalogDataManager.updateCities(decodedCities: decodedResult.cities, modelContext: modelContext)
+                    let places = placeDataManager.updatePlaces(decodedPlaces: decodedResult.places, for: cities, modelContext: modelContext)
+                    let events = eventDataManager.updateEvents(decodedEvents: decodedResult.events, for: cities, modelContext: modelContext)
+                    places.forEach { place in
+                        let distance = location.distance(from: CLLocation(latitude: place.latitude, longitude: place.longitude))
+                        place.getDistanceText(distance: distance, inKm: true)
+                    }
+                    updateFetchedResult(places: places.sorted(by: { $0.name < $1.name }), events: events.sorted(by: { $0.id < $1.id }), userLocation: location)
                 }
-                
-                let cities = catalogDataManager.updateCities(decodedCities: decodedResult.cities, modelContext: modelContext)
-                let places = placeDataManager.updatePlaces(decodedPlaces: decodedResult.places, for: cities, modelContext: modelContext)
-                let events = eventDataManager.updateEvents(decodedEvents: decodedResult.events, for: cities, modelContext: modelContext)
-
-                places.forEach { place in
-                    let distance = location.distance(from: CLLocation(latitude: place.latitude, longitude: place.longitude))
-                    place.getDistanceText(distance: distance, inKm: true)
-                }
-                updateFetchedResult(places: places.sorted(by: { $0.name < $1.name }), events: events.sorted(by: { $0.id < $1.id }), userLocation: location)
+            } catch NetworkErrors.apiError(let error) {
+                errorManager.showApiErrorOrMessage(apiError: error, or: errorModel)
+            } catch {
+                errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
             }
         }
         
