@@ -1,0 +1,103 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@200;300;400;900&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+.unselectable {
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+h1 {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 900;
+    font-size: 1.5rem;
+}
+
+.rainbowGradient {
+    background: linear-gradient(to right, #FF0000, #0000FF, #03FF00, #FFFF00);
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+h2 {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+    font-size: 1.3rem;
+}
+
+h3 {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+    font-size: 1.1rem;
+}
+
+.bigText {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 300;
+    font-size: 1.5rem;
+}
+
+.superBigText {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 900;
+    color: black;
+    font-size: 10rem;
+    background: linear-gradient(to right, #FF0000, #0000FF, #03FF00, #FFFF00);
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+p {
+    font-weight: 300;
+    font-size: 1.1rem;
+    font-family: 'Roboto', sans-serif;
+}
+
+a {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 300;
+    font-size: 1.1rem;
+    color: #2897ff;
+    text-decoration: underline;
+}
+
+a:hover {
+    color: #2897ff;
+    text-decoration: none;
+}
+
+a:visited {
+    color: #2897ff;
+}
+
+.logoFull {
+    height: 3rem;
+}
+
+.button {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 300;
+    font-size: 1.1rem;
+    background-color: #0a0a23;
+    color: #fff;
+    border: none;
+    border-radius: 1rem;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    padding-left: 2rem;
+    padding-right: 2rem;
+}
+
+.button:hover {
+    background-color: #FF003D;
+}
+
+.button:active {
+    background-color: #ffbf00;
+}

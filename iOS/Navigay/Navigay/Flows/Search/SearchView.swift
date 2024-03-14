@@ -9,180 +9,134 @@ import SwiftUI
 import SwiftData
 
 struct SearchView: View {
-    
+        
     @State private var viewModel: SearchViewModel
     @EnvironmentObject private var authenticationManager: AuthenticationManager
     @FocusState private var focused: Bool
-    //  @Namespace var namespace
+    @Environment(\.dismiss) private var dismiss
     
-    init(modelContext: ModelContext,
-         catalogNetworkManager: CatalogNetworkManagerProtocol,
-         placeNetworkManager: PlaceNetworkManagerProtocol,
-         eventNetworkManager: EventNetworkManagerProtocol,
-         errorManager: ErrorManagerProtocol,
-         placeDataManager: PlaceDataManagerProtocol,
-         eventDataManager: EventDataManagerProtocol,
-         catalogDataManager: CatalogDataManagerProtocol) {
-        let viewModel = SearchViewModel(modelContext: modelContext, catalogNetworkManager: catalogNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, catalogDataManager: catalogDataManager)
+    @State private var showCancle: Bool = true
+    
+    init(viewModel: SearchViewModel) {
         _viewModel = State(initialValue: viewModel)
-        viewModel.getCountriesFromDB()
-        viewModel.fetchCountries()
     }
-    
+        
     var body: some View {
-        if viewModel.isLoading {
-            ProgressView()
-                .tint(.blue)
-                .frame(maxHeight: .infinity)
-        } else {
-            NavigationStack {
-                listView
-                    .toolbarTitleDisplayMode(.inline)
-                    .toolbar {
-                        if viewModel.showSearchView {
-                            ToolbarItem(placement: .principal) {
-                                searchView
+        NavigationStack {
+            GeometryReader { proxy in
+                VStack(spacing: 0) {
+                    HStack(spacing: 0) {
+                        HStack(spacing: 0) {
+                            if viewModel.isSearching {
+                                ProgressView()
+                                    .tint(.blue)
+                                    .frame(width: 40, height: 40)
+                            } else {
+                                AppImages.iconSearch
+                                    .font(.callout)
+                                    .foregroundColor(.secondary)
+                                    .bold()
+                                    .frame(width: 40, height: 40)
                             }
+                            TextField("", text: $viewModel.searchText)
+                                .textInputAutocapitalization(.never)
+                                .autocorrectionDisabled(true)
+                                .lineLimit(1)
+                                .frame(maxWidth: .infinity)
+                                .focused($focused)
+                                .onAppear() {
+                                    focused = true
+                                }
+                        }
+                        .padding(.trailing, 10)
+                        .background(AppColors.lightGray6)
+                        .cornerRadius(16)
+                        .frame(maxWidth: .infinity)
+                        if !viewModel.searchText.isEmpty {
+                            Button("Cancel") {
+                                focused = false
+                                viewModel.searchText = ""
+                            }
+                            .padding(.leading)
+                        }
+                    }
+                    .padding(.horizontal)
+                    .frame(maxWidth: .infinity)
+                    .animation(.default, value: viewModel.searchText.isEmpty)
+                    
+                    List {
+                        if viewModel.searchText.isEmpty {
+                            lastSearchResultsView
                         } else {
-                            ToolbarItem(placement: .topBarLeading) {
-                                Text("Catalog")
-                                    .font(.title).bold()
-                            }
-                            ToolbarItem(placement: .topBarTrailing) {
-                                searchButton
-                            }
+                            searchResultsView(width: proxy.size.width)
                         }
+                        Color.clear
+                            .frame(height: 50)
+                            .listRowSeparator(.hidden)
                     }
-                    .toolbarBackground(AppColors.background)
-                    .onChange(of: viewModel.searchText, initial: false) { _, newValue in
-                        viewModel.textSubject.send(newValue.lowercased())
-                        viewModel.textSubject2.send(newValue.lowercased())
-                    }
-                    .onChange(of: viewModel.isSearching) { _, newValue in
-                        if newValue {
-                            hideKeyboard()
+                    .listSectionSeparator(.hidden)
+                    .listStyle(.plain)
+                    .scrollIndicators(.hidden)
+                }
+                .onChange(of: viewModel.searchText, initial: false) { _, newValue in
+                    viewModel.textSubject.send(newValue.lowercased())
+                    viewModel.textSubject2.send(newValue.lowercased())
+                }
+            }
+            .navigationBarBackButtonHidden()
+            .toolbarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        withAnimation {
+                            dismiss()
                         }
+                    } label: {
+                        AppImages.iconLeft
+                            .bold()
+                            .frame(width: 30, height: 30, alignment: .leading)
                     }
-            }
-        }
-    }
-    
-    private var searchButton: some View {
-        Button {
-            withAnimation {
-                viewModel.searchCountries = []
-                viewModel.searchRegions = []
-                viewModel.searchCities = []
-                viewModel.searchEvents = []
-                viewModel.searchGroupedPlaces = [:]
-                
-                viewModel.showSearchView = true
-                focused = true
-            }
-        } label: {
-            AppImages.iconSearch
-                .bold()
-                .tint(.blue)
-        }
-    }
-    
-    
-    private var searchView: some View {
-        HStack {
-            HStack {
-                if viewModel.isSearching {
-                    ProgressView()
-                        .tint(.blue)
-                        .frame(width: 40, height: 40)
-                } else {
-                    AppImages.iconSearch
-                        .font(.callout)
-                        .foregroundColor(.secondary)
-                        .bold()
-                        .frame(width: 40, height: 40)
+                    .tint(.primary)
                 }
-                TextField("", text: $viewModel.searchText)
-                    .textInputAutocapitalization(.never)
-                    .autocorrectionDisabled(true)
-                    .lineLimit(1)
-                    .focused($focused)
-            }
-            .padding(.horizontal, 10)
-            .frame(maxWidth: .infinity)
-            .background(AppColors.lightGray6)
-            .cornerRadius(16)
-            
-            if viewModel.showSearchView {
-                Button("Cancel") {
-                    withAnimation {
-                        hideKeyboard()
-                        viewModel.searchText = ""
-                        viewModel.showSearchView = false
-                    }
+                ToolbarItem(placement: .principal) {
+                    Text("Search")
+                        .font(.title2).bold()
                 }
             }
-        }
-        .padding(.leading, viewModel.showSearchView ? 0 : 10)
-        .frame(maxWidth: .infinity)
-    }
-    
-    private var listView: some View {
-        GeometryReader { proxy in
-            List {
-                if viewModel.showSearchView {
-                    if viewModel.searchText.isEmpty {
-                        lastSearchResultsView
-                            .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 0))
-                            .listSectionSeparator(.hidden)
-                    } else {
-                        searchResultsView(width: proxy.size.width)
-                            .listSectionSeparator(.hidden)
-                    }
-                } else {
-                    allCountriesView
-                        .listSectionSeparator(.hidden)
-                        .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
-                        .listRowSeparator(.hidden)
-                    Color.clear
-                        .frame(height: 50)
-                        .listSectionSeparator(.hidden)
+            .toolbarBackground(AppColors.background)
+            .onChange(of: viewModel.isSearching) { _, newValue in
+                if newValue {
+                    hideKeyboard()
                 }
-            }
-            .listStyle(.plain)
-            .scrollIndicators(.hidden)
-            .buttonStyle(PlainButtonStyle())
-        }
-    }
-    
-    private var allCountriesView: some View {
-        ForEach(viewModel.countries) { country in
-            NavigationLink {
-                CountryView(modelContext: viewModel.modelContext, country: country, catalogNetworkManager: viewModel.catalogNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, authenticationManager: authenticationManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, catalogDataManager: viewModel.catalogDataManager)
-            } label: {
-                countryCell(country: country)
             }
         }
     }
     
     private var lastSearchResultsView: some View {
-        ForEach(viewModel.catalogNetworkManager.loadedSearchText.keys.sorted(), id: \.self) { key in
-            Button {
-                hideKeyboard()
-                viewModel.searchText = key
-            } label: {
-                HStack {
-                    Text(key)
-                        .font(.body)
-                        .padding(.vertical)
-                        .tint(.secondary)
-                   Spacer()
+        Section {
+            ForEach(viewModel.catalogNetworkManager.loadedSearchText.keys.sorted(), id: \.self) { key in
+                Button {
+                    hideKeyboard()
+                    viewModel.searchText = key
+                } label: {
+                    HStack(alignment: .firstTextBaseline) {
+                        AppImages.iconArrowUpRight
+                            .font(.caption)
+                            .bold()
+                            .foregroundStyle(.blue)
+                        Text(key)
+                            .font(.body)
+                            .padding(.vertical)
+                            .foregroundStyle(.secondary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
                 }
             }
-            .buttonStyle(.borderless)
         }
+        .listSectionSeparator(.hidden)
+        .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
     }
     
-    @ViewBuilder
     private func searchResultsView(width: CGFloat) -> some View {
         // TODO: если результаты не найдены
             Section {
@@ -202,8 +156,7 @@ struct SearchView: View {
                             }
                         }
                     }
-                    .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
-                    .listRowSeparator(.hidden)
+
                 }
                 //            if !viewModel.searchRegions.isEmpty {
                 //                Section {
@@ -293,8 +246,6 @@ struct SearchView: View {
                             .offset(x: 90)
                         LazyVGrid(columns: viewModel.gridLayout, spacing: 20) {
                             ForEach(viewModel.searchEvents) { event in
-                              //  EventCell(event: event, width: (width / 2) - 30, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, showCountryCity: true, authenticationManager: authenticationManager, showStartDayInfo: true, showStartTimeInfo: false)
-                                
                                 EventCell(event: event, showCountryCity: true, showStartDayInfo: true, showStartTimeInfo: false)//, width: (width / 2) - 30)
                             }
                         }
@@ -305,9 +256,6 @@ struct SearchView: View {
                     
                 }
             }
-        Color.clear
-            .frame(height: 50)
-            .listSectionSeparator(.hidden)
     }
     
     //TODO: дубликат PlacesView
@@ -333,7 +281,6 @@ struct SearchView: View {
         .listRowSeparator(.hidden)
     }
     
-    @ViewBuilder
     private func countryCell(country: Country) -> some View {
         VStack(spacing: 0) {
             HStack(spacing: 20) {
@@ -344,14 +291,6 @@ struct SearchView: View {
                 Text(country.name)
                     .font(.title2)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                // TODO:
-                //                                    HStack {
-                //                                        Text("25 мест")
-                //                                        Text("| ")
-                //                                        Text("17 мероприятий")
-                //                                    }
-                //                                    .foregroundStyle(.secondary)
-                //                                    .font(.caption2)
             }
             .padding(.vertical, 10)
             Divider()

@@ -14,15 +14,10 @@ extension SearchView {
     class SearchViewModel {
         
         var modelContext: ModelContext
-        //let user: AppUser?
         
-        var isLoading: Bool = false
-        var countries: [Country] = []
-        
-        var showSearchView: Bool = false
         var isSearching: Bool = false
-        //var showLastSearchResult: Bool = false
         var searchText: String = ""
+        
         var searchCountries: [Country] = []
         var searchRegions: [Region] = []
         var searchCities: [City] = []
@@ -69,80 +64,29 @@ extension SearchView {
             cancellable = textSubject
                 .debounce(for: .seconds(2), scheduler: DispatchQueue.main)
                 .sink { [weak self] searchText in
-                    guard let self else { return }
                     guard !searchText.isEmpty, searchText.first != " ", searchText.count > 2 else {
                         return
                     }
-                    self.fetchSearchResults(text: searchText)
+                    self?.fetchSearchResults(text: searchText)
                 }
             
             cancellable2 = textSubject2
                 .debounce(for: .seconds(0), scheduler: DispatchQueue.main)
                 .sink { [weak self] searchText in
-                    guard let self else { return }
                     DispatchQueue.main.async {
-                        self.searchInDB(text: searchText)
+                        self?.searchInDB(text: searchText)
                     }
                 }
-        }
-        
-        func getCountriesFromDB() {
-            print("--- SearchViewModel getCountriesFromDB()")
-            do {
-                let descriptor = FetchDescriptor<Country>(sortBy: [SortDescriptor(\.name)])
-                countries = try modelContext.fetch(descriptor)
-                if countries.isEmpty {
-                    isLoading = true
-                }
-            } catch {
-                debugPrint(error)
-            }
-        }
-        
-        func fetchCountries() {
-            guard !catalogNetworkManager.isCountriesLoaded else {
-                return
-            }
-            Task {
-                guard let decodedCountries = await catalogNetworkManager.fetchCountries() else {
-                    return
-                }
-                let ids = decodedCountries.map { $0.id }
-                var countriesToDelete: [Country] = []
-                countries.forEach { country in
-                    if !ids.contains(country.id) {
-                        countriesToDelete.append(country)
-                    }
-                }
-                await MainActor.run { [countriesToDelete] in
-                    countriesToDelete.forEach( { modelContext.delete($0) } )
-                    var newCountries: [Country] = []
-                    for decodedCountry in decodedCountries {
-                        if let country = countries.first(where: { $0.id == decodedCountry.id} ) {
-                            country.updateCountryIncomplete(decodedCountry: decodedCountry)
-                            newCountries.append(country)
-                        } else {
-                            let country = Country(decodedCountry: decodedCountry)
-                            modelContext.insert(country)
-                            newCountries.append(country)
-                        }
-                    }
-                    withAnimation {
-                        self.countries = newCountries.sorted(by: { $0.name < $1.name})
-                        isLoading = false
-                    }
-                }
-            }
         }
         
         func searchInDB(text: String) {
             guard !searchText.isEmpty else {
                 withAnimation {
-                    self.searchCountries = []
-                    self.searchRegions = []
-                    self.searchCities = []
-                    self.searchEvents = []
-                    self.searchGroupedPlaces = [:]
+                    searchCountries = []
+                    searchRegions = []
+                    searchCities = []
+                    searchEvents = []
+                    searchGroupedPlaces = [:]
                 }
                 return
             }
@@ -197,18 +141,12 @@ extension SearchView {
         }
         
         private func fetchSearchResults(text: String) {
+            isSearching = true
             Task {
-                await MainActor.run {
-                    withAnimation {
-                        isSearching = true
-                    }
-                }
                 guard !catalogNetworkManager.loadedSearchText.keys.contains(where: { $0 == text } ),
                       let result = await catalogNetworkManager.search(text: text) else {
                     await MainActor.run {
-                        withAnimation {
                             isSearching = false
-                        }
                     }
                     return
                 }
@@ -226,12 +164,10 @@ extension SearchView {
             let cities = updateCities(decodedCities: result.cities)
             let groupedPlaces = updatePlaces(decodedPlaces: result.places)
             let events = updateEvents(decodedEvents: result.events)
-            withAnimation {
                 searchRegions = regions
                 searchCities = cities
                 searchGroupedPlaces = groupedPlaces
                 searchEvents = events
-            }
             let items = SearchItems(cities: cities, regions: regions, places: groupedPlaces, events: events)
             catalogNetworkManager.addToLoadedSearchItems(result: items, for: text)
         }

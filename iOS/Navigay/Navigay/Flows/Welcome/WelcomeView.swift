@@ -75,7 +75,7 @@ struct WelcomeView: View {
                     .clipShape(Capsule())
             }
             .fullScreenCover(isPresented: $showLoginView) {
-                LoginView(viewModel: LoginViewModel(), authenticationManager: authenticationManager, errorManager: authenticationManager.errorManager) {
+                LoginView(viewModel: LoginViewModel()) {
                     onFinish()
                 }
             }

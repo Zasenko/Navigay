@@ -164,7 +164,11 @@ extension AuthNetworkManager: AuthNetworkManagerProtocol {
     }
     
     func login(email: String, password: String) async throws -> DecodedAppUser {
+        
         debugPrint("--- login()")
+        guard networkMonitorManager.isConnected else {
+            throw NetworkErrors.noConnection
+        }
         let path = "/api/auth/login.php"
         var urlComponents: URLComponents {
             var components = URLComponents()

@@ -142,11 +142,10 @@ struct AppUserView: View {
                     }
                 }
                 .fullScreenCover(isPresented: $viewModel.showLoginView) {
-                    LoginView(viewModel: LoginViewModel(), authenticationManager: authenticationManager, errorManager: authenticationManager.errorManager) {
+                    LoginView(viewModel: LoginViewModel()) {
                         viewModel.showLoginView = false
                     }
                 }
-
             }
         }
     }

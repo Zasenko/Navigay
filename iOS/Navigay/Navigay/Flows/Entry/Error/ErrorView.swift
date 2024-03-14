@@ -12,7 +12,8 @@ struct ErrorView: View {
     // MARK: - Properties
     
     @StateObject var viewModel: ErrorViewModel
-    let edge: Edge
+    let moveFrom: Edge
+    let alignment: Alignment
     // MARK: - Body
     
     var body: some View {
@@ -34,13 +35,14 @@ struct ErrorView: View {
                 }
                 .frame(maxWidth: 450)
                 .padding()
-                .background(AppColors.lightGray6)
+                .background(.ultraThickMaterial)
                 .cornerRadius(12)
                 .shadow(color: .black.opacity(0.2), radius: 2, x: 0, y: 1)
-                .transition(.move(edge: edge).combined(with: .opacity))
+                .transition(.move(edge: moveFrom).combined(with: .opacity))
             }
         }
         .padding(.horizontal)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: alignment)
     }
 }
 

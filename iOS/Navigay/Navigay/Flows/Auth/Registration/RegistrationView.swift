@@ -30,7 +30,7 @@ struct RegistrationView: View {
     
     var body: some View {
         NavigationStack {
-            ZStack(alignment: .top) {
+            ZStack {
                 listView
                     .navigationBarBackButtonHidden()
                     .toolbarBackground(.hidden, for: .navigationBar)
@@ -48,7 +48,7 @@ struct RegistrationView: View {
                             .tint(.primary)
                         }
                     }
-                ErrorView(viewModel: ErrorViewModel(errorManager: errorManager), edge: .top)
+                ErrorView(viewModel: ErrorViewModel(errorManager: errorManager), moveFrom: .top, alignment: .top)
             }
         }
     }

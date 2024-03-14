@@ -32,9 +32,9 @@ struct EventView: View {
     var body: some View {
         NavigationStack {
             GeometryReader { proxy in
-                ZStack(alignment: .topTrailing) {
+                ZStack {
                     listView(size: proxy.size)
-                    ErrorView(viewModel: ErrorViewModel(errorManager: viewModel.errorManager), edge: .bottom)
+                    ErrorView(viewModel: ErrorViewModel(errorManager: viewModel.errorManager), moveFrom: .bottom, alignment: .bottom)
                 }
                 .background {
                     ZStack(alignment: .center) {

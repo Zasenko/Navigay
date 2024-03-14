@@ -36,25 +36,31 @@ struct ForgetPasswordView: View {
     
     var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
-                Divider()
-                TextField(placeholder, text: $email)
-                    .keyboardType(.emailAddress)
-                    .autocorrectionDisabled(true)
-                    .textInputAutocapitalization(.never)
-                    .focused($focused)
-                    .onChange(of: email, initial: true) { oldValue, newValue in
-                        isEmailValid = checkEmail(email: newValue)
-                    }
-                    .padding()
-                Divider()
-                Text(info)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                
-                    .padding()
-                Spacer()
+            ZStack {
+                VStack(spacing: 0) {
+                    Divider()
+                    TextField(placeholder, text: $email)
+                        .keyboardType(.emailAddress)
+                        .autocorrectionDisabled(true)
+                        .textInputAutocapitalization(.never)
+                        .focused($focused)
+                        .onChange(of: email, initial: true) { oldValue, newValue in
+                            isEmailValid = checkEmail(email: newValue)
+                        }
+                        .padding()
+                        .onAppear {
+                            focused = true
+                        }
+                    Divider()
+                    Text(info)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    
+                        .padding()
+                    Spacer()
+                }
+                ErrorView(viewModel: ErrorViewModel(errorManager: authenticationManager.errorManager), moveFrom: .top, alignment: .top)
             }
             .navigationBarBackButtonHidden()
             .toolbarBackground(AppColors.background)
@@ -88,9 +94,6 @@ struct ForgetPasswordView: View {
                     .bold()
                     .disabled(isEmailValid)
                 }
-            }
-            .onAppear {
-                focused = true
             }
             .sheet(isPresented: $showResetPasswordView, onDismiss: {
                 onSave(email)

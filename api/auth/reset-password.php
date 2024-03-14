@@ -21,7 +21,7 @@ require_once('../dbconfig.php');
 
 $sql = "SELECT * FROM User WHERE email = ?";
 $params = [$email];
-$types = "i";
+$types = "s";
 $stmt = executeQuery($conn, $sql, $params, $types);
 $result = $stmt->get_result();
 $stmt->close();
@@ -42,17 +42,40 @@ if (checkInsertResult($stmt, $conn, 'Failed to update token in User table.')) {
     $conn->close();
 
     $reset_link = "http://navigay.me/reset_password.php?token=$token";
-    $to = $email;
-    $subject = "Восстановление пароля";
-    $message = "Для восстановления пароля перейдите по следующей ссылке: $reset_link";
-    $headers = "From: support@navigay.me";
+    $logo_url = "https://navigay.me/appimages/logo/full-logo-black.svg";
+    $support_email = "support@navigay.ru";
 
+    $to = $email;
+    $subject = "Password Reset";
+    $message = "
+    <html>
+    <head>
+      <title>$subject</title>
+    </head>
+    <body>
+      <div style='text-align: center;'>
+        <img src='$logo_url' alt='Navigay Logo' style='max-width: 200px;'>
+        <h2>Password Reset</h2>
+        <p>To reset your password, please follow the link below:</p>
+        <a href='$reset_link' style='padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px;'>Reset Password</a>
+      </div>
+      <hr>
+      <div style='text-align: center;'>
+        <p style='color: #888;'>If you did not request a password reset, please ignore this message.</p>
+        <p style='color: #888;'>If you have any questions, feel free to contact us at <a href='mailto:$support_email' style='color: #4CAF50;'>$support_email</a>.</p>
+      </div>
+    </body>
+    </html>
+    ";
+    $headers = "From: support@navigay.me\r\n";
+    $headers .= "MIME-Version: 1.0\r\n";
+    $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
     if (mail($to, $subject, $message, $headers)) {
         $json = ['result' => true];
         echo json_encode($json);
         exit;
     } else {
-        sendError('Ошибка отправки email.');
+        sendError('Error sending email.');
         exit;
     }
 }

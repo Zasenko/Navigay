@@ -80,6 +80,7 @@ extension AuthenticationManager {
             try await networkManager.resetPassword(email: email)
             return true
         } catch NetworkErrors.apiError(let apiError) {
+            debugPrint(apiError)
             let errorModel = ErrorModel(massage: "Что-то пошло не так.", img: nil, color: nil)
             errorManager.showApiErrorOrMessage(apiError: apiError, or: errorModel)
             return false
