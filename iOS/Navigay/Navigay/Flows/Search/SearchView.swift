@@ -6,36 +6,34 @@
 //
 
 import SwiftUI
-import SwiftData
 
 struct SearchView: View {
-        
+    
+    // MARK: - PrivateProperties
+    
     @State private var viewModel: SearchViewModel
     @EnvironmentObject private var authenticationManager: AuthenticationManager
     @FocusState private var focused: Bool
     @Environment(\.dismiss) private var dismiss
-    
-    @State private var showCancle: Bool = true
     @Namespace private var animation
+    
+    // MARK: - Init
     
     init(viewModel: SearchViewModel) {
         _viewModel = State(initialValue: viewModel)
     }
+    
+    // MARK: - Body
         
     var body: some View {
         NavigationStack {
-            
-                VStack(spacing: 0) {
-                    header
-                    list
-                }
-                .onChange(of: viewModel.searchText, initial: false) { _, newValue in
-                    viewModel.textSubject.send(newValue.lowercased())
-                    //viewModel.textSubject2.send(newValue.lowercased())
-                }
-            
+            VStack(spacing: 0) {
+                header
+                list
+            }
             .navigationBarBackButtonHidden()
             .toolbarTitleDisplayMode(.inline)
+            .toolbarBackground(AppColors.background)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
@@ -54,14 +52,22 @@ struct SearchView: View {
                         .font(.title2).bold()
                 }
             }
-            .toolbarBackground(AppColors.background)
             .onChange(of: viewModel.isSearching) { _, newValue in
                 if newValue {
                     hideKeyboard()
                 }
             }
+            .onChange(of: viewModel.searchText, initial: false) { _, newValue in
+                viewModel.notFound = false
+                viewModel.textSubject.send(newValue.lowercased())
+            }
+            .fullScreenCover(item: $viewModel.selectedEvent) { event in
+                EventView(viewModel: EventView.EventViewModel.init(event: event, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager))
+            }
         }
     }
+    
+    // MARK: - Views
     
     private var header: some View {
         HStack(spacing: 0) {
@@ -111,10 +117,11 @@ struct SearchView: View {
     private var list: some View {
         GeometryReader { proxy in
             List {
-                
-                // TODO: если результаты не найдены
                 if viewModel.searchText.isEmpty {
                     lastSearchResultsView
+                }
+                if viewModel.notFound {
+                    notFoundView
                 }
                 if !viewModel.searchCountries.isEmpty {
                     Section {
@@ -170,7 +177,7 @@ struct SearchView: View {
                             .offset(x: 90)
                         StaggeredGrid(columns: 3, showsIndicators: false, spacing: 10, list: viewModel.searchEvents) { event in
                             Button {
-                                //   selectedEvent = event
+                                viewModel.selectedEvent = event
                             } label: {
                                 EventCell(event: event, showCountryCity: false, showStartDayInfo: true, showStartTimeInfo: false)
                                     .matchedGeometryEffect(id: "Event\(event.id)", in: animation)
@@ -178,20 +185,19 @@ struct SearchView: View {
                         }
                         .padding(.horizontal, 10)
                         .padding(.bottom)
-                        // TODO: - нажимать на кнопку
                     }
                     .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                     .listRowSeparator(.hidden)
-                    
                 }
+                
                 Color.clear
                     .frame(height: 50)
                     .listRowSeparator(.hidden)
-                
             }
             .listSectionSeparator(.hidden)
             .listStyle(.plain)
             .scrollIndicators(.hidden)
+            .buttonStyle(PlainButtonStyle())
         }
     }
     
@@ -200,6 +206,8 @@ struct SearchView: View {
             ForEach(viewModel.catalogNetworkManager.loadedSearchText.keys.uniqued(), id: \.self) { key in
                 Button {
                     hideKeyboard()
+                    
+                    viewModel.searchInDB(text: key)
                     viewModel.searchText = key
                 } label: {
                     HStack(alignment: .firstTextBaseline) {
@@ -220,7 +228,6 @@ struct SearchView: View {
         .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
     }
     
-    //TODO: дубликат PlacesView
     private var placesView: some View {
         Section {
             ForEach(viewModel.searchGroupedPlaces.keys.sorted(), id: \.self) { key in
@@ -259,10 +266,30 @@ struct SearchView: View {
                 .offset(x: 70)
         }
     }
+    
+    private var notFoundView: some View {
+        Section {
+            VStack {
+                AppImages.iconSearchLocation
+                    .font(.largeTitle)
+                    .fontWeight(.light)
+                    .foregroundStyle(.secondary)
+                    .padding()
+                    .padding(.top)
+                Group {
+                    Text("Oops! No matches found.")
+                        .font(.title2)
+                    Text("Looks like our gay radar needs a caffeine boost! How about we try again?\n\nNavigay at your service!")
+                        .font(.callout)
+                }
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+                .textSelection(.enabled)
+                .padding()
+            }
+            .frame(maxWidth: .infinity)
+        }
+        .listSectionSeparator(.hidden)
+        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+    }
 }
-
-//#Preview {
-//    SearchView(networkManager: CatalogNetworkManager(appSettingsManager: AppSettingsManager()))
-//        .modelContainer(for: [
-//            Country.self, Region.self, City.self], inMemory: false)
-//}

@@ -16,6 +16,8 @@ extension SearchView {
         var modelContext: ModelContext
         
         var isSearching: Bool = false
+        var notFound: Bool = false
+        
         var searchText: String = ""
         
         var searchCountries: [Country] = []
@@ -24,7 +26,7 @@ extension SearchView {
         var searchEvents: [Event] = []
         var searchGroupedPlaces: [PlaceType: [Place]] = [:]
         
-        var gridLayout: [GridItem] = Array(repeating: GridItem(.flexible(), spacing: 20), count: 2)
+        var selectedEvent: Event?
         
         let catalogNetworkManager: CatalogNetworkManagerProtocol
         let placeNetworkManager: PlaceNetworkManagerProtocol
@@ -33,15 +35,10 @@ extension SearchView {
         let placeDataManager: PlaceDataManagerProtocol
         let eventDataManager: EventDataManagerProtocol
         let catalogDataManager: CatalogDataManagerProtocol
-        //   private var cancellables = Set<AnyCancellable>()
         
-        // Создаем объект PassthroughSubject для передачи значений
         let textSubject = PassthroughSubject<String, Never>()
-     //   let textSubject2 = PassthroughSubject<String, Never>()
         
-        // Создаем подписку на изменения текста
         private var cancellable: AnyCancellable?
-     //   private var cancellable2: AnyCancellable?
         
         init(modelContext: ModelContext,
              catalogNetworkManager: CatalogNetworkManagerProtocol,
@@ -59,7 +56,6 @@ extension SearchView {
             self.placeDataManager = placeDataManager
             self.eventDataManager = eventDataManager
             self.catalogDataManager = catalogDataManager
-         //   self.user = user
             
             cancellable = textSubject
                 .debounce(for: .seconds(1.5), scheduler: DispatchQueue.main)
@@ -78,69 +74,55 @@ extension SearchView {
                     }
                     self?.fetchSearchResults(text: searchText)
                 }
-            
-//            cancellable2 = textSubject2
-//                .debounce(for: .seconds(0), scheduler: DispatchQueue.main)
-//                .sink { [weak self] searchText in
-//                    guard !searchText.isEmpty else {
-//                        withAnimation {
-//                            self?.searchCountries = []
-//                            self?.searchRegions = []
-//                            self?.searchCities = []
-//                            self?.searchEvents = []
-//                            self?.searchGroupedPlaces = [:]
-//                        }
-//                        return
-//                    }
-//                    guard searchText.count > 1 else {
-//                        return
-//                    }
-//                    DispatchQueue.main.async {
-//                        self?.searchInDB(text: searchText)
-//                    }
-//                }
         }
         
         func searchInDB(text: String) {
-            do {
-                let countryDescriptor = FetchDescriptor<Country>()
-                let countries = try modelContext.fetch(countryDescriptor)
-                self.searchCountries = countries.filter({ $0.name.lowercased().contains(text.lowercased()) }).sorted(by: { $0.name < $1.name} )
+            if let result = catalogNetworkManager.loadedSearchText[text] {
+                searchRegions = result.regions
+                searchCities = result.cities
+                searchEvents = result.events
+                searchGroupedPlaces = result.places
+            } else {
                 
-                let regionDescriptor = FetchDescriptor<Region>()
-                let regions = try modelContext.fetch(regionDescriptor)
-                self.searchRegions = regions.filter({ region in
-                    if let name = region.name {
-                        return name.lowercased().contains(text)
-                    } else {
-                        return false
-                    }
-                }).sorted(by: { $0.id < $1.id} )
-                
-                let cityDescriptor = FetchDescriptor<City>()
-                let cities = try modelContext.fetch(cityDescriptor)
-                self.searchCities = cities.filter({ city in
-                    return city.name.lowercased().contains(text)
-                }).sorted(by: { $0.name < $1.name} )
-                
-                let eventDescriptor = FetchDescriptor<Event>()
-                let events = try modelContext.fetch(eventDescriptor)
-                self.searchEvents = events.filter({ event in
-                    return event.name.lowercased().contains(text)
-                }).sorted(by: { $0.startDate < $1.startDate } )
-                
-                let placeDescriptor = FetchDescriptor<Place>()
-                let allPlaces = try modelContext.fetch(placeDescriptor)
-                let places = allPlaces.filter({ place in
-                    return place.name.lowercased().contains(text)
-                })
-                let groupedPlaces = createGroupedPlaces(places: places)
-                self.searchGroupedPlaces = groupedPlaces
-            } catch {
-                debugPrint(error)
+                do {
+                    let countryDescriptor = FetchDescriptor<Country>()
+                    let countries = try modelContext.fetch(countryDescriptor)
+                    self.searchCountries = countries.filter({ $0.name.lowercased().contains(text.lowercased()) }).sorted(by: { $0.name < $1.name} )
+                    
+                    let regionDescriptor = FetchDescriptor<Region>()
+                    let regions = try modelContext.fetch(regionDescriptor)
+                    self.searchRegions = regions.filter({ region in
+                        if let name = region.name {
+                            return name.lowercased().contains(text)
+                        } else {
+                            return false
+                        }
+                    }).sorted(by: { $0.id < $1.id} )
+                    
+                    let cityDescriptor = FetchDescriptor<City>()
+                    let cities = try modelContext.fetch(cityDescriptor)
+                    self.searchCities = cities.filter({ city in
+                        return city.name.lowercased().contains(text)
+                    }).sorted(by: { $0.name < $1.name} )
+                    
+                    let eventDescriptor = FetchDescriptor<Event>()
+                    let events = try modelContext.fetch(eventDescriptor)
+                    self.searchEvents = events.filter({ event in
+                        return event.name.lowercased().contains(text)
+                    }).sorted(by: { $0.startDate < $1.startDate } )
+                    
+                    let placeDescriptor = FetchDescriptor<Place>()
+                    let allPlaces = try modelContext.fetch(placeDescriptor)
+                    let places = allPlaces.filter({ place in
+                        return place.name.lowercased().contains(text)
+                    })
+                    let groupedPlaces = createGroupedPlaces(places: places)
+                    self.searchGroupedPlaces = groupedPlaces
+                } catch {
+                    debugPrint(error)
+                }
             }
         }
-        
         
         private func fetchSearchResults(text: String) {
             Task {
@@ -156,6 +138,9 @@ extension SearchView {
                     }
                 } else {
                     if let result = await catalogNetworkManager.search(text: text) {
+                        if result.cities.isEmpty && result.events.isEmpty && result.places.isEmpty && result.regions.isEmpty {
+                            notFound = true
+                        }
                         await MainActor.run {
                             updateSearchResult(result: result, for: text)
                             isSearching = false

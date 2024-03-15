@@ -688,13 +688,6 @@
 			path = Entry;
 			sourceTree = "<group>";
 		};
-		0F6500C12ACE9AE200A58E77 /* Search */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Search;
-			sourceTree = "<group>";
-		};
 		0F6500C22ACE9AEE00A58E77 /* User */ = {
 			isa = PBXGroup;
 			children = (
@@ -959,9 +952,9 @@
 			children = (
 				0F8E3F362BA31B400052A686 /* CatalogViewModel.swift */,
 				0F8E3F352BA31B400052A686 /* CatalogView.swift */,
+				0F8E3F392BA352CB0052A686 /* Search */,
 				0FF7B8EF2B3ACBE0003A4B6A /* Country */,
 				0FF7B8F02B3ACBE8003A4B6A /* City */,
-				0F6500C12ACE9AE200A58E77 /* Search */,
 			);
 			path = Catalog;
 			sourceTree = "<group>";
@@ -972,7 +965,8 @@
 				0FF7B8EB2B384CB1003A4B6A /* SearchViewModel.swift */,
 				0F741A882ACDB66900A7759E /* SearchView.swift */,
 			);
-			path = Search;
+			name = Search;
+			path = ../Search;
 			sourceTree = "<group>";
 		};
 		0F9915242ACC6C16008416D6 /* Managers */ = {
@@ -1114,7 +1108,6 @@
 				0F741A962ACDB7A500A7759E /* TabBar */,
 				0FC965322ADD55B300108443 /* Home */,
 				0FA6C8B62AD94C6200F30B4A /* Map */,
-				0F8E3F392BA352CB0052A686 /* Search */,
 				0F8E3F2E2BA3183C0052A686 /* Catalog */,
 				0F6500C32ACE9AFE00A58E77 /* Event */,
 				0F6500C42ACE9B0500A58E77 /* Place */,
