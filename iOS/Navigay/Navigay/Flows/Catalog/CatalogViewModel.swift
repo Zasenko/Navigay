@@ -65,16 +65,18 @@ extension CatalogView {
                 guard !catalogNetworkManager.isCountriesLoaded else {
                     return
                 }
-                let errorModel = ErrorModel(massage: "Something went wrong. The information has not been updated. Please try again later.", img: nil, color: nil)
                 do {
                     let decodedCountries = try await self.catalogNetworkManager.fetchCountries()
                     await updateCoutries(decodedCountries: decodedCountries)
+                } catch NetworkErrors.noConnection {
                 } catch NetworkErrors.apiError(let apiError) {
-                    errorManager.showApiErrorOrMessage(apiError: apiError, or: errorModel)
+                    errorManager.showApiError(apiError: apiError, or: errorManager.updateMessage, img: nil, color: nil)
                 } catch {
-                    errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
+                    errorManager.showUpdateError(error: error)
                 }
-                
+                await MainActor.run {
+                    isLoading = false
+                }
             }
         }
         
@@ -100,7 +102,6 @@ extension CatalogView {
                     }
                 }
                 self.countries = newCountries.sorted(by: { $0.name < $1.name})
-                isLoading = false
             }
         }
     }

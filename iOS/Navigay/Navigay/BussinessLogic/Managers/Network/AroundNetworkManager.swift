@@ -19,17 +19,20 @@ final class AroundNetworkManager {
     // MARK: - Properties
     
     var userLocations: [CLLocation] = []
-    let appSettingsManager: AppSettingsManagerProtocol
+    let appSettingsManager: AppSettingsManagerProtocol //TODO private
     
     // MARK: - Private Properties
     
     private let scheme = "https"
     private let host = "www.navigay.me"
-    private let errorManager: ErrorManagerProtocol
     
-    init(appSettingsManager: AppSettingsManagerProtocol, errorManager: ErrorManagerProtocol) {
+    private let networkMonitorManager: NetworkMonitorManagerProtocol
+    
+    // MARK: - Inits
+    
+    init(networkMonitorManager: NetworkMonitorManagerProtocol, appSettingsManager: AppSettingsManagerProtocol) {
+        self.networkMonitorManager = networkMonitorManager
         self.appSettingsManager = appSettingsManager
-        self.errorManager = errorManager
     }
 }
 
@@ -43,6 +46,9 @@ extension AroundNetworkManager: AroundNetworkManagerProtocol {
     
     func fetchLocations(location: CLLocation) async throws -> ItemsResult {
         debugPrint("--- fetchLocations around()")
+        guard networkMonitorManager.isConnected else {
+            throw NetworkErrors.noConnection
+        }
         let path = "/api/around/get-around.php"
         var urlComponents: URLComponents {
             var components = URLComponents()

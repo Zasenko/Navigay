@@ -185,7 +185,7 @@ extension NewEventViewModel {
             }
             datestToSend.append(contentsOf: repeatDatesToSend)
             
-
+            
             
             guard !datestToSend.isEmpty else {
                 await MainActor.run {
@@ -226,6 +226,7 @@ extension NewEventViewModel {
                                               cityId: place?.city?.id,
                                               userId: user.id,
                                               sessionKey: sessionKey)
+            let massage = "Something went wrong. The event didn't load to database. Please try again later."
             do {
                 let ids = try await networkManager.addNewEvent(event: newEvent)
                 await MainActor.run {
@@ -233,19 +234,19 @@ extension NewEventViewModel {
                     self.isLoading = false
                     withAnimation {
                         self.isEventAdded = true
-                    }
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
                         self.showAddPosterView = true
                     }
-                    
                 }
+                return
+            } catch NetworkErrors.noConnection {
+                errorManager.showNetworkNoConnected()
+            } catch NetworkErrors.apiError(let apiError) {
+                errorManager.showApiError(apiError: apiError, or: errorManager.errorMessage, img: nil, color: nil)
             } catch {
-                let errorModel = ErrorModel(massage: "Something went wrong. The event didn't load to database. Please try again later.", img: nil, color: nil)
-                debugPrint("--ERROR---", error)
-                errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
-                await MainActor.run {
-                    isLoading = false
-                }
+                errorManager.showError(model: ErrorModel(error: error, massage: errorManager.errorMessage, img: nil, color: nil))
+            }
+            await MainActor.run {
+                isLoading = false
             }
         }
     }

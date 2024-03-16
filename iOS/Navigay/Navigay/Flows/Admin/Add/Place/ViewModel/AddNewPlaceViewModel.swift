@@ -67,7 +67,7 @@ extension AddNewPlaceViewModel {
     func addNewPlace() {
         isLoading = true
         Task {
-            let errorModel = ErrorModel(massage: "Something went wrong. The place didn't load to database. Please try again later.", img: nil, color: nil)
+         //   let errorModel = ErrorModel(massage: "Something went wrong. The place didn't load to database. Please try again later.", img: nil, color: nil)
             guard !name.isEmpty else { return }
             guard let type = type?.rawValue else { return }
             guard !isoCountryCode.isEmpty else { return }
@@ -106,23 +106,19 @@ extension AddNewPlaceViewModel {
                                               isChecked: isChecked)
             do {
                 let decodedResult = try await networkManager.addNewPlace(place: newPlace)
-                guard let id = decodedResult.placeId, decodedResult.result else {
-                    errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: errorModel)
-                    return
-                }
                 await MainActor.run {
                     self.isLoading = false
-                    self.placeId = id
+                    self.placeId = decodedResult
                     withAnimation {
                         self.router = .photos
                     }
                 }
+            } catch NetworkErrors.noConnection {
+                errorManager.showNetworkNoConnected()
+            } catch NetworkErrors.apiError(let apiError) {
+                errorManager.showApiError(apiError: apiError, or: errorManager.errorMessage, img: nil, color: nil)
             } catch {
-                debugPrint("ERROR - addNewPlace: ", error)
-                errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
-                await MainActor.run {
-                    self.isLoading = false
-                }
+                errorManager.showError(model: ErrorModel(error: error, massage: errorManager.errorMessage, img: nil, color: nil))
             }
         }
     }

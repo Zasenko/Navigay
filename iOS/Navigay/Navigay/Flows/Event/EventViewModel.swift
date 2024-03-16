@@ -42,23 +42,22 @@ extension EventView {
         //MARK: - Functions
         
         func loadEvent() {
-            print("loadEvent()")
+            debugPrint("loadEvent()")
             loadPoster()
             Task {
                 guard !eventNetworkManager.loadedEvents.contains(where: { $0 == event.id}) else {
                     return
                 }
-                let errorModel = ErrorModel(massage: "Something went wrong. The information has not been updated. Please try again later.", img: nil, color: nil)
                 do {
                     let decodedEvent = try await eventNetworkManager.fetchEvent(id: event.id)
                     await MainActor.run {
                         updateEvent(decodedEvent: decodedEvent)
                     }
+                } catch NetworkErrors.noConnection {
                 } catch NetworkErrors.apiError(let apiError) {
-                    errorManager.showApiErrorOrMessage(apiError: apiError, or: errorModel)
+                    errorManager.showApiError(apiError: apiError, or: errorManager.updateMessage, img: nil, color: nil)
                 } catch {
-                    debugPrint(error)
-                    errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
+                    errorManager.showError(model: ErrorModel(error: error, massage: errorManager.updateMessage))
                 }
             }
         }

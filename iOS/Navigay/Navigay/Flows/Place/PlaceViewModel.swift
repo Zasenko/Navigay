@@ -79,13 +79,20 @@ extension PlaceView {
         //MARK: - Functions
         
         func fetchPlace() {
+            guard !placeNetworkManager.loadedPlaces.contains(where: { $0 ==  place.id } ) else {
+                return
+            }
             Task {
-                guard let decodedPlace = await placeNetworkManager.fetchPlace(id: place.id) else {
-                    return
-                }
-                
-                await MainActor.run {
-                    updateFetchedResult(decodedPlace: decodedPlace)
+                do {
+                    let decodedPlace = try await placeNetworkManager.fetchPlace(id: place.id)
+                    await MainActor.run {
+                        updateFetchedResult(decodedPlace: decodedPlace)
+                    }
+                } catch NetworkErrors.noConnection {
+                } catch NetworkErrors.apiError(let apiError) {
+                    errorManager.showApiError(apiError: apiError, or: errorManager.updateMessage, img: nil, color: nil)
+                } catch {
+                    errorManager.showUpdateError(error: error)
                 }
             }
         }
@@ -122,11 +129,17 @@ extension PlaceView {
         
         func fetchComments() {
             Task {
-                guard let decodedComments = await placeNetworkManager.fetchComments(placeID: place.id) else {
-                    return
-                }
-                await MainActor.run {
-                    comments = decodedComments.filter( { $0.isActive } )
+                let message = "Oops! Looks like the comments failed to load. Don't worry, we're actively working to resolve the issue."
+                do {
+                    let decodedComments = try await placeNetworkManager.fetchComments(placeID: place.id)
+                    await MainActor.run {
+                        comments = decodedComments.filter( { $0.isActive } )
+                    }
+                } catch NetworkErrors.noConnection {
+                } catch NetworkErrors.apiError(let apiError) {
+                    errorManager.showApiError(apiError: apiError, or: message, img: nil, color: nil)
+                } catch {
+                    errorManager.showError(model: ErrorModel(error: error, massage: message))
                 }
             }
         }

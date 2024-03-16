@@ -107,17 +107,17 @@ struct AppUserView: View {
                             .alert("Delete Account", isPresented: $viewModel.showDeleteAccountAlert) {
                                 Button("Delete", role: .destructive) {
                                     Task {
-                                        do {
-                                            try await authenticationManager.deleteAccount(user: user)
-                                            await MainActor.run {
-                                                likedPlaces.forEach( { $0.isLiked = false } )
-                                                likedEvents.forEach( { $0.isLiked = false } )
-                                                viewModel.deleteAccountButtonTapped(for: user)
-                                                authenticationManager.appUser = nil
+                                        let result = try await authenticationManager.deleteAccount(user: user)
+                                            if result {
+                                                await MainActor.run {
+                                                    likedPlaces.forEach( { $0.isLiked = false } )
+                                                    likedEvents.forEach( { $0.isLiked = false } )
+                                                    viewModel.deleteAccountButtonTapped(for: user)
+                                                    authenticationManager.appUser = nil
+                                                    
+                                                    //todo: show deleteAccauntSheet true
+                                                }
                                             }
-                                        } catch {
-                                            debugPrint("-Error- Delete Account: ", error)
-                                        }
                                     }
                                 }
                                 Button("Cancel", role: .cancel) {

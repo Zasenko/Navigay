@@ -237,7 +237,6 @@ struct EventView: View {
                 .padding(.bottom)
                 
                 HStack(spacing: 10) {
-                    
                     if let user = authenticationManager.appUser, user.status == .admin {
                         Menu {
                             Button("Edit") {
@@ -256,16 +255,16 @@ struct EventView: View {
                                 .background(viewModel.showInfo ? .ultraThickMaterial : .ultraThinMaterial)
                                 .clipShape(.circle)
                         }
-                        .fullScreenCover(isPresented: $viewModel.showEditView) {
-                            viewModel.showEditView = false
-                        } content: {
-                            EditEventView(viewModel: EditEventViewModel(eventID: viewModel.event.id, event: viewModel.event, networkManager: AdminNetworkManager(errorManager: viewModel.errorManager)))
-                        }
-                        .fullScreenCover(isPresented: $viewModel.showNewEvetnView) {
-                            viewModel.showNewEvetnView = false
-                        } content: {
-                            NewEventView(viewModel: NewEventViewModel(place: nil, copy: viewModel.event, networkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager), authenticationManager: authenticationManager)
-                        }
+//                        .fullScreenCover(isPresented: $viewModel.showEditView) {
+//                            viewModel.showEditView = false
+//                        } content: {
+//                            EditEventView(viewModel: EditEventViewModel(eventID: viewModel.event.id, event: viewModel.event, networkManager: AdminNetworkManager(errorManager: viewModel.errorManager)))
+//                        }
+//                        .fullScreenCover(isPresented: $viewModel.showNewEvetnView) {
+//                            viewModel.showNewEvetnView = false
+//                        } content: {
+//                            NewEventView(viewModel: NewEventViewModel(place: nil, copy: viewModel.event, networkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager), authenticationManager: authenticationManager)
+//                        }
                     }
                     Button {
                         // douplicate button - to do function

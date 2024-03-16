@@ -147,7 +147,7 @@ extension HomeView {
         //MARK: - Private Functions
         
         private func fetch(location: CLLocation) async {
-            let errorModel = ErrorModel(massage: "Something went wrong. The information didn't update. Please try again later.", img: nil, color: nil)
+            let massage = "Something went wrong. The information didn't update. Please try again later."
             do {
                 let decodedResult = try await aroundNetworkManager.fetchLocations(location: location)
                 await MainActor.run {
@@ -166,9 +166,13 @@ extension HomeView {
                     updateFetchedResult(places: places.sorted(by: { $0.name < $1.name }), events: events.sorted(by: { $0.id < $1.id }), userLocation: location)
                 }
             } catch NetworkErrors.apiError(let error) {
-                errorManager.showApiErrorOrMessage(apiError: error, or: errorModel)
+                if let error, error.show {
+                    errorManager.showError(model: ErrorModel(error: NetworkErrors.api, massage: error.message))
+                } else {
+                    errorManager.showError(model: ErrorModel(error: NetworkErrors.api, massage: massage))
+                }
             } catch {
-                errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
+                errorManager.showError(model: ErrorModel(error: error, massage: massage))
             }
         }
         

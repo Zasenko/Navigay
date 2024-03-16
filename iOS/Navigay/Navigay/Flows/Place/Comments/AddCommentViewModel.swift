@@ -8,7 +8,7 @@
 import SwiftUI
 
 
-
+//TODO ???? Image (есть такая же модель)
 struct ImageToSend: Identifiable, Equatable {
     
     let id: String
@@ -38,11 +38,13 @@ final class AddCommentViewModel: ObservableObject {
     var imagesToSend: [ImageToSend] = []
     
     private let placeId: Int
-    private let placeNetworkManager: PlaceNetworkManagerProtocol
+    private let placeNetworkManager: PlaceNetworkManagerProtocol //TODO: CommentsNetworkManager
+    private let errorManager: ErrorManagerProtocol
     
-    init(placeId: Int, placeNetworkManager: PlaceNetworkManagerProtocol) {
+    init(placeId: Int, placeNetworkManager: PlaceNetworkManagerProtocol, errorManager: ErrorManagerProtocol) {
         self.placeId = placeId
         self.placeNetworkManager = placeNetworkManager
+        self.errorManager = errorManager
     }
 }
 
@@ -74,14 +76,20 @@ extension AddCommentViewModel {
                                      comment: text,
                                      rating: rating != 0 ? rating : nil,
                                      photos: imagesToSend.isEmpty ? nil : imagesToSend.compactMap { $0.image.toData() })
-            let result = await placeNetworkManager.addComment(comment: comment)
-            await MainActor.run {
-                if result {
-                    isLoading = false
+            do {
+                try await placeNetworkManager.addComment(comment: comment)
+                await MainActor.run {
                     isAdded = true
-                } else {
-                    isLoading = false
                 }
+            } catch NetworkErrors.noConnection {
+                errorManager.showNetworkNoConnected()
+            } catch NetworkErrors.apiError(let apiError) {
+                errorManager.showApiError(apiError: apiError, or: errorManager.errorMessage, img: nil, color: nil)
+            } catch {
+                errorManager.showError(model: ErrorModel(error: error, massage: errorManager.errorMessage, img: nil, color: nil))
+            }
+            await MainActor.run {
+                isLoading = false
             }
         }
     }

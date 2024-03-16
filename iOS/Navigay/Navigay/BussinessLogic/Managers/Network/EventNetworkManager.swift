@@ -10,12 +10,15 @@ import SwiftUI
 protocol EventNetworkManagerProtocol {
     var loadedEvents: [Int] { get set }
     func addToLoadedEvents(id: Int)
+    
     func fetchEvent(id: Int) async throws -> DecodedEvent
+    func fetchEvent(id: Int, for user: AppUser) async throws -> AdminEvent
     func addNewEvent(event: NewEvent) async throws -> [Int]
     func addPosterToEvents(with ids: [Int], poster: UIImage, smallPoster: UIImage, addedBy: Int, sessionKey: String) async throws
     func updatePoster(eventId: Int, poster: UIImage, smallPoster: UIImage, user: AppUser) async throws -> PosterUrls
     func deletePoster(eventId: Int, user: AppUser) async throws
     func deleteEvent(eventId: Int, user: AppUser) async throws
+    func updateEventAbout(id: Int, about: String, for user: AppUser) async throws
     func sendComplaint(eventId: Int, user: AppUser, reason: String) async throws
 }
 
@@ -30,23 +33,107 @@ final class EventNetworkManager {
     private let scheme = "https"
     private let host = "www.navigay.me"
     
+    private let networkMonitorManager: NetworkMonitorManagerProtocol
     private let appSettingsManager: AppSettingsManagerProtocol
-    private let errorManager: ErrorManagerProtocol
     
     // MARK: - Inits
     
-    init(appSettingsManager: AppSettingsManagerProtocol, errorManager: ErrorManagerProtocol) {
+    init(networkMonitorManager: NetworkMonitorManagerProtocol, appSettingsManager: AppSettingsManagerProtocol) {
+        self.networkMonitorManager = networkMonitorManager
         self.appSettingsManager = appSettingsManager
-        self.errorManager = errorManager
     }
 }
 
 // MARK: - AuthNetworkManagerProtocol
 
 extension EventNetworkManager: EventNetworkManagerProtocol {
+    func fetchEvent(id: Int, for user: AppUser) async throws -> AdminEvent {
+        debugPrint("-AdminNetworkManager- getEvent id \(id)")
+        guard networkMonitorManager.isConnected else {
+            throw NetworkErrors.noConnection
+        }
+        guard let sessionKey = user.sessionKey else {
+            throw NetworkErrors.noSessionKey
+        }
+        let path = "/api/admin/get-event.php"
+        var urlComponents: URLComponents {
+            var components = URLComponents()
+            components.scheme = scheme
+            components.host = host
+            components.path = path
+            return components
+        }
+        guard let url = urlComponents.url else {
+            throw NetworkErrors.bedUrl
+        }
+        let parameters = [
+            "event_id": String(id),
+            "user_id": String(user.id),
+            "session_key": sessionKey,
+        ]
+        let requestData = try JSONSerialization.data(withJSONObject: parameters)
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = requestData
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
+            throw NetworkErrors.invalidData
+        }
+        guard let decodedResult = try? JSONDecoder().decode(AdminEventResult.self, from: data) else {
+            throw NetworkErrors.decoderError
+        }
+        guard decodedResult.result, let decodedEvent = decodedResult.event else {
+            throw NetworkErrors.apiError(decodedResult.error)
+        }
+        return decodedEvent
+    }
+    
+    func updateEventAbout(id: Int, about: String, for user: AppUser) async throws {
+        debugPrint("--- AdminNetworkManager updateEventAbout event id \(id)")
+        guard networkMonitorManager.isConnected else {
+            throw NetworkErrors.noConnection
+        }
+        guard let sessionKey = user.sessionKey else {
+            throw NetworkErrors.noSessionKey
+        }
+        let path = "/api/admin/update-event-about.php"
+        var urlComponents: URLComponents {
+            var components = URLComponents()
+            components.scheme = scheme
+            components.host = host
+            components.path = path
+            return components
+        }
+        guard let url = urlComponents.url else {
+            throw NetworkErrors.bedUrl
+        }
+        let parameters = [
+            "event_id": String(id),
+            "about": about,
+        ]
+        let requestData = try JSONSerialization.data(withJSONObject: parameters)
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = requestData
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
+            throw NetworkErrors.invalidData
+        }
+        guard let decodedResult = try? JSONDecoder().decode(ApiResult.self, from: data) else {
+            throw NetworkErrors.decoderError
+        }
+        guard decodedResult.result else {
+            throw NetworkErrors.apiError(decodedResult.error)
+        }
+    }
     
     func deletePoster(eventId: Int, user: AppUser) async throws {
         debugPrint("-EventNetworkManager- deletePoster eventId: \(eventId)")
+        guard networkMonitorManager.isConnected else {
+            throw NetworkErrors.noConnection
+        }
         guard let sessionKey = user.sessionKey else {
             throw NetworkErrors.noSessionKey
         }
@@ -85,6 +172,9 @@ extension EventNetworkManager: EventNetworkManagerProtocol {
     
     func deleteEvent(eventId: Int, user: AppUser) async throws {
         debugPrint("-EventNetworkManager- deleteEvent eventId: \(eventId)")
+        guard networkMonitorManager.isConnected else {
+            throw NetworkErrors.noConnection
+        }
         guard let sessionKey = user.sessionKey else {
             throw NetworkErrors.noSessionKey
         }
@@ -133,6 +223,9 @@ extension EventNetworkManager: EventNetworkManagerProtocol {
     
     func fetchEvent(id: Int) async throws -> DecodedEvent {
         debugPrint("--- fetchEvent(id: \(id)")
+        guard networkMonitorManager.isConnected else {
+            throw NetworkErrors.noConnection
+        }
         let path = "/api/event/get-event.php"
         var urlComponents: URLComponents {
             var components = URLComponents()
@@ -165,6 +258,9 @@ extension EventNetworkManager: EventNetworkManagerProtocol {
     }
     
     func addNewEvent(event: NewEvent) async throws -> [Int] {
+        guard networkMonitorManager.isConnected else {
+            throw NetworkErrors.noConnection
+        }
         let path = "/api/event/add-new-event.php"
         var urlComponents: URLComponents {
             var components = URLComponents()
@@ -173,34 +269,33 @@ extension EventNetworkManager: EventNetworkManagerProtocol {
             components.path = path
             return components
         }
-        do {
-            guard let url = urlComponents.url else {
-                throw NetworkErrors.bedUrl
-            }
-            var request = URLRequest(url: url)
-            request.httpMethod = "POST"
-            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-            let jsonData = try JSONEncoder().encode(event)
-            request.httpBody = jsonData
-            let (data, response) = try await URLSession.shared.data(for: request)
-            guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
-                throw NetworkErrors.invalidData
-            }
-            guard let decodedResult = try? JSONDecoder().decode(NewEventResult.self, from: data) else {
-                throw NetworkErrors.decoderError
-            }
-            guard decodedResult.result,
-                  let ids = decodedResult.ids,
-                  !ids.isEmpty else {
-                throw NetworkErrors.apiError(decodedResult.error)
-            }
-            return ids
-        } catch {
-            throw error
+        guard let url = urlComponents.url else {
+            throw NetworkErrors.bedUrl
         }
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        let jsonData = try JSONEncoder().encode(event)
+        request.httpBody = jsonData
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
+            throw NetworkErrors.invalidData
+        }
+        guard let decodedResult = try? JSONDecoder().decode(NewEventResult.self, from: data) else {
+            throw NetworkErrors.decoderError
+        }
+        guard decodedResult.result,
+              let ids = decodedResult.ids,
+              !ids.isEmpty else {
+            throw NetworkErrors.apiError(decodedResult.error)
+        }
+        return ids
     }
     
     func updatePoster(eventId: Int, poster: UIImage, smallPoster: UIImage, user: AppUser) async throws -> PosterUrls {
+        guard networkMonitorManager.isConnected else {
+            throw NetworkErrors.noConnection
+        }
         guard let sessionKey = user.sessionKey else {
             throw NetworkErrors.noSessionKey
         }
@@ -219,25 +314,24 @@ extension EventNetworkManager: EventNetworkManagerProtocol {
         request.httpMethod = "POST"
         let boundary = UUID().uuidString
         request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
-        do {
-            request.httpBody = try await createBodyPosterUpdating(poster: poster, smallPoster: smallPoster, eventId: eventId, userID: user.id, sessionKey: sessionKey, boundary: boundary)
-            let (data, response) = try await URLSession.shared.data(for: request)
-            guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
-                throw NetworkErrors.invalidData
-            }
-            guard let decodedResult = try? JSONDecoder().decode(PosterResult.self, from: data) else {
-                throw NetworkErrors.decoderError
-            }
-            guard decodedResult.result, let posterUrls = decodedResult.poster else {
-                throw NetworkErrors.apiError(decodedResult.error)
-            }
-            return posterUrls
-        } catch {
-            throw error
+        request.httpBody = try await createBodyPosterUpdating(poster: poster, smallPoster: smallPoster, eventId: eventId, userID: user.id, sessionKey: sessionKey, boundary: boundary)
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
+            throw NetworkErrors.invalidData
         }
+        guard let decodedResult = try? JSONDecoder().decode(PosterResult.self, from: data) else {
+            throw NetworkErrors.decoderError
+        }
+        guard decodedResult.result, let posterUrls = decodedResult.poster else {
+            throw NetworkErrors.apiError(decodedResult.error)
+        }
+        return posterUrls
     }
     
     func addPosterToEvents(with ids: [Int], poster: UIImage, smallPoster: UIImage, addedBy: Int, sessionKey: String) async throws {
+        guard networkMonitorManager.isConnected else {
+            throw NetworkErrors.noConnection
+        }
         let path = "/api/event/add-new-poster.php"
         var urlComponents: URLComponents {
             var components = URLComponents()
@@ -253,20 +347,16 @@ extension EventNetworkManager: EventNetworkManagerProtocol {
         request.httpMethod = "POST"
         let boundary = UUID().uuidString
         request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
-        do {
-            request.httpBody = try await createBodyEventsPosterUpdating(poster: poster, smallPoster: smallPoster, boundary: boundary, eventIDs: ids, addedBy: addedBy, sessionKey: sessionKey)
-            let (data, response) = try await URLSession.shared.data(for: request)
-            guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
-                throw NetworkErrors.invalidData
-            }
-            guard let decodedResult = try? JSONDecoder().decode(ApiResult.self, from: data) else {
-                throw NetworkErrors.decoderError
-            }
-            guard decodedResult.result else {
-                throw NetworkErrors.apiError(decodedResult.error)
-            }
-        } catch {
-            throw error
+        request.httpBody = try await createBodyEventsPosterUpdating(poster: poster, smallPoster: smallPoster, boundary: boundary, eventIDs: ids, addedBy: addedBy, sessionKey: sessionKey)
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
+            throw NetworkErrors.invalidData
+        }
+        guard let decodedResult = try? JSONDecoder().decode(ApiResult.self, from: data) else {
+            throw NetworkErrors.decoderError
+        }
+        guard decodedResult.result else {
+            throw NetworkErrors.apiError(decodedResult.error)
         }
     }
 }

@@ -9,33 +9,25 @@ import SwiftUI
 
 protocol AdminNetworkManagerProtocol {
     
-    func fetchEvent(id: Int, for user: AppUser) async throws -> AdminEvent
-    
-    
-    func updateCity(city: AdminCity) async -> Bool
-    
-    func getCountries() async -> [AdminCountry]?
-    
+    func updateCity(city: AdminCity, for user: AppUser) async throws
+    func getCountries(for user: AppUser) async throws -> [AdminCountry]
   //  func fetchRegions(country id: Int) async -> AdminCountry?
     
+    func fetchCountry(id: Int, for user: AppUser) async throws -> AdminCountry
+    func fetchCity(id: Int, for user: AppUser) async throws -> AdminCity
+    func fetchPlace(id: Int, for user: AppUser) async throws -> AdminPlace
     
-    func fetchCountry(id: Int) async -> AdminCountry?
-    func fetchCity(id: Int) async -> AdminCity?
-    func fetchPlace(id: Int) async -> AdminPlace?
+    func updatePlaceAbout(id: Int, about: String, for user: AppUser) async throws
     
-    func updatePlaceAbout(id: Int, about: String) async -> Bool
-    func updateEventAbout(id: Int, about: String) async -> Bool
+    func getAdminInfo(for user: AppUser) async throws -> AdminInfo
+    func updateCountry(country: AdminCountry, for user: AppUser) async throws
+    func updateCountryPhoto(countryId: Int, uiImage: UIImage, for user: AppUser) async throws -> String
+    func updateRegion(region: AdminRegion, for user: AppUser) async throws
+    func updateRegionPhoto(regionId: Int, uiImage: UIImage, for user: AppUser) async throws -> String
     
-    //TODO: избавиться от throws (ошибку обрабатывать тут на примере fetchPlace)
-    func getAdminInfo() async throws -> AdminInfoResult
-    func updateCountry(country: AdminCountry) async throws -> ApiResult
-    func updateCountryPhoto(countryId: Int, uiImage: UIImage) async throws -> ImageResult
-    func updateRegion(region: AdminRegion) async throws -> ApiResult
-    func updateRegionPhoto(regionId: Int, uiImage: UIImage) async throws -> ImageResult
-    
-    func updateCityPhoto(cityId: Int, uiImage: UIImage) async throws -> ImageResult
-    func updateCityLibraryPhoto(cityId: Int, photoId: String, uiImage: UIImage) async throws -> ImageResult
-    func deleteCityLibraryPhoto(cityId: Int, photoId: String) async throws -> ApiResult
+    func updateCityPhoto(cityId: Int, uiImage: UIImage, uiImageSmall: UIImage, for user: AppUser) async throws -> PosterUrls
+    func updateCityLibraryPhoto(cityId: Int, photoId: String, uiImage: UIImage, for user: AppUser) async throws -> String
+    func deleteCityLibraryPhoto(cityId: Int, photoId: String, for user: AppUser) async throws
 }
 
 final class AdminNetworkManager {
@@ -44,64 +36,31 @@ final class AdminNetworkManager {
     
     private let scheme = "https"
     private let host = "www.navigay.me"
+        
+    private let networkMonitorManager: NetworkMonitorManagerProtocol
+    private let appSettingsManager: AppSettingsManagerProtocol
     
-    private let errorManager: ErrorManagerProtocol
+    // MARK: - Inits
     
-    init(errorManager: ErrorManagerProtocol) {
-        self.errorManager = errorManager
+    init(networkMonitorManager: NetworkMonitorManagerProtocol, appSettingsManager: AppSettingsManagerProtocol) {
+        self.networkMonitorManager = networkMonitorManager
+        self.appSettingsManager = appSettingsManager
     }
 }
 
 // MARK: - AuthNetworkManagerProtocol
 
 extension AdminNetworkManager: AdminNetworkManagerProtocol {
-    
-    func fetchEvent(id: Int, for user: AppUser) async throws -> AdminEvent {
-        debugPrint("-AdminNetworkManager- getEvent id \(id)")
-        let path = "/api/admin/get-event.php"
-        var urlComponents: URLComponents {
-            var components = URLComponents()
-            components.scheme = scheme
-            components.host = host
-            components.path = path
-            return components
-        }
-        do {
-            guard let sessionKey = user.sessionKey else {
-                throw NetworkErrors.noSessionKey
-            }
-            guard let url = urlComponents.url else {
-                throw NetworkErrors.bedUrl
-            }
-            let parameters = [
-                "event_id": String(id),
-                "user_id": String(user.id),
-                "session_key": sessionKey,
-            ]
-            let requestData = try JSONSerialization.data(withJSONObject: parameters)
-            var request = URLRequest(url: url)
-            request.httpMethod = "POST"
-            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-            request.httpBody = requestData
-            let (data, response) = try await URLSession.shared.data(for: request)
-            guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
-                throw NetworkErrors.invalidData
-            }
-            guard let decodedResult = try? JSONDecoder().decode(AdminEventResult.self, from: data) else {
-                throw NetworkErrors.decoderError
-            }
-            guard decodedResult.result, let decodedEvent = decodedResult.event else {
-                throw NetworkErrors.apiError(decodedResult.error)
-            }
-            return decodedEvent
-        } catch {
-            throw error
-        }
-    }
 
-    func updateCity(city: AdminCity) async -> Bool {
-        let errorModel = ErrorModel(massage: "Something went wrong. Please try again later.", img: nil, color: nil)
+    func updateCity(city: AdminCity, for user: AppUser) async throws {
         debugPrint("--- AdminNetworkManager updateCity(city id: \(city.id))")
+        guard networkMonitorManager.isConnected else {
+            throw NetworkErrors.noConnection
+        }
+        guard let sessionKey = user.sessionKey else {
+            throw NetworkErrors.noSessionKey
+        }
+        
         let path = "/api/admin/update-city.php"
         var urlComponents: URLComponents {
             var components = URLComponents()
@@ -110,40 +69,35 @@ extension AdminNetworkManager: AdminNetworkManagerProtocol {
             components.path = path
             return components
         }
-        do {
-            guard let url = urlComponents.url else {
-                throw NetworkErrors.bedUrl
-            }
-            var request = URLRequest(url: url)
-            request.httpMethod = "POST"
-            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-            
-            let jsonData = try JSONEncoder().encode(city)
-            request.httpBody = jsonData
-            let (data, response) = try await URLSession.shared.data(for: request)
-            guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
-                throw NetworkErrors.invalidData
-            }
-            guard let decodedResult = try? JSONDecoder().decode(ApiResult.self, from: data) else {
-                throw NetworkErrors.decoderError
-            }
-            guard decodedResult.result else {
-                errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: errorModel)
-                debugPrint("-API ERROR- AdminNetworkManager updateCity(city id: \(city.id))", decodedResult.error?.message ?? "")
-                return false
-            }
-            return true
-        } catch {
-            errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
-            debugPrint("-ERROR- AdminNetworkManager updateCity(city id: \(city.id)) : ", error)
-            return false
+        guard let url = urlComponents.url else {
+            throw NetworkErrors.bedUrl
+        }
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        let jsonData = try JSONEncoder().encode(city)
+        request.httpBody = jsonData
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
+            throw NetworkErrors.invalidData
+        }
+        guard let decodedResult = try? JSONDecoder().decode(ApiResult.self, from: data) else {
+            throw NetworkErrors.decoderError
+        }
+        guard decodedResult.result else {
+            throw NetworkErrors.apiError(decodedResult.error)
         }
     }
     
     
-    func updatePlaceAbout(id: Int, about: String) async -> Bool {
-        let errorModel = ErrorModel(massage: "Something went wrong. Please try again later.", img: nil, color: nil)
+    func updatePlaceAbout(id: Int, about: String, for user: AppUser) async throws {
         debugPrint("--- AdminNetworkManager updatePlaceAbout place id \(id)")
+        guard networkMonitorManager.isConnected else {
+            throw NetworkErrors.noConnection
+        }
+        guard let sessionKey = user.sessionKey else {
+            throw NetworkErrors.noSessionKey
+        }
         let path = "/api/admin/update-place-about.php"
         var urlComponents: URLComponents {
             var components = URLComponents()
@@ -152,88 +106,38 @@ extension AdminNetworkManager: AdminNetworkManagerProtocol {
             components.path = path
             return components
         }
-        do {
-            guard let url = urlComponents.url else {
-                throw NetworkErrors.bedUrl
-            }
-            let parameters = [
-                "place_id": String(id),
-                "about": about,
-            ]
-            let requestData = try JSONSerialization.data(withJSONObject: parameters)
-            var request = URLRequest(url: url)
-            request.httpMethod = "POST"
-            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-            request.httpBody = requestData
-            let (data, response) = try await URLSession.shared.data(for: request)
-            guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
-                throw NetworkErrors.invalidData
-            }
-            guard let decodedResult = try? JSONDecoder().decode(ApiResult.self, from: data) else {
-                throw NetworkErrors.decoderError
-            }
-            guard decodedResult.result else {
-                errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: errorModel)
-                debugPrint("-API ERROR- AdminNetworkManager updatePlaceAbout place id \(id) : ", decodedResult.error?.message ?? "")
-                return false
-            }
-            return true
-        } catch {
-            errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
-            debugPrint("-ERROR- AdminNetworkManager updatePlaceAbout place id \(id) : ", error)
-            return false
+        guard let url = urlComponents.url else {
+            throw NetworkErrors.bedUrl
         }
-        
+        let parameters = [
+            "place_id": String(id),
+            "about": about,
+        ]
+        let requestData = try JSONSerialization.data(withJSONObject: parameters)
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = requestData
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
+            throw NetworkErrors.invalidData
+        }
+        guard let decodedResult = try? JSONDecoder().decode(ApiResult.self, from: data) else {
+            throw NetworkErrors.decoderError
+        }
+        guard decodedResult.result else {
+            throw NetworkErrors.apiError(decodedResult.error)
+        }
     }
     
-    func updateEventAbout(id: Int, about: String) async -> Bool {
-        let errorModel = ErrorModel(massage: "Something went wrong. Please try again later.", img: nil, color: nil)
-        debugPrint("--- AdminNetworkManager updateEventAbout event id \(id)")
-        let path = "/api/admin/update-event-about.php"
-        var urlComponents: URLComponents {
-            var components = URLComponents()
-            components.scheme = scheme
-            components.host = host
-            components.path = path
-            return components
-        }
-        do {
-            guard let url = urlComponents.url else {
-                throw NetworkErrors.bedUrl
-            }
-            let parameters = [
-                "event_id": String(id),
-                "about": about,
-            ]
-            let requestData = try JSONSerialization.data(withJSONObject: parameters)
-            var request = URLRequest(url: url)
-            request.httpMethod = "POST"
-            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-            request.httpBody = requestData
-            let (data, response) = try await URLSession.shared.data(for: request)
-            guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
-                throw NetworkErrors.invalidData
-            }
-            guard let decodedResult = try? JSONDecoder().decode(ApiResult.self, from: data) else {
-                throw NetworkErrors.decoderError
-            }
-            guard decodedResult.result else {
-                errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: errorModel)
-                debugPrint("-API ERROR- AdminNetworkManager updateEventAbout event id \(id) : ", decodedResult.error?.message ?? "")
-                return false
-            }
-            return true
-        } catch {
-            errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
-            debugPrint("-ERROR- AdminNetworkManager updateEventAbout event id \(id) : ", error)
-            return false
-        }
-        
-    }
-    
-    func fetchPlace(id: Int) async -> AdminPlace? {
-        let errorModel = ErrorModel(massage: "Something went wrong. Please try again later.", img: nil, color: nil)
+    func fetchPlace(id: Int, for user: AppUser) async throws -> AdminPlace {
         debugPrint("--- AdminNetworkManager fetchPlace id \(id)")
+        guard networkMonitorManager.isConnected else {
+            throw NetworkErrors.noConnection
+        }
+        guard let sessionKey = user.sessionKey else {
+            throw NetworkErrors.noSessionKey
+        }
         let path = "/api/admin/get-place.php"
         var urlComponents: URLComponents {
             var components = URLComponents()
@@ -245,36 +149,32 @@ extension AdminNetworkManager: AdminNetworkManagerProtocol {
             ]
             return components
         }
-        do {
-            guard let url = urlComponents.url else {
-                throw NetworkErrors.bedUrl
-            }
-            var request = URLRequest(url: url)
-            request.httpMethod = "GET"
-            let (data, response) = try await URLSession.shared.data(for: request)
-            guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
-                throw NetworkErrors.invalidData
-            }
-            guard let decodedResult = try? JSONDecoder().decode(AdminPlaceResult.self, from: data) else {
-                throw NetworkErrors.decoderError
-            }
-            guard decodedResult.result, let decodedPlace = decodedResult.place else {
-                errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: errorModel)
-                debugPrint("-API ERROR- AdminNetworkManager fetchPlace id \(id) : ", decodedResult.error?.message ?? "")
-                return nil
-            }
-            return decodedPlace
-        } catch {
-            errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
-            debugPrint("-ERROR- AdminNetworkManager fetchPlace id \(id) : ", error)
-            return nil
+        guard let url = urlComponents.url else {
+            throw NetworkErrors.bedUrl
         }
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
+            throw NetworkErrors.invalidData
+        }
+        guard let decodedResult = try? JSONDecoder().decode(AdminPlaceResult.self, from: data) else {
+            throw NetworkErrors.decoderError
+        }
+        guard decodedResult.result, let decodedPlace = decodedResult.place else {
+            throw NetworkErrors.apiError(decodedResult.error)
+        }
+        return decodedPlace
     }
     
-    
-    func fetchCity(id: Int) async -> AdminCity? {
-        let errorModel = ErrorModel(massage: "Something went wrong. The information has not been updated. Please try again later.", img: nil, color: nil)
+    func fetchCity(id: Int, for user: AppUser) async throws -> AdminCity {
         debugPrint("--- AdminNetworkManager fetchCity id \(id)")
+        guard networkMonitorManager.isConnected else {
+            throw NetworkErrors.noConnection
+        }
+        guard let sessionKey = user.sessionKey else {
+            throw NetworkErrors.noSessionKey
+        }
         let path = "/api/admin/get-city.php"
         var urlComponents: URLComponents {
             var components = URLComponents()
@@ -286,35 +186,32 @@ extension AdminNetworkManager: AdminNetworkManagerProtocol {
             ]
             return components
         }
-        do {
-            guard let url = urlComponents.url else {
-                throw NetworkErrors.bedUrl
-            }
-            var request = URLRequest(url: url)
-            request.httpMethod = "GET"
-            let (data, response) = try await URLSession.shared.data(for: request)
-            guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
-                throw NetworkErrors.invalidData
-            }
-            guard let decodedResult = try? JSONDecoder().decode(AdminCityResult.self, from: data) else {
-                throw NetworkErrors.decoderError
-            }
-            guard decodedResult.result, let decodedCity = decodedResult.city else {
-                errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: errorModel)
-                debugPrint("-API ERROR- AdminNetworkManager fetchCity id \(id) : ", decodedResult.error?.message ?? "")
-                return nil
-            }
-            return decodedCity
-        } catch {
-            errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
-            debugPrint("-ERROR- AdminNetworkManager fetchCity id \(id) : ", error)
-            return nil
+        guard let url = urlComponents.url else {
+            throw NetworkErrors.bedUrl
         }
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
+            throw NetworkErrors.invalidData
+        }
+        guard let decodedResult = try? JSONDecoder().decode(AdminCityResult.self, from: data) else {
+            throw NetworkErrors.decoderError
+        }
+        guard decodedResult.result, let decodedCity = decodedResult.city else {
+            throw NetworkErrors.apiError(decodedResult.error)
+        }
+        return decodedCity
     }
     
-    func fetchCountry(id: Int) async -> AdminCountry? {
-        let errorModel = ErrorModel(massage: "Something went wrong. The information has not been upload. Please try again later.", img: nil, color: nil)
+    func fetchCountry(id: Int, for user: AppUser) async throws -> AdminCountry {
         debugPrint("--- AdminNetworkManager fetchCountry id \(id)")
+        guard networkMonitorManager.isConnected else {
+            throw NetworkErrors.noConnection
+        }
+        guard let sessionKey = user.sessionKey else {
+            throw NetworkErrors.noSessionKey
+        }
         let path = "/api/admin/get-country.php"
         var urlComponents: URLComponents {
             var components = URLComponents()
@@ -326,35 +223,32 @@ extension AdminNetworkManager: AdminNetworkManagerProtocol {
             ]
             return components
         }
-        do {
-            guard let url = urlComponents.url else {
-                throw NetworkErrors.bedUrl
-            }
-            var request = URLRequest(url: url)
-            request.httpMethod = "GET"
-            let (data, response) = try await URLSession.shared.data(for: request)
-            guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
-                throw NetworkErrors.invalidData
-            }
-            guard let decodedResult = try? JSONDecoder().decode(AdminCountryResult.self, from: data) else {
-                throw NetworkErrors.decoderError
-            }
-            guard decodedResult.result, let decodedCountry = decodedResult.country else {
-                errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: errorModel)
-                debugPrint("-API ERROR- AdminNetworkManager fetchCountry id \(id) : ", decodedResult.error?.message ?? "")
-                return nil
-            }
-            return decodedCountry
-        } catch {
-            errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
-            debugPrint("-ERROR- AdminNetworkManager fetchCountry id \(id) : ", error)
-            return nil
+        guard let url = urlComponents.url else {
+            throw NetworkErrors.bedUrl
         }
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
+            throw NetworkErrors.invalidData
+        }
+        guard let decodedResult = try? JSONDecoder().decode(AdminCountryResult.self, from: data) else {
+            throw NetworkErrors.decoderError
+        }
+        guard decodedResult.result, let decodedCountry = decodedResult.country else {
+            throw NetworkErrors.apiError(decodedResult.error)
+        }
+        return decodedCountry
     }
     
-    func getCountries() async  -> [AdminCountry]? {
-        let errorModel = ErrorModel(massage: "Something went wrong. The information has not been updated. Please try again later.", img: nil, color: nil)
+    func getCountries(for user: AppUser) async throws  -> [AdminCountry] {
         debugPrint("--- AdminNetworkManager getCountries()")
+        guard networkMonitorManager.isConnected else {
+            throw NetworkErrors.noConnection
+        }
+        guard let sessionKey = user.sessionKey else {
+            throw NetworkErrors.noSessionKey
+        }
         let path = "/api/admin/get-countries.php"
         var urlComponents: URLComponents {
             var components = URLComponents()
@@ -363,34 +257,32 @@ extension AdminNetworkManager: AdminNetworkManagerProtocol {
             components.path = path
             return components
         }
-        do {
-            guard let url = urlComponents.url else {
-                throw NetworkErrors.bedUrl
-            }
-            var request = URLRequest(url: url)
-            request.httpMethod = "GET"
-            let (data, response) = try await URLSession.shared.data(for: request)
-            guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
-                throw NetworkErrors.invalidData
-            }
-            guard let decodedResult = try? JSONDecoder().decode(AdminCountriesResult.self, from: data) else {
-                throw NetworkErrors.decoderError
-            }
-            guard decodedResult.result, let decodedCountries = decodedResult.countries else {
-                errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: errorModel)
-                debugPrint("-API ERROR- AdminNetworkManager getCountries: ", decodedResult.error?.message ?? "")
-                return nil
-            }
-            return decodedCountries
-        } catch {
-            errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
-            debugPrint("-ERROR- AdminNetworkManager getCountries : ", error)
-            return nil
+        guard let url = urlComponents.url else {
+            throw NetworkErrors.bedUrl
         }
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
+            throw NetworkErrors.invalidData
+        }
+        guard let decodedResult = try? JSONDecoder().decode(AdminCountriesResult.self, from: data) else {
+            throw NetworkErrors.decoderError
+        }
+        guard decodedResult.result, let decodedCountries = decodedResult.countries else {
+            throw NetworkErrors.apiError(decodedResult.error)
+        }
+        return decodedCountries
     }
     
-    func getAdminInfo() async throws -> AdminInfoResult {
+    func getAdminInfo(for user: AppUser) async throws -> AdminInfo {
         debugPrint("--- getAdminInfo()")
+        guard networkMonitorManager.isConnected else {
+            throw NetworkErrors.noConnection
+        }
+        guard let sessionKey = user.sessionKey else {
+            throw NetworkErrors.noSessionKey
+        }
         let path = "/api/admin/get-admin-info.php"
         var urlComponents: URLComponents {
             var components = URLComponents()
@@ -404,7 +296,6 @@ extension AdminNetworkManager: AdminNetworkManagerProtocol {
         }
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
-        do {
             let (data, response) = try await URLSession.shared.data(for: request)
             guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
                 throw NetworkErrors.invalidData
@@ -412,13 +303,19 @@ extension AdminNetworkManager: AdminNetworkManagerProtocol {
             guard let decodedResult = try? JSONDecoder().decode(AdminInfoResult.self, from: data) else {
                 throw NetworkErrors.decoderError
             }
-            return decodedResult
-        } catch {
-            throw error
+        guard decodedResult.result, let info = decodedResult.info else {
+            throw NetworkErrors.apiError(decodedResult.error)
         }
+        return info
     }
     
-    func updateCountry(country: AdminCountry) async throws -> ApiResult {
+    func updateCountry(country: AdminCountry, for user: AppUser) async throws {
+        guard networkMonitorManager.isConnected else {
+            throw NetworkErrors.noConnection
+        }
+        guard let sessionKey = user.sessionKey else {
+            throw NetworkErrors.noSessionKey
+        }
         let path = "/api/admin/update-country.php"
         var urlComponents: URLComponents {
             var components = URLComponents()
@@ -433,23 +330,27 @@ extension AdminNetworkManager: AdminNetworkManagerProtocol {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        do {
-            let jsonData = try JSONEncoder().encode(country)
-            request.httpBody = jsonData
-            let (data, response) = try await URLSession.shared.data(for: request)
-            guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
-                throw NetworkErrors.invalidData
-            }
-            guard let decodedResult = try? JSONDecoder().decode(ApiResult.self, from: data) else {
-                throw NetworkErrors.decoderError
-            }
-            return decodedResult
-        } catch {
-            throw error
+        let jsonData = try JSONEncoder().encode(country)
+        request.httpBody = jsonData
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
+            throw NetworkErrors.invalidData
+        }
+        guard let decodedResult = try? JSONDecoder().decode(ApiResult.self, from: data) else {
+            throw NetworkErrors.decoderError
+        }
+        guard decodedResult.result else {
+            throw NetworkErrors.apiError(decodedResult.error)
         }
     }
     
-    func updateCountryPhoto(countryId: Int, uiImage: UIImage) async throws -> ImageResult {
+    func updateCountryPhoto(countryId: Int, uiImage: UIImage, for user: AppUser) async throws -> String {
+        guard networkMonitorManager.isConnected else {
+            throw NetworkErrors.noConnection
+        }
+        guard let sessionKey = user.sessionKey else {
+            throw NetworkErrors.noSessionKey
+        }
         let path = "/api/admin/update-country-photo.php"
         var urlComponents: URLComponents {
             var components = URLComponents()
@@ -465,22 +366,27 @@ extension AdminNetworkManager: AdminNetworkManagerProtocol {
         request.httpMethod = "POST"
         let boundary = UUID().uuidString
         request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
-        do {
-            request.httpBody = try await createBodyImageUpdating(image: uiImage, id: countryId, boundary: boundary)
-            let (data, response) = try await URLSession.shared.data(for: request)
-            guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
-                throw NetworkErrors.invalidData
-            }
-            guard let decodedResult = try? JSONDecoder().decode(ImageResult.self, from: data) else {
-                throw NetworkErrors.decoderError
-            }
-            return decodedResult
-        } catch {
-            throw error
+        request.httpBody = try await createBodyImageUpdating(image: uiImage, id: countryId, boundary: boundary)
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
+            throw NetworkErrors.invalidData
         }
+        guard let decodedResult = try? JSONDecoder().decode(ImageResult.self, from: data) else {
+            throw NetworkErrors.decoderError
+        }
+        guard decodedResult.result, let url = decodedResult.url else {
+            throw NetworkErrors.apiError(decodedResult.error)
+        }
+        return url
     }
     
-    func updateRegion(region: AdminRegion) async throws -> ApiResult {
+    func updateRegion(region: AdminRegion, for user: AppUser) async throws {
+        guard networkMonitorManager.isConnected else {
+            throw NetworkErrors.noConnection
+        }
+        guard let sessionKey = user.sessionKey else {
+            throw NetworkErrors.noSessionKey
+        }
         let path = "/api/admin/update-region.php"
         var urlComponents: URLComponents {
             var components = URLComponents()
@@ -495,23 +401,27 @@ extension AdminNetworkManager: AdminNetworkManagerProtocol {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        do {
-            let jsonData = try JSONEncoder().encode(region)
-            request.httpBody = jsonData
-            let (data, response) = try await URLSession.shared.data(for: request)
-            guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
-                throw NetworkErrors.invalidData
-            }
-            guard let decodedResult = try? JSONDecoder().decode(ApiResult.self, from: data) else {
-                throw NetworkErrors.decoderError
-            }
-            return decodedResult
-        } catch {
-            throw error
+        let jsonData = try JSONEncoder().encode(region)
+        request.httpBody = jsonData
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
+            throw NetworkErrors.invalidData
+        }
+        guard let decodedResult = try? JSONDecoder().decode(ApiResult.self, from: data) else {
+            throw NetworkErrors.decoderError
+        }
+        guard decodedResult.result else {
+            throw NetworkErrors.apiError(decodedResult.error)
         }
     }
     
-    func updateRegionPhoto(regionId: Int, uiImage: UIImage) async throws -> ImageResult {
+    func updateRegionPhoto(regionId: Int, uiImage: UIImage, for user: AppUser) async throws -> String {
+        guard networkMonitorManager.isConnected else {
+            throw NetworkErrors.noConnection
+        }
+        guard let sessionKey = user.sessionKey else {
+            throw NetworkErrors.noSessionKey
+        }
         let path = "/api/admin/update-region-photo.php"
         var urlComponents: URLComponents {
             var components = URLComponents()
@@ -527,22 +437,27 @@ extension AdminNetworkManager: AdminNetworkManagerProtocol {
         request.httpMethod = "POST"
         let boundary = UUID().uuidString
         request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
-        do {
-            request.httpBody = try await createBodyImageUpdating(image: uiImage, id: regionId, boundary: boundary)
-            let (data, response) = try await URLSession.shared.data(for: request)
-            guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
-                throw NetworkErrors.invalidData
-            }
-            guard let decodedResult = try? JSONDecoder().decode(ImageResult.self, from: data) else {
-                throw NetworkErrors.decoderError
-            }
-            return decodedResult
-        } catch {
-            throw error
+        request.httpBody = try await createBodyImageUpdating(image: uiImage, id: regionId, boundary: boundary)
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
+            throw NetworkErrors.invalidData
         }
+        guard let decodedResult = try? JSONDecoder().decode(ImageResult.self, from: data) else {
+            throw NetworkErrors.decoderError
+        }
+        guard decodedResult.result, let url = decodedResult.url else {
+            throw NetworkErrors.apiError(decodedResult.error)
+        }
+        return url
     }
     
-    func updateCityPhoto(cityId: Int, uiImage: UIImage) async throws -> ImageResult {
+    func updateCityPhoto(cityId: Int, uiImage: UIImage, uiImageSmall: UIImage, for user: AppUser) async throws -> PosterUrls {
+        guard networkMonitorManager.isConnected else {
+            throw NetworkErrors.noConnection
+        }
+        guard let sessionKey = user.sessionKey else {
+            throw NetworkErrors.noSessionKey
+        }
         let path = "/api/admin/update-city-photo.php"
         var urlComponents: URLComponents {
             var components = URLComponents()
@@ -558,22 +473,27 @@ extension AdminNetworkManager: AdminNetworkManagerProtocol {
         request.httpMethod = "POST"
         let boundary = UUID().uuidString
         request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
-        do {
-            request.httpBody = try await createBodyImageUpdating(image: uiImage, id: cityId, boundary: boundary)
-            let (data, response) = try await URLSession.shared.data(for: request)
-            guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
-                throw NetworkErrors.invalidData
-            }
-            guard let decodedResult = try? JSONDecoder().decode(ImageResult.self, from: data) else {
-                throw NetworkErrors.decoderError
-            }
-            return decodedResult
-        } catch {
-            throw error
+        request.httpBody = try await createBodyImageUpdating(image: uiImage, id: cityId, boundary: boundary)
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
+            throw NetworkErrors.invalidData
         }
+        guard let decodedResult = try? JSONDecoder().decode(PosterResult.self, from: data) else {
+            throw NetworkErrors.decoderError
+        }
+        guard decodedResult.result, let poster = decodedResult.poster else {
+            throw NetworkErrors.apiError(decodedResult.error)
+        }
+        return poster
     }
     
-    func updateCityLibraryPhoto(cityId: Int, photoId: String, uiImage: UIImage) async throws -> ImageResult {
+    func updateCityLibraryPhoto(cityId: Int, photoId: String, uiImage: UIImage, for user: AppUser) async throws -> String {
+        guard networkMonitorManager.isConnected else {
+            throw NetworkErrors.noConnection
+        }
+        guard let sessionKey = user.sessionKey else {
+            throw NetworkErrors.noSessionKey
+        }
         let path = "/api/admin/update-city-library-photo.php"
         var urlComponents: URLComponents {
             var components = URLComponents()
@@ -589,22 +509,27 @@ extension AdminNetworkManager: AdminNetworkManagerProtocol {
         request.httpMethod = "POST"
         let boundary = UUID().uuidString
         request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
-        do {
-            request.httpBody = try await createBodyLibraryImageUpdating(image: uiImage, cityId: cityId, photoId: photoId, boundary: boundary)
-            let (data, response) = try await URLSession.shared.data(for: request)
-            guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
-                throw NetworkErrors.invalidData
-            }
-            guard let decodedResult = try? JSONDecoder().decode(ImageResult.self, from: data) else {
-                throw NetworkErrors.decoderError
-            }
-            return decodedResult
-        } catch {
-            throw error
+        request.httpBody = try await createBodyLibraryImageUpdating(image: uiImage, cityId: cityId, photoId: photoId, boundary: boundary)
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
+            throw NetworkErrors.invalidData
         }
+        guard let decodedResult = try? JSONDecoder().decode(ImageResult.self, from: data) else {
+            throw NetworkErrors.decoderError
+        }
+        guard decodedResult.result, let url = decodedResult.url else {
+            throw NetworkErrors.apiError(decodedResult.error)
+        }
+        return url
     }
     
-    func deleteCityLibraryPhoto(cityId: Int, photoId: String) async throws -> ApiResult {
+    func deleteCityLibraryPhoto(cityId: Int, photoId: String, for user: AppUser) async throws {
+        guard networkMonitorManager.isConnected else {
+            throw NetworkErrors.noConnection
+        }
+        guard let sessionKey = user.sessionKey else {
+            throw NetworkErrors.noSessionKey
+        }
         let path = "/api/admin/delete-city-library-photo.php"
         var urlComponents: URLComponents {
             var components = URLComponents()
@@ -623,19 +548,17 @@ extension AdminNetworkManager: AdminNetworkManagerProtocol {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        do {
-            let requestData = try JSONSerialization.data(withJSONObject: parameters)
-            request.httpBody = requestData
-            let (data, response) = try await URLSession.shared.data(for: request)
-            guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
-                throw NetworkErrors.invalidData
-            }
-            guard let decodedResult = try? JSONDecoder().decode(ApiResult.self, from: data) else {
-                throw NetworkErrors.decoderError
-            }
-            return decodedResult
-        } catch {
-            throw error
+        let requestData = try JSONSerialization.data(withJSONObject: parameters)
+        request.httpBody = requestData
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
+            throw NetworkErrors.invalidData
+        }
+        guard let decodedResult = try? JSONDecoder().decode(ApiResult.self, from: data) else {
+            throw NetworkErrors.decoderError
+        }
+        guard decodedResult.result else {
+            throw NetworkErrors.apiError(decodedResult.error)
         }
     }
 }

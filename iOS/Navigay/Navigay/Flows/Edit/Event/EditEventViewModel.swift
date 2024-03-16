@@ -15,7 +15,6 @@ final class EditEventViewModel: ObservableObject {
     let event: Event?
 
     @Published var eventDidLoad: Bool = false
-    
     @Published var isLoading: Bool = false
 
     @Published var name: String = ""
@@ -48,7 +47,6 @@ final class EditEventViewModel: ObservableObject {
     @Published var createdAt: String = ""
     @Published var updatedAt: String = ""
     
-    
     @Published var isLoadingPoster: Bool = false
     @Published var poster: AdminPhoto?
     @Published var smallPoster: AdminPhoto?
@@ -60,32 +58,21 @@ final class EditEventViewModel: ObservableObject {
     @Published var cityOrigin: String? = nil
     @Published var cityEnglish: String? = nil
     
-    
-  //  @Published var showPicker: Bool = false
-//    @Published var pickerImage: UIImage? {
-//        didSet {
-//            if let pickerImage {
-//                loadPoster(uiImage: pickerImage)
-//            }
-//        }
-//    }
-    
     @Published var showEditPosterView: Bool = false
     @Published var showDeleteSheet: Bool = false
     
-   // @Published var showEditTitle: Bool = false
+    //MARK: - Private Properties
     
-    //TODO Объеденить из AdminNetworkManagerProtocol в eventNetworkManager
-  let networkManager: AdminNetworkManagerProtocol
-    let eventNetworkManager: EventNetworkManagerProtocol = EventNetworkManager(appSettingsManager: AppSettingsManager(), errorManager: ErrorManager())
-    
+    private let eventNetworkManager: EventNetworkManagerProtocol
+    private let errorManager: ErrorManagerProtocol
+
     // MARK: - Inits
 
-    init(eventID: Int, event: Event?, networkManager: AdminNetworkManagerProtocol) {
-        debugPrint("init EditEventViewModel event id: \(eventID)")
-        self.networkManager = networkManager
+    init(eventID: Int, event: Event?, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol) {
         self.event = event
         self.id = eventID
+        self.eventNetworkManager = eventNetworkManager
+        self.errorManager = errorManager
     }
 }
 
@@ -97,7 +84,7 @@ extension EditEventViewModel {
         isLoading = true
         Task {
             do {
-                let event = try await networkManager.fetchEvent(id: id, for: user)
+                let event = try await eventNetworkManager.fetchEvent(id: id, for: user)
                 await MainActor.run {
                     self.name = event.name
                     self.type = event.type
@@ -130,10 +117,15 @@ extension EditEventViewModel {
                     self.updatedAt = event.updatedAt
                     
                     self.eventDidLoad = true
-                    self.isLoading = false
                 }
+            } catch NetworkErrors.noConnection {
+                errorManager.showNetworkNoConnected()
+            } catch NetworkErrors.apiError(let apiError) {
+                errorManager.showApiError(apiError: apiError, or: errorManager.errorMessage, img: nil, color: nil)
             } catch {
-                debugPrint(error)
+                errorManager.showError(model: ErrorModel(error: error, massage: errorManager.errorMessage, img: nil, color: nil))
+            }
+            await MainActor.run {
                 self.isLoading = false
             }
         }
@@ -161,11 +153,15 @@ extension EditEventViewModel {
                         event.smallPoster = urls.smallPosterUrl
                         event.image = image
                     }
-                    self.isLoadingPoster = false
                 }
+            } catch NetworkErrors.noConnection {
+                errorManager.showNetworkNoConnected()
+            } catch NetworkErrors.apiError(let apiError) {
+                errorManager.showApiError(apiError: apiError, or: errorManager.errorMessage, img: nil, color: nil)
             } catch {
-                debugPrint("ERROR - updateAvatar: ", error)
-                // errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
+                errorManager.showError(model: ErrorModel(error: error, massage: errorManager.errorMessage, img: nil, color: nil))
+            }
+            await MainActor.run {
                 self.isLoadingPoster = false
             }
         }
@@ -173,7 +169,7 @@ extension EditEventViewModel {
     
     
 //    func updateInfo() async -> Bool {
-//        let errorModel = ErrorModel(massage: "Something went wrong. The city didn't update in database. Please try again later.", img: nil, color: nil)
+//        let errorModel = ErrorModel(message: "Something went wrong. The city didn't update in database. Please try again later.", img: nil, color: nil)
 //        let about = about.map( { DecodedAbout(language: $0.language, about: $0.about) } )
 //        let city: AdminCity = AdminCity(id: id,
 //                                        countryId: countryId,
@@ -219,11 +215,15 @@ extension EditEventViewModel {
                         event.smallPoster = nil
                         event.image = nil
                     }
-                    self.isLoadingPoster = false
                 }
+            } catch NetworkErrors.noConnection {
+                errorManager.showNetworkNoConnected()
+            } catch NetworkErrors.apiError(let apiError) {
+                errorManager.showApiError(apiError: apiError, or: errorManager.errorMessage, img: nil, color: nil)
             } catch {
-                debugPrint("ERROR - updateAvatar: ", error)
-                // errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
+                errorManager.showError(model: ErrorModel(error: error, massage: errorManager.errorMessage, img: nil, color: nil))
+            }
+            await MainActor.run {
                 self.isLoadingPoster = false
             }
         }
@@ -234,12 +234,14 @@ extension EditEventViewModel {
         Task {
             do {
                 try await eventNetworkManager.deleteEvent(eventId: id, user: user)
-                await MainActor.run {
-                    self.isLoading = false
-                }
+            } catch NetworkErrors.noConnection {
+                errorManager.showNetworkNoConnected()
+            } catch NetworkErrors.apiError(let apiError) {
+                errorManager.showApiError(apiError: apiError, or: errorManager.errorMessage, img: nil, color: nil)
             } catch {
-                debugPrint("ERROR - deleteEvent: ", error)
-                // errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
+                errorManager.showError(model: ErrorModel(error: error, massage: errorManager.errorMessage, img: nil, color: nil))
+            }
+            await MainActor.run {
                 self.isLoading = false
             }
         }

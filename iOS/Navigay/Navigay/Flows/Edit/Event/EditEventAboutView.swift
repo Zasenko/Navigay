@@ -18,7 +18,8 @@ struct EditEventAboutView: View {
     @State private var text: String
     private let title: String = "Edit information"
     private let characterLimit: Int = 3000
-    private let networkManager: AdminNetworkManagerProtocol
+    private let networkManager: EventNetworkManagerProtocol
+    private let errorManager: ErrorManagerProtocol
     private let eventId: Int
     @State private var isLoading: Bool = false
     
@@ -27,11 +28,12 @@ struct EditEventAboutView: View {
     
     //MARK: - Inits
 
-    init(text: String, eventId: Int, networkManager: AdminNetworkManagerProtocol, onSave: @escaping (String) -> Void) {
+    init(text: String, eventId: Int, networkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol, onSave: @escaping (String) -> Void) {
         _text = State(initialValue: text)
         self.onSave = onSave
         self.networkManager = networkManager
         self.eventId = eventId
+        self.errorManager = errorManager
     }
     
     //MARK: - Body
@@ -93,17 +95,25 @@ struct EditEventAboutView: View {
     }
     
     func update() {
-        isLoading = true
-        Task {
-            let decodedResult = await networkManager.updateEventAbout(id: eventId, about: text)
-            await MainActor.run {
-                isLoading = false
-                if decodedResult {
-                    onSave(text)
-                    dismiss()
-                }
-            }
-        }
+//        isLoading = true
+//        Task {
+//            do {
+//                try await networkManager.updateEventAbout(id: eventId, about: text, for: <#AppUser#>)
+//                await MainActor.run {
+//                    onSave(text)
+//                    dismiss()
+//                }
+//            } catch NetworkErrors.noConnection {
+//                errorManager.showNetworkNoConnected()
+//            } catch NetworkErrors.apiError(let apiError) {
+//                errorManager.showApiError(apiError: apiError, or: errorManager.errorMessage, img: nil, color: nil)
+//            } catch {
+//                errorManager.showError(model: ErrorModel(error: error, massage: errorManager.errorMessage, img: nil, color: nil))
+//            }
+//            await MainActor.run {
+//                isLoading = false
+//            }
+//        }
     }
 }
 

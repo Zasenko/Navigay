@@ -12,16 +12,18 @@ struct ErrorModel: Identifiable {
     // MARK: - Properties
     
     let id: UUID
-    let massage: String
+    let message: String
     let img: Image
     let color: Color
+    let error: Error
     
     // MARK: - Init
     
-    init(massage: String, img: Image?, color: Color?) {
+    init(error: Error, massage: String, img: Image? = nil, color: Color? = nil) {
         self.id = UUID()
-        self.massage = massage
-        self.img = img ?? Image(systemName: "exclamationmark.triangle")
+        self.message = massage
+        self.img = img ?? AppImages.iconExclamationmarkTriangle
         self.color = color ?? .red
+        self.error = error
     }
 }

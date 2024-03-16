@@ -113,9 +113,9 @@ struct CityView: View {
     
     private var adminPanel: some View {
         Section {
-            NavigationLink {
-                EditCityView(viewModel: EditCityViewModel(id: viewModel.city.id, userId: authenticationManager.appUser?.id ?? 0, errorManager: viewModel.errorManager, networkManager: AdminNetworkManager(errorManager: viewModel.errorManager)))
-            } label: {
+//            NavigationLink {
+//                EditCityView(viewModel: EditCityViewModel(id: viewModel.city.id, userId: authenticationManager.appUser?.id ?? 0, errorManager: viewModel.errorManager, networkManager: AdminNetworkManager(networkMonitorManager: <#any NetworkMonitorManagerProtocol#>, appSettingsManager: <#any AppSettingsManagerProtocol#>)))
+//            } label: {
                 Text("Edit")
                     .font(.callout)
                     .fontWeight(.bold)
@@ -126,7 +126,7 @@ struct CityView: View {
                         Capsule()
                             .fill(.green.gradient)
                     )
-            }
+//            }
         }
         .listRowSeparator(.hidden)
     }

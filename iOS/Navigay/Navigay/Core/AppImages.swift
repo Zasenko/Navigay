@@ -20,6 +20,7 @@ struct AppImages {
     static let iconPersonLogOut = Image(systemName: "person.slash")
     static let iconSettings = Image(systemName: "gearshape.fill")
     static let iconAdmin = Image(systemName: "exclamationmark.shield.fill")
+    static let iconExclamationmarkTriangle = Image(systemName: "exclamationmark.triangle")
     static let iconEnvelope = Image(systemName: "envelope")
     static let iconLock = Image(systemName: "lock")
     static let iconTrash = Image(systemName: "trash.fill")
@@ -37,8 +38,7 @@ struct AppImages {
     static let iconClock = Image(systemName:"clock")
     static let iconClockSearch = Image(systemName:"clock.arrow.circlepath")
     static let iconArrowUpRight = Image(systemName:"arrow.up.right")
-    
-    
+    static let iconPhoto = Image(systemName:"photo.fill")
     static let iconPhotoPlus = Image(systemName:"photo.badge.plus")
     static let iconInfoCircle = Image(systemName:"info.circle")
     static let iconCheckmark = Image(systemName:"checkmark")

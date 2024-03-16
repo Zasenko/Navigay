@@ -1,48 +1,32 @@
+////
+////  EditCityView.swift
+////  Navigay
+////
+////  Created by Dmitry Zasenko on 15.11.23.
+////
 //
-//  EditPlaceView.swift
-//  Navigay
+//import SwiftUI
 //
-//  Created by Dmitry Zasenko on 16.01.24.
-//
-
-import SwiftUI
-
-struct EditPlaceView: View {
-    
-    //MARK: - Private Properties
-    
-    @StateObject private var viewModel: EditPlaceViewModel
-    @Environment(\.dismiss) private var dismiss
-    //MARK: - Inits
-    
-    init(viewModel: EditPlaceViewModel) {
-        _viewModel = StateObject(wrappedValue: viewModel)
-    }
-    
-    //MARK: - Body
-    
-    var body: some View {
-        NavigationStack {
-            GeometryReader { proxy  in
-                VStack(spacing: 0) {
-                    Divider()
-                    ScrollView(showsIndicators: false) {
-                     //   PlaceAdditionalFieldsView(isoCountryCode: $viewModel.isoCountryCode, email: $viewModel.email, phone: $viewModel.phone, www: $viewModel.www, facebook: $viewModel.facebook, instagram: $viewModel.instagram, about: $viewModel.about, timetable: $viewModel.timetable, otherInfo: $viewModel.otherInfo, tags: $viewModel.tags)
-                        
-                        
-                        
-                        
-                        
-                        NavigationLink {
-                            EditPlaceAboutView(text: viewModel.about, placeID: viewModel.id, networkManager: viewModel.networkManager) { string in
-                                    //TODO: обновить модель Place
-                                viewModel.about = string
-                            }
-                        } label: {
-                            EditField(title: "about", text: $viewModel.about, emptyFieldColor: .secondary)
-                        }
-                        
-                        
+//struct EditCityView: View {
+//    
+//    //MARK: - Private Properties
+//    
+//    @StateObject private var viewModel: EditCityViewModel
+//    @Environment(\.dismiss) private var dismiss
+//    //MARK: - Inits
+//    
+//    init(viewModel: EditCityViewModel) {
+//        _viewModel = StateObject(wrappedValue: viewModel)
+//    }
+//    
+//    //MARK: - Body
+//    
+//    var body: some View {
+//        NavigationStack {
+//            GeometryReader { proxy  in
+//                VStack(spacing: 0) {
+//                    Divider()
+//                    ScrollView(showsIndicators: false) {
 //                        PhotoEditView(canDelete: false, canAddFromUrl: true) {
 //                            ZStack {
 //                                if let photo = viewModel.photo {
@@ -55,7 +39,7 @@ struct EditPlaceView: View {
 //                                            .opacity(viewModel.isLoadingPhoto ? 0.2 : 1)
 //                                    } else if let url = photo.url {
 //                                        ImageLoadingView(url: url, width: proxy.size.width, height: (proxy.size.width / 4) * 5, contentMode: .fit) {
-//                                            Color.red
+//                                            AppColors.lightGray6
 //                                        }
 //                                        .clipped()
 //                                        .opacity(viewModel.isLoadingPhoto ? 0.2 : 1)
@@ -78,6 +62,19 @@ struct EditPlaceView: View {
 //                        } onSave: { uiImage in
 //                            viewModel.loadImage(uiImage: uiImage)
 //                        } onDelete: {}
+//                        
+//                        NamesEditView(nameOrigin: $viewModel.nameOrigin, nameEn: $viewModel.nameEn)
+//                            .padding()
+//                        
+//                        NavigationLink {
+//                            EditTextEditorView(title: "Edit description", text: viewModel.about, characterLimit: 3000) { string in
+//                                viewModel.about = string
+//                            }
+//                        } label: {
+//                            EditField(title: "Description", text: $viewModel.about, emptyFieldColor: .secondary)
+//                        }
+//                        .padding()
+//                        
 //                        EditLibraryView(photos: $viewModel.photos, isLoading: $viewModel.isLoadingLibraryPhoto, width: proxy.size.width) { result in
 //                            viewModel.loadLibraryPhoto(photoId: result.id, uiImage: result.uiImage)
 //                        } onDelete: { id in
@@ -86,48 +83,41 @@ struct EditPlaceView: View {
 //                            }
 //                        }
 //                        .padding(.vertical)
-//                        NamesEditView(nameOrigin: $viewModel.nameOrigin, nameEn: $viewModel.nameEn, nameFr: $viewModel.nameFr, nameDe: $viewModel.nameDe, nameRu: $viewModel.nameRu, nameIt: $viewModel.nameIt, nameEs: $viewModel.nameEs, namePt: $viewModel.namePt)
-//                            .padding()
-//                        AboutEditView(languages: $viewModel.languages, about: $viewModel.about)
-//                            .padding()
+//                        
 //                        ActivationFieldsView(isActive: $viewModel.isActive, isChecked: $viewModel.isChecked)
 //                            .padding(.vertical)
 //                            .padding(.bottom, 50)
-                    }
-                }
-                .navigationBarBackButtonHidden()
-                .toolbarBackground(AppColors.background)
-                .toolbarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .principal) {
-                        Text("Edit place")
-                            .font(.headline.bold())
-                    }
-                    ToolbarItem(placement: .topBarLeading) {
-                        Button {
-                            dismiss()
-                        } label: {
-                            AppImages.iconLeft
-                                .bold()
-                                .frame(width: 30, height: 30, alignment: .leading)
-                        }
-                        .tint(.primary)
-                    }
+//                    }
+//                }
+//                .navigationBarBackButtonHidden()
+//                .toolbarBackground(AppColors.background)
+//                .toolbarTitleDisplayMode(.inline)
+//                .toolbar {
+//                    ToolbarItem(placement: .principal) {
+//                        Text(viewModel.nameOrigin)
+//                            .font(.headline.bold())
+//                    }
+//                    ToolbarItem(placement: .topBarLeading) {
+//                        Button {
+//                            dismiss()
+//                        } label: {
+//                            AppImages.iconLeft
+//                                .bold()
+//                                .frame(width: 30, height: 30, alignment: .leading)
+//                        }
+//                        .tint(.primary)
+//                    }
 //                    ToolbarItem(placement: .topBarTrailing) {
 //                        if viewModel.isLoading {
 //                            ProgressView()
 //                                .tint(.blue)
 //                        } else {
 //                            Button("Save") {
-//                                viewModel.isLoading = true
 //                                Task {
 //                                    let result = await viewModel.updateInfo()
-//                                    await MainActor.run {
-//                                        if result {
-//                                            self.viewModel.isLoading = false
-//                                            self.dismiss()
-//                                        } else {
-//                                            self.viewModel.isLoading = false
+//                                    if result {
+//                                        await MainActor.run {
+//                                            dismiss()
 //                                        }
 //                                    }
 //                                }
@@ -135,19 +125,30 @@ struct EditPlaceView: View {
 //                            .bold()
 //                        }
 //                    }
-                }
+//                }
 //                .disabled(viewModel.isLoadingPhoto)
 //                .disabled(viewModel.isLoading)
 //                .disabled(viewModel.isLoadingLibraryPhoto)
-                .onAppear() {
-                    viewModel.fetchPlace()
-                }
-            }
-        }
-    }
-}
-//
-//#Preview {
-//    let viewModel = EditPlaceViewModel()
-//    return EditPlaceView(viewModel: viewModel)
+//                .onAppear {
+//                    Task {
+//                        let result = await viewModel.fetchCity()
+//                        if !result {
+//                            await MainActor.run {
+//                                dismiss()
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }
 //}
+//
+////#Preview {
+////    let errorManager = ErrorManager()
+////    let networkManager = AdminNetworkManager()
+////    let city = AdminCity(id: 0, countryId: 0, regionId: 0, nameOrigin: nil, nameEn: nil, nameFr: nil, nameDe: nil, nameRu: nil, nameIt: nil, nameEs: nil, namePt: nil, about: nil, photo: nil, photos: nil, isActive: false, isChecked: false)
+////    return EditCityView(viewModel: EditCityViewModel(city: city, errorManager: errorManager, networkManager: networkManager))
+////}
+//
+//

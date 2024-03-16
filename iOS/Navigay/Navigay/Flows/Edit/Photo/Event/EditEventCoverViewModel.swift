@@ -33,7 +33,7 @@ final class EditEventCoverViewModel: ObservableObject {
   //  private let errorManager: ErrorManagerProtocol
   //  private var eventId: Int
     
-  //  private let errorModel = ErrorModel(massage: "Something went wrong. The poster didn't load. Please try again later.", img: Image(systemName: "photo.fill"), color: .red)
+  //  private let errorModel = ErrorModel(message: "Something went wrong. The poster didn't load. Please try again later.", img: Image(systemName: "photo.fill"), color: .red)
     
     //MARK: - Inits
     

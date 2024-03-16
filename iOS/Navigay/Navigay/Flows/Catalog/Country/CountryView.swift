@@ -90,6 +90,14 @@ struct CountryView: View {
                         }
                         .tint(.primary)
                     }
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button {
+                        } label: {
+                            AppImages.iconSettings
+                                .bold()
+                                .tint(.blue)
+                        }
+                    }
                 }
                 .onAppear() {
                     viewModel.fetch()

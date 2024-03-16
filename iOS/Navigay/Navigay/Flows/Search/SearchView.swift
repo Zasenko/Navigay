@@ -206,7 +206,6 @@ struct SearchView: View {
             ForEach(viewModel.catalogNetworkManager.loadedSearchText.keys.uniqued(), id: \.self) { key in
                 Button {
                     hideKeyboard()
-                    
                     viewModel.searchInDB(text: key)
                     viewModel.searchText = key
                 } label: {

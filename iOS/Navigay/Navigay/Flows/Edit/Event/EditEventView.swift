@@ -9,20 +9,20 @@ import SwiftUI
 
 struct EditEventView: View {
     
-    //MARK: - Private Properties
+    // MARK: - Private Properties
     
     @StateObject private var viewModel: EditEventViewModel
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var authenticationManager: AuthenticationManager
      
-    //MARK: - Inits
+    // MARK: - Inits
     
     init(viewModel: EditEventViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel)
         
     }
     
-    //MARK: - Body
+    // MARK: - Body
     
     var body: some View {
         NavigationStack {
@@ -61,9 +61,8 @@ struct EditEventView: View {
                         .tint(.primary)
                     }
                 }
-//                .disabled(viewModel.isLoadingPhoto)
-//                .disabled(viewModel.isLoading)
-//                .disabled(viewModel.isLoadingLibraryPhoto)
+                .disabled(viewModel.isLoadingPoster)
+                .disabled(viewModel.isLoading)
                 .onAppear() {
                     guard let user = authenticationManager.appUser else { return }
                     viewModel.fetchEvent(for: user)

@@ -118,11 +118,11 @@ struct PlaceView: View {
                     EmptyView()
                 }
             }
-            .fullScreenCover(isPresented: $viewModel.showEditView) {
-                viewModel.showEditView = false
-            } content: {
-                EditPlaceView(viewModel: EditPlaceViewModel(place: viewModel.place, networkManager: AdminNetworkManager(errorManager: viewModel.errorManager)))
-            }
+//            .fullScreenCover(isPresented: $viewModel.showEditView) {
+//                viewModel.showEditView = false
+//            } content: {
+//                EditPlaceView(viewModel: EditPlaceViewModel(place: viewModel.place, networkManager: AdminNetworkManager(errorManager: viewModel.errorManager)))
+//            }
         }
     }
     
@@ -197,7 +197,7 @@ struct PlaceView: View {
                         //TODO: Add review designe
                         ZStack {
                             NavigationLink {
-                                AddCommentView(text: "", characterLimit: 1000, placeId: viewModel.place.id, placeNetworkManager: viewModel.placeNetworkManager, authenticationManager: authenticationManager)
+                                AddCommentView(viewModel: AddCommentViewModel(placeId: viewModel.place.id, placeNetworkManager: viewModel.placeNetworkManager, errorManager: viewModel.errorManager))
                             } label: {
                                 EmptyView()
                             }
