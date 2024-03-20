@@ -28,7 +28,7 @@ struct EditEventView: View {
         NavigationStack {
                 VStack(spacing: 0) {
                     Divider()
-                    if viewModel.eventDidLoad {
+                    if viewModel.fetched {
                         eventView()
                             .environmentObject(viewModel)
                     } else {

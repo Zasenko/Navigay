@@ -63,7 +63,7 @@ extension AroundNetworkManager: AroundNetworkManagerProtocol {
             return components
         }
         guard let url = urlComponents.url else {
-            throw NetworkErrors.bedUrl
+            throw NetworkErrors.badUrl
         }
         var request = URLRequest(url: url)
         request.httpMethod = "GET"

@@ -210,7 +210,7 @@ struct RegistrationView: View {
             } catch NetworkErrors.apiError(let apiError) {
                 authenticationManager.errorManager.showApiError(apiError: apiError, or: errorManager.errorMessage, img: nil, color: nil)
             } catch {
-                authenticationManager.errorManager.showError(model: ErrorModel(error: error, massage: errorManager.errorMessage, img: AppImages.iconPersonError, color: nil))
+                authenticationManager.errorManager.showError(model: ErrorModel(error: error, message: errorManager.errorMessage, img: AppImages.iconPersonError, color: nil))
             }
             await MainActor.run {
                 viewModel.allViewsDisabled = false

@@ -19,9 +19,9 @@ struct ErrorModel: Identifiable {
     
     // MARK: - Init
     
-    init(error: Error, massage: String, img: Image? = nil, color: Color? = nil) {
+    init(error: Error, message: String, img: Image? = nil, color: Color? = nil) {
         self.id = UUID()
-        self.message = massage
+        self.message = message
         self.img = img ?? AppImages.iconExclamationmarkTriangle
         self.color = color ?? .red
         self.error = error

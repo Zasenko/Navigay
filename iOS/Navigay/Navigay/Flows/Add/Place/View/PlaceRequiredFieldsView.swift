@@ -49,6 +49,8 @@ struct PlaceRequiredFieldsView: View {
                     Text(viewModel.countryEnglish)
                     Text(viewModel.regionOrigin)
                     Text(viewModel.regionEnglish)
+                    Text(viewModel.cityOrigin)
+                    Text(viewModel.cityEnglish)
                     locationField
                     map
                 }

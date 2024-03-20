@@ -67,9 +67,8 @@ struct TabBarView: View {
             case .user:
                 AppUserView(modelContext: modelContext, userNetworkManager: UserNetworkManager(networkMonitorManager: networkMonitor, appSettingsManager: appSettingsManager), placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager)
             case .admin:
-                if let user = authenticationManager.appUser, user.status == .admin {
-                   // AdminView(viewModel: AdminViewModel(errorManager: errorManager, networkManager: AdminNetworkManager(errorManager: errorManager)))
-                    EmptyView()
+                if let user = authenticationManager.appUser, (user.status == .admin || user.status == .moderator) {
+                    AdminView(viewModel: AdminViewModel(errorManager: errorManager, networkManager: AdminNetworkManager(networkMonitorManager: networkMonitor, appSettingsManager: appSettingsManager)))
                 } else {
                     EmptyView()
                 }
@@ -158,7 +157,7 @@ struct TabBarView: View {
                                      button: userButton)
                 }
                 
-                if let user = authenticationManager.appUser, user.status == .admin {
+                if let user = authenticationManager.appUser, (user.status == .admin || user.status == .moderator) {
                     TabBarButtonView(selectedPage: $selectedPage,
                                      button: adminButton)
                 }

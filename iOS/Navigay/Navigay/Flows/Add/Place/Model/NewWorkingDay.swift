@@ -23,6 +23,5 @@ struct NewWorkingDay: Identifiable, Hashable {
         let zeroTime = Calendar.current.date(bySettingHour: 0, minute: 0, second: 0, of: Date()) ?? Date()
         self.opening = opening ?? zeroTime
         self.closing = closing ?? zeroTime
-        
     }
 }

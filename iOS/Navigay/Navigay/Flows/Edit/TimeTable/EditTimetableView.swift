@@ -17,7 +17,6 @@ struct EditTimetableView: View {
     
     @State private var days: [DayOfWeek] = DayOfWeek.allCases
     @State private var timetable: [NewWorkingDay] = []
-    private let title: String = "Timetable"
     @Environment(\.dismiss) private var dismiss
     
     //MARK: - Inits
@@ -48,7 +47,7 @@ struct EditTimetableView: View {
             .toolbarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .principal) {
-                    Text(title)
+                    Text("Timetable")
                         .font(.headline.bold())
                 }
                 ToolbarItem(placement: .topBarLeading) {
@@ -62,7 +61,7 @@ struct EditTimetableView: View {
                     .tint(.primary)
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Готово") {
+                    Button("Done") {
                         onSave(timetable)
                         dismiss()
                     }
@@ -75,19 +74,22 @@ struct EditTimetableView: View {
     //MARK: - Views
     
     private var daysButtons: some View {
-        HStack(spacing: 10) {
-            ForEach(days.sorted(by: { $0.rawValue < $1.rawValue }), id: \.self) { day in
-                Button {
-                    dayButtonTupped(day: day)
-                } label: {
-                    Text(day.getShortString())
-                        .font(.caption)
-                        .bold()
+        ScrollView(.horizontal) {
+            HStack(spacing: 10) {
+                ForEach(days.sorted(by: { $0.rawValue < $1.rawValue }), id: \.self) { day in
+                    Button {
+                        dayButtonTupped(day: day)
+                    } label: {
+                        Text(day.getShortString())
+                            .font(.caption)
+                            .bold()
+                    }
+                    .buttonStyle(.bordered)
                 }
-                .buttonStyle(.bordered)
             }
+            .padding()
         }
-        .padding()
+        .scrollIndicators(.hidden)
         .frame(maxWidth: .infinity)
     }
     
@@ -96,6 +98,7 @@ struct EditTimetableView: View {
             ForEach($timetable) { $day in
                 HStack {
                     Text(day.day.getString())
+                        .font(.caption)
                         .frame(maxWidth: .infinity, alignment: .leading)
                     DatePicker(
                         "open time",
@@ -105,6 +108,7 @@ struct EditTimetableView: View {
                     .datePickerStyle(.automatic)
                     .labelsHidden()
                     Text("—")
+                        .font(.callout)
                     DatePicker(
                         "Select Time",
                         selection: $day.closing,

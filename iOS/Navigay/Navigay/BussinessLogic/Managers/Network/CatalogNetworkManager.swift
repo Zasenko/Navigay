@@ -36,7 +36,6 @@ final class CatalogNetworkManager {
     
     // MARK: - Properties
         
-    // todo у всех менеджеров сделать приват! это должен обновлять менеджер и искать совпадения
     var isCountriesLoaded: Bool = false
     var loadedCountries: [Int] = []
     var loadedCities: [Int] = []
@@ -83,7 +82,7 @@ extension CatalogNetworkManager: CatalogNetworkManagerProtocol {
             return components
         }
         guard let url = urlComponents.url else {
-            throw NetworkErrors.bedUrl
+            throw NetworkErrors.badUrl
         }
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
@@ -119,7 +118,7 @@ extension CatalogNetworkManager: CatalogNetworkManagerProtocol {
             return components
         }
         guard let url = urlComponents.url else {
-            throw NetworkErrors.bedUrl
+            throw NetworkErrors.badUrl
         }
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
@@ -136,6 +135,7 @@ extension CatalogNetworkManager: CatalogNetworkManagerProtocol {
         loadedCountries.append(decodedCountry.id)
         return decodedCountry
     }
+
     
     func fetchCity(id: Int) async throws -> DecodedCity {
         debugPrint("--- fetchCity() id: ", id)
@@ -156,7 +156,7 @@ extension CatalogNetworkManager: CatalogNetworkManagerProtocol {
             return components
         }
         guard let url = urlComponents.url else {
-            throw NetworkErrors.bedUrl
+            throw NetworkErrors.badUrl
         }
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
@@ -192,7 +192,7 @@ extension CatalogNetworkManager: CatalogNetworkManagerProtocol {
             return components
         }
         guard let url = urlComponents.url else {
-            throw NetworkErrors.bedUrl
+            throw NetworkErrors.badUrl
         }
         var request = URLRequest(url: url)
         request.httpMethod = "GET"

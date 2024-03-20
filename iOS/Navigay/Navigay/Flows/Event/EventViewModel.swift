@@ -21,21 +21,23 @@ extension EventView {
         var image: Image?
         var showInfo: Bool = false
         var position: MapCameraPosition = .automatic
-        var showEditView: Bool = false
-        var showNewEvetnView: Bool = false
         let placeNetworkManager: PlaceNetworkManagerProtocol //?????????
         let eventNetworkManager: EventNetworkManagerProtocol
+        let placeDataManager: PlaceDataManagerProtocol
+        let eventDataManager: EventDataManagerProtocol
         let errorManager: ErrorManagerProtocol
 
         //MARK: - Inits
         
-        init(event: Event, modelContext: ModelContext, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol) {
+        init(event: Event, modelContext: ModelContext, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol, placeDataManager: PlaceDataManagerProtocol, eventDataManager: EventDataManagerProtocol) {
             self.event = event
             self.image = event.image
             self.modelContext = modelContext
             self.eventNetworkManager = eventNetworkManager
             self.placeNetworkManager = placeNetworkManager
             self.errorManager = errorManager
+            self.placeDataManager = placeDataManager
+            self.eventDataManager = eventDataManager
             position = .camera(MapCamera(centerCoordinate: event.coordinate, distance: 2000))
         }
         
@@ -57,7 +59,7 @@ extension EventView {
                 } catch NetworkErrors.apiError(let apiError) {
                     errorManager.showApiError(apiError: apiError, or: errorManager.updateMessage, img: nil, color: nil)
                 } catch {
-                    errorManager.showError(model: ErrorModel(error: error, massage: errorManager.updateMessage))
+                    errorManager.showError(model: ErrorModel(error: error, message: errorManager.updateMessage))
                 }
             }
         }

@@ -22,7 +22,7 @@ extension CountryView {
         let placeDataManager: PlaceDataManagerProtocol
         let eventDataManager: EventDataManagerProtocol
         let catalogDataManager: CatalogDataManagerProtocol
-        
+                
         // MARK: - Init
         
         init(modelContext: ModelContext,

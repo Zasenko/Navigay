@@ -46,27 +46,23 @@ struct NewEventView: View {
                             .ignoresSafeArea()
                     }
                 }
-                .navigationDestination(isPresented: $viewModel.showAddPosterView) {
-                    EditEventCoverView(viewModel: EditEventCoverViewModel(poster: nil, smallPoster: nil)) { poster, smallPoster in
-                            guard let user = authenticationManager.appUser,
-                              let sessionKey = user.sessionKey,
-                              let ids = viewModel.ids,
-                              !ids.isEmpty else {
-                            return
-                        }
-                        Task {
-                            let result = await viewModel.addPoster(to: ids, poster: poster, smallPoster: smallPoster, addedBy: user.id, sessionKey: sessionKey)
-                            if result {
-                                dismiss()
-                            } else {
-                                viewModel.showAddPosterView = false
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                                    viewModel.showAddPosterView = true
-                                }
-                            }
-                        }
-                    }
-                }
+//                .navigationDestination(isPresented: $viewModel.showAddPosterView) {
+//                    EditEventCoverView(viewModel: EditEventCoverViewModel(poster: nil, smallPoster: nil)) { poster, smallPoster in
+//                        guard let user = authenticationManager.appUser,
+//                              let ids = viewModel.ids, !ids.isEmpty else { return }
+//                        Task {
+//                            let result = await viewModel.addPoster(to: ids, poster: poster, smallPoster: smallPoster, user: user)
+//                            if result {
+//                                dismiss()
+//                            } else {
+//                                viewModel.showAddPosterView = false
+//                                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+//                                    viewModel.showAddPosterView = true
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
                 .navigationBarBackButtonHidden()
                 .toolbarBackground(AppColors.background)
                 .toolbarTitleDisplayMode(.inline)

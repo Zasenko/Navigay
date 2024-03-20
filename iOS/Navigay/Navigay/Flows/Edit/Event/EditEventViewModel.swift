@@ -14,7 +14,7 @@ final class EditEventViewModel: ObservableObject {
     let id: Int
     let event: Event?
 
-    @Published var eventDidLoad: Bool = false
+    @Published var fetched: Bool = false
     @Published var isLoading: Bool = false
 
     @Published var name: String = ""
@@ -63,15 +63,15 @@ final class EditEventViewModel: ObservableObject {
     
     //MARK: - Private Properties
     
-    private let eventNetworkManager: EventNetworkManagerProtocol
+    private let networkManager: EditEventNetworkManagerProtocol
     private let errorManager: ErrorManagerProtocol
 
     // MARK: - Inits
 
-    init(eventID: Int, event: Event?, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol) {
+    init(eventID: Int, event: Event?, networkManager: EditEventNetworkManagerProtocol, errorManager: ErrorManagerProtocol) {
         self.event = event
         self.id = eventID
-        self.eventNetworkManager = eventNetworkManager
+        self.networkManager = networkManager
         self.errorManager = errorManager
     }
 }
@@ -84,7 +84,7 @@ extension EditEventViewModel {
         isLoading = true
         Task {
             do {
-                let event = try await eventNetworkManager.fetchEvent(id: id, for: user)
+                let event = try await networkManager.fetchEvent(id: id, for: user)
                 await MainActor.run {
                     self.name = event.name
                     self.type = event.type
@@ -116,14 +116,14 @@ extension EditEventViewModel {
                     self.createdAt = event.createdAt
                     self.updatedAt = event.updatedAt
                     
-                    self.eventDidLoad = true
+                    self.fetched = true
                 }
             } catch NetworkErrors.noConnection {
                 errorManager.showNetworkNoConnected()
             } catch NetworkErrors.apiError(let apiError) {
                 errorManager.showApiError(apiError: apiError, or: errorManager.errorMessage, img: nil, color: nil)
             } catch {
-                errorManager.showError(model: ErrorModel(error: error, massage: errorManager.errorMessage, img: nil, color: nil))
+                errorManager.showError(model: ErrorModel(error: error, message: errorManager.errorMessage, img: nil, color: nil))
             }
             await MainActor.run {
                 self.isLoading = false
@@ -143,7 +143,7 @@ extension EditEventViewModel {
             do {
                 let scaledImage = uiImage.cropImage(maxWidth: 750, maxHeight: 750)
                 let scaledSmallImage = uiImage.cropImage(maxWidth: 350, maxHeight: 350)
-                let urls = try await eventNetworkManager.updatePoster(eventId: id, poster: scaledImage, smallPoster: scaledSmallImage, user: user)
+                let urls = try await networkManager.updatePoster(eventId: id, poster: scaledImage, smallPoster: scaledSmallImage, from: user)
                 let image = Image(uiImage: uiImage)
                 await MainActor.run {
                     self.poster = AdminPhoto(id: UUID().uuidString, image: image, url: urls.posterUrl)
@@ -159,7 +159,7 @@ extension EditEventViewModel {
             } catch NetworkErrors.apiError(let apiError) {
                 errorManager.showApiError(apiError: apiError, or: errorManager.errorMessage, img: nil, color: nil)
             } catch {
-                errorManager.showError(model: ErrorModel(error: error, massage: errorManager.errorMessage, img: nil, color: nil))
+                errorManager.showError(model: ErrorModel(error: error, message: errorManager.errorMessage, img: nil, color: nil))
             }
             await MainActor.run {
                 self.isLoadingPoster = false
@@ -206,7 +206,7 @@ extension EditEventViewModel {
         self.isLoadingPoster = true
         Task {
             do {
-                try await eventNetworkManager.deletePoster(eventId: id, user: user)
+                try await networkManager.deletePoster(eventId: id, from: user)
                 await MainActor.run {
                     self.poster = nil
                     self.smallPoster = nil
@@ -221,7 +221,7 @@ extension EditEventViewModel {
             } catch NetworkErrors.apiError(let apiError) {
                 errorManager.showApiError(apiError: apiError, or: errorManager.errorMessage, img: nil, color: nil)
             } catch {
-                errorManager.showError(model: ErrorModel(error: error, massage: errorManager.errorMessage, img: nil, color: nil))
+                errorManager.showError(model: ErrorModel(error: error, message: errorManager.errorMessage, img: nil, color: nil))
             }
             await MainActor.run {
                 self.isLoadingPoster = false
@@ -233,13 +233,13 @@ extension EditEventViewModel {
         self.isLoading = true
         Task {
             do {
-                try await eventNetworkManager.deleteEvent(eventId: id, user: user)
+                try await networkManager.deleteEvent(eventId: id, from: user)
             } catch NetworkErrors.noConnection {
                 errorManager.showNetworkNoConnected()
             } catch NetworkErrors.apiError(let apiError) {
                 errorManager.showApiError(apiError: apiError, or: errorManager.errorMessage, img: nil, color: nil)
             } catch {
-                errorManager.showError(model: ErrorModel(error: error, massage: errorManager.errorMessage, img: nil, color: nil))
+                errorManager.showError(model: ErrorModel(error: error, message: errorManager.errorMessage, img: nil, color: nil))
             }
             await MainActor.run {
                 self.isLoading = false

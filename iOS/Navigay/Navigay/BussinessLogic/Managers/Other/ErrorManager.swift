@@ -14,8 +14,9 @@ protocol ErrorManagerProtocol {
     var updateMessage: String { get }
     
     func showError(model: ErrorModel)
-    func showErrorMassage(error: Error)
-    func showApiError(apiError: ApiError?, or massage: String, img: Image?, color: Color?)
+    
+    func showErrorMessage(error: Error)
+    func showApiError(apiError: ApiError?, or message: String, img: Image?, color: Color?)
     func showUpdateError(error: Error)
     
     func showNetworkNoConnected()
@@ -37,37 +38,39 @@ final class ErrorManager: ErrorManagerProtocol {
         getError?(model)
     }
     
-    func showErrorMassage(error: Error) {
+    func showErrorMessage(error: Error) {
         debugPrint(error)
-        getError?(ErrorModel(error: error, massage: errorMessage, img: nil, color: nil))
+        getError?(ErrorModel(error: error, message: errorMessage, img: nil, color: nil))
     }
     
-    func showApiError(apiError: ApiError?, or massage: String, img: Image? = nil, color: Color? = nil) {
+    func showApiError(apiError: ApiError?, or message: String, img: Image? = nil, color: Color? = nil) {
         if let apiError = apiError {
             if apiError.show {
-                showError(model: ErrorModel(error: NetworkErrors.api, massage: apiError.message, img: img, color: color))
+                showError(model: ErrorModel(error: NetworkErrors.api, message: apiError.message, img: img, color: color))
+                debugPrint(apiError.message)
             } else {
-                showError(model: ErrorModel(error: NetworkErrors.api, massage: massage, img: img, color: color))
+                showError(model: ErrorModel(error: NetworkErrors.api, message: message, img: img, color: color))
+                debugPrint(apiError.message)
             }
         } else {
-            showError(model: ErrorModel(error: NetworkErrors.api, massage: massage, img: img, color: color))
+            showError(model: ErrorModel(error: NetworkErrors.api, message: message, img: img, color: color))
         }
     }
     
     func showNetworkNoConnected() {
-        getError?(ErrorModel(error: NetworkErrors.connection, massage: "No internet connection.", img: AppImages.iconNoWifi, color: nil))
+        getError?(ErrorModel(error: NetworkErrors.connection, message: "No internet connection.", img: AppImages.iconNoWifi, color: nil))
     }
     func showNetworkConnected() {
-        getError?(ErrorModel(error: NetworkErrors.connection, massage: "Device is connected to network.", img: AppImages.iconWifi, color: .green))
+        getError?(ErrorModel(error: NetworkErrors.connection, message: "Device is connected to network.", img: AppImages.iconWifi, color: .green))
     }
     
     func showUpdateError(error: Error) {
         debugPrint(error)
-        getError?(ErrorModel(error: error, massage: updateMessage, img: nil, color: nil))
+        getError?(ErrorModel(error: error, message: updateMessage, img: nil, color: nil))
     }
     
     func showUpdateInternetError(error: Error) {
         debugPrint(error)
-        getError?(ErrorModel(error: error, massage: "No internet connection. The information has not been updated. Please try again later.", img: AppImages.iconNoWifi, color: nil))
+        getError?(ErrorModel(error: error, message: "No internet connection. The information has not been updated. Please try again later.", img: AppImages.iconNoWifi, color: nil))
     }
 }

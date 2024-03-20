@@ -86,7 +86,7 @@ extension AddCommentViewModel {
             } catch NetworkErrors.apiError(let apiError) {
                 errorManager.showApiError(apiError: apiError, or: errorManager.errorMessage, img: nil, color: nil)
             } catch {
-                errorManager.showError(model: ErrorModel(error: error, massage: errorManager.errorMessage, img: nil, color: nil))
+                errorManager.showError(model: ErrorModel(error: error, message: errorManager.errorMessage, img: nil, color: nil))
             }
             await MainActor.run {
                 isLoading = false

@@ -1,227 +1,343 @@
-////
-////  EditPlaceViewModel.swift
-////  Navigay
-////
-////  Created by Dmitry Zasenko on 16.01.24.
-////
 //
-//import SwiftUI
+//  EditPlaceViewModel.swift
+//  Navigay
 //
-//final class EditPlaceViewModel: ObservableObject {
-//    
-//    //MARK: - Properties
+//  Created by Dmitry Zasenko on 16.01.24.
 //
-//    let id: Int
-//    
-//    @Published var name: String = ""
-//    @Published var type: PlaceType? = nil
-//    @Published var isoCountryCode: String = ""
-//    @Published var address: String = ""
-//    @Published var latitude: Double? = nil
-//    @Published var longitude: Double? = nil
-//    @Published var tags: [Tag] = []
-//    @Published var timetable: [NewWorkingDay] = []
-//    @Published var otherInfo: String = ""
-//    @Published var about: String = ""
-//    @Published var phone: String = ""
-//    @Published var email: String = ""
-//    @Published var www: String = ""
-//    @Published var facebook: String = ""
-//    @Published var instagram: String = ""
-//    @Published var isOwned: Bool = false
-//    @Published var isActive: Bool = false
-//    @Published var isChecked: Bool = false
-//    
-//    @Published var avatar: AdminPhoto?
-//    @Published var mainPhoto: AdminPhoto?
-//    @Published var photos: [AdminPhoto] = []
-//    
-////    @Published var showMap: Bool = false // TODO! убрать
-////    @Published var isLoading: Bool = false
-//    
-//    let networkManager: AdminNetworkManagerProtocol
-////
-////    // MARK: - Inits
-////    
-//    init(place: Place, networkManager: AdminNetworkManagerProtocol) {
-//        debugPrint("init EditPlaceViewModel place id: \(place.id)")
-//        self.networkManager = networkManager
-//        self.id = place.id
-//        self.name = place.name
-//        self.type = place.type
-//        self.address = place.address
-//        self.latitude = place.latitude
-//        self.longitude = place.longitude
-//        self.tags = place.tags
-//        self.timetable = place.timetable.map( { NewWorkingDay(day: $0.day, opening: $0.open, closing: $0.close) } )
-//        self.otherInfo = place.otherInfo ?? ""
-//        self.about = place.about ?? ""
-//        self.phone = place.phone ?? ""
-//        self.www = place.www ?? ""
-//        self.facebook = place.facebook ?? ""
-//        self.instagram = place.instagram ?? ""
-//     //   self.isActive = place.isActive
-//        self.avatar = AdminPhoto(id: UUID().uuidString, image: nil, url: place.avatar)
-//        self.mainPhoto = AdminPhoto(id: UUID().uuidString, image: nil, url: place.mainPhoto)
-//    }
-//}
-//
-//extension EditPlaceViewModel {
-//    
-//    //MARK: - Functions
-//    
-//    func fetchPlace() {
-//        Task {
-//            guard let decodedPlace = await networkManager.fetchPlace(id: id) else {
-//                //TODO!!!!!!!!!!!! на вью назад
-//                return
-//            }
-//            await MainActor.run {
-//                self.email = decodedPlace.email ?? ""
-//                self.isChecked = decodedPlace.isChecked
-//                self.isActive = decodedPlace.isActive
-//                if let photos = decodedPlace.photos, !photos.isEmpty {
-//                    let adminPhotos = photos.compactMap( { AdminPhoto(id: $0.id, image: nil, url: $0.url)})
-//                    self.photos = adminPhotos
-//                } else {
-//                    self.photos = []
-//                }
-//            }
-//        }
-//    }
-//    
-////    func updateInfo() async -> Bool {
-////        let errorModel = ErrorModel(message: "Something went wrong. The city didn't update in database. Please try again later.", img: nil, color: nil)
-////        let about = about.map( { DecodedAbout(language: $0.language, about: $0.about) } )
-////        let city: AdminCity = AdminCity(id: id,
-////                                        countryId: countryId,
-////                                        regionId: regionId,
-////                                        nameOrigin: nameOrigin.isEmpty ? nil : nameOrigin,
-////                                        nameEn: nameEn.isEmpty ? nil : nameEn,
-////                                        nameFr: nameFr.isEmpty ? nil : nameFr,
-////                                        nameDe: nameDe.isEmpty ? nil : nameDe,
-////                                        nameRu: nameRu.isEmpty ? nil : nameRu,
-////                                        nameIt: nameIt.isEmpty ? nil : nameIt,
-////                                        nameEs: nameEs.isEmpty ? nil : nameEs,
-////                                        namePt: namePt.isEmpty ? nil : namePt,
-////                                        about: about.isEmpty ? nil : about,
-////                                        photo: nil,
-////                                        photos: nil,
-////                                        isActive: isActive,
-////                                        isChecked: isChecked)
-////        do {
-////            let decodedResult = try await networkManager.updateCity(city: city)
-////            guard decodedResult.result else {
-////                errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: errorModel)
-////                return false
-////            }
-////            return true
-////        } catch {
-////            debugPrint("ERROR - update country info: ", error)
-////            errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
-////            return false
-////        }
-////    }
-//    
-////    func loadImage(uiImage: UIImage) {
-////        isLoadingPhoto = true
-////        let previousImage = photo
-////        photo = AdminPhoto(id: UUID().uuidString, image: Image(uiImage: uiImage), url: nil)
-////        updateImage(uiImage: uiImage, previousImage: previousImage)
-////    }
-//    
-////    func loadLibraryPhoto(photoId: String, uiImage: UIImage) {
-////        isLoadingLibraryPhoto = true
-////        var previousImage: Image? = nil
-////        if let index = photos.firstIndex(where: { $0.id == photoId }) {
-////            previousImage = photos[index].image
-////            photos[index].updateImage(image: Image(uiImage: uiImage))
-////        } else {
-////            guard let photo = AdminPhoto(id: photoId, image: Image(uiImage: uiImage), url: nil) else {
-////                return
-////            }
-////            photos.append(photo)
-////        }
-////        updateLibraryPhoto(photoId: photoId, uiImage: uiImage, previousImage: previousImage)
-////    }
-//    
-////    func deleteLibraryPhoto(photoId: String) {
-////        isLoadingLibraryPhoto = true
-////        Task {
-////            do {
-////                let decodedResult = try await networkManager.deleteCityLibraryPhoto(cityId: id, photoId: photoId)
-////                guard decodedResult.result else {
-////                    errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: deleteErrorModel)
-////                    throw NetworkErrors.apiError
-////                }
-////                await MainActor.run {
-////                    self.isLoadingLibraryPhoto = false
-////                    if let index = photos.firstIndex(where: { $0.id == photoId }) {
-////                        photos.remove(at: index)
-////                    }
-////                }
-////            } catch {
-////                debugPrint("ERROR - deleteLibraryPhoto: ", error)
-////                errorManager.showApiErrorOrMessage(apiError: nil, or: deleteErrorModel)
-////                await MainActor.run {
-////                    self.isLoadingLibraryPhoto = false
-////                }
-////            }
-////        }
-////    }
-//    
-//    //MARK: - Private Functions
-//    
-////    private func updateImage(uiImage: UIImage, previousImage: AdminPhoto?) {
-////        Task {
-////            let scaledImage = uiImage.cropImage(width: 600, height: 750)
-////            let errorModel = ErrorModel(massage: "Something went wrong. The photo didn't load. Please try again later.", img: Image(systemName: "photo.fill"), color: .red)
-////            do {
-////                let decodedResult = try await networkManager.updateCityPhoto(cityId: id, uiImage: scaledImage)
-////                guard decodedResult.result else {
-////                    errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: errorModel)
-////                    throw NetworkErrors.apiError
-////                }
-////                await MainActor.run {
-////                    self.isLoadingPhoto = false
-////                }
-////            } catch {
-////                debugPrint("ERROR - update city image: ", error)
-////                errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
-////                await MainActor.run {
-////                    self.isLoadingPhoto = false
-////                    self.photo = previousImage
-////                }
-////            }
-////        }
-////    }
-//    
-////    private func updateLibraryPhoto(photoId: String, uiImage: UIImage, previousImage: Image?) {
-////        Task {
-////            let scaledImage = uiImage.cropImage(width: 600, height: 750)
-////            do {
-////                let decodedResult = try await networkManager.updateCityLibraryPhoto(cityId: id, photoId: photoId, uiImage: scaledImage)
-////                guard decodedResult.result else {
-////                    errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: loadErrorModel)
-////                    throw NetworkErrors.apiError
-////                }
-////                await MainActor.run {
-////                    self.isLoadingLibraryPhoto = false
-////                }
-////            } catch {
-////                debugPrint("ERROR - update city library photo: ", error)
-////                errorManager.showApiErrorOrMessage(apiError: nil, or: loadErrorModel)
-////                await MainActor.run {
-////                    if let index = photos.firstIndex(where: { $0.id == photoId }) {
-////                        if let previousImage = previousImage {
-////                            photos[index].updateImage(image: previousImage)
-////                        } else {
-////                            photos.remove(at: index)
-////                        }
-////                    }
-////                    self.isLoadingLibraryPhoto = false
-////                }
-////            }
-////        }
-////    }
-//}
+
+import SwiftUI
+
+final class EditPlaceViewModel: ObservableObject {
+    
+    // MARK: - Properties
+
+    let id: Int
+    
+    @Published var isLoading: Bool = false
+    @Published var fetched: Bool = false
+    
+    var name: String = ""
+    var type: PlaceType = .other
+    var isoCountryCode: String = ""
+    var address: String = ""
+    var latitude: Double = 0.0
+    var longitude: Double = 0.0
+    var tags: [Tag] = []
+    var timetable: [NewWorkingDay] = []
+    var otherInfo: String = ""
+    var about: String = ""
+    var phone: String = ""
+    var email: String = ""
+    var www: String = ""
+    var facebook: String = ""
+    var instagram: String = ""
+    var isOwned: Bool = false
+    var isActive: Bool = false
+    var isChecked: Bool = false
+    var adminNotes: String = ""
+    @Published var avatar: AdminPhoto?
+    @Published var mainPhoto: AdminPhoto?
+    @Published var photos: [AdminPhoto] = []
+    
+    var countryOrigin: String? = nil
+    var countryEnglish: String? = nil
+    var regionOrigin: String? = nil
+    var regionEnglish: String? = nil
+    var cityOrigin: String? = nil
+    var cityEnglish: String? = nil
+        
+    // images
+    @Published var avatarLoading: Bool = false
+    @Published var mainPhotoLoading: Bool = false
+    @Published var libraryPhotoLoading: Bool = false
+    
+    @Published var gridLayout: [GridItem] = Array(repeating: GridItem(.flexible(), spacing: 2), count: 3)
+    
+    @Published var showDeleteSheet: Bool = false
+    
+    let place: Place?
+    let user: AppUser
+    
+    let networkManager: EditPlaceNetworkManagerProtocol
+    let errorManager: ErrorManagerProtocol
+    
+    // MARK: - Inits
+    
+    init(id: Int, place: Place?, user: AppUser, networkManager: EditPlaceNetworkManagerProtocol, errorManager: ErrorManagerProtocol) {
+        debugPrint("init EditPlaceViewModel place id: \(id)")
+        self.networkManager = networkManager
+        self.errorManager = errorManager
+        self.user = user
+        self.id = id
+        self.place = place
+    }
+}
+
+extension EditPlaceViewModel {
+    
+    // MARK: - Functions
+    
+    func deletePlace() {
+    }
+    
+    func fetchPlace() {
+        guard !fetched else { return }
+        isLoading = true
+        Task {
+            do {
+                let decodedPlace = try await networkManager.fetchPlace(id: id, for: user)
+                await MainActor.run {
+                    self.name = decodedPlace.name
+                    self.type = decodedPlace.type
+                    self.address = decodedPlace.address
+                    self.latitude = decodedPlace.latitude
+                    self.longitude = decodedPlace.longitude
+                    self.tags = decodedPlace.tags ?? []
+                    self.timetable = decodedPlace.timetable?.map( { NewWorkingDay(day: $0.day, opening: $0.opening.dateFromString(format: "HH:mm") ?? .now, closing: $0.closing.dateFromString(format: "HH:mm") ?? .now) } ) ?? []
+                    self.otherInfo = decodedPlace.otherInfo ?? ""
+                    self.about = decodedPlace.about ?? ""
+                    self.phone = decodedPlace.phone ?? ""
+                    self.www = decodedPlace.www ?? ""
+                    self.facebook = decodedPlace.facebook ?? ""
+                    self.instagram = decodedPlace.instagram ?? ""
+                    self.avatar = AdminPhoto(id: UUID().uuidString, image: nil, url: decodedPlace.avatar)
+                    self.mainPhoto = AdminPhoto(id: UUID().uuidString, image: nil, url: decodedPlace.mainPhoto)
+                    self.email = decodedPlace.email ?? ""
+                    self.isChecked = decodedPlace.isChecked
+                    self.isActive = decodedPlace.isActive
+                    if let photos = decodedPlace.photos, !photos.isEmpty {
+                        let adminPhotos = photos.compactMap( { AdminPhoto(id: $0.id, image: nil, url: $0.url)})
+                        self.photos = adminPhotos
+                    } else {
+                        self.photos = []
+                    }
+                    self.fetched = true
+                }
+            } catch NetworkErrors.noConnection {
+                errorManager.showNetworkNoConnected()
+            } catch NetworkErrors.apiError(let apiError) {
+                errorManager.showApiError(apiError: apiError, or: errorManager.errorMessage, img: nil, color: nil)
+            } catch {
+                errorManager.showError(model: ErrorModel(error: error, message: errorManager.errorMessage, img: nil, color: nil))
+            }
+            await MainActor.run {
+                isLoading = false
+            }
+        }
+    }
+    
+    func updateActivity(isActive: Bool, isChecked: Bool, adminNotes: String) async -> Bool {
+        do {
+            try await networkManager.updateActivity(placeId: id, isActive: isActive, isChecked: isChecked, adminNotes: adminNotes.isEmpty ? nil : adminNotes, user: user)
+            await MainActor.run {
+                self.isActive = isActive
+                self.isChecked = isChecked
+                self.adminNotes = adminNotes
+            }
+            return true
+        } catch NetworkErrors.noConnection {
+            errorManager.showNetworkNoConnected()
+        } catch NetworkErrors.apiError(let apiError) {
+            errorManager.showApiError(apiError: apiError, or: errorManager.updateMessage, img: nil, color: nil)
+        } catch {
+            errorManager.showError(model: ErrorModel(error: error, message: errorManager.updateMessage, img: nil, color: nil))
+        }
+        return false
+    }
+    
+    func updateTimetable(timetable: [NewWorkingDay]) async -> Bool {
+        do {
+            let timetableToSend = timetable.map( { PlaceWorkDay(day: $0.day, opening: $0.opening.format("HH:mm"), closing: $0.closing.format("HH:mm")) } )
+            try await networkManager.updateTimetable(placeId: id, timetable: timetableToSend.isEmpty ? nil : timetableToSend, for: user)
+            await MainActor.run {
+                self.timetable = timetable
+                //todo!!!!!! обновить в базе данных
+               // place?.timetable =
+            }
+            return true
+        } catch NetworkErrors.noConnection {
+            errorManager.showNetworkNoConnected()
+        } catch NetworkErrors.apiError(let apiError) {
+            errorManager.showApiError(apiError: apiError, or: errorManager.updateMessage, img: nil, color: nil)
+        } catch {
+            errorManager.showError(model: ErrorModel(error: error, message: errorManager.updateMessage, img: nil, color: nil))
+        }
+        return false
+    }
+    
+    
+    func updateAdditionalInformation(email: String?, phone: String?, www: String?, facebook: String?, instagram: String?, otherInfo: String?, tags: [Tag]?) async -> Bool {
+            do {
+                try await networkManager.updateAdditionalInformation(placeId: id, email: email, phone: phone, www: www, facebook: facebook, instagram: instagram, otherInfo: otherInfo, tags: tags, for: user)
+                await MainActor.run {
+                    self.phone = phone ?? ""
+                    self.www = www ?? ""
+                    self.facebook = facebook ?? ""
+                    self.instagram = instagram ?? ""
+                    self.otherInfo = otherInfo ?? ""
+                    self.tags = tags ?? []
+                    self.email = email ?? ""
+                    place?.phone = phone
+                    place?.www = www
+                    place?.facebook = facebook
+                    place?.instagram = instagram
+                    place?.otherInfo = otherInfo
+                    place?.tags = tags ?? []
+                }
+                return true
+            } catch NetworkErrors.noConnection {
+                errorManager.showNetworkNoConnected()
+            } catch NetworkErrors.apiError(let apiError) {
+                errorManager.showApiError(apiError: apiError, or: errorManager.updateMessage, img: nil, color: nil)
+            } catch {
+                errorManager.showError(model: ErrorModel(error: error, message: errorManager.updateMessage, img: nil, color: nil))
+            }
+            return false
+    }
+    
+    func updateTitleAndType(name: String, type: PlaceType) async -> Bool {
+            do {
+                try await networkManager.updateTitleAndType(id: id, name: name, type: type, for: user)
+                await MainActor.run {
+                    self.name = name
+                    self.type = type
+                    place?.name = name
+                    place?.type = type
+                }
+                return true
+            } catch NetworkErrors.noConnection {
+                errorManager.showNetworkNoConnected()
+            } catch NetworkErrors.apiError(let apiError) {
+                errorManager.showApiError(apiError: apiError, or: errorManager.updateMessage, img: nil, color: nil)
+            } catch {
+                errorManager.showError(model: ErrorModel(error: error, message: errorManager.updateMessage, img: nil, color: nil))
+            }
+            return false
+    }
+    
+    func updateAbout(about: String) async -> Bool {
+            do {
+                try await networkManager.updateAbout(id: id, about: about.isEmpty ? nil : about, for: user)
+                await MainActor.run {
+                    self.about = about
+                    place?.about = about
+                }
+                return true
+            } catch NetworkErrors.noConnection {
+                errorManager.showNetworkNoConnected()
+            } catch NetworkErrors.apiError(let apiError) {
+                errorManager.showApiError(apiError: apiError, or: errorManager.updateMessage, img: nil, color: nil)
+            } catch {
+                errorManager.showError(model: ErrorModel(error: error, message: errorManager.updateMessage, img: nil, color: nil))
+            }
+            return false
+    }
+    
+    func deleteLibraryPhoto(photoId: String) {
+        libraryPhotoLoading = true
+        Task {
+            let message = "Something went wrong. The photo didn't delete. Please try again later."
+            do {
+                try await networkManager.deleteLibraryPhoto (placeId: id, photoId: photoId, from: user)
+                await MainActor.run {
+                    if let photoIndex = photos.firstIndex(where: { $0.id == photoId }) {
+                        photos.remove(at: photoIndex)
+                    }
+                }
+            } catch NetworkErrors.noConnection {
+                errorManager.showNetworkNoConnected()
+            } catch NetworkErrors.apiError(let apiError) {
+                errorManager.showApiError(apiError: apiError, or: message, img: nil, color: nil)
+            } catch {
+                errorManager.showError(model: ErrorModel(error: error, message: message, img: AppImages.iconPhoto, color: nil))
+            }
+            await MainActor.run {
+                self.libraryPhotoLoading = false
+            }
+        }
+    }
+    
+    func updateAvatar(uiImage: UIImage) {
+        avatarLoading = true
+        Task {
+            let message = "Something went wrong. The photo didn't load. Please try again later."
+            let scaledImage = uiImage.cropImage(width: 150, height: 150)
+            do {
+                let url = try await networkManager.updateAvatar(placeId: id, uiImage: scaledImage, from: user)
+                await MainActor.run {
+                    if avatar != nil {
+                        avatar?.updateImage(image: Image(uiImage: uiImage))
+                    } else {
+                        avatar = AdminPhoto(id: UUID().uuidString, image: Image(uiImage: uiImage), url: url)
+                    }
+                    place?.avatar = url
+                }
+            } catch NetworkErrors.noConnection {
+                errorManager.showNetworkNoConnected()
+            } catch NetworkErrors.apiError(let apiError) {
+                errorManager.showApiError(apiError: apiError, or: message, img: nil, color: nil)
+            } catch {
+                errorManager.showError(model: ErrorModel(error: error, message: message, img: AppImages.iconPhoto, color: nil))
+            }
+            await MainActor.run {
+                avatarLoading = false
+            }
+        }
+    }
+    
+    func updateMainPhoto(uiImage: UIImage) {
+    mainPhotoLoading = true
+    Task {
+        let message = "Something went wrong. The photo didn't load. Please try again later."
+        let scaledImage = uiImage.cropImage(width: 600, height: 750)
+        do {
+            let url = try await networkManager.updateMainPhoto(placeId: id, uiImage: scaledImage, from: user)
+            await MainActor.run {
+                if mainPhoto != nil {
+                    mainPhoto?.updateImage(image: Image(uiImage: uiImage))
+                } else {
+                    mainPhoto = AdminPhoto(id: UUID().uuidString, image: Image(uiImage: uiImage), url: url)
+                }
+                place?.mainPhoto = url
+            }
+        } catch NetworkErrors.noConnection {
+            errorManager.showNetworkNoConnected()
+        } catch NetworkErrors.apiError(let apiError) {
+            errorManager.showApiError(apiError: apiError, or: message, img: nil, color: nil)
+        } catch {
+            errorManager.showError(model: ErrorModel(error: error, message: message, img: AppImages.iconPhoto, color: nil))
+        }
+        await MainActor.run {
+            self.mainPhotoLoading = false
+        }
+    }
+}
+    
+    func updateLibraryPhoto(uiImage: UIImage, photoId: String) {
+        libraryPhotoLoading = true
+        Task {
+            let scaledImage = uiImage.cropImage(width: 600, height: 750)
+            let message = "Something went wrong. The photo didn't load. Please try again later."
+            do {
+                let url = try await networkManager.updateLibraryPhoto(placeId: id, photoId: photoId, uiImage: scaledImage, from: user)
+                await MainActor.run {
+                    if let photoIndex = photos.firstIndex(where: { $0.id == photoId }) {
+                        photos[photoIndex].updateImage(image: Image(uiImage: uiImage))
+                    } else {
+                        guard let photo = AdminPhoto(id: photoId, image: Image(uiImage: uiImage), url: url) else { return }
+                        photos.append(photo)
+                    }
+                }
+            } catch NetworkErrors.noConnection {
+                errorManager.showNetworkNoConnected()
+            } catch NetworkErrors.apiError(let apiError) {
+                errorManager.showApiError(apiError: apiError, or: message, img: nil, color: nil)
+            } catch {
+                errorManager.showError(model: ErrorModel(error: error, message: message, img: AppImages.iconPhoto, color: nil))
+            }
+            await MainActor.run {
+                self.libraryPhotoLoading = false
+            }
+        }
+    }
+}

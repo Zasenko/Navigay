@@ -72,7 +72,7 @@ extension AppUserView {
                 } catch NetworkErrors.apiError(let apiError) {
                     errorManager.showApiError(apiError: apiError, or: message, img: nil, color: nil)
                 } catch {
-                    errorManager.showError(model: ErrorModel(error: error, massage: message))
+                    errorManager.showError(model: ErrorModel(error: error, message: message))
                 }
             }
         }
@@ -89,7 +89,7 @@ extension AppUserView {
                 } catch NetworkErrors.apiError(let apiError) {
                     errorManager.showApiError(apiError: apiError, or: errorManager.updateMessage, img: nil, color: nil)
                 } catch {
-                    errorManager.showError(model: ErrorModel(error: error, massage: errorManager.updateMessage))
+                    errorManager.showError(model: ErrorModel(error: error, message: errorManager.updateMessage))
                 }
             }
         }
@@ -110,7 +110,7 @@ extension AppUserView {
                 } catch NetworkErrors.apiError(let apiError) {
                     errorManager.showApiError(apiError: apiError, or: message, img: AppImages.iconPhoto, color: nil)
                 } catch {
-                    errorManager.showError(model: ErrorModel(error: error, massage: message, img: AppImages.iconPhoto))
+                    errorManager.showError(model: ErrorModel(error: error, message: message, img: AppImages.iconPhoto))
                 }
                 await MainActor.run {
                     self.isLoadingPhoto = false
@@ -133,7 +133,7 @@ extension AppUserView {
                 } catch NetworkErrors.apiError(let apiError) {
                     errorManager.showApiError(apiError: apiError, or: message, img: AppImages.iconPhoto, color: nil)
                 } catch {
-                    errorManager.showError(model: ErrorModel(error: error, massage: message, img: AppImages.iconPhoto))
+                    errorManager.showError(model: ErrorModel(error: error, message: message, img: AppImages.iconPhoto))
                 }
                 await MainActor.run {
                     self.isLoadingPhoto = false

@@ -51,7 +51,7 @@ extension AuthNetworkManager: AuthNetworkManagerProtocol {
             return components
         }
         guard let url = urlComponents.url else {
-            throw NetworkErrors.bedUrl
+            throw NetworkErrors.badUrl
         }
         let parameters = [
             "email": email
@@ -90,7 +90,7 @@ extension AuthNetworkManager: AuthNetworkManagerProtocol {
             return components
         }
         guard let url = urlComponents.url else {
-            throw NetworkErrors.bedUrl
+            throw NetworkErrors.badUrl
         }
         let parameters = [
             "user_id": String(user.id),
@@ -127,7 +127,7 @@ extension AuthNetworkManager: AuthNetworkManagerProtocol {
             return components
         }
         guard let url = urlComponents.url else {
-            throw NetworkErrors.bedUrl
+            throw NetworkErrors.badUrl
         }
         let parameters = [
             "email": email,
@@ -166,7 +166,7 @@ extension AuthNetworkManager: AuthNetworkManagerProtocol {
             return components
         }
         guard let url = urlComponents.url else {
-            throw NetworkErrors.bedUrl
+            throw NetworkErrors.badUrl
         }
         let parameters = [
             "email": email,
@@ -207,7 +207,7 @@ extension AuthNetworkManager: AuthNetworkManagerProtocol {
             return components
         }
         guard let url = urlComponents.url else {
-            throw NetworkErrors.bedUrl
+            throw NetworkErrors.badUrl
         }
         let parameters = [
             "user_id": String(user.id),

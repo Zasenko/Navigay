@@ -18,13 +18,7 @@ struct NamesEditView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            NavigationLink {
-                EditTextFieldView(text: nameOrigin, characterLimit: 30, minHaracters: 2, title: "🏳️‍🌈 Original name", placeholder: "Name") { string in
-                    nameOrigin = string
-                }
-            } label: {
-                EditField(title: "🏳️‍🌈 Original name", text: $nameOrigin, emptyFieldColor: .red)
-            }
+            EditField(title: "🏳️‍🌈 Original name", text: $nameOrigin, emptyFieldColor: .red)
             Divider()
                 .padding(.horizontal)
             NavigationLink {

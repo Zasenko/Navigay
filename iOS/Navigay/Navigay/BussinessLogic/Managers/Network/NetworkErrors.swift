@@ -15,7 +15,7 @@ enum NetworkErrors: Error {
     case encoderError
     case bodyEncoderError
     case imageDataError
-    case bedUrl
+    case badUrl
     case invalidData
     case bedResponse
     case api

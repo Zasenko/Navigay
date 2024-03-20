@@ -17,8 +17,8 @@ struct EditEmailView: View {
     
     @State private var email: String
     private let title: String = "Email"
-    private let placeholder: String = "Email"
-    private let info: String = "Email не будет виден пользователям приложения."
+    private let placeholder: String = "example@example.com"
+    private let info: String = "The email will not be visible to application users."
     @State private var isEmailValid: Bool = false
     @FocusState private var focused: Bool
     @Environment(\.dismiss) private var dismiss
@@ -73,7 +73,7 @@ struct EditEmailView: View {
                     .tint(.primary)
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Готово") {
+                    Button("Done") {
                         onSave(email)
                         dismiss()
                     }

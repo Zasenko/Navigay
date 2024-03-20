@@ -7,18 +7,12 @@
 
 import SwiftUI
 
-enum NewPlaceRouter {
-    case info
-    case photos
-}
 
 final class AddNewPlaceViewModel: ObservableObject {
     
     //MARK: - Properties
     
-    var placeId: Int? = nil
-    
-    @Published var router: NewPlaceRouter = .info
+    @Published var id: Int?
     @Published var name: String = ""
     @Published var type: PlaceType? = nil
     @Published var isoCountryCode: String = ""
@@ -43,19 +37,18 @@ final class AddNewPlaceViewModel: ObservableObject {
     @Published var isOwned: Bool = false
     @Published var isActive: Bool = false
     @Published var isChecked: Bool = false
-    @Published var showMap: Bool = false // TODO! убрать
+    @Published var showMap: Bool = false
     @Published var isLoading: Bool = false
+    @Published var showEditView: Bool = false
     
-    let userId: Int
     let errorManager: ErrorManagerProtocol
-    let networkManager: PlaceNetworkManagerProtocol
+    let networkManager: EditPlaceNetworkManagerProtocol
     
     //MARK: - Private Properties
         
     //MARK: - Inits
     
-    init(userId: Int, networkManager: PlaceNetworkManagerProtocol, errorManager: ErrorManagerProtocol) {
-        self.userId = userId
+    init(networkManager: EditPlaceNetworkManagerProtocol, errorManager: ErrorManagerProtocol) {
         self.networkManager = networkManager
         self.errorManager = errorManager
     }
@@ -64,21 +57,18 @@ extension AddNewPlaceViewModel {
     
     //MARK: - Functions
     
-    func addNewPlace() {
+    func addNewPlace(from user: AppUser) {
         isLoading = true
         Task {
-         //   let errorModel = ErrorModel(massage: "Something went wrong. The place didn't load to database. Please try again later.", img: nil, color: nil)
+            let errorMessage = "Something went wrong. The place didn't load to database. Please try again later."
             guard !name.isEmpty else { return }
             guard let type = type?.rawValue else { return }
             guard !isoCountryCode.isEmpty else { return }
             guard !addressOrigin.isEmpty else { return }
             guard let latitude else { return }
             guard let longitude else { return }
-            
-            //let about = about.map( { DecodedAbout(language: $0.language, about: $0.about) } )
             let tags = tags.map( { $0.rawValue} )
             let timetable = timetable.map( { PlaceWorkDay(day: $0.day, opening: $0.opening.format("HH:mm"), closing: $0.closing.format("HH:mm")) } )
-            
             let newPlace: NewPlace = NewPlace(name: name,
                                               type: type,
                                               isoCountryCode: isoCountryCode,
@@ -100,25 +90,25 @@ extension AddNewPlaceViewModel {
                                               www: www.isEmpty ? nil : www,
                                               facebook: facebook.isEmpty ? nil : facebook,
                                               instagram: instagram.isEmpty ? nil : instagram,
-                                              ownderId: isOwned ? userId : nil,
-                                              addedBy: userId,
+                                              ownderId: isOwned ? user.id : nil,
+                                              addedBy: user.id,
                                               isActive: isActive,
                                               isChecked: isChecked)
             do {
                 let decodedResult = try await networkManager.addNewPlace(place: newPlace)
                 await MainActor.run {
                     self.isLoading = false
-                    self.placeId = decodedResult
-                    withAnimation {
-                        self.router = .photos
-                    }
+                    self.id = decodedResult
+//                    withAnimation {
+//                        self.router = .photos
+//                    }
                 }
             } catch NetworkErrors.noConnection {
                 errorManager.showNetworkNoConnected()
             } catch NetworkErrors.apiError(let apiError) {
-                errorManager.showApiError(apiError: apiError, or: errorManager.errorMessage, img: nil, color: nil)
+                errorManager.showApiError(apiError: apiError, or: errorMessage, img: nil, color: nil)
             } catch {
-                errorManager.showError(model: ErrorModel(error: error, massage: errorManager.errorMessage, img: nil, color: nil))
+                errorManager.showError(model: ErrorModel(error: error, message: errorMessage, img: nil, color: nil))
             }
         }
     }

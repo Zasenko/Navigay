@@ -62,6 +62,17 @@ struct CityView: View {
                         }
                         .tint(.primary)
                     }
+                    if let user = authenticationManager.appUser, user.status == .admin {
+                        ToolbarItem(placement: .topBarTrailing) {
+                            NavigationLink {
+                                EditCityView(viewModel: EditCityViewModel(id: viewModel.city.id, errorManager: viewModel.errorManager, networkManager: EditCityNetworkManager(networkMonitorManager: authenticationManager.networkMonitorManager)))
+                            } label: {
+                                AppImages.iconSettings
+                                    .bold()
+                                    .foregroundStyle(.blue)
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -78,12 +89,8 @@ struct CityView: View {
                     .padding(.bottom)
             }
             
-            if let user = authenticationManager.appUser, user.status == .admin {
-                adminPanel
-            }
-            
             if viewModel.actualEvents.count > 0 {
-                EventsView(modelContext: viewModel.modelContext, selectedDate: $viewModel.selectedDate, displayedEvents: $viewModel.displayedEvents, actualEvents: $viewModel.actualEvents, todayEvents: $viewModel.todayEvents, upcomingEvents: $viewModel.upcomingEvents, eventsDates: $viewModel.eventsDates, showCalendar: $viewModel.showCalendar, size: size, eventDataManager: viewModel.eventDataManager, eventNetworkManager: viewModel.eventNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, errorManager: viewModel.errorManager)
+                EventsView(modelContext: viewModel.modelContext, selectedDate: $viewModel.selectedDate, displayedEvents: $viewModel.displayedEvents, actualEvents: $viewModel.actualEvents, todayEvents: $viewModel.todayEvents, upcomingEvents: $viewModel.upcomingEvents, eventsDates: $viewModel.eventsDates, showCalendar: $viewModel.showCalendar, size: size, eventDataManager: viewModel.eventDataManager, placeDataManager: viewModel.placeDataManager, eventNetworkManager: viewModel.eventNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, errorManager: viewModel.errorManager)
                     .listRowSeparator(.hidden)
                     .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
             }
@@ -106,29 +113,6 @@ struct CityView: View {
         .onAppear() {
             viewModel.getPlacesAndEventsFromDB()
         }
-//        .navigationDestination(item: $viewModel.adminCity) { adminCity in
-//            EditCityView(viewModel: EditCityViewModel(city: adminCity, errorManager: viewModel.errorManager, networkManager: AdminNetworkManager(errorManager: viewModel.errorManager)))
-//        }
-    }
-    
-    private var adminPanel: some View {
-        Section {
-//            NavigationLink {
-//                EditCityView(viewModel: EditCityViewModel(id: viewModel.city.id, userId: authenticationManager.appUser?.id ?? 0, errorManager: viewModel.errorManager, networkManager: AdminNetworkManager(networkMonitorManager: <#any NetworkMonitorManagerProtocol#>, appSettingsManager: <#any AppSettingsManagerProtocol#>)))
-//            } label: {
-                Text("Edit")
-                    .font(.callout)
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 40)
-                    .padding(.vertical, 10)
-                    .background(
-                        Capsule()
-                            .fill(.green.gradient)
-                    )
-//            }
-        }
-        .listRowSeparator(.hidden)
     }
     
     private var placesView: some View {
@@ -142,7 +126,7 @@ struct CityView: View {
                     .offset(x: 70)
                 ForEach(viewModel.groupedPlaces[key] ?? []) { place in
                     NavigationLink {
-                        PlaceView(place: place, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, authenticationManager: authenticationManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, showOpenInfo: false)
+                        PlaceView(viewModel: PlaceView.PlaceViewModel(place: place, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, showOpenInfo: false))
                     } label: {
                         PlaceCell(place: place, showOpenInfo: false, showDistance: false, showCountryCity: false, showLike: true)
                     }

@@ -50,8 +50,7 @@ extension CityView {
         let eventDataManager: EventDataManagerProtocol
         let catalogDataManager: CatalogDataManagerProtocol
         
-        var showEditCityView: Bool = false
-        var adminCity: AdminCity? = nil
+       // var adminCity: AdminCity? = nil
         
         init(modelContext: ModelContext,
              city: City,

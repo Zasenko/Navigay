@@ -12,7 +12,7 @@ struct EditLibraryView: View {
     //MARK: - Properties
     
     var onSave: ((id: String, uiImage: UIImage)) -> Void
-    var onDelete: (String?) -> Void
+    var onDelete: (String) -> Void
     
     @Binding var photos: [AdminPhoto]
     @Binding var isLoading: Bool
@@ -25,7 +25,7 @@ struct EditLibraryView: View {
     
     //MARK: - Inits
     
-    init(photos: Binding<[AdminPhoto]>, isLoading: Binding<Bool>, width: CGFloat, onSave: @escaping ((id: String, uiImage: UIImage)) -> Void, onDelete: @escaping (String?) -> Void) {
+    init(photos: Binding<[AdminPhoto]>, isLoading: Binding<Bool>, width: CGFloat, onSave: @escaping ((id: String, uiImage: UIImage)) -> Void, onDelete: @escaping (String) -> Void) {
         _photos = photos
         _isLoading = isLoading
         self.width = width
@@ -44,7 +44,11 @@ struct EditLibraryView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                 if photos.count < 9 {
                     PhotoEditView(canDelete: false, canAddFromUrl: true) {
-                        Text("Add photo")
+                        HStack {
+                            AppImages.iconPlus
+                            Text("Add photo")
+                        }
+                        .foregroundStyle(.blue)
                     } onSave: { uiImage in
                         photoId = UUID().uuidString
                         onSave((id: photoId, uiImage: uiImage))

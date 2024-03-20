@@ -26,6 +26,7 @@ struct EventsView: View {
     
     let size: CGSize
     let eventDataManager: EventDataManagerProtocol
+    let placeDataManager: PlaceDataManagerProtocol
     let eventNetworkManager: EventNetworkManagerProtocol
     let placeNetworkManager: PlaceNetworkManagerProtocol
     let errorManager: ErrorManagerProtocol
@@ -134,7 +135,7 @@ struct EventsView: View {
                 }
             }
             .fullScreenCover(item: $selectedEvent) { event in
-                EventView(viewModel: EventView.EventViewModel.init(event: event, modelContext: modelContext, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager))
+                EventView(viewModel: EventView.EventViewModel.init(event: event, modelContext: modelContext, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager))
             }
             .onChange(of: selectedDate, initial: false) { oldValue, newValue in
                 showCalendar = false

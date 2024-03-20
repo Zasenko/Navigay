@@ -70,22 +70,20 @@ extension AuthenticationManager {
         user.isUserLoggedIn = false
         appUser = nil
         Task {
-            guard let sessionKey = user.sessionKey else { return }
-            try await networkManager.logout(for: user)
+            try? await networkManager.logout(for: user)
         }
     }
     
     func resetPassword(email: String) async -> Bool {
-        let message = ""
         do {
             try await networkManager.resetPassword(email: email)
             return true
         } catch NetworkErrors.noConnection {
             errorManager.showNetworkNoConnected()
         } catch NetworkErrors.apiError(let apiError) {
-            errorManager.showApiError(apiError: apiError, or: errorManager.updateMessage, img: nil, color: nil)
+            errorManager.showApiError(apiError: apiError, or: errorManager.errorMessage, img: nil, color: nil)
         } catch {
-            errorManager.showErrorMassage(error: error)
+            errorManager.showErrorMessage(error: error)
         }
         return false
     }
@@ -93,7 +91,6 @@ extension AuthenticationManager {
     private func auth(user: AppUser) {
         Task {
             let message = "Oops! Something went wrong. You're not logged in. Please try again later."
-            
             do {
                 let password = try keychainManager.getGenericPasswordFor(account: user.email, service: "User login")
                 let decodedAppUser = try await networkManager.login(email: user.email, password: password)
@@ -104,12 +101,12 @@ extension AuthenticationManager {
                 return
                 
             }  catch NetworkErrors.noConnection {
-                errorManager.showError(model: ErrorModel(error: NetworkErrors.noConnection, massage: "You're not logged in.", img: AppImages.iconPersonError, color: nil))
+                errorManager.showError(model: ErrorModel(error: NetworkErrors.noConnection, message: "You're not logged in.", img: AppImages.iconPersonError, color: nil))
                 
             } catch NetworkErrors.apiError(let apiError) {
                 errorManager.showApiError(apiError: apiError, or: message, img: nil, color: nil)
             } catch {
-                errorManager.showError(model: ErrorModel(error: NetworkErrors.noConnection, massage: message, img: AppImages.iconPersonError, color: nil))
+                errorManager.showError(model: ErrorModel(error: NetworkErrors.noConnection, message: message, img: AppImages.iconPersonError, color: nil))
             }
             await MainActor.run {
                 user.isUserLoggedIn = false
@@ -119,34 +116,30 @@ extension AuthenticationManager {
     
     @MainActor
     func registration(email: String, password: String) async throws -> AppUser {
-        do {
-            let decodedAppUser = try await networkManager.registration(email: email,
-                                                                       password: password)
-            try keychainManager.storeGenericPasswordFor(account: email,
-                                                        service: "User login",
-                                                        password: password)
-            let user = AppUser(decodedUser: decodedAppUser)
-            user.isUserLoggedIn = true
-            lastLoginnedUserId = user.id
-            appUser = user
-            return user
-        } catch {
-            throw error
-        }
+        let decodedAppUser = try await networkManager.registration(email: email,
+                                                                   password: password)
+        try keychainManager.storeGenericPasswordFor(account: email,
+                                                    service: "User login",
+                                                    password: password)
+        let user = AppUser(decodedUser: decodedAppUser)
+        user.isUserLoggedIn = true
+        lastLoginnedUserId = user.id
+        appUser = user
+        return user
     }
     
     @MainActor
     func login(email: String, password: String) async throws -> DecodedAppUser {
-            let decodedAppUser = try await networkManager.login(email: email,
-                                                                password: password)
-            try keychainManager.storeGenericPasswordFor(account: email,
-                                                        service: "User login",
-                                                        password: password)
-            lastLoginnedUserId = decodedAppUser.id
-            return decodedAppUser
+        let decodedAppUser = try await networkManager.login(email: email,
+                                                            password: password)
+        try keychainManager.storeGenericPasswordFor(account: email,
+                                                    service: "User login",
+                                                    password: password)
+        lastLoginnedUserId = decodedAppUser.id
+        return decodedAppUser
     }
     
-    func deleteAccount(user: AppUser) async throws -> Bool {
+    func deleteAccount(user: AppUser) async -> Bool {
         do {
             try await networkManager.deleteAccount(for: user)
             return true

@@ -139,7 +139,7 @@ extension PlaceView {
                 } catch NetworkErrors.apiError(let apiError) {
                     errorManager.showApiError(apiError: apiError, or: message, img: nil, color: nil)
                 } catch {
-                    errorManager.showError(model: ErrorModel(error: error, massage: message))
+                    errorManager.showError(model: ErrorModel(error: error, message: message))
                 }
             }
         }

@@ -73,7 +73,7 @@ final class NewEventViewModel: ObservableObject {
     @Published var isLoading: Bool = false
     
     let errorManager: ErrorManagerProtocol
-    let networkManager: EventNetworkManagerProtocol
+    let networkManager: EditEventNetworkManagerProtocol
     
     //MARK: - Private Properties
     
@@ -81,7 +81,7 @@ final class NewEventViewModel: ObservableObject {
 
     //MARK: - Inits
     
-    init(place: Place?, copy event: Event?, networkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol) {        
+    init(place: Place?, copy event: Event?, networkManager: EditEventNetworkManagerProtocol, errorManager: ErrorManagerProtocol) {
         if let place,
            let isoCountryCode = place.city?.region?.country?.isoCountryCode,
            place.city?.region?.country?.id != nil,
@@ -226,7 +226,7 @@ extension NewEventViewModel {
                                               cityId: place?.city?.id,
                                               userId: user.id,
                                               sessionKey: sessionKey)
-            let massage = "Something went wrong. The event didn't load to database. Please try again later."
+            let message = "Something went wrong. The event didn't load. Please try again later."
             do {
                 let ids = try await networkManager.addNewEvent(event: newEvent)
                 await MainActor.run {
@@ -241,9 +241,9 @@ extension NewEventViewModel {
             } catch NetworkErrors.noConnection {
                 errorManager.showNetworkNoConnected()
             } catch NetworkErrors.apiError(let apiError) {
-                errorManager.showApiError(apiError: apiError, or: errorManager.errorMessage, img: nil, color: nil)
+                errorManager.showApiError(apiError: apiError, or: message, img: nil, color: nil)
             } catch {
-                errorManager.showError(model: ErrorModel(error: error, massage: errorManager.errorMessage, img: nil, color: nil))
+                errorManager.showError(model: ErrorModel(error: error, message: message, img: nil, color: nil))
             }
             await MainActor.run {
                 isLoading = false
@@ -252,10 +252,10 @@ extension NewEventViewModel {
     }
     
     @MainActor
-    func addPoster(to eventsIDs: [Int], poster: UIImage, smallPoster: UIImage, addedBy: Int, sessionKey: String) async -> Bool {
+    func addPoster(to eventsIDs: [Int], poster: UIImage, smallPoster: UIImage, user: AppUser) async -> Bool {
         self.isLoading = true
         do {
-            try await networkManager.addPosterToEvents(with: eventsIDs, poster: poster, smallPoster: smallPoster, addedBy: addedBy, sessionKey: sessionKey)
+            try await networkManager.addPosterToEvents(with: eventsIDs, poster: poster, smallPoster: smallPoster, from: user)
             self.isLoading = false
             return true
         } catch {

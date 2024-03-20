@@ -248,7 +248,7 @@ struct LoginView: View {
             } catch NetworkErrors.apiError(let apiError) {
                 authenticationManager.errorManager.showApiError(apiError: apiError, or: message, img: nil, color: nil)
             } catch {
-                authenticationManager.errorManager.showError(model: ErrorModel(error: error, massage: message, img: AppImages.iconPersonError, color: nil))
+                authenticationManager.errorManager.showError(model: ErrorModel(error: error, message: message, img: AppImages.iconPersonError, color: nil))
             }
             await MainActor.run {
                 viewModel.allViewsDisabled = false

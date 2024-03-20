@@ -53,7 +53,7 @@ extension UserNetworkManager: UserNetworkManagerProtocol {
             return components
         }
         guard let url = urlComponents.url else {
-            throw NetworkErrors.bedUrl
+            throw NetworkErrors.badUrl
         }
         let parameters = [
             "user_id": String(user.id),
@@ -92,7 +92,7 @@ extension UserNetworkManager: UserNetworkManagerProtocol {
             return components
         }
         guard let url = urlComponents.url else {
-            throw NetworkErrors.bedUrl
+            throw NetworkErrors.badUrl
         }
         let parameters = [
             "user_id": String(user.id),
@@ -132,7 +132,7 @@ extension UserNetworkManager: UserNetworkManagerProtocol {
             return components
         }
             guard let url = urlComponents.url else {
-                throw NetworkErrors.bedUrl
+                throw NetworkErrors.badUrl
             }
             let parameters = [
                 "user_id": String(user.id),
@@ -172,7 +172,7 @@ extension UserNetworkManager: UserNetworkManagerProtocol {
             return components
         }
         guard let url = urlComponents.url else {
-            throw NetworkErrors.bedUrl
+            throw NetworkErrors.badUrl
         }
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
