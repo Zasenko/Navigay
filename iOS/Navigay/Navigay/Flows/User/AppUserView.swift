@@ -39,7 +39,6 @@ struct AppUserView: View {
                     } else {
                         authView
                     }
-                    
                     if !likedEvents.isEmpty {
                         eventsView(width: proxy.size.width)
                     }
@@ -58,24 +57,40 @@ struct AppUserView: View {
                 .toolbarTitleDisplayMode(.inline)
                 .toolbar {
                     if let user = authenticationManager.appUser, user.isUserLoggedIn {
+                        if viewModel.showTitle {
+                            ToolbarItem(placement: .principal) {
+                                Text(user.name)
+                                    .font(.title2.bold())
+                            }
+                        }
                         ToolbarItem(placement: .topBarTrailing) {
                             Menu {
                                 Button {
-                                    viewModel.changePassword()
+                                    Task {
+                                        let result = await authenticationManager.resetPassword(email: user.email)
+                                        if result {
+                                            await MainActor.run {
+                                                viewModel.showResetPasswordView.toggle()
+                                            }
+                                        }
+                                    }
                                 } label: {
                                     Label(
                                         title: { Text("Change Password") },
                                         icon: { AppImages.iconLock }
                                     )
                                 }
+                                
                                 Button {
                                     likedPlaces.forEach( { $0.isLiked = false } )
                                     likedEvents.forEach( { $0.isLiked = false } )
                                     authenticationManager.logOut(user: user)
                                 } label: {
-                                    Text("Log Out")
+                                    Label(
+                                        title: { Text("Log Out") },
+                                        icon: { AppImages.iconPersonLogOut }
+                                    )
                                 }
-                                
                                 Button(role: .destructive) {
                                     viewModel.showDeleteAccountAlert.toggle()
                                 } label: {
@@ -92,16 +107,16 @@ struct AppUserView: View {
                             .alert("Delete Account", isPresented: $viewModel.showDeleteAccountAlert) {
                                 Button("Delete", role: .destructive) {
                                     Task {
-                                        do {
-                                            try await authenticationManager.deleteAccount(user: user)
+                                        let result = await authenticationManager.deleteAccount(user: user)
+                                        if result {
                                             await MainActor.run {
                                                 likedPlaces.forEach( { $0.isLiked = false } )
                                                 likedEvents.forEach( { $0.isLiked = false } )
                                                 viewModel.deleteAccountButtonTapped(for: user)
                                                 authenticationManager.appUser = nil
+                                                
+                                                //todo: show deleteAccauntSheet true
                                             }
-                                        } catch {
-                                            debugPrint("-Error- Delete Account: ", error)
                                         }
                                     }
                                 }
@@ -111,11 +126,26 @@ struct AppUserView: View {
                             } message: {
                                 Text("Are you shure you want to delete your Account?")
                             }
+                            .sheet(isPresented: $viewModel.showResetPasswordView, onDismiss: {
+                                likedPlaces.forEach( { $0.isLiked = false } )
+                                likedEvents.forEach( { $0.isLiked = false } )
+                                user.isUserLoggedIn = false
+                                authenticationManager.appUser = nil
+                            }, content: {
+                                ResetPasswordMessageView(email: user.email)
+                                    .background(AppColors.lightGray5)
+                                    .presentationDetents([.medium])
+                                    .presentationDragIndicator(.hidden)
+                                    .presentationCornerRadius(25)
+                            })
                         }
                     }
-                    
                 }
-
+                .fullScreenCover(isPresented: $viewModel.showLoginView) {
+                    LoginView(viewModel: LoginViewModel()) {
+                        viewModel.showLoginView = false
+                    }
+                }
             }
         }
     }
@@ -192,6 +222,14 @@ struct AppUserView: View {
         }
         .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 0))
         .listRowSeparator(.hidden)
+        .onAppear {
+            if viewModel.showTitle {
+                viewModel.showTitle = false
+            }
+        }
+        .onDisappear {
+            viewModel.showTitle = true
+        }
         
         Section {
             VStack(alignment: .leading, spacing: 10) {
@@ -255,11 +293,6 @@ struct AppUserView: View {
                     .background(AppColors.lightGray6)
                     .clipShape(Capsule())
             }
-            .fullScreenCover(isPresented: $viewModel.showLoginView) {
-                LoginView(viewModel: LoginViewModel(), authenticationManager: authenticationManager, errorManager: authenticationManager.errorManager) {
-                    viewModel.showLoginView = false
-                }
-            }
             
             Button {
                 viewModel.showRegistrationView = true
@@ -316,7 +349,7 @@ struct AppUserView: View {
             .offset(x: 70)
             ForEach(likedPlaces.sorted(by: { $0.name < $1.name})) { place in
                 NavigationLink {
-                    PlaceView(place: place, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, authenticationManager: authenticationManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, showOpenInfo: false)
+                    PlaceView(viewModel: PlaceView.PlaceViewModel(place: place, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, showOpenInfo: false))
                 } label: {
                     PlaceCell(place: place, showOpenInfo: false, showDistance: false, showCountryCity: true, showLike: false)
                 }

@@ -53,7 +53,7 @@ struct EntryView: View {
     //MARK: - Body
     
     var body: some View {
-        ZStack(alignment: .bottom) {
+        ZStack {
             switch router {
             case .welcomeView:
                 WelcomeView {
@@ -61,9 +61,9 @@ struct EntryView: View {
                     router = .tabView
                 }
             case .tabView:
-                TabBarView(appSettingsManager: appSettingsManager, errorManager: errorManager)
+                TabBarView(appSettingsManager: appSettingsManager, errorManager: errorManager, networkMonitor: networkMonitor)
             }
-            ErrorView(viewModel: ErrorViewModel(errorManager: errorManager), edge: .bottom)
+            ErrorView(viewModel: ErrorViewModel(errorManager: errorManager), moveFrom: .bottom, alignment: .bottom)
         }
         .onAppear() {
             setRouter()

@@ -30,7 +30,7 @@ struct RegistrationView: View {
     
     var body: some View {
         NavigationStack {
-            ZStack(alignment: .top) {
+            ZStack {
                 listView
                     .navigationBarBackButtonHidden()
                     .toolbarBackground(.hidden, for: .navigationBar)
@@ -48,7 +48,7 @@ struct RegistrationView: View {
                             .tint(.primary)
                         }
                     }
-                ErrorView(viewModel: ErrorViewModel(errorManager: errorManager), edge: .top)
+                ErrorView(viewModel: ErrorViewModel(errorManager: errorManager), moveFrom: .top, alignment: .top)
             }
         }
     }
@@ -200,22 +200,21 @@ struct RegistrationView: View {
         viewModel.allViewsDisabled = true
         viewModel.buttonState = .loading
         Task {
-            let error = ErrorModel(massage: "Что-то пошло не так. Повтарите попытку позже.", img: AppImages.iconPersonError, color: .red)
             do {
                 let appUser = try await authenticationManager.registration(email: viewModel.email, password: viewModel.password)
                 context.insert(appUser)
                 onDismiss()
-            } catch NetworkErrors.apiError(let apiError) {
-                viewModel.allViewsDisabled = false
-                viewModel.buttonState = .normal
-                errorManager.showApiErrorOrMessage(apiError: apiError, or: error)
+                return
             } catch NetworkErrors.noConnection {
-                viewModel.allViewsDisabled = false
-                viewModel.buttonState = .normal
+                authenticationManager.errorManager.showNetworkNoConnected()
+            } catch NetworkErrors.apiError(let apiError) {
+                authenticationManager.errorManager.showApiError(apiError: apiError, or: errorManager.errorMessage, img: nil, color: nil)
             } catch {
+                authenticationManager.errorManager.showError(model: ErrorModel(error: error, message: errorManager.errorMessage, img: AppImages.iconPersonError, color: nil))
+            }
+            await MainActor.run {
                 viewModel.allViewsDisabled = false
                 viewModel.buttonState = .normal
-                errorManager.showError(error: error)
             }
         }
     }

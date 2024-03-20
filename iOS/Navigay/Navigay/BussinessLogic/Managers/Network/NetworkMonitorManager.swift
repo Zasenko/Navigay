@@ -42,14 +42,14 @@ extension NetworkMonitorManager {
             if path.status == .satisfied {
                 DispatchQueue.main.async {
                     if self.isConnected != true {
-                        self.errorManager.showError(model: ErrorModel(massage: "Device is connected to network.", img: AppImages.iconWifi, color: .green))
+                        self.errorManager.showNetworkConnected()
                     }
                     self.isConnected = true
                 }
             } else {
                 DispatchQueue.main.async {
                     if self.isConnected != false {
-                        self.errorManager.showError(model: ErrorModel(massage: "No internet connection.", img: AppImages.iconNoWifi, color: .red))
+                        self.errorManager.showNetworkNoConnected()
                     }
                     self.isConnected = false
                 }

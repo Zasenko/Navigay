@@ -24,15 +24,21 @@ final class AdminCountriesViewModel: ObservableObject {
 
 extension AdminCountriesViewModel {
     
-    func fetchCountries() {
+    func fetchCountries(for user: AppUser) {
         Task {
+            do {
+                let decodedCountries = try await networkManager.getCountries(for: user)
+                await MainActor.run {
+                    countries = decodedCountries
+                }
+            } catch NetworkErrors.noConnection {
+                errorManager.showNetworkNoConnected()
+            } catch NetworkErrors.apiError(let apiError) {
+                errorManager.showApiError(apiError: apiError, or: errorManager.errorMessage, img: nil, color: nil)
+            } catch {
+                errorManager.showError(model: ErrorModel(error: error, message: errorManager.errorMessage, img: nil, color: nil))
+            }
             
-            guard let decodedCountries = await networkManager.getCountries() else {
-                return
-            }
-            await MainActor.run {
-                countries = decodedCountries
-            }
         }
     }
 }
@@ -41,6 +47,7 @@ extension AdminCountriesViewModel {
 struct AdminCountriesView: View {
     
     @StateObject private var viewModel: AdminCountriesViewModel
+    @EnvironmentObject private var authenticationManager: AuthenticationManager
     
     init(viewModel: AdminCountriesViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel)
@@ -50,35 +57,35 @@ struct AdminCountriesView: View {
         NavigationStack {
             List {
                 ForEach(viewModel.countries) { country in
-                    NavigationLink {
-                        EditCountryView(viewModel: EditCountryViewModel(country: country, errorManager: viewModel.errorManager, networkManager: viewModel.networkManager))
-                    } label: {
-                        HStack {
-                            VStack(alignment: .leading, spacing: 10) {
-                                Text("id: \(country.id), code: \(country.isoCountryCode)")
-                                    .font(.footnote)
-                                    .foregroundStyle(.secondary)
-                                Text(country.nameEn ?? country.nameOrigin ?? "")
-                                    .font(.headline)
-                                    .bold()
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                            }
-                            VStack(alignment: .leading, spacing: 10) {
-                                HStack {
-                                    Circle()
-                                        .foregroundStyle(country.isActive ? .green : .red)
-                                        .frame(width: 8)
-                                    Text("is active")
-                                }
-                                HStack {
-                                    Circle()
-                                        .foregroundStyle(country.isChecked ? .green : .red)
-                                        .frame(width: 8)
-                                    Text("is checked")
-                                }
-                            }
-                        }
-                    }
+//                    NavigationLink {
+//                        EditCountryView(viewModel: EditCountryViewModel(country: country, errorManager: viewModel.errorManager, networkManager: viewModel.networkManager))
+//                    } label: {
+//                        HStack {
+//                            VStack(alignment: .leading, spacing: 10) {
+//                                Text("id: \(country.id), code: \(country.isoCountryCode)")
+//                                    .font(.footnote)
+//                                    .foregroundStyle(.secondary)
+//                                Text(country.nameEn ?? country.nameOrigin ?? "")
+//                                    .font(.headline)
+//                                    .bold()
+//                                    .frame(maxWidth: .infinity, alignment: .leading)
+//                            }
+//                            VStack(alignment: .leading, spacing: 10) {
+//                                HStack {
+//                                    Circle()
+//                                        .foregroundStyle(country.isActive ? .green : .red)
+//                                        .frame(width: 8)
+//                                    Text("is active")
+//                                }
+//                                HStack {
+//                                    Circle()
+//                                        .foregroundStyle(country.isChecked ? .green : .red)
+//                                        .frame(width: 8)
+//                                    Text("is checked")
+//                                }
+//                            }
+//                        }
+//                    }
                 }
             }
             //.navigationBarBackButtonHidden()
@@ -91,7 +98,8 @@ struct AdminCountriesView: View {
                 }
             }
             .onAppear() {
-                viewModel.fetchCountries()
+                guard let user = authenticationManager.appUser else { return }
+                viewModel.fetchCountries(for: user)
             }
         }
     }

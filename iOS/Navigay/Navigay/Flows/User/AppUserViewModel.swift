@@ -18,11 +18,14 @@ extension AppUserView {
         
         var gridLayout: [GridItem] = Array(repeating: GridItem(.flexible(), spacing: 20), count: 2)
         
+        var showTitle: Bool = false
+        
         var showEditNameView: Bool = false
         var showEditBioView: Bool = false
         
         var showLoginView: Bool = false
         var showRegistrationView: Bool = false
+        var showResetPasswordView: Bool = false
         
         var showDeleteAccountAlert: Bool = false
         
@@ -58,28 +61,35 @@ extension AppUserView {
         
         func updateUserName(name: String, for user: AppUser) {
             Task {
-                guard let sessionKey = user.sessionKey else { return }
-                let result = await userNetworkManager.updateUserName(id: user.id, name: name, key: sessionKey)
-                await MainActor.run {
-                    if result {
+                let message = "Something went wrong. Your name didn't update. Please try again later."
+                do {
+                    try await userNetworkManager.updateName(for: user, name: name)
+                    await MainActor.run {
                         user.name = name
-                    } else {
-                        
                     }
+                } catch NetworkErrors.noConnection {
+                    errorManager.showNetworkNoConnected()
+                } catch NetworkErrors.apiError(let apiError) {
+                    errorManager.showApiError(apiError: apiError, or: message, img: nil, color: nil)
+                } catch {
+                    errorManager.showError(model: ErrorModel(error: error, message: message))
                 }
             }
         }
         
         func updateUserBio(bio: String?, for user: AppUser) {
             Task {
-                guard let sessionKey = user.sessionKey else { return }
-                let result = await userNetworkManager.updateUserBio(id: user.id, bio: bio, key: sessionKey)
-                await MainActor.run {
-                    if result {
+                do {
+                    try await userNetworkManager.updateBio(for: user, bio: bio)
+                    await MainActor.run {
                         user.bio = bio
-                    } else {
-                        
                     }
+                } catch NetworkErrors.noConnection {
+                    errorManager.showNetworkNoConnected()
+                } catch NetworkErrors.apiError(let apiError) {
+                    errorManager.showApiError(apiError: apiError, or: errorManager.updateMessage, img: nil, color: nil)
+                } catch {
+                    errorManager.showError(model: ErrorModel(error: error, message: errorManager.updateMessage))
                 }
             }
         }
@@ -87,29 +97,23 @@ extension AppUserView {
         func updatePhoto(image: UIImage, for user: AppUser) {
             self.isLoadingPhoto = true
             Task {
-                guard let sessionKey = user.sessionKey else { return }
                 let scaledImage = image.cropImage(width: 300, height: 300)
-                //let errorModel = ErrorModel(massage: "Something went wrong. The photo didn't load. Please try again later.", img: Image(systemName: "photo.fill"), color: .red)
+                let message = "Something went wrong. The photo didn't update. Please try again later."
                 do {
-                    let decodedResult = try await userNetworkManager.updateUserPhoto(id: user.id, uiImage: scaledImage, key: sessionKey)
-                    guard decodedResult.result, let url = decodedResult.url else {
-                   //     errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: errorModel)
-                        
-                        print(decodedResult.error?.message ?? "")
-                        throw NetworkErrors.apiErrorTest
-                    }
+                    let url = try await userNetworkManager.updatePhoto(for: user, uiImage: scaledImage)
                     await MainActor.run {
-                        self.isLoadingPhoto = false
                         user.photo = url
                         userImage = Image(uiImage: scaledImage)
                     }
+                } catch NetworkErrors.noConnection {
+                    errorManager.showNetworkNoConnected()
+                } catch NetworkErrors.apiError(let apiError) {
+                    errorManager.showApiError(apiError: apiError, or: message, img: AppImages.iconPhoto, color: nil)
                 } catch {
-                    debugPrint("ERROR - updatePhoto: ", error)
-                   // errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
-                    await MainActor.run {
-                        self.isLoadingPhoto = false
-                      //  self.photo = previousImage
-                    }
+                    errorManager.showError(model: ErrorModel(error: error, message: message, img: AppImages.iconPhoto))
+                }
+                await MainActor.run {
+                    self.isLoadingPhoto = false
                 }
             }
         }
@@ -117,28 +121,24 @@ extension AppUserView {
         func deletePhoto(for user: AppUser) {
             self.isLoadingPhoto = true
             Task {
-                guard let sessionKey = user.sessionKey else { return }
-                //let errorModel = ErrorModel(massage: "Something went wrong. The photo didn't load. Please try again later.", img: Image(systemName: "photo.fill"), color: .red)
+                let message = "Something went wrong. The photo didn't update. Please try again later."
                 do {
-                    try await userNetworkManager.deleteUserPhoto(id: user.id, key: sessionKey)
+                    try await userNetworkManager.deletePhoto(for: user)
                     await MainActor.run {
-                        self.isLoadingPhoto = false
                         user.photo = nil
                         userImage = nil
                     }
+                } catch NetworkErrors.noConnection {
+                    errorManager.showNetworkNoConnected()
+                } catch NetworkErrors.apiError(let apiError) {
+                    errorManager.showApiError(apiError: apiError, or: message, img: AppImages.iconPhoto, color: nil)
                 } catch {
-                    debugPrint("ERROR - deletePhoto: ", error)
-                   // errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
-                    await MainActor.run {
-                        self.isLoadingPhoto = false
-                      //  self.photo = previousImage
-                    }
+                    errorManager.showError(model: ErrorModel(error: error, message: message, img: AppImages.iconPhoto))
+                }
+                await MainActor.run {
+                    self.isLoadingPhoto = false
                 }
             }
-        }
-        
-        func changePassword() {
-            
         }
     }
 }

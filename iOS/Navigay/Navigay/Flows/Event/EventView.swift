@@ -32,9 +32,9 @@ struct EventView: View {
     var body: some View {
         NavigationStack {
             GeometryReader { proxy in
-                ZStack(alignment: .topTrailing) {
+                ZStack {
                     listView(size: proxy.size)
-                    ErrorView(viewModel: ErrorViewModel(errorManager: viewModel.errorManager), edge: .bottom)
+                    ErrorView(viewModel: ErrorViewModel(errorManager: viewModel.errorManager), moveFrom: .bottom, alignment: .bottom)
                 }
                 .background {
                     ZStack(alignment: .center) {
@@ -74,14 +74,31 @@ struct EventView: View {
     // MARK: - Views
     
     private var headerView: some View {
-        Button {
-            dismiss()
-        } label: {
-            AppImages.iconXCircle
-                .resizable()
-                .scaledToFit()
-                .frame(width: 30, height: 30)
-                .tint(.primary)
+        HStack {
+            if let user = authenticationManager.appUser, user.status == .admin {
+                Menu {
+                    NavigationLink("Edit Event") {
+                        EditEventView(viewModel: EditEventViewModel(eventID: viewModel.event.id, event: viewModel.event, networkManager: EditEventNetworkManager(networkMonitorManager: authenticationManager.networkMonitorManager), errorManager: viewModel.errorManager))
+                    }
+                    NavigationLink("Clone Event") {
+                        //                            NewEventView(viewModel: NewEventViewModel(place: nil, copy: viewModel.event, networkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager), authenticationManager: authenticationManager)
+                    }
+                } label: {
+                    AppImages.iconSettings
+                        .bold()
+                        .foregroundStyle(.blue)
+                }
+            }
+
+            Button {
+                dismiss()
+            } label: {
+                AppImages.iconXCircle
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 30, height: 30)
+                    .tint(.primary)
+            }
         }
     }
     
@@ -93,7 +110,7 @@ struct EventView: View {
                         Text("free event")
                             .font(.footnote)
                             .bold()
-                            .foregroundStyle((AppColors.background))
+                            .foregroundStyle(AppColors.background)
                             .padding(5)
                             .padding(.horizontal, 5)
                             .background(.green)
@@ -237,36 +254,6 @@ struct EventView: View {
                 .padding(.bottom)
                 
                 HStack(spacing: 10) {
-                    
-                    if let user = authenticationManager.appUser, user.status == .admin {
-                        Menu {
-                            Button("Edit") {
-                                viewModel.showEditView = true
-                            }
-                            Button("Clone Event") {
-                                viewModel.showNewEvetnView = true
-                            }
-                        } label: {
-                            AppImages.iconSettings
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 25, height: 25, alignment: .leading)
-                                .foregroundStyle(.primary)
-                                .padding()
-                                .background(viewModel.showInfo ? .ultraThickMaterial : .ultraThinMaterial)
-                                .clipShape(.circle)
-                        }
-                        .fullScreenCover(isPresented: $viewModel.showEditView) {
-                            viewModel.showEditView = false
-                        } content: {
-                            EditEventView(viewModel: EditEventViewModel(eventID: viewModel.event.id, event: viewModel.event, networkManager: AdminNetworkManager(errorManager: viewModel.errorManager)))
-                        }
-                        .fullScreenCover(isPresented: $viewModel.showNewEvetnView) {
-                            viewModel.showNewEvetnView = false
-                        } content: {
-                            NewEventView(viewModel: NewEventViewModel(place: nil, copy: viewModel.event, networkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager), authenticationManager: authenticationManager)
-                        }
-                    }
                     Button {
                         // douplicate button - to do function
                         viewModel.event.isLiked.toggle()
@@ -461,7 +448,7 @@ struct EventView: View {
                         }
                         if let place = viewModel.event.place {
                             NavigationLink {
-                                PlaceView(place: place, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, authenticationManager: authenticationManager, placeDataManager: PlaceDataManager(), eventDataManager: EventDataManager(), showOpenInfo: false)
+                                PlaceView(viewModel: PlaceView.PlaceViewModel(place: place, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, showOpenInfo: false))
                             } label: {
                                 HStack(spacing: 20) {
                                     if let url = place.avatar {

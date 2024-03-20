@@ -14,22 +14,19 @@ extension SearchView {
     class SearchViewModel {
         
         var modelContext: ModelContext
-        //let user: AppUser?
         
-        var isLoading: Bool = false
-        var countries: [Country] = []
-        
-        var showSearchView: Bool = false
         var isSearching: Bool = false
-        //var showLastSearchResult: Bool = false
+        var notFound: Bool = false
+        
         var searchText: String = ""
+        
         var searchCountries: [Country] = []
         var searchRegions: [Region] = []
         var searchCities: [City] = []
         var searchEvents: [Event] = []
         var searchGroupedPlaces: [PlaceType: [Place]] = [:]
         
-        var gridLayout: [GridItem] = Array(repeating: GridItem(.flexible(), spacing: 20), count: 2)
+        var selectedEvent: Event?
         
         let catalogNetworkManager: CatalogNetworkManagerProtocol
         let placeNetworkManager: PlaceNetworkManagerProtocol
@@ -38,15 +35,10 @@ extension SearchView {
         let placeDataManager: PlaceDataManagerProtocol
         let eventDataManager: EventDataManagerProtocol
         let catalogDataManager: CatalogDataManagerProtocol
-        //   private var cancellables = Set<AnyCancellable>()
         
-        // Создаем объект PassthroughSubject для передачи значений
         let textSubject = PassthroughSubject<String, Never>()
-        let textSubject2 = PassthroughSubject<String, Never>()
         
-        // Создаем подписку на изменения текста
         private var cancellable: AnyCancellable?
-        private var cancellable2: AnyCancellable?
         
         init(modelContext: ModelContext,
              catalogNetworkManager: CatalogNetworkManagerProtocol,
@@ -64,99 +56,35 @@ extension SearchView {
             self.placeDataManager = placeDataManager
             self.eventDataManager = eventDataManager
             self.catalogDataManager = catalogDataManager
-         //   self.user = user
             
             cancellable = textSubject
-                .debounce(for: .seconds(2), scheduler: DispatchQueue.main)
+                .debounce(for: .seconds(1.5), scheduler: DispatchQueue.main)
                 .sink { [weak self] searchText in
-                    guard let self else { return }
-                    guard !searchText.isEmpty, searchText.first != " ", searchText.count > 2 else {
+                    guard !searchText.isEmpty, searchText.count > 2 else {
+                        DispatchQueue.main.async {
+                            withAnimation {
+                                self?.searchCountries = []
+                                self?.searchRegions = []
+                                self?.searchCities = []
+                                self?.searchEvents = []
+                                self?.searchGroupedPlaces = [:]
+                            }
+                        }
                         return
                     }
-                    self.fetchSearchResults(text: searchText)
+                    self?.fetchSearchResults(text: searchText)
                 }
-            
-            cancellable2 = textSubject2
-                .debounce(for: .seconds(0), scheduler: DispatchQueue.main)
-                .sink { [weak self] searchText in
-                    guard let self else { return }
-                    DispatchQueue.main.async {
-                        self.searchInDB(text: searchText)
-                    }
-                }
-        }
-        
-        func getCountriesFromDB() {
-            print("--- SearchViewModel getCountriesFromDB()")
-            do {
-                let descriptor = FetchDescriptor<Country>(sortBy: [SortDescriptor(\.name)])
-                countries = try modelContext.fetch(descriptor)
-                if countries.isEmpty {
-                    isLoading = true
-                }
-            } catch {
-                debugPrint(error)
-            }
-        }
-        
-        func fetchCountries() {
-            guard !catalogNetworkManager.isCountriesLoaded else {
-                return
-            }
-            Task {
-                guard let decodedCountries = await catalogNetworkManager.fetchCountries() else {
-                    return
-                }
-                let ids = decodedCountries.map { $0.id }
-                var countriesToDelete: [Country] = []
-                countries.forEach { country in
-                    if !ids.contains(country.id) {
-                        countriesToDelete.append(country)
-                    }
-                }
-                await MainActor.run { [countriesToDelete] in
-                    countriesToDelete.forEach( { modelContext.delete($0) } )
-                    var newCountries: [Country] = []
-                    for decodedCountry in decodedCountries {
-                        if let country = countries.first(where: { $0.id == decodedCountry.id} ) {
-                            country.updateCountryIncomplete(decodedCountry: decodedCountry)
-                            newCountries.append(country)
-                        } else {
-                            let country = Country(decodedCountry: decodedCountry)
-                            modelContext.insert(country)
-                            newCountries.append(country)
-                        }
-                    }
-                    withAnimation {
-                        self.countries = newCountries.sorted(by: { $0.name < $1.name})
-                        isLoading = false
-                    }
-                }
-            }
         }
         
         func searchInDB(text: String) {
-            guard !searchText.isEmpty else {
-                withAnimation {
-                    self.searchCountries = []
-                    self.searchRegions = []
-                    self.searchCities = []
-                    self.searchEvents = []
-                    self.searchGroupedPlaces = [:]
-                }
-                return
-            }
-            
-            do {
-                if catalogNetworkManager.loadedSearchText.keys.contains(where: { $0 == text } ),
-                   let result = catalogNetworkManager.loadedSearchText[text] {
-                    withAnimation {
-                        self.searchRegions = result.regions
-                        self.searchCities = result.cities
-                        self.searchEvents = result.events
-                        self.searchGroupedPlaces = result.places
-                    }
-                } else {
+            if let result = catalogNetworkManager.loadedSearchText[text] {
+                searchRegions = result.regions
+                searchCities = result.cities
+                searchEvents = result.events
+                searchGroupedPlaces = result.places
+            } else {
+                
+                do {
                     let countryDescriptor = FetchDescriptor<Country>()
                     let countries = try modelContext.fetch(countryDescriptor)
                     self.searchCountries = countries.filter({ $0.name.lowercased().contains(text.lowercased()) }).sorted(by: { $0.name < $1.name} )
@@ -190,33 +118,43 @@ extension SearchView {
                     })
                     let groupedPlaces = createGroupedPlaces(places: places)
                     self.searchGroupedPlaces = groupedPlaces
+                } catch {
+                    debugPrint(error)
                 }
-            } catch {
-                debugPrint(error)
             }
         }
         
         private func fetchSearchResults(text: String) {
             Task {
                 await MainActor.run {
-                    withAnimation {
-                        isSearching = true
-                    }
+                    isSearching = true
                 }
-                guard !catalogNetworkManager.loadedSearchText.keys.contains(where: { $0 == text } ),
-                      let result = await catalogNetworkManager.search(text: text) else {
+                if let result = catalogNetworkManager.loadedSearchText[text] {
                     await MainActor.run {
-                        withAnimation {
-                            isSearching = false
-                        }
+                        searchRegions = result.regions
+                        searchCities = result.cities
+                        searchEvents = result.events
+                        searchGroupedPlaces = result.places
                     }
-                    return
+                } else {
+                    do {
+                        let result = try await catalogNetworkManager.search(text: text)
+                        if result.cities.isEmpty && result.events.isEmpty && result.places.isEmpty && result.regions.isEmpty {
+                            notFound = true
+                        }
+                        await MainActor.run {
+                            updateSearchResult(result: result, for: text)
+                        }
+                    } catch NetworkErrors.noConnection {
+                        errorManager.showNetworkNoConnected()
+                    } catch NetworkErrors.apiError(let apiError) {
+                        errorManager.showApiError(apiError: apiError, or: errorManager.updateMessage, img: nil, color: nil)
+                    } catch {
+                        errorManager.showUpdateError(error: error)
+                    }
                 }
                 await MainActor.run {
-                    updateSearchResult(result: result, for: text)
-                    withAnimation {
-                        isSearching = false
-                    }
+                    isSearching = false
                 }
             }
         }
@@ -226,12 +164,10 @@ extension SearchView {
             let cities = updateCities(decodedCities: result.cities)
             let groupedPlaces = updatePlaces(decodedPlaces: result.places)
             let events = updateEvents(decodedEvents: result.events)
-            withAnimation {
                 searchRegions = regions
                 searchCities = cities
                 searchGroupedPlaces = groupedPlaces
                 searchEvents = events
-            }
             let items = SearchItems(cities: cities, regions: regions, places: groupedPlaces, events: events)
             catalogNetworkManager.addToLoadedSearchItems(result: items, for: text)
         }

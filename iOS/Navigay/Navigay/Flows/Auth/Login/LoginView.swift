@@ -10,29 +10,35 @@ import SwiftData
 
 struct LoginView: View {
     
-    private enum FocusField: Hashable, CaseIterable {
-        case email, password
-    }
-    
     // MARK: - Properties
     
-    @StateObject var viewModel: LoginViewModel
-    @ObservedObject var authenticationManager: AuthenticationManager
-    
-    let errorManager: ErrorManagerProtocol
     let onDismiss: () -> Void
     
     // MARK: - Private Properties
+    
+    @StateObject private var viewModel: LoginViewModel
+    @EnvironmentObject private var authenticationManager: AuthenticationManager
     
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
     @FocusState private var focusedField: FocusField?
     
+    private enum FocusField: Hashable, CaseIterable {
+        case email, password
+    }
+    
+    // MARK: - Init
+    
+    init(viewModel: LoginViewModel, onDismiss: @escaping () -> Void) {
+        _viewModel = StateObject(wrappedValue: viewModel)
+        self.onDismiss = onDismiss
+    }
+    
     // MARK: - Body
     
     var body: some View {
         NavigationStack {
-            ZStack(alignment: .top) {
+            ZStack {
                 listView
                     .navigationBarBackButtonHidden()
                     .toolbarBackground(.hidden, for: .navigationBar)
@@ -50,7 +56,7 @@ struct LoginView: View {
                             .tint(.primary)
                         }
                     }
-                ErrorView(viewModel: ErrorViewModel(errorManager: errorManager), edge: .top)
+                ErrorView(viewModel: ErrorViewModel(errorManager: authenticationManager.errorManager), moveFrom: .top, alignment: .top)
             }
         }
     }
@@ -95,7 +101,6 @@ struct LoginView: View {
         .onTapGesture {
             focusedField = nil
         }
-        .onSubmit(focusNextField)
         .disabled(viewModel.allViewsDisabled)
     }
     
@@ -108,16 +113,14 @@ struct LoginView: View {
                         .foregroundColor(.secondary)
                     Spacer()
                 }
-                TextField("", text: $viewModel.email) {
-                  //  authenticationManager.checkEmail(email: viewModel.email)
-                }
-                .font(.body)
-                .bold()
-                .keyboardType(.emailAddress)
-                .autocorrectionDisabled(true)
-                .textInputAutocapitalization(.never)
-                .lineLimit(1)
-                .focused($focusedField, equals: .email)
+                TextField("", text: $viewModel.email)
+                    .font(.body)
+                    .bold()
+                    .keyboardType(.emailAddress)
+                    .autocorrectionDisabled(true)
+                    .textInputAutocapitalization(.never)
+                    .lineLimit(1)
+                    .focused($focusedField, equals: .email)
             }
             AppImages.iconEnvelope
                 .font(.callout)
@@ -143,15 +146,13 @@ struct LoginView: View {
                             .foregroundColor(.secondary)
                         Spacer()
                     }
-                    SecureField("", text: $viewModel.password) {
-                     //   authenticationManager.checkPassword(password: viewModel.password)
-                    }
-                    .font(.body)
-                    .bold()
-                    .autocorrectionDisabled(true)
-                    .textInputAutocapitalization(.never)
-                    .lineLimit(1)
-                    .focused($focusedField, equals: .password)
+                    SecureField("", text: $viewModel.password)
+                        .font(.body)
+                        .bold()
+                        .autocorrectionDisabled(true)
+                        .textInputAutocapitalization(.never)
+                        .lineLimit(1)
+                        .focused($focusedField, equals: .password)
                 }
                 AppImages.iconLock
                     .font(.callout)
@@ -169,13 +170,19 @@ struct LoginView: View {
                 Text("Forgot your password?")
                     .foregroundColor(.secondary)
                 Button("Reset") {
-                    //TODO!
+                    viewModel.showForgetPasswordView.toggle()
                 }
                 .bold()
+                .foregroundStyle(.blue)
             }
             .font(.footnote)
 //            .padding(.top, 20)
             .padding()
+            .navigationDestination(isPresented: $viewModel.showForgetPasswordView) {
+                ForgetPasswordView(email: viewModel.email) { email in
+                    viewModel.email = email
+                }
+            }
         }
     }
     
@@ -206,117 +213,47 @@ struct LoginView: View {
             .background(viewModel.isButtonValid ? .green : AppColors.lightGray5)
             .clipShape(Capsule())
         }
+        .frame(maxWidth: .infinity)
         .disabled(!viewModel.isButtonValid)
         .padding()
     }
     
     // MARK: - Private Functions
     
-    @MainActor
     private func loginButtonTapped() {
         focusedField = nil
         viewModel.allViewsDisabled = true
         viewModel.buttonState = .loading
+        
         Task {
-            let errorModel = ErrorModel(massage: "Что-то пошло не так. Повтарите попытку позже.", img: AppImages.iconPersonError, color: .red)
+            let message = "Oops! Something went wrong. You're not logged in. Please try again later."
             do {
                 let decodedAppUser = try await authenticationManager.login(email: viewModel.email, password: viewModel.password)
-                
-                    
-                    let descriptor = FetchDescriptor(predicate: #Predicate<AppUser>{ $0.id == decodedAppUser.id })
-                    
-                    if let user = try context.fetch(descriptor).first {
-                        user.isUserLoggedIn = true
-                        user.updateUser(decodedUser: decodedAppUser)
-                        authenticationManager.appUser = user
-                        
-                        setLikedItems(for: user)
-                        
-                    } else {
-                        let user = AppUser(decodedUser: decodedAppUser)
-                        user.isUserLoggedIn = true
-                        authenticationManager.appUser = user
-                        context.insert(user)
-                    }
-                    onDismiss()
-                
-            } catch NetworkErrors.apiError(let apiError) {
-                viewModel.allViewsDisabled = false
-                viewModel.buttonState = .normal
-                errorManager.showApiErrorOrMessage(apiError: apiError, or: errorModel)
+                let descriptor = FetchDescriptor(predicate: #Predicate<AppUser>{ $0.id == decodedAppUser.id })
+                if let user = try context.fetch(descriptor).first {
+                    user.isUserLoggedIn = true
+                    user.updateUser(decodedUser: decodedAppUser)
+                    authenticationManager.appUser = user
+                    setLikedItems(for: user)
+                } else {
+                    let user = AppUser(decodedUser: decodedAppUser)
+                    user.isUserLoggedIn = true
+                    authenticationManager.appUser = user
+                    context.insert(user)
+                }
+                onDismiss()
+                return
             } catch NetworkErrors.noConnection {
-                viewModel.allViewsDisabled = false
-                viewModel.buttonState = .normal
-                errorManager.showError(model: errorModel)
+                authenticationManager.errorManager.showNetworkNoConnected()
+            } catch NetworkErrors.apiError(let apiError) {
+                authenticationManager.errorManager.showApiError(apiError: apiError, or: message, img: nil, color: nil)
             } catch {
+                authenticationManager.errorManager.showError(model: ErrorModel(error: error, message: message, img: AppImages.iconPersonError, color: nil))
+            }
+            await MainActor.run {
                 viewModel.allViewsDisabled = false
                 viewModel.buttonState = .normal
-                errorManager.showError(model: errorModel)
             }
-            
-            
-//            await MainActor.run {
-//                guard let decodedUser else {
-//                        viewModel.allViewsDisabled = false
-//                        viewModel.buttonState = .normal
-//                    return
-//                }
-//                do {
-//                    let descriptor = FetchDescriptor(predicate: #Predicate<AppUser>{ $0.id == decodedUser.id })
-//                    
-//                    if let user = try context.fetch(descriptor).first {
-//                        user.isUserLoggedIn = true
-//                        user.updateUser(decodedUser: decodedUser)
-//                        authenticationManager.appUser = user
-//
-//                        setLikedItems(for: user)
-//                        
-//                    } else {
-//                        let user = AppUser(decodedUser: decodedUser)
-//                        user.isUserLoggedIn = true
-//                        authenticationManager.appUser = user
-//                        context.insert(user)
-//                    }
-//                    self.onDismiss()
-//                    
-//                } catch {
-//                    viewModel.allViewsDisabled = false
-//                    viewModel.buttonState = .normal
-//                    print("Fetch failed")
-//                }
-//            }
-        }
-    }
-
-    private func focusNextField() {
-        switch focusedField {
-        case .email:
-            if viewModel.password.isEmpty {
-                focusedField = .password
-            } else {
-                focusedField = nil
-            }
-        case .password:
-            if viewModel.email.isEmpty {
-                focusedField = .email
-            } else {
-                focusedField = nil
-            }
-        case .none:
-            break
-        }
-    }
-    
-    private func checkEmptyFields() -> Bool {
-        if viewModel.email.isEmpty {
-            focusedField = .email
-            return false
-        } else if viewModel.password.isEmpty {
-            focusedField = .password
-            return false
-        } else {
-            focusedField = nil
-            return true
         }
     }
     

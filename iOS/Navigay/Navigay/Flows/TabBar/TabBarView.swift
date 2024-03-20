@@ -29,6 +29,7 @@ struct TabBarView: View {
 
     private let appSettingsManager: AppSettingsManagerProtocol
     private let errorManager: ErrorManagerProtocol
+    private let networkMonitor: NetworkMonitorManagerProtocol
     
     private let aroundNetworkManager: AroundNetworkManagerProtocol
     private let catalogNetworkManager: CatalogNetworkManagerProtocol
@@ -42,13 +43,14 @@ struct TabBarView: View {
     //MARK: - Init
     
     init(appSettingsManager: AppSettingsManagerProtocol,
-         errorManager: ErrorManagerProtocol) {
+         errorManager: ErrorManagerProtocol, networkMonitor: NetworkMonitorManagerProtocol) {
         self.errorManager = errorManager
         self.appSettingsManager = appSettingsManager
-        self.aroundNetworkManager = AroundNetworkManager(appSettingsManager: appSettingsManager, errorManager: errorManager)
-        self.catalogNetworkManager = CatalogNetworkManager(appSettingsManager: appSettingsManager, errorManager: errorManager)
-        self.eventNetworkManager = EventNetworkManager(appSettingsManager: appSettingsManager, errorManager: errorManager)
-        self.placeNetworkManager = PlaceNetworkManager(appSettingsManager: appSettingsManager, errorManager: errorManager)
+        self.networkMonitor = networkMonitor
+        self.aroundNetworkManager = AroundNetworkManager(networkMonitorManager: networkMonitor, appSettingsManager: appSettingsManager)
+        self.catalogNetworkManager = CatalogNetworkManager(networkMonitorManager: networkMonitor, appSettingsManager: appSettingsManager)
+        self.eventNetworkManager = EventNetworkManager(networkMonitorManager: networkMonitor, appSettingsManager: appSettingsManager)
+        self.placeNetworkManager = PlaceNetworkManager(networkMonitorManager: networkMonitor, appSettingsManager: appSettingsManager)
         self.placeDataManager = PlaceDataManager()
         self.eventDataManager = EventDataManager()
         self.catalogDataManager = CatalogDataManager()
@@ -61,12 +63,12 @@ struct TabBarView: View {
                 HomeView(modelContext: modelContext, aroundNetworkManager: aroundNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, catalogDataManager: catalogDataManager)
                     .environmentObject(locationManager)
             case .search:
-                SearchView(modelContext: modelContext, catalogNetworkManager: catalogNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, catalogDataManager: catalogDataManager)
+                CatalogView(viewModel: CatalogView.CatalogViewModel(modelContext: modelContext, catalogNetworkManager: catalogNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, catalogDataManager: catalogDataManager))
             case .user:
-                AppUserView(modelContext: modelContext, userNetworkManager: UserNetworkManager(), placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager)
+                AppUserView(modelContext: modelContext, userNetworkManager: UserNetworkManager(networkMonitorManager: networkMonitor, appSettingsManager: appSettingsManager), placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager)
             case .admin:
-                if let user = authenticationManager.appUser, user.status == .admin {
-                    AdminView(viewModel: AdminViewModel(errorManager: errorManager, networkManager: AdminNetworkManager(errorManager: errorManager)))
+                if let user = authenticationManager.appUser, (user.status == .admin || user.status == .moderator) {
+                    AdminView(viewModel: AdminViewModel(errorManager: errorManager, networkManager: AdminNetworkManager(networkMonitorManager: networkMonitor, appSettingsManager: appSettingsManager)))
                 } else {
                     EmptyView()
                 }
@@ -155,7 +157,7 @@ struct TabBarView: View {
                                      button: userButton)
                 }
                 
-                if let user = authenticationManager.appUser, user.status == .admin {
+                if let user = authenticationManager.appUser, (user.status == .admin || user.status == .moderator) {
                     TabBarButtonView(selectedPage: $selectedPage,
                                      button: adminButton)
                 }

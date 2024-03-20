@@ -12,7 +12,7 @@ struct AdminPlace: Identifiable, Codable {
     let id: Int
     let name: String
     let type: PlaceType
-    let countryId: Int
+    let countryId: Int?
     let regionId: Int?
     let cityId: Int?
     let about: String?
@@ -31,9 +31,12 @@ struct AdminPlace: Identifiable, Codable {
     let timetable: [PlaceWorkDay]?
     let otherInfo: String?
     let ownerId: Int?
+    let addedBy: Int?
     let isActive: Bool
     let isChecked: Bool
-
+    let createdAt: String
+    let updatedAt: String
+    
     enum CodingKeys: String, CodingKey {
         case id
         case name
@@ -57,7 +60,10 @@ struct AdminPlace: Identifiable, Codable {
         case timetable
         case otherInfo = "other_info"
         case ownerId = "owner_id"
+        case addedBy = "added_by"
         case isActive = "is_active"
         case isChecked = "is_checked"
+        case createdAt = "created_at"
+        case updatedAt = "updated_at"
     }
 }

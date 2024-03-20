@@ -29,7 +29,6 @@ $user_id = isset($_POST["user_id"]) ? intval($_POST["user_id"]) : 0;
 if ($user_id <= 0) {
     sendError('Invalid user ID.');
 }
-
 $session_key = isset($_POST["session_key"]) ? $_POST["session_key"] : '';
 if (empty($session_key)) {
     sendError('Session key is required.');

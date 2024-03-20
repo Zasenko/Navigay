@@ -11,17 +11,22 @@ struct AppImages {
 
     
     static let logoFull = Image("full-logo")
+    
+    static let iconPlus = Image(systemName: "plus")
     static let iconHome = Image(systemName: "house.fill")
     static let iconMap = Image(systemName: "map.fill")
     static let iconSearch = Image(systemName: "magnifyingglass")
     static let iconSearchLocation = Image(systemName: "location.magnifyingglass")
     static let iconPerson = Image(systemName: "person.fill")
     static let iconPersonError = Image(systemName: "person.fill.xmark")
+    static let iconPersonLogOut = Image(systemName: "person.slash")
     static let iconSettings = Image(systemName: "gearshape.fill")
     static let iconAdmin = Image(systemName: "exclamationmark.shield.fill")
+    static let iconExclamationmarkTriangle = Image(systemName: "exclamationmark.triangle")
     static let iconEnvelope = Image(systemName: "envelope")
     static let iconLock = Image(systemName: "lock")
     static let iconTrash = Image(systemName: "trash.fill")
+    static let iconTrashSlash = Image(systemName: "trash.slash.fill")
     static let iconCamera = Image(systemName: "camera.fill")
     static let iconCalendar = Image(systemName: "calendar")
     static let iconHeartFill = Image(systemName: "heart.fill")
@@ -34,13 +39,14 @@ struct AppImages {
     static let iconX = Image(systemName: "xmark")
     static let iconXCircle = Image(systemName: "xmark.circle.fill")
     static let iconClock = Image(systemName:"clock")
+    static let iconClockSearch = Image(systemName:"clock.arrow.circlepath")
+    static let iconArrowUpRight = Image(systemName:"arrow.up.right")
+    static let iconPhoto = Image(systemName:"photo.fill")
     static let iconPhotoPlus = Image(systemName:"photo.badge.plus")
     static let iconInfoCircle = Image(systemName:"info.circle")
-    
+    static let iconCheckmark = Image(systemName:"checkmark")
     static let iconWifi = Image(systemName:"wifi")
     static let iconNoWifi = Image(systemName:"wifi.slash")
-    
-    
     
     static let iconFacebook = Image("icon_facebook")
     static let iconInstagram = Image("icon_instagram")

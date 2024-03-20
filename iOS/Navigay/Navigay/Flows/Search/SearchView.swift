@@ -6,90 +6,72 @@
 //
 
 import SwiftUI
-import SwiftData
 
 struct SearchView: View {
+    
+    // MARK: - PrivateProperties
     
     @State private var viewModel: SearchViewModel
     @EnvironmentObject private var authenticationManager: AuthenticationManager
     @FocusState private var focused: Bool
-    //  @Namespace var namespace
+    @Environment(\.dismiss) private var dismiss
+    @Namespace private var animation
     
-    init(modelContext: ModelContext,
-         catalogNetworkManager: CatalogNetworkManagerProtocol,
-         placeNetworkManager: PlaceNetworkManagerProtocol,
-         eventNetworkManager: EventNetworkManagerProtocol,
-         errorManager: ErrorManagerProtocol,
-         placeDataManager: PlaceDataManagerProtocol,
-         eventDataManager: EventDataManagerProtocol,
-         catalogDataManager: CatalogDataManagerProtocol) {
-        let viewModel = SearchViewModel(modelContext: modelContext, catalogNetworkManager: catalogNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, catalogDataManager: catalogDataManager)
+    // MARK: - Init
+    
+    init(viewModel: SearchViewModel) {
         _viewModel = State(initialValue: viewModel)
-        viewModel.getCountriesFromDB()
-        viewModel.fetchCountries()
     }
     
+    // MARK: - Body
+        
     var body: some View {
-        if viewModel.isLoading {
-            ProgressView()
-                .tint(.blue)
-                .frame(maxHeight: .infinity)
-        } else {
-            NavigationStack {
-                listView
-                    .toolbarTitleDisplayMode(.inline)
-                    .toolbar {
-                        if viewModel.showSearchView {
-                            ToolbarItem(placement: .principal) {
-                                searchView
-                            }
-                        } else {
-                            ToolbarItem(placement: .topBarLeading) {
-                                Text("Catalog")
-                                    .font(.title).bold()
-                            }
-                            ToolbarItem(placement: .topBarTrailing) {
-                                searchButton
-                            }
+        NavigationStack {
+            VStack(spacing: 0) {
+                header
+                list
+            }
+            .navigationBarBackButtonHidden()
+            .toolbarTitleDisplayMode(.inline)
+            .toolbarBackground(AppColors.background)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        withAnimation {
+                            dismiss()
                         }
+                    } label: {
+                        AppImages.iconLeft
+                            .bold()
+                            .frame(width: 30, height: 30, alignment: .leading)
                     }
-                    .toolbarBackground(AppColors.background)
-                    .onChange(of: viewModel.searchText, initial: false) { _, newValue in
-                        viewModel.textSubject.send(newValue.lowercased())
-                        viewModel.textSubject2.send(newValue.lowercased())
-                    }
-                    .onChange(of: viewModel.isSearching) { _, newValue in
-                        if newValue {
-                            hideKeyboard()
-                        }
-                    }
+                    .tint(.primary)
+                }
+                ToolbarItem(placement: .principal) {
+                    Text("Search")
+                        .font(.title2).bold()
+                }
+            }
+            .onChange(of: viewModel.isSearching) { _, newValue in
+                if newValue {
+                    hideKeyboard()
+                }
+            }
+            .onChange(of: viewModel.searchText, initial: false) { _, newValue in
+                viewModel.notFound = false
+                viewModel.textSubject.send(newValue.lowercased())
+            }
+            .fullScreenCover(item: $viewModel.selectedEvent) { event in
+                EventView(viewModel: EventView.EventViewModel.init(event: event, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager))
             }
         }
     }
     
-    private var searchButton: some View {
-        Button {
-            withAnimation {
-                viewModel.searchCountries = []
-                viewModel.searchRegions = []
-                viewModel.searchCities = []
-                viewModel.searchEvents = []
-                viewModel.searchGroupedPlaces = [:]
-                
-                viewModel.showSearchView = true
-                focused = true
-            }
-        } label: {
-            AppImages.iconSearch
-                .bold()
-                .tint(.blue)
-        }
-    }
+    // MARK: - Views
     
-    
-    private var searchView: some View {
-        HStack {
-            HStack {
+    private var header: some View {
+        HStack(spacing: 0) {
+            HStack(spacing: 0) {
                 if viewModel.isSearching {
                     ProgressView()
                         .tint(.blue)
@@ -105,87 +87,42 @@ struct SearchView: View {
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled(true)
                     .lineLimit(1)
+                    .frame(maxWidth: .infinity)
                     .focused($focused)
+                    .onAppear() {
+                        focused = true
+                    }
             }
-            .padding(.horizontal, 10)
-            .frame(maxWidth: .infinity)
+            .padding(.trailing, 10)
             .background(AppColors.lightGray6)
             .cornerRadius(16)
-            
-            if viewModel.showSearchView {
+            .frame(maxWidth: .infinity)
+            if !viewModel.searchText.isEmpty {
                 Button("Cancel") {
-                    withAnimation {
-                        hideKeyboard()
-                        viewModel.searchText = ""
-                        viewModel.showSearchView = false
-                    }
+                    focused = false
+                    viewModel.searchText = ""
+                    viewModel.searchRegions = []
+                    viewModel.searchCities = []
+                    viewModel.searchEvents = []
+                    viewModel.searchGroupedPlaces = [:]
                 }
+                .padding(.leading)
             }
         }
-        .padding(.leading, viewModel.showSearchView ? 0 : 10)
+        .padding(.horizontal)
         .frame(maxWidth: .infinity)
+        .animation(.interactiveSpring, value: viewModel.searchText.isEmpty)
     }
     
-    private var listView: some View {
+    private var list: some View {
         GeometryReader { proxy in
             List {
-                if viewModel.showSearchView {
-                    if viewModel.searchText.isEmpty {
-                        lastSearchResultsView
-                            .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 0))
-                            .listSectionSeparator(.hidden)
-                    } else {
-                        searchResultsView(width: proxy.size.width)
-                            .listSectionSeparator(.hidden)
-                    }
-                } else {
-                    allCountriesView
-                        .listSectionSeparator(.hidden)
-                        .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
-                        .listRowSeparator(.hidden)
-                    Color.clear
-                        .frame(height: 50)
-                        .listSectionSeparator(.hidden)
+                if viewModel.searchText.isEmpty {
+                    lastSearchResultsView
                 }
-            }
-            .listStyle(.plain)
-            .scrollIndicators(.hidden)
-            .buttonStyle(PlainButtonStyle())
-        }
-    }
-    
-    private var allCountriesView: some View {
-        ForEach(viewModel.countries) { country in
-            NavigationLink {
-                CountryView(modelContext: viewModel.modelContext, country: country, catalogNetworkManager: viewModel.catalogNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, authenticationManager: authenticationManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, catalogDataManager: viewModel.catalogDataManager)
-            } label: {
-                countryCell(country: country)
-            }
-        }
-    }
-    
-    private var lastSearchResultsView: some View {
-        ForEach(viewModel.catalogNetworkManager.loadedSearchText.keys.sorted(), id: \.self) { key in
-            Button {
-                hideKeyboard()
-                viewModel.searchText = key
-            } label: {
-                HStack {
-                    Text(key)
-                        .font(.body)
-                        .padding(.vertical)
-                        .tint(.secondary)
-                   Spacer()
+                if viewModel.notFound {
+                    notFoundView
                 }
-            }
-            .buttonStyle(.borderless)
-        }
-    }
-    
-    @ViewBuilder
-    private func searchResultsView(width: CGFloat) -> some View {
-        // TODO: если результаты не найдены
-            Section {
                 if !viewModel.searchCountries.isEmpty {
                     Section {
                         Text("Countries")
@@ -196,7 +133,7 @@ struct SearchView: View {
                             .offset(x: 70)
                         ForEach(viewModel.searchCountries) { country in
                             NavigationLink {
-                                CountryView(modelContext: viewModel.modelContext, country: country, catalogNetworkManager: viewModel.catalogNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, authenticationManager: authenticationManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, catalogDataManager: viewModel.catalogDataManager)
+                                CountryView(viewModel: CountryView.CountryViewModel(modelContext: viewModel.modelContext, country: country, catalogNetworkManager: viewModel.catalogNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, catalogDataManager: viewModel.catalogDataManager))
                             } label: {
                                 countryCell(country: country)
                             }
@@ -205,59 +142,6 @@ struct SearchView: View {
                     .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
                     .listRowSeparator(.hidden)
                 }
-                //            if !viewModel.searchRegions.isEmpty {
-                //                Section {
-                //                    Text("Regions")
-                //                        .font(.title)
-                //                        .foregroundStyle(.secondary)
-                //                        .padding(.top, 50)
-                //                        .padding(.bottom, 20)
-                //                    ForEach(viewModel.searchRegions) { region in
-                //                        //                    Text("region: ") + Text(region.name ?? "")
-                //                        //                    Text("region country: ") + Text(region.country?.name ?? "")
-                //                        //                    ForEach(region.cities) { city in
-                //                        //                        Text("region city: ") + Text(city.name)
-                //                        //                    }
-                //
-                //                        VStack {
-                //                            HStack(spacing: 20) {
-                //                                if let url = region.photo {
-                //                                    ImageLoadingView(url: url, width: 50, height: 50, contentMode: .fill) {
-                //                                        AppColors.lightGray6
-                //                                    }
-                //                                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                //                                    .overlay(RoundedRectangle(cornerRadius: 10).stroke(AppColors.lightGray5, lineWidth: 1))
-                //                                } else {
-                //                                    EmptyView()
-                //                                        .frame(width: 50, height: 50)
-                //                                }
-                //                                VStack(alignment: .leading) {
-                //                                    if let name = region.name {
-                //                                        Text(name)
-                //                                            .bold()
-                //                                    }
-                //                                    if let country = region.country {
-                //                                        Text(country.name)
-                //                                            .font(.caption)
-                //                                            .foregroundStyle(.secondary)
-                //                                    }
-                //                                }
-                //                            }
-                //                            HStack {
-                //                                EmptyView()
-                //                                    .frame(width: 50, height: 50)
-                //                                CitiesView(modelContext: viewModel.modelContext, cities: region.cities, catalogNetworkManager: viewModel.catalogNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, errorManager: viewModel.errorManager, user: viewModel.user, authenticationManager: authenticationManager)
-                //
-                //                            }
-                //                            .padding(.vertical, 10)
-                //                            Divider()
-                //                                .offset(x: 70)
-                //                        }
-                //                    }
-                //                    .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
-                //                    .listRowSeparator(.hidden)
-                //                }
-                //            }
                 
                 if !viewModel.searchCities.isEmpty {
                     Section {
@@ -291,26 +175,58 @@ struct SearchView: View {
                             .padding(.top, 50)
                             .padding(.bottom, 20)
                             .offset(x: 90)
-                        LazyVGrid(columns: viewModel.gridLayout, spacing: 20) {
-                            ForEach(viewModel.searchEvents) { event in
-                              //  EventCell(event: event, width: (width / 2) - 30, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, showCountryCity: true, authenticationManager: authenticationManager, showStartDayInfo: true, showStartTimeInfo: false)
-                                
-                                EventCell(event: event, showCountryCity: true, showStartDayInfo: true, showStartTimeInfo: false)//, width: (width / 2) - 30)
+                        StaggeredGrid(columns: 3, showsIndicators: false, spacing: 10, list: viewModel.searchEvents) { event in
+                            Button {
+                                viewModel.selectedEvent = event
+                            } label: {
+                                EventCell(event: event, showCountryCity: false, showStartDayInfo: true, showStartTimeInfo: false)
+                                    .matchedGeometryEffect(id: "Event\(event.id)", in: animation)
                             }
                         }
-                        .padding(.horizontal, 20)
+                        .padding(.horizontal, 10)
+                        .padding(.bottom)
                     }
                     .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                     .listRowSeparator(.hidden)
-                    
                 }
+                
+                Color.clear
+                    .frame(height: 50)
+                    .listRowSeparator(.hidden)
             }
-        Color.clear
-            .frame(height: 50)
             .listSectionSeparator(.hidden)
+            .listStyle(.plain)
+            .scrollIndicators(.hidden)
+            .buttonStyle(PlainButtonStyle())
+        }
     }
     
-    //TODO: дубликат PlacesView
+    private var lastSearchResultsView: some View {
+        Section {
+            ForEach(viewModel.catalogNetworkManager.loadedSearchText.keys.uniqued(), id: \.self) { key in
+                Button {
+                    hideKeyboard()
+                    viewModel.searchInDB(text: key)
+                    viewModel.searchText = key
+                } label: {
+                    HStack(alignment: .firstTextBaseline) {
+                        AppImages.iconArrowUpRight
+                            .font(.caption)
+                            .bold()
+                            .foregroundStyle(.blue)
+                        Text(key)
+                            .font(.body)
+                            .padding(.vertical)
+                            .foregroundStyle(.secondary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                }
+            }
+        }
+        .listSectionSeparator(.hidden)
+        .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
+    }
+    
     private var placesView: some View {
         Section {
             ForEach(viewModel.searchGroupedPlaces.keys.sorted(), id: \.self) { key in
@@ -322,7 +238,7 @@ struct SearchView: View {
                     .offset(x: 70)
                 ForEach(viewModel.searchGroupedPlaces[key] ?? []) { place in
                     NavigationLink {
-                        PlaceView(place: place, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, authenticationManager: authenticationManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, showOpenInfo: false)
+                        PlaceView(viewModel: PlaceView.PlaceViewModel(place: place, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, showOpenInfo: false))
                     } label: {
                         PlaceCell(place: place, showOpenInfo: false, showDistance: false, showCountryCity: true, showLike: true)
                     }
@@ -333,35 +249,46 @@ struct SearchView: View {
         .listRowSeparator(.hidden)
     }
     
-    @ViewBuilder
     private func countryCell(country: Country) -> some View {
         VStack(spacing: 0) {
             HStack(spacing: 20) {
                 Text(country.flagEmoji)
                     .font(.title)
-                    .frame(width: 50, height: 50)
+                    .frame(width: 50, height: 50, alignment: .center)
                     .clipShape(Circle())
                 Text(country.name)
                     .font(.title2)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                // TODO:
-                //                                    HStack {
-                //                                        Text("25 мест")
-                //                                        Text("| ")
-                //                                        Text("17 мероприятий")
-                //                                    }
-                //                                    .foregroundStyle(.secondary)
-                //                                    .font(.caption2)
             }
             .padding(.vertical, 10)
             Divider()
                 .offset(x: 70)
         }
     }
+    
+    private var notFoundView: some View {
+        Section {
+            VStack {
+                AppImages.iconSearchLocation
+                    .font(.largeTitle)
+                    .fontWeight(.light)
+                    .foregroundStyle(.secondary)
+                    .padding()
+                    .padding(.top)
+                Group {
+                    Text("Oops! No matches found.")
+                        .font(.title2)
+                    Text("Looks like our gay radar needs a caffeine boost! How about we try again?\n\nNavigay at your service!")
+                        .font(.callout)
+                }
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+                .textSelection(.enabled)
+                .padding()
+            }
+            .frame(maxWidth: .infinity)
+        }
+        .listSectionSeparator(.hidden)
+        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+    }
 }
-
-//#Preview {
-//    SearchView(networkManager: CatalogNetworkManager(appSettingsManager: AppSettingsManager()))
-//        .modelContainer(for: [
-//            Country.self, Region.self, City.self], inMemory: false)
-//}
