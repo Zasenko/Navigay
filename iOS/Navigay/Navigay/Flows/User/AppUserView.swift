@@ -107,16 +107,16 @@ struct AppUserView: View {
                             .alert("Delete Account", isPresented: $viewModel.showDeleteAccountAlert) {
                                 Button("Delete", role: .destructive) {
                                     Task {
-                                        do {
-                                            try await authenticationManager.deleteAccount(user: user)
+                                        let result = await authenticationManager.deleteAccount(user: user)
+                                        if result {
                                             await MainActor.run {
                                                 likedPlaces.forEach( { $0.isLiked = false } )
                                                 likedEvents.forEach( { $0.isLiked = false } )
                                                 viewModel.deleteAccountButtonTapped(for: user)
                                                 authenticationManager.appUser = nil
+                                                
+                                                //todo: show deleteAccauntSheet true
                                             }
-                                        } catch {
-                                            debugPrint("-Error- Delete Account: ", error)
                                         }
                                     }
                                 }
@@ -349,7 +349,7 @@ struct AppUserView: View {
             .offset(x: 70)
             ForEach(likedPlaces.sorted(by: { $0.name < $1.name})) { place in
                 NavigationLink {
-                    PlaceView(place: place, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, authenticationManager: authenticationManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, showOpenInfo: false)
+                    PlaceView(viewModel: PlaceView.PlaceViewModel(place: place, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, showOpenInfo: false))
                 } label: {
                     PlaceCell(place: place, showOpenInfo: false, showDistance: false, showCountryCity: true, showLike: false)
                 }

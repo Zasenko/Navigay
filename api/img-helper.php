@@ -6,10 +6,10 @@ function generateUniqueFilename($extension)
     $random = mt_rand(100, 999);
     return $timestamp . '_' . $random . '.' . $extension;
 }
-function deleteImageFromServer($poster_upload_path)
+function deleteImageFromServer($image_upload_path)
 {
-    if (file_exists($poster_upload_path) && is_file($poster_upload_path)) {
-        if (unlink($poster_upload_path)) {
+    if (file_exists($image_upload_path) && is_file($image_upload_path)) {
+        if (unlink($image_upload_path)) {
             return true; // Файл успешно удален
         } else {
             return false; // Ошибка при удалении файла

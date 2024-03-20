@@ -220,40 +220,39 @@ struct LoginView: View {
     
     // MARK: - Private Functions
     
-    @MainActor
     private func loginButtonTapped() {
         focusedField = nil
         viewModel.allViewsDisabled = true
         viewModel.buttonState = .loading
+        
         Task {
-            let errorModel = ErrorModel(massage: "Что-то пошло не так. Повтарите попытку позже.", img: AppImages.iconPersonError, color: .red)
+            let message = "Oops! Something went wrong. You're not logged in. Please try again later."
             do {
                 let decodedAppUser = try await authenticationManager.login(email: viewModel.email, password: viewModel.password)
-                    let descriptor = FetchDescriptor(predicate: #Predicate<AppUser>{ $0.id == decodedAppUser.id })
-                    if let user = try context.fetch(descriptor).first {
-                        user.isUserLoggedIn = true
-                        user.updateUser(decodedUser: decodedAppUser)
-                        authenticationManager.appUser = user
-                        setLikedItems(for: user)
-                    } else {
-                        let user = AppUser(decodedUser: decodedAppUser)
-                        user.isUserLoggedIn = true
-                        authenticationManager.appUser = user
-                        context.insert(user)
-                    }
-                    onDismiss()
+                let descriptor = FetchDescriptor(predicate: #Predicate<AppUser>{ $0.id == decodedAppUser.id })
+                if let user = try context.fetch(descriptor).first {
+                    user.isUserLoggedIn = true
+                    user.updateUser(decodedUser: decodedAppUser)
+                    authenticationManager.appUser = user
+                    setLikedItems(for: user)
+                } else {
+                    let user = AppUser(decodedUser: decodedAppUser)
+                    user.isUserLoggedIn = true
+                    authenticationManager.appUser = user
+                    context.insert(user)
+                }
+                onDismiss()
+                return
             } catch NetworkErrors.noConnection {
-                viewModel.allViewsDisabled = false
-                viewModel.buttonState = .normal
-                authenticationManager.errorManager.showError(model: errorModel)
+                authenticationManager.errorManager.showNetworkNoConnected()
             } catch NetworkErrors.apiError(let apiError) {
-                viewModel.allViewsDisabled = false
-                viewModel.buttonState = .normal
-                authenticationManager.errorManager.showApiErrorOrMessage(apiError: apiError, or: errorModel)
+                authenticationManager.errorManager.showApiError(apiError: apiError, or: message, img: nil, color: nil)
             } catch {
+                authenticationManager.errorManager.showError(model: ErrorModel(error: error, message: message, img: AppImages.iconPersonError, color: nil))
+            }
+            await MainActor.run {
                 viewModel.allViewsDisabled = false
                 viewModel.buttonState = .normal
-                authenticationManager.errorManager.showError(model: errorModel)
             }
         }
     }

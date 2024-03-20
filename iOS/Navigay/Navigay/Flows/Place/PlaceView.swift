@@ -18,21 +18,12 @@ struct PlaceView: View {
     
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel: PlaceViewModel
-    @ObservedObject private var authenticationManager: AuthenticationManager // TODO: убрать юзера из вью модели так как он в authenticationManager
+    @EnvironmentObject private var authenticationManager: AuthenticationManager
+    
     // MARK: - Inits
     
-    init(place: Place,
-         modelContext: ModelContext,
-         placeNetworkManager: PlaceNetworkManagerProtocol,
-         eventNetworkManager: EventNetworkManagerProtocol,
-         errorManager: ErrorManagerProtocol,
-         authenticationManager: AuthenticationManager,
-         placeDataManager: PlaceDataManagerProtocol,
-         eventDataManager: EventDataManagerProtocol,
-         showOpenInfo: Bool) {
-        let viewModel = PlaceViewModel(place: place, modelContext: modelContext, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, showOpenInfo: showOpenInfo)
+    init(viewModel: PlaceViewModel) {
         _viewModel = State(wrappedValue: viewModel)
-        self.authenticationManager = authenticationManager
     }
         
     // MARK: - Body
@@ -91,16 +82,16 @@ struct PlaceView: View {
                         .tint(viewModel.place.isLiked ? .red :  .secondary)
                         if let user = authenticationManager.appUser, user.status == .admin {
                             Menu {
-                                Button("Edit") {
-                                    viewModel.showEditView = true
+                                NavigationLink("Edit Place") {
+                                    EditPlaceView(viewModel: EditPlaceViewModel(id: viewModel.place.id, place: viewModel.place, user: user, networkManager: EditPlaceNetworkManager(networkMonitorManager: authenticationManager.networkMonitorManager), errorManager: viewModel.errorManager))
                                 }
-                                Button("Add Event") {
-                                    viewModel.showAddEventView = true
+                                NavigationLink("Add Event") {
+                                    EmptyView()
                                 }
                             } label: {
                                 AppImages.iconSettings
                                     .bold()
-                                    .frame(width: 30, height: 30, alignment: .leading)
+                                    .foregroundStyle(.blue)
                             }
                         }
                     }
@@ -110,19 +101,20 @@ struct PlaceView: View {
                 viewModel.allPhotos = viewModel.place.getAllPhotos()
                 viewModel.fetchPlace()
             }
-            .navigationDestination(isPresented: $viewModel.showAddEventView) {
-                if let user = authenticationManager.appUser, user.status == .admin {
-                    NewEventView(viewModel: NewEventViewModel(place: viewModel.place, copy: nil, networkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager), authenticationManager: authenticationManager)
-                } else {
-                    //TODO: - вью ошибки и переход назад
-                    EmptyView()
-                }
-            }
-            .fullScreenCover(isPresented: $viewModel.showEditView) {
-                viewModel.showEditView = false
-            } content: {
-                EditPlaceView(viewModel: EditPlaceViewModel(place: viewModel.place, networkManager: AdminNetworkManager(errorManager: viewModel.errorManager)))
-            }
+//            .navigationDestination(isPresented: $viewModel.showAddEventView) {
+//                if let user = authenticationManager.appUser, user.status == .admin {
+//                    NewEventView(viewModel: NewEventViewModel(place: viewModel.place, copy: nil, networkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager), authenticationManager: authenticationManager)
+//                    EmptyView()
+//                } else {
+//                    //TODO: - вью ошибки и переход назад
+//                    EmptyView()
+//                }
+//            }
+//            .fullScreenCover(isPresented: $viewModel.showEditView) {
+//                viewModel.showEditView = false
+//            } content: {
+//                EditPlaceView(viewModel: EditPlaceViewModel(place: viewModel.place, networkManager: AdminNetworkManager(errorManager: viewModel.errorManager)))
+//            }
         }
     }
     
@@ -160,7 +152,7 @@ struct PlaceView: View {
                 .listSectionSeparator(.hidden)
             
             if viewModel.actualEvents.count > 0 {
-                EventsView(modelContext: viewModel.modelContext, selectedDate: $viewModel.selectedDate, displayedEvents: $viewModel.displayedEvents, actualEvents: $viewModel.actualEvents, todayEvents: $viewModel.todayEvents, upcomingEvents: $viewModel.upcomingEvents, eventsDates: $viewModel.eventsDates, showCalendar: $viewModel.showCalendar, size: outsideProxy.size, eventDataManager: viewModel.eventDataManager, eventNetworkManager: viewModel.eventNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, errorManager: viewModel.errorManager)
+                EventsView(modelContext: viewModel.modelContext, selectedDate: $viewModel.selectedDate, displayedEvents: $viewModel.displayedEvents, actualEvents: $viewModel.actualEvents, todayEvents: $viewModel.todayEvents, upcomingEvents: $viewModel.upcomingEvents, eventsDates: $viewModel.eventsDates, showCalendar: $viewModel.showCalendar, size: outsideProxy.size, eventDataManager: viewModel.eventDataManager, placeDataManager: viewModel.placeDataManager, eventNetworkManager: viewModel.eventNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, errorManager: viewModel.errorManager)
                     .listRowSeparator(.hidden)
                     .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
             }
@@ -197,7 +189,7 @@ struct PlaceView: View {
                         //TODO: Add review designe
                         ZStack {
                             NavigationLink {
-                                AddCommentView(text: "", characterLimit: 1000, placeId: viewModel.place.id, placeNetworkManager: viewModel.placeNetworkManager, authenticationManager: authenticationManager)
+                                AddCommentView(viewModel: AddCommentViewModel(placeId: viewModel.place.id, placeNetworkManager: viewModel.placeNetworkManager, errorManager: viewModel.errorManager))
                             } label: {
                                 EmptyView()
                             }

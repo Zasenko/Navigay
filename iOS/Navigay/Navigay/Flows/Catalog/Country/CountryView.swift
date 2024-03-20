@@ -10,24 +10,19 @@ import SwiftData
 
 struct CountryView: View {
     
-    @State private var viewModel: CountryViewModel
-    @Environment(\.dismiss) private var dismiss
-    @ObservedObject var authenticationManager: AuthenticationManager // TODO: убрать юзера из вью модели так как он в authenticationManager
+    // MARK: - Properties
     
-    init(modelContext: ModelContext,
-         country: Country,
-         catalogNetworkManager: CatalogNetworkManagerProtocol,
-         placeNetworkManager: PlaceNetworkManagerProtocol,
-         eventNetworkManager: EventNetworkManagerProtocol,
-         errorManager: ErrorManagerProtocol,
-         authenticationManager: AuthenticationManager,
-         placeDataManager: PlaceDataManagerProtocol,
-         eventDataManager: EventDataManagerProtocol,
-         catalogDataManager: CatalogDataManagerProtocol) {
-        let viewModel = CountryViewModel(modelContext: modelContext, country: country, catalogNetworkManager: catalogNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, catalogDataManager: catalogDataManager)
+    @State private var viewModel: CountryViewModel
+    @EnvironmentObject private var authenticationManager: AuthenticationManager
+    @Environment(\.dismiss) private var dismiss
+    
+    // MARK: - Init
+    
+    init(viewModel: CountryViewModel) {
         _viewModel = State(initialValue: viewModel)
-        _authenticationManager = ObservedObject(wrappedValue: authenticationManager)
     }
+    
+    // MARK: - Body
     
     var body: some View {
         NavigationStack {
@@ -35,13 +30,14 @@ struct CountryView: View {
                 List {
                     if let url = viewModel.country.photo {
                         ImageLoadingView(url: url, width: geometry.size.width, height: (geometry.size.width / 4) * 5, contentMode: .fill) {
-                            AppColors.lightGray6 // TODO: animation in ImageLoadingView
+                            AppColors.lightGray6
                         }
                         .clipped()
                         .listRowSeparator(.hidden)
                         .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                         .padding(.bottom, 20)
                     }
+ 
                     Text("Cities")
                         .font(.title)
                         .foregroundStyle(.secondary)
@@ -57,15 +53,12 @@ struct CountryView: View {
                     } else {
                         CitiesView(modelContext: viewModel.modelContext, cities: viewModel.country.regions.flatMap( { $0.cities } ).sorted(by: { $0.id < $1.id } ), catalogNetworkManager: viewModel.catalogNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, errorManager: viewModel.errorManager, authenticationManager: authenticationManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, catalogDataManager: viewModel.catalogDataManager)
                     }
-                    
                     Section {
-                        if let about = viewModel.country.about {
-                            Text(about)
-                                .font(.callout)
-                                .foregroundStyle(.secondary)
-                                .padding(.vertical, 50)
-                                .listRowSeparator(.hidden)
-                        }
+                        Text(viewModel.country.about ?? "")
+                            .font(.callout)
+                            .foregroundStyle(.secondary)
+                            .padding(.vertical, 50)
+                            .listRowSeparator(.hidden)
                     }
                 }
                 .listStyle(.plain)
@@ -89,6 +82,17 @@ struct CountryView: View {
                                 .frame(width: 30, height: 30, alignment: .leading)
                         }
                         .tint(.primary)
+                    }
+                    if let user = authenticationManager.appUser, user.status == .admin {
+                        ToolbarItem(placement: .topBarTrailing) {
+                            NavigationLink {
+                                EditCountryView(viewModel: EditCountryViewModel(id: viewModel.country.id, country: viewModel.country, errorManager: viewModel.errorManager, networkManager: EditCountryNetworkManager(networkMonitorManager: authenticationManager.networkMonitorManager)))
+                            } label: {
+                                AppImages.iconSettings
+                                    .bold()
+                                    .foregroundStyle(.blue)
+                            }
+                        }
                     }
                 }
                 .onAppear() {

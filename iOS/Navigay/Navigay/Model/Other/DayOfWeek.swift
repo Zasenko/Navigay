@@ -41,8 +41,9 @@ enum DayOfWeek: Int, Codable, CaseIterable {
     
     func getShortString() -> String {
         var calendar = Calendar.current
-        calendar.locale = Locale(identifier: "ru")
-        
+        let phoneLanguage = NSLocale.preferredLanguages.first
+        let language = phoneLanguage?.components(separatedBy: "-").first  ?? "en"
+        calendar.locale = Locale(identifier: language)
         switch self {
         case .monday:
             return calendar.shortWeekdaySymbols[1]

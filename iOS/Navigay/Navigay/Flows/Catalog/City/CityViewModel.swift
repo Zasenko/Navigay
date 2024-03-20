@@ -50,8 +50,7 @@ extension CityView {
         let eventDataManager: EventDataManagerProtocol
         let catalogDataManager: CatalogDataManagerProtocol
         
-        var showEditCityView: Bool = false
-        var adminCity: AdminCity? = nil
+       // var adminCity: AdminCity? = nil
         
         init(modelContext: ModelContext,
              city: City,
@@ -113,20 +112,27 @@ extension CityView {
         }
         
         private func fetch() async {
-            guard !catalogNetworkManager.loadedCities.contains(where: { $0 == city.id}),
-                  let decodedCity = await catalogNetworkManager.fetchCity(id: city.id)
-            else {
+            guard !catalogNetworkManager.loadedCities.contains(where: { $0 == city.id}) else {
                 await MainActor.run {
                     isLoading = false
                 }
                 return
             }
+            do {
+                let decodedCity = try await catalogNetworkManager.fetchCity(id: city.id)
+                await MainActor.run {
+                    updateFetchedResult(decodedCity: decodedCity)
+                }
+            } catch NetworkErrors.noConnection {
+            } catch NetworkErrors.apiError(let apiError) {
+                errorManager.showApiError(apiError: apiError, or: errorManager.updateMessage, img: nil, color: nil)
+            } catch {
+                errorManager.showUpdateError(error: error)
+            }
             await MainActor.run {
-                updateFetchedResult(decodedCity: decodedCity)
                 isLoading = false
             }
         }
-        
         private func updateFetchedResult(decodedCity: DecodedCity) {
             
             city.updateCityComplite(decodedCity: decodedCity)

@@ -9,14 +9,16 @@ import Foundation
 
 enum NetworkErrors: Error {
     case noSessionKey
+    case connection
     case noConnection
     case decoderError
     case encoderError
     case bodyEncoderError
     case imageDataError
-    case bedUrl
+    case badUrl
     case invalidData
     case bedResponse
+    case api
     case apiError(ApiError?)
     case dataConversionError
 }

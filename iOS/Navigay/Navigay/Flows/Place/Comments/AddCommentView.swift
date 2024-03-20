@@ -11,18 +11,17 @@ struct AddCommentView: View {
     
     // MARK: - Private Properties
     
-    @ObservedObject private var authenticationManager: AuthenticationManager
-    @StateObject private var viewModel: AddCommentViewModel
+    @EnvironmentObject private var authenticationManager: AuthenticationManager
+    @StateObject var viewModel: AddCommentViewModel
     @FocusState private var focused: Bool
     @Environment(\.dismiss) private var dismiss
     
     // MARK: - Inits
     
-    init(text: String, characterLimit: Int, placeId: Int, placeNetworkManager: PlaceNetworkManagerProtocol, authenticationManager: AuthenticationManager) {
-        _viewModel = StateObject(wrappedValue: AddCommentViewModel(placeId: placeId, placeNetworkManager: placeNetworkManager))
-        _authenticationManager = ObservedObject(wrappedValue: authenticationManager)
-    }
-    
+//    init(text: String, characterLimit: Int, placeId: Int, placeNetworkManager: PlaceNetworkManagerProtocol) {
+//        _viewModel = StateObject(wrappedValue: AddCommentViewModel(placeId: placeId, placeNetworkManager: placeNetworkManager, errorManager: viewModel.errorManager))
+//    }
+//    
     // MARK: - Body
     
     var body: some View {

@@ -10,11 +10,17 @@ import SwiftUI
 protocol ErrorManagerProtocol {
     var getError: ((ErrorModel) -> Void)? { get set }
     
-    func showError()
-    func showError(error: Error)
-    func showError(text: String)
+    var errorMessage: String { get }
+    var updateMessage: String { get }
+    
     func showError(model: ErrorModel)
-    func showApiErrorOrMessage(apiError: ApiError?, or error: ErrorModel)
+    
+    func showErrorMessage(error: Error)
+    func showApiError(apiError: ApiError?, or message: String, img: Image?, color: Color?)
+    func showUpdateError(error: Error)
+    
+    func showNetworkNoConnected()
+    func showNetworkConnected()
 }
 
 final class ErrorManager: ErrorManagerProtocol {
@@ -23,36 +29,48 @@ final class ErrorManager: ErrorManagerProtocol {
     
     var getError: ((ErrorModel) -> Void)?
     
+    let updateMessage: String = "Something went wrong. The information has not been updated. Please try again later."
+    let errorMessage: String = "Something went wrong. Please try again later."
     // MARK: - Functions
-
-    
-    func showApiErrorOrMessage(apiError: ApiError?, or error: ErrorModel) {
-        if let apiError = apiError {
-            if apiError.show {
-                getError?(ErrorModel.init(massage: apiError.message, img: nil, color: nil))
-            } else {
-                debugPrint(apiError.message)
-                showError(model: error)
-            }
-        } else {
-            showError(model: error)
-            
-        }
-    }
-    
-    func showError() {
-        getError?(ErrorModel.init(massage: "Что-то пошло не так", img: Image(systemName: "exclamationmark.triangle"), color: .red))
-    }
     
     func showError(model: ErrorModel) {
+        debugPrint(model.error, model.message)
         getError?(model)
     }
     
-    func showError(error: Error) {
-        getError?(ErrorModel.init(massage: "\(error.localizedDescription): \(error)", img: Image(systemName: "exclamationmark.triangle"), color: .gray))
+    func showErrorMessage(error: Error) {
+        debugPrint(error)
+        getError?(ErrorModel(error: error, message: errorMessage, img: nil, color: nil))
     }
     
-    func showError(text: String) {
-        getError?(ErrorModel.init(massage: text, img: Image(systemName: "exclamationmark.triangle"), color: .yellow))
+    func showApiError(apiError: ApiError?, or message: String, img: Image? = nil, color: Color? = nil) {
+        if let apiError = apiError {
+            if apiError.show {
+                showError(model: ErrorModel(error: NetworkErrors.api, message: apiError.message, img: img, color: color))
+                debugPrint(apiError.message)
+            } else {
+                showError(model: ErrorModel(error: NetworkErrors.api, message: message, img: img, color: color))
+                debugPrint(apiError.message)
+            }
+        } else {
+            showError(model: ErrorModel(error: NetworkErrors.api, message: message, img: img, color: color))
+        }
+    }
+    
+    func showNetworkNoConnected() {
+        getError?(ErrorModel(error: NetworkErrors.connection, message: "No internet connection.", img: AppImages.iconNoWifi, color: nil))
+    }
+    func showNetworkConnected() {
+        getError?(ErrorModel(error: NetworkErrors.connection, message: "Device is connected to network.", img: AppImages.iconWifi, color: .green))
+    }
+    
+    func showUpdateError(error: Error) {
+        debugPrint(error)
+        getError?(ErrorModel(error: error, message: updateMessage, img: nil, color: nil))
+    }
+    
+    func showUpdateInternetError(error: Error) {
+        debugPrint(error)
+        getError?(ErrorModel(error: error, message: "No internet connection. The information has not been updated. Please try again later.", img: AppImages.iconNoWifi, color: nil))
     }
 }

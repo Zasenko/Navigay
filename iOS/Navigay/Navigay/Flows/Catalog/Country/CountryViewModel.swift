@@ -14,7 +14,6 @@ extension CountryView {
         
         var modelContext: ModelContext
         let country: Country
-        var isLoading: Bool = true // TODO: isLoading
         
         let catalogNetworkManager: CatalogNetworkManagerProtocol
         let placeNetworkManager: PlaceNetworkManagerProtocol
@@ -23,6 +22,7 @@ extension CountryView {
         let placeDataManager: PlaceDataManagerProtocol
         let eventDataManager: EventDataManagerProtocol
         let catalogDataManager: CatalogDataManagerProtocol
+                
         // MARK: - Init
         
         init(modelContext: ModelContext,
@@ -47,12 +47,19 @@ extension CountryView {
         
         func fetch() {
             Task {
-                guard !catalogNetworkManager.loadedCountries.contains(where: { $0 == country.id}),
-                      let decodedCountry = await catalogNetworkManager.fetchCountry(id: country.id) else {
+                guard !catalogNetworkManager.loadedCountries.contains(where: { $0 == country.id}) else {
                     return
                 }
-                await MainActor.run {
-                    updateCountry(decodedCountry: decodedCountry)
+                do {
+                    let decodedCountry = try await catalogNetworkManager.fetchCountry(id: country.id)
+                    await MainActor.run {
+                        updateCountry(decodedCountry: decodedCountry)
+                    }
+                } catch NetworkErrors.noConnection {
+                } catch NetworkErrors.apiError(let apiError) {
+                    errorManager.showApiError(apiError: apiError, or: errorManager.updateMessage, img: nil, color: nil)
+                } catch {
+                    errorManager.showUpdateError(error: error)
                 }
             }
         }

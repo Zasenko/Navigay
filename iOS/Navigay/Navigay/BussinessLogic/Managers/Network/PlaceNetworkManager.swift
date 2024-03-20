@@ -8,51 +8,47 @@
 import SwiftUI
 
 protocol PlaceNetworkManagerProtocol {
-    func addNewPlace(place: NewPlace) async throws -> NewPlaceResult
-    func updateAvatar(placeId: Int, uiImage: UIImage) async throws -> ImageResult
-    func updateMainPhoto(placeId: Int, uiImage: UIImage) async throws -> ImageResult
-    func updateLibraryPhoto(placeId: Int, photoId: UUID, uiImage: UIImage) async throws -> ImageResult
-    func deleteLibraryPhoto(placeId: Int, photoId: UUID) async throws -> ApiResult
-    func fetchPlace(id: Int) async -> DecodedPlace?
-    func fetchComments(placeID: Int) async -> [DecodedComment]?
-    func addComment(comment: NewComment) async -> Bool
-   // func addAdditionalInfoToPlace(place: PlaceAdditionalInfo) async throws -> NewPlaceResult
-    //func addNewPlace(place: NewPlace, uiImageSmall: UIImage?, uiImageBig: UIImage?) async throws -> DecodedPlace
+    var loadedPlaces: [Int] { get }
+    func fetchPlace(id: Int) async throws -> DecodedPlace
+    func fetchComments(placeID: Int) async throws -> [DecodedComment]
+    func addComment(comment: NewComment) async throws
 }
 
 final class PlaceNetworkManager {
     
     // MARK: - Properties
     
+    var loadedPlaces: [Int] = []
+    
     // MARK: - Private Properties
     
-    private var loadedPlaces: [Int] = []
     private var loadedComments: [Int:[DecodedComment]] = [:]
     
     private let scheme = "https"
     private let host = "www.navigay.me"
     
+    private let networkMonitorManager: NetworkMonitorManagerProtocol
     private let appSettingsManager: AppSettingsManagerProtocol
-    private let errorManager: ErrorManagerProtocol
     
-    //MARK: - Inits
+    // MARK: - Inits
     
-    init(appSettingsManager: AppSettingsManagerProtocol, errorManager: ErrorManagerProtocol) {
+    init(networkMonitorManager: NetworkMonitorManagerProtocol, appSettingsManager: AppSettingsManagerProtocol) {
+        self.networkMonitorManager = networkMonitorManager
         self.appSettingsManager = appSettingsManager
-        self.errorManager = errorManager
     }
-    
 }
 
 // MARK: - AuthNetworkManagerProtocol
 
 extension PlaceNetworkManager: PlaceNetworkManagerProtocol {
     
-    func addComment(comment: NewComment) async -> Bool {
+    func addComment(comment: NewComment) async throws {
         // TODO: error text!
-        let errorModel = ErrorModel(massage: "Something went wrong. Your comment has not been upload. Please try again later.", img: nil, color: nil)
+      //  let errorModel = ErrorModel(massage: "Something went wrong. Your comment has not been upload. Please try again later.", img: nil, color: nil)
         debugPrint("--- PlaceNetworkManager addComment")
-        
+        guard networkMonitorManager.isConnected else {
+            throw NetworkErrors.noConnection
+        }
         let path = "/api/place/add-comment.php"
         var urlComponents: URLComponents {
             var components = URLComponents()
@@ -61,9 +57,9 @@ extension PlaceNetworkManager: PlaceNetworkManagerProtocol {
             components.path = path
             return components
         }
-        do {
+
             guard let url = urlComponents.url else {
-                throw NetworkErrors.bedUrl
+                throw NetworkErrors.badUrl
             }
             var request = URLRequest(url: url)
             request.httpMethod = "POST"
@@ -78,29 +74,22 @@ extension PlaceNetworkManager: PlaceNetworkManagerProtocol {
             guard let decodedResult = try? JSONDecoder().decode(ApiResult.self, from: data) else {
                 throw NetworkErrors.decoderError
             }
-            guard decodedResult.result else {
-                errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: errorModel)
-                debugPrint("-API ERROR- PlaceNetworkManager addComment: ", decodedResult.error?.message ?? "")
-                return false
-            }
-            return true
-        } catch {
-            errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
-            debugPrint("ERROR - PlaceNetworkManager addComment: ", error)
-            return false
+        guard decodedResult.result else {
+            throw NetworkErrors.apiError(decodedResult.error)
         }
     }
     
-    func fetchComments(placeID: Int) async -> [DecodedComment]? {
-        
+    func fetchComments(placeID: Int) async throws -> [DecodedComment] {
         if loadedComments.keys.contains(where: { $0 == placeID } ),
            let result = loadedComments[placeID] {
             return result
         }
         // TODO: error text!
-        let errorModel = ErrorModel(massage: "Something went wrong. The reviews has not been upload. Please try again later.", img: nil, color: nil)
+        //   let errorModel = ErrorModel(massage: "Something went wrong. The reviews has not been upload. Please try again later.", img: nil, color: nil)
         debugPrint("--- fetchComments for Place id: ", placeID)
-        
+        guard networkMonitorManager.isConnected else {
+            throw NetworkErrors.noConnection
+        }
         let path = "/api/place/get-comments.php"
         var urlComponents: URLComponents {
             var components = URLComponents()
@@ -112,40 +101,30 @@ extension PlaceNetworkManager: PlaceNetworkManagerProtocol {
             ]
             return components
         }
-        do {
-            guard let url = urlComponents.url else {
-                throw NetworkErrors.bedUrl
-            }
-            var request = URLRequest(url: url)
-            request.httpMethod = "GET"
-            let (data, response) = try await URLSession.shared.data(for: request)
-            guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
-                throw NetworkErrors.invalidData
-            }
-            guard let decodedResult = try? JSONDecoder().decode(CommentsResult.self, from: data) else {
-                throw NetworkErrors.decoderError
-            }
-            guard decodedResult.result, let decodedComments = decodedResult.comments else {
-                errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: errorModel)
-                debugPrint("-API ERROR- PlaceNetworkManager fetchComments for Place id \(placeID) : ", decodedResult.error?.message ?? "")
-                return nil
-            }
-            loadedComments[placeID] = decodedComments
-            return decodedComments
-        } catch {
-            errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
-            debugPrint("ERROR - PlaceNetworkManager fetchComments for Place id \(placeID) : ", error)
-            return nil
+        guard let url = urlComponents.url else {
+            throw NetworkErrors.badUrl
         }
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
+            throw NetworkErrors.invalidData
+        }
+        guard let decodedResult = try? JSONDecoder().decode(CommentsResult.self, from: data) else {
+            throw NetworkErrors.decoderError
+        }
+        guard decodedResult.result, let decodedComments = decodedResult.comments else {
+            throw NetworkErrors.apiError(decodedResult.error)
+        }
+        loadedComments[placeID] = decodedComments
+        return decodedComments
     }
     
-    func fetchPlace(id: Int) async -> DecodedPlace? {
-        if loadedPlaces.contains(where: { $0 == id}) {
-            return nil
-        }
-        let errorModel = ErrorModel(massage: "Something went wrong. The information has not been updated. Please try again later.", img: nil, color: nil)
+    func fetchPlace(id: Int) async throws -> DecodedPlace {
         debugPrint("--- fetchPlace id: ", id)
-        
+        guard networkMonitorManager.isConnected else {
+            throw NetworkErrors.noConnection
+        }
         let path = "/api/place/get-place.php"
         var urlComponents: URLComponents {
             var components = URLComponents()
@@ -159,237 +138,22 @@ extension PlaceNetworkManager: PlaceNetworkManagerProtocol {
             ]
             return components
         }
-        do {
-            guard let url = urlComponents.url else {
-                throw NetworkErrors.bedUrl
-            }
-            var request = URLRequest(url: url)
-            request.httpMethod = "GET"
-            let (data, response) = try await URLSession.shared.data(for: request)
-            guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
-                throw NetworkErrors.invalidData
-            }
-//            let json = try JSONSerialization.jsonObject(with: data, options: JSONSerialization.ReadingOptions.allowFragments)
-//            // print(json)
-            guard let decodedResult = try? JSONDecoder().decode(PlaceResult.self, from: data) else {
-                throw NetworkErrors.decoderError
-            }
-            guard decodedResult.result, let decodedPlace = decodedResult.place else {
-                errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: errorModel)
-                debugPrint("API ERROR - PlaceNetworkManager getPlace(id: \(id)) - ", decodedResult.error?.message ?? "")
-                return nil
-            }
-            loadedPlaces.append(id)
-            return decodedPlace
-        } catch {
-            errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
-            debugPrint("ERROR - PlaceNetworkManager getPlace(id: \(id)) - ", error)
-            return nil
-        }
-    }
-    
-    func addNewPlace(place: NewPlace) async throws -> NewPlaceResult {
-        let path = "/api/place/add-new-place.php"
-        var urlComponents: URLComponents {
-            var components = URLComponents()
-            components.scheme = scheme
-            components.host = host
-            components.path = path
-            return components
-        }
         guard let url = urlComponents.url else {
-            throw NetworkErrors.bedUrl
+            throw NetworkErrors.badUrl
         }
         var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        do {
-            let jsonData = try JSONEncoder().encode(place)
-            request.httpBody = jsonData
-            let (data, response) = try await URLSession.shared.data(for: request)
-            guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
-                throw NetworkErrors.invalidData
-            }
-            guard let decodedResult = try? JSONDecoder().decode(NewPlaceResult.self, from: data) else {
-                throw NetworkErrors.decoderError
-            }
-            return decodedResult
-        } catch {
-            throw error
+        request.httpMethod = "GET"
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
+            throw NetworkErrors.invalidData
         }
-    }
-    
-    func updateMainPhoto(placeId: Int, uiImage: UIImage) async throws -> ImageResult {
-        let path = "/api/place/update-main-photo.php"
-        var urlComponents: URLComponents {
-            var components = URLComponents()
-            components.scheme = scheme
-            components.host = host
-            components.path = path
-            return components
+        guard let decodedResult = try? JSONDecoder().decode(PlaceResult.self, from: data) else {
+            throw NetworkErrors.decoderError
         }
-        guard let url = urlComponents.url else {
-            throw NetworkErrors.bedUrl
+        guard decodedResult.result, let decodedPlace = decodedResult.place else {
+            throw NetworkErrors.apiError(decodedResult.error)
         }
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        let boundary = UUID().uuidString
-        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
-        do {
-            request.httpBody = try await createBodyImageUpdating(image: uiImage, placeId: placeId, boundary: boundary)
-            let (data, response) = try await URLSession.shared.data(for: request)
-            guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
-                throw NetworkErrors.invalidData
-            }
-            guard let decodedResult = try? JSONDecoder().decode(ImageResult.self, from: data) else {
-                throw NetworkErrors.decoderError
-            }
-            return decodedResult
-        } catch {
-            throw error
-        }
-    }
-    
-    func updateAvatar(placeId: Int, uiImage: UIImage) async throws -> ImageResult {
-        let path = "/api/place/update-avatar.php"
-        var urlComponents: URLComponents {
-            var components = URLComponents()
-            components.scheme = scheme
-            components.host = host
-            components.path = path
-            return components
-        }
-        guard let url = urlComponents.url else {
-            throw NetworkErrors.bedUrl
-        }
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        let boundary = UUID().uuidString
-        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
-        do {
-            request.httpBody = try await createBodyImageUpdating(image: uiImage, placeId: placeId, boundary: boundary)
-            let (data, response) = try await URLSession.shared.data(for: request)
-            guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
-                throw NetworkErrors.invalidData
-            }
-            guard let decodedResult = try? JSONDecoder().decode(ImageResult.self, from: data) else {
-                throw NetworkErrors.decoderError
-            }
-            return decodedResult
-        } catch {
-            throw error
-        }
-    }
-
-    func updateLibraryPhoto(placeId: Int, photoId: UUID, uiImage: UIImage) async throws -> ImageResult {
-        let path = "/api/place/update-library-photo.php"
-        var urlComponents: URLComponents {
-            var components = URLComponents()
-            components.scheme = scheme
-            components.host = host
-            components.path = path
-            return components
-        }
-        guard let url = urlComponents.url else {
-            throw NetworkErrors.bedUrl
-        }
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        let boundary = UUID().uuidString
-        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
-        do {
-            request.httpBody = try await createBodyLibraryImageUpdating(image: uiImage, placeId: placeId, photoId: photoId, boundary: boundary)
-            let (data, response) = try await URLSession.shared.data(for: request)
-            guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
-                throw NetworkErrors.invalidData
-            }
-            guard let decodedResult = try? JSONDecoder().decode(ImageResult.self, from: data) else {
-                throw NetworkErrors.decoderError
-            }
-            return decodedResult
-        } catch {
-            throw error
-        }
-    }
-    
-    func deleteLibraryPhoto(placeId: Int, photoId: UUID) async throws -> ApiResult {
-        let path = "/api/place/delete-library-photo.php"
-        var urlComponents: URLComponents {
-            var components = URLComponents()
-            components.scheme = scheme
-            components.host = host
-            components.path = path
-            return components
-        }
-        guard let url = urlComponents.url else {
-            throw NetworkErrors.bedUrl
-        }
-        let parameters: [String: Any] = [
-            "place_id": placeId,
-            "photo_id": photoId.uuidString
-        ]
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        do {
-            let requestData = try JSONSerialization.data(withJSONObject: parameters)
-            request.httpBody = requestData
-            let (data, response) = try await URLSession.shared.data(for: request)
-            guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
-                throw NetworkErrors.invalidData
-            }
-            guard let decodedResult = try? JSONDecoder().decode(ApiResult.self, from: data) else {
-                throw NetworkErrors.decoderError
-            }
-            return decodedResult
-        } catch {
-            throw error
-        }
-    }
-    
-}
-
-// MARK: - Private Functions
-
-extension PlaceNetworkManager {
-    
-    private func createBodyImageUpdating(image: UIImage, placeId: Int, boundary: String) async throws -> Data {
-        var body = Data()
-        guard let imageData = image.jpegData(compressionQuality: 0.8) else {
-            throw NetworkErrors.imageDataError
-        }
-        body.append("--\(boundary)\r\n".data(using: .utf8)!)
-        body.append("Content-Disposition: form-data; name=\"place_id\"\r\n\r\n".data(using: .utf8)!)
-        body.append("\(placeId)\r\n".data(using: .utf8)!)
-        body.append("\r\n".data(using: .utf8)!)
-        body.append("--\(boundary)\r\n".data(using: .utf8)!)
-        body.append("Content-Disposition: form-data; name=\"image\"; filename=\"image.jpg\"\r\n".data(using: .utf8)!)
-        body.append("Content-Type: image/jpeg\r\n\r\n".data(using: .utf8)!)
-        body.append(imageData)
-        body.append("\r\n".data(using: .utf8)!)
-        body.append("--\(boundary)--\r\n".data(using: .utf8)!)
-        return body
-    }
-    
-    private func createBodyLibraryImageUpdating(image: UIImage, placeId: Int, photoId: UUID, boundary: String) async throws -> Data {
-        var body = Data()
-        guard let imageData = image.jpegData(compressionQuality: 0.8) else {
-            throw NetworkErrors.imageDataError
-        }
-        body.append("--\(boundary)\r\n".data(using: .utf8)!)
-        body.append("Content-Disposition: form-data; name=\"place_id\"\r\n\r\n".data(using: .utf8)!)
-        body.append("\(placeId)\r\n".data(using: .utf8)!)
-        body.append("\r\n".data(using: .utf8)!)
-        body.append("--\(boundary)\r\n".data(using: .utf8)!)
-        body.append("Content-Disposition: form-data; name=\"photo_id\"\r\n\r\n".data(using: .utf8)!)
-        body.append("\(photoId)\r\n".data(using: .utf8)!)
-        body.append("\r\n".data(using: .utf8)!)
-        body.append("--\(boundary)\r\n".data(using: .utf8)!)
-        body.append("Content-Disposition: form-data; name=\"image\"; filename=\"image.jpg\"\r\n".data(using: .utf8)!)
-        body.append("Content-Type: image/jpeg\r\n\r\n".data(using: .utf8)!)
-        body.append(imageData)
-        body.append("\r\n".data(using: .utf8)!)
-        body.append("--\(boundary)--\r\n".data(using: .utf8)!)
-        return body
+        loadedPlaces.append(id)
+        return decodedPlace
     }
 }

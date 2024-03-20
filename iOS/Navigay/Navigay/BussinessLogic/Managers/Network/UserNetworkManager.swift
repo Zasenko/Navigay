@@ -21,6 +21,16 @@ final class UserNetworkManager {
     
     private let scheme = "https"
     private let host = "www.navigay.me"
+    
+    private let networkMonitorManager: NetworkMonitorManagerProtocol
+    private let appSettingsManager: AppSettingsManagerProtocol
+    
+    // MARK: - Inits
+    
+    init(networkMonitorManager: NetworkMonitorManagerProtocol, appSettingsManager: AppSettingsManagerProtocol) {
+        self.networkMonitorManager = networkMonitorManager
+        self.appSettingsManager = appSettingsManager
+    }
 
 }
 
@@ -28,6 +38,9 @@ final class UserNetworkManager {
 
 extension UserNetworkManager: UserNetworkManagerProtocol {
     func deletePhoto(for user: AppUser) async throws {
+        guard networkMonitorManager.isConnected else {
+            throw NetworkErrors.noConnection
+        }
         guard let sessionKey = user.sessionKey else {
             throw NetworkErrors.noSessionKey
         }
@@ -40,7 +53,7 @@ extension UserNetworkManager: UserNetworkManagerProtocol {
             return components
         }
         guard let url = urlComponents.url else {
-            throw NetworkErrors.bedUrl
+            throw NetworkErrors.badUrl
         }
         let parameters = [
             "user_id": String(user.id),
@@ -64,6 +77,9 @@ extension UserNetworkManager: UserNetworkManagerProtocol {
     }
     
     func updateName(for user: AppUser, name: String) async throws {
+        guard networkMonitorManager.isConnected else {
+            throw NetworkErrors.noConnection
+        }
         guard let sessionKey = user.sessionKey else {
             throw NetworkErrors.noSessionKey
         }
@@ -76,7 +92,7 @@ extension UserNetworkManager: UserNetworkManagerProtocol {
             return components
         }
         guard let url = urlComponents.url else {
-            throw NetworkErrors.bedUrl
+            throw NetworkErrors.badUrl
         }
         let parameters = [
             "user_id": String(user.id),
@@ -101,6 +117,9 @@ extension UserNetworkManager: UserNetworkManagerProtocol {
     }
     
     func updateBio(for user: AppUser, bio: String?) async throws {
+        guard networkMonitorManager.isConnected else {
+            throw NetworkErrors.noConnection
+        }
         guard let sessionKey = user.sessionKey else {
             throw NetworkErrors.noSessionKey
         }
@@ -113,7 +132,7 @@ extension UserNetworkManager: UserNetworkManagerProtocol {
             return components
         }
             guard let url = urlComponents.url else {
-                throw NetworkErrors.bedUrl
+                throw NetworkErrors.badUrl
             }
             let parameters = [
                 "user_id": String(user.id),
@@ -138,6 +157,9 @@ extension UserNetworkManager: UserNetworkManagerProtocol {
     }
     
     func updatePhoto(for user: AppUser, uiImage: UIImage) async throws -> String {
+        guard networkMonitorManager.isConnected else {
+            throw NetworkErrors.noConnection
+        }
         guard let sessionKey = user.sessionKey else {
             throw NetworkErrors.noSessionKey
         }
@@ -150,7 +172,7 @@ extension UserNetworkManager: UserNetworkManagerProtocol {
             return components
         }
         guard let url = urlComponents.url else {
-            throw NetworkErrors.bedUrl
+            throw NetworkErrors.badUrl
         }
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
@@ -168,10 +190,6 @@ extension UserNetworkManager: UserNetworkManagerProtocol {
             throw NetworkErrors.apiError(decodedResult.error)
         }
         return url
-    }
-    
-    func deleteUserPhoto() {
-        
     }
 }
 

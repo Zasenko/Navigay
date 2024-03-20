@@ -131,24 +131,26 @@ extension SearchView {
                 }
                 if let result = catalogNetworkManager.loadedSearchText[text] {
                     await MainActor.run {
-                        self.searchRegions = result.regions
-                        self.searchCities = result.cities
-                        self.searchEvents = result.events
-                        self.searchGroupedPlaces = result.places
+                        searchRegions = result.regions
+                        searchCities = result.cities
+                        searchEvents = result.events
+                        searchGroupedPlaces = result.places
                     }
                 } else {
-                    if let result = await catalogNetworkManager.search(text: text) {
+                    do {
+                        let result = try await catalogNetworkManager.search(text: text)
                         if result.cities.isEmpty && result.events.isEmpty && result.places.isEmpty && result.regions.isEmpty {
                             notFound = true
                         }
                         await MainActor.run {
                             updateSearchResult(result: result, for: text)
-                            isSearching = false
                         }
-                    } else {
-                        await MainActor.run {
-                            searchInDB(text: text)
-                        }
+                    } catch NetworkErrors.noConnection {
+                        errorManager.showNetworkNoConnected()
+                    } catch NetworkErrors.apiError(let apiError) {
+                        errorManager.showApiError(apiError: apiError, or: errorManager.updateMessage, img: nil, color: nil)
+                    } catch {
+                        errorManager.showUpdateError(error: error)
                     }
                 }
                 await MainActor.run {

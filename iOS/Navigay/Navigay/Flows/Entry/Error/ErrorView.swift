@@ -27,7 +27,7 @@ struct ErrorView: View {
                         .foregroundColor(error.color)
                         .bold()
                     
-                    Text(error.massage)
+                    Text(error.message)
                         .font(.caption)
                         .foregroundColor(.secondary)
                         .bold()
