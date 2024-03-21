@@ -22,8 +22,8 @@ final class EditCountryViewModel: ObservableObject {
     @Published var isActive: Bool = false
     @Published var isChecked: Bool = false
     
-    @Published var isLoading: Bool = false
-    @Published var isLoadingPhoto: Bool = false
+    var isLoading: Bool = false
+    var isLoadingPhoto: Bool = false
     
     var isFetched: Bool = false
     
@@ -31,10 +31,12 @@ final class EditCountryViewModel: ObservableObject {
     
     private let errorManager: ErrorManagerProtocol
     private let networkManager: EditCountryNetworkManagerProtocol
+    private let user: AppUser
     
     // MARK: - Inits
     
-    init(id: Int, country: Country?, errorManager: ErrorManagerProtocol, networkManager: EditCountryNetworkManagerProtocol) {
+    init(id: Int, country: Country?, user: AppUser, errorManager: ErrorManagerProtocol, networkManager: EditCountryNetworkManagerProtocol) {
+        self.user = user
         self.errorManager = errorManager
         self.networkManager = networkManager
         self.id = id
@@ -45,7 +47,7 @@ extension EditCountryViewModel {
     
     //MARK: - Functions
     
-    func fetchCountry(for user: AppUser) {
+    func fetchCountry() {
         Task {
             guard !isFetched else {
                 return
@@ -74,7 +76,7 @@ extension EditCountryViewModel {
         }
     }
     
-    func updateInfo(user: AppUser) async -> Bool {
+    func updateInfo() async -> Bool {
         await MainActor.run {
             isLoading = true
         }
@@ -107,7 +109,7 @@ extension EditCountryViewModel {
         return false
     }
         
-    func updateImage(uiImage: UIImage, from user: AppUser) {
+    func updateImage(uiImage: UIImage) {
         isLoadingPhoto = true
         Task {
             let scaledImage = uiImage.cropImage(width: 600, height: 750)

@@ -39,14 +39,14 @@ struct Test: View {
                 .fill(.ultraThinMaterial)
                 .frame(width: 40, height: 5)
                 .padding()
-            VStack {
+            ScrollView {
                 AppImages.iconCheckmark
                     .font(.title2)
                     .fontWeight(.semibold)
                     .foregroundStyle(.green)
                     .padding()
                 
-                Text("The Poster has been successfully saved. Thank you for your contribution!")
+                Text("The Poster has been successfully saved.\nThank you for your contribution!")
                     .font(.callout)
                     .foregroundStyle(.secondary)
                     .padding()

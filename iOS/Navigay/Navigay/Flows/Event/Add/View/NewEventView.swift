@@ -25,51 +25,49 @@ struct NewEventView: View {
     
     var body: some View {
         NavigationStack {
-            GeometryReader { geometry in
-                VStack(spacing: 0) {
-                    Divider()
-                    listView
+            VStack(spacing: 0) {
+                Divider()
+                listView
+            }
+            .navigationBarBackButtonHidden()
+            .toolbarBackground(AppColors.background)
+            .toolbarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Text("New Event")
+                        .font(.headline.bold())
                 }
-                .navigationBarBackButtonHidden()
-                .toolbarBackground(AppColors.background)
-                .toolbarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .principal) {
-                            Text("New Event")
-                                .font(.headline.bold())
-                    }
-                    ToolbarItem(placement: .topBarLeading) {
-                        Button {
-                            dismiss()
-                        } label: {
-                            AppImages.iconLeft
-                                .bold()
-                                .frame(width: 30, height: 30, alignment: .leading)
-                        }
-                        .tint(.primary)
-                    }
-                    ToolbarItem(placement: .topBarTrailing) {
-                        if viewModel.isLoading {
-                            ProgressView()
-                                .tint(.blue)
-                        } else {
-                            Button("Add") {
-                                viewModel.addNewEvent()
-                            }
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        dismiss()
+                    } label: {
+                        AppImages.iconLeft
                             .bold()
-                            .disabled(viewModel.name.isEmpty)
-                            .disabled(viewModel.addressOrigin.isEmpty == true)
-                            .disabled(viewModel.type == nil)
-                            .disabled(viewModel.longitude == nil)
-                            .disabled(viewModel.latitude == nil)
-                            .disabled(viewModel.startDate == nil)
+                            .frame(width: 30, height: 30, alignment: .leading)
+                    }
+                    .tint(.primary)
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    if viewModel.isLoading {
+                        ProgressView()
+                            .tint(.blue)
+                    } else {
+                        Button("Add") {
+                            viewModel.addNewEvent()
                         }
+                        .bold()
+                        .disabled(viewModel.name.isEmpty)
+                        .disabled(viewModel.addressOrigin.isEmpty == true)
+                        .disabled(viewModel.type == nil)
+                        .disabled(viewModel.longitude == nil)
+                        .disabled(viewModel.latitude == nil)
+                        .disabled(viewModel.startDate == nil)
                     }
                 }
-                .disabled(viewModel.isLoading)
-                .navigationDestination(isPresented: $viewModel.isEventAdded) {
-                    EditEventCoverView(viewModel: viewModel)
-                }
+            }
+            .disabled(viewModel.isLoading)
+            .navigationDestination(isPresented: $viewModel.isEventAdded) {
+                EditEventCoverView(viewModel: viewModel)
             }
         }
     }
@@ -91,7 +89,7 @@ struct NewEventView: View {
                 EventTimeFieldsView(startDate: $viewModel.startDate, startTime: $viewModel.startTime, finishDate: $viewModel.finishDate, finishTime: $viewModel.finishTime)
                     .padding(.bottom, 40)
                 
-                
+                //TODO
                 NavigationLink {
                     EditDateView(date: nil, pickerStartDate: nil, editType: .start) { date in
                         viewModel.cloneDate(newDate: date)

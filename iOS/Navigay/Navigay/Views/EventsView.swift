@@ -149,7 +149,7 @@ struct EventsView: View {
             .sheet(isPresented:  $showCalendar) {} content: {
                 CalendarView(selectedDate: $selectedDate, eventsDates: $eventsDates)
                     .presentationDetents([.medium])
-                    .presentationDragIndicator(.visible)
+                    .presentationDragIndicator(.hidden)
                     .presentationCornerRadius(25)
             }
     }

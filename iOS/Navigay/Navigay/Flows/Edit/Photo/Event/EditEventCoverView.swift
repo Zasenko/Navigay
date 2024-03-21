@@ -61,7 +61,6 @@ struct EditEventCoverView: View {
                 dismiss()
             } content: {
                 posterAddedMessageView
-                    .background(AppColors.lightGray5)
                     .presentationDetents([.medium])
                     .presentationDragIndicator(.hidden)
                     .presentationCornerRadius(25)
@@ -83,7 +82,6 @@ struct EditEventCoverView: View {
                     .fontWeight(.semibold)
                     .foregroundStyle(.green)
                     .padding()
-                
                 Text("The Poster has been successfully saved. Thank you for your contribution!")
                     .font(.callout)
                     .foregroundStyle(.secondary)
@@ -91,8 +89,9 @@ struct EditEventCoverView: View {
                     .textSelection(.enabled)
                     .multilineTextAlignment(.center)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         }
+        .background(AppColors.lightGray3)
     }
         
     var coverEditorView: some View {

@@ -31,7 +31,7 @@ struct AdminView: View {
                 Section("Unchecked Countries") {
                     ForEach(viewModel.uncheckedCountries) { country in
                         NavigationLink {
-                            EditCountryView(viewModel: EditCountryViewModel(id: country.id, country: nil, errorManager: viewModel.errorManager, networkManager: EditCountryNetworkManager(networkMonitorManager: authenticationManager.networkMonitorManager)))
+                            EditCountryView(viewModel: EditCountryViewModel(id: country.id, country: nil, user: viewModel.user, errorManager: viewModel.errorManager, networkManager: EditCountryNetworkManager(networkMonitorManager: authenticationManager.networkMonitorManager)))
                         } label: {
                             HStack(spacing: 10) {
                                 if let url = country.photo {

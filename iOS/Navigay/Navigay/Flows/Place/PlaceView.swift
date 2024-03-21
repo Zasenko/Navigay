@@ -20,7 +20,7 @@ struct PlaceView: View {
     @State private var viewModel: PlaceViewModel
     @EnvironmentObject private var authenticationManager: AuthenticationManager
     
-    // MARK: - Inits
+    // MARK: - Init
     
     init(viewModel: PlaceViewModel) {
         _viewModel = State(wrappedValue: viewModel)
@@ -68,7 +68,6 @@ struct PlaceView: View {
                         Button {
                             viewModel.place.isLiked.toggle()
                             guard let user = authenticationManager.appUser else { return }
-                            
                             if let index = user.likedPlaces.firstIndex(where: {$0 == viewModel.place.id} ) {
                                 user.likedPlaces.remove(at: index)
                             } else {
@@ -101,20 +100,6 @@ struct PlaceView: View {
                 viewModel.allPhotos = viewModel.place.getAllPhotos()
                 viewModel.fetchPlace()
             }
-//            .navigationDestination(isPresented: $viewModel.showAddEventView) {
-//                if let user = authenticationManager.appUser, user.status == .admin {
-//                    NewEventView(viewModel: NewEventViewModel(place: viewModel.place, copy: nil, networkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager), authenticationManager: authenticationManager)
-//                    EmptyView()
-//                } else {
-//                    //TODO: - вью ошибки и переход назад
-//                    EmptyView()
-//                }
-//            }
-//            .fullScreenCover(isPresented: $viewModel.showEditView) {
-//                viewModel.showEditView = false
-//            } content: {
-//                EditPlaceView(viewModel: EditPlaceViewModel(place: viewModel.place, networkManager: AdminNetworkManager(errorManager: viewModel.errorManager)))
-//            }
         }
     }
     
