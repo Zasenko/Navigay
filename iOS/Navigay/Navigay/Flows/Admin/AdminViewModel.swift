@@ -19,9 +19,12 @@ final class AdminViewModel: ObservableObject {
     @Published var uncheckedPlaces: [AdminPlace] = []
     @Published var uncheckedEvents: [AdminEvent] = []
     
+    let user: AppUser
+    
     // MARK: - Inits
     
-    init(errorManager: ErrorManagerProtocol, networkManager: AdminNetworkManagerProtocol) {
+    init(user: AppUser, errorManager: ErrorManagerProtocol, networkManager: AdminNetworkManagerProtocol) {
+        self.user = user
         self.errorManager = errorManager
         self.networkManager = networkManager
     }
@@ -29,7 +32,7 @@ final class AdminViewModel: ObservableObject {
 
 extension AdminViewModel {
     
-    func getAdminInfo(for user: AppUser) {
+    func getAdminInfo() {
         Task {
             do {
                 let decodedResult = try await networkManager.getAdminInfo(for: user)

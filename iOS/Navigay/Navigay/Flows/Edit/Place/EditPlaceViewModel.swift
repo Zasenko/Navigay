@@ -103,8 +103,11 @@ extension EditPlaceViewModel {
                     self.avatar = AdminPhoto(id: UUID().uuidString, image: nil, url: decodedPlace.avatar)
                     self.mainPhoto = AdminPhoto(id: UUID().uuidString, image: nil, url: decodedPlace.mainPhoto)
                     self.email = decodedPlace.email ?? ""
-                    self.isChecked = decodedPlace.isChecked
-                    self.isActive = decodedPlace.isActive
+                    if user.status == .admin || user.status == .moderator {
+                        self.adminNotes = decodedPlace.adminNotes ?? ""
+                        self.isChecked = decodedPlace.isChecked
+                        self.isActive = decodedPlace.isActive
+                    }
                     if let photos = decodedPlace.photos, !photos.isEmpty {
                         let adminPhotos = photos.compactMap( { AdminPhoto(id: $0.id, image: nil, url: $0.url)})
                         self.photos = adminPhotos

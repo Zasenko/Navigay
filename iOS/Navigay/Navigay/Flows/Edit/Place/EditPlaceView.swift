@@ -72,178 +72,224 @@ struct EditPlaceView: View {
     
     // MARK: - Views
     
+    private var titleTypeView: some View {
+        Section {
+            NavigationLink {
+                EditPlaceTitleView(viewModel: viewModel)
+            } label: {
+                headerText(text: "Title & Type")
+            }
+            VStack(alignment: .leading, spacing: 0) {
+                Divider()
+                VStack(alignment: .leading) {
+                    Text(viewModel.name).bold()
+                    HStack {
+                        Text(viewModel.type.getImage())
+                        Text(viewModel.type.getName())
+                    }
+                }
+                .padding(.vertical)
+            }
+            Spacer(minLength: 40)
+        }
+        .listRowSeparator(.hidden)
+      //  .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
+    }
+    
+    private func headerText(text: String) -> some View {
+        HStack {
+            Text(text)
+                .font(.title3).bold()
+                .foregroundStyle(.secondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            Text("Edit")
+                .foregroundStyle(.blue)
+        }
+    }
+    
+    private var informationView: some View {
+        Section {
+            NavigationLink {
+                EditPlaceAboutView(viewModel: viewModel)
+            } label: {
+                headerText(text: "Information")
+            }
+            VStack(alignment: .leading, spacing: 0) {
+                Divider()
+                Group {
+                    if viewModel.about.isEmpty {
+                        Text("Informations is not added.")
+                            .font(.callout)
+                            .foregroundStyle(.secondary)
+                    } else {
+                        Text(viewModel.about)
+                            .lineLimit(5)
+                    }
+                }
+                .padding(.vertical)
+            }
+            Spacer(minLength: 40)
+        }
+        .listRowSeparator(.hidden)
+    }
+    
+    private var additionalInformationView: some View {
+        Section {
+            NavigationLink {
+                EditPlaceAdditionalInfoView(viewModel: viewModel)
+            } label: {
+                headerText(text: "Additional Information")
+            }
+            VStack(spacing: 0) {
+                Divider()
+                VStack(spacing: 20) {
+                    if viewModel.otherInfo.isEmpty {
+                        Text("Other informations is not added.")
+                            .font(.callout)
+                            .foregroundStyle(.secondary)
+                    } else {
+                        Text(viewModel.otherInfo)
+                    }
+                    if viewModel.tags.isEmpty {
+                        Text("Tags are not added.")
+                            .font(.callout)
+                            .foregroundStyle(.secondary)
+                    } else {
+                        TagsView(tags: viewModel.tags)
+                    }
+                    HStack {
+                        AppImages.iconEnvelope
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 20, height: 20)
+                            .foregroundStyle(viewModel.email.isEmpty ? AppColors.lightGray3 : .primary)
+                            .frame(maxWidth: .infinity)
+                        AppImages.iconPhoneFill
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 20, height: 20)
+                            .foregroundStyle(viewModel.phone.isEmpty ? AppColors.lightGray3 : .primary)
+                            .frame(maxWidth: .infinity)
+                        AppImages.iconGlobe
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 20, height: 20)
+                            .foregroundStyle(viewModel.www.isEmpty ? AppColors.lightGray3 : .primary)
+                            .frame(maxWidth: .infinity)
+                        AppImages.iconFacebook
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 20, height: 20)
+                            .foregroundStyle(viewModel.facebook.isEmpty ? AppColors.lightGray3 : .primary)
+                            .frame(maxWidth: .infinity)
+                        AppImages.iconInstagram
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 20, height: 20)
+                            .foregroundStyle(viewModel.instagram.isEmpty ? AppColors.lightGray3 : .primary)
+                            .frame(maxWidth: .infinity)
+                    }
+                    .frame(maxWidth: .infinity)
+                }
+                .padding(.vertical)
+            }
+            Spacer(minLength: 40)
+        }
+        .listRowSeparator(.hidden)
+    }
+    
+    private var timetableView: some View {
+        Section {
+            NavigationLink {
+                    EditPlaceTimetableView(viewModel: viewModel)
+            } label: {
+                headerText(text: "Timetable")
+            }
+            VStack(spacing: 0) {
+                Divider()
+                Group{
+                    if viewModel.timetable.isEmpty {
+                        Text("Timetable is not added.")
+                            .font(.callout)
+                            .foregroundStyle(.secondary)
+                    } else {
+                        VStack(spacing: 10) {
+                            ForEach(viewModel.timetable.sorted(by: { $0.day.rawValue < $1.day.rawValue } )) { day in
+                                HStack {
+                                    Text(day.day.getString())
+                                        .bold()
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                    Text(day.opening.formatted(date: .omitted, time: .shortened))
+                                    Text("—")
+                                    Text(day.closing.formatted(date: .omitted, time: .shortened))
+                                }
+                                .font(.caption)
+                            }
+                        }
+                    }
+                }
+                .padding(.vertical)
+            }
+            
+            Spacer(minLength: 40)
+        }
+        .listRowSeparator(.hidden)
+    }
+    
+    private var requiredInformationView: some View {
+        Section {
+            NavigationLink {
+                EmptyView()
+            } label: {
+                headerText(text: "Required information")
+            }
+            VStack(spacing: 0) {
+                Divider()
+                Text(viewModel.address)
+                    .padding(.vertical)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            Spacer(minLength: 40)
+        }
+        .listRowSeparator(.hidden)
+    }
+    
+    private var adminView: some View {
+        Section {
+            NavigationLink {
+                EditPlaceAdminView(viewModel: viewModel)
+            } label: {
+                headerText(text: "Admin Panel")
+            }
+            VStack(alignment: .leading, spacing: 0) {
+                Divider()
+                VStack(alignment: .leading) {
+                    Text(viewModel.isActive ? "active" : "not active")
+                        .foregroundStyle(viewModel.isActive ? .green : .red)
+                    Text(viewModel.isChecked ? "checked" : "not checked")
+                        .foregroundStyle(viewModel.isChecked ? .green : .red)
+                }
+                .padding(.vertical)
+                Text(viewModel.adminNotes.isEmpty ? "Notes are not added." : viewModel.adminNotes)
+                    .foregroundStyle(viewModel.adminNotes.isEmpty ? .secondary : .primary)
+                    .font(.callout)
+            }
+            Spacer(minLength: 40)
+        }
+        .listRowSeparator(.hidden)
+    }
+    
     private var listView: some View {
         GeometryReader{ geometry in
             List {
                 photosView(width: geometry.size.width)
-                
-                Section("Title & Type") {
-                    NavigationLink {
-                        EditPlaceTitleView(viewModel: viewModel)
-                    } label: {
-                        VStack(alignment: .leading) {
-                            Text(viewModel.name)
-                            Text(viewModel.type.getName())
-                        }
-                    }
-                }
-                .listRowSeparator(.hidden)
-                
-                Section("Information") {
-                    NavigationLink {
-                        EditPlaceAboutView(viewModel: viewModel)
-                    } label: {
-                        VStack(spacing: 0) {
-                            Divider()
-                            Text(viewModel.about)
-                                .lineLimit(5)
-                                .padding(.vertical)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                        }
-                    }
-                }
-                .listRowSeparator(.hidden)
-                .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
-                
-                Section("Additional Information") {
-                    NavigationLink {
-                        EditPlaceAdditionalInfoView(viewModel: viewModel)
-                    } label: {
-                        VStack(spacing: 0) {
-                            Divider()
-                            VStack(spacing: 20) {
-                                Text(viewModel.otherInfo)
-                                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())]) {
-                                    ForEach(viewModel.tags, id: \.self) { tag in
-                                        Text(tag.getString())
-                                            .font(.footnote)
-                                            .bold()
-                                            .foregroundStyle(AppColors.background)
-                                            .padding(5)
-                                            .padding(.horizontal, 5)
-                                            .background(.secondary)
-                                            .clipShape(RoundedRectangle(cornerRadius: 10))
-                                    }
-                                }
-                                HStack {
-                                    AppImages.iconEnvelope
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(width: 20, height: 20)
-                                        .foregroundStyle(viewModel.email.isEmpty ? .secondary : .primary)
-                                        .frame(maxWidth: .infinity)
-                                    AppImages.iconPhoneFill
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(width: 20, height: 20)
-                                        .foregroundStyle(viewModel.phone.isEmpty ? .secondary : .primary)
-                                        .frame(maxWidth: .infinity)
-                                    AppImages.iconGlobe
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(width: 20, height: 20)
-                                        .foregroundStyle(viewModel.www.isEmpty ? .secondary : .primary)
-                                        .frame(maxWidth: .infinity)
-                                    AppImages.iconFacebook
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(width: 20, height: 20)
-                                        .foregroundStyle(viewModel.facebook.isEmpty ? .secondary : .primary)
-                                        .frame(maxWidth: .infinity)
-                                    AppImages.iconInstagram
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(width: 20, height: 20)
-                                        .foregroundStyle(viewModel.instagram.isEmpty ? .secondary : .primary)
-                                        .frame(maxWidth: .infinity)
-                                }
-                                .bold()
-                                .frame(maxWidth: .infinity)
-                            }
-                            .padding(.vertical)
-                        }
-                    }
-                }
-                .listRowSeparator(.hidden)
-                .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
-                
-                Section("Timetable") {
-                    NavigationLink {
-                        EditPlaceTimetableView(viewModel: viewModel)
-                    } label: {
-                        VStack(spacing: 0) {
-                            Divider()
-                            VStack(spacing: 10) {
-                                ForEach(viewModel.timetable.sorted(by: { $0.day.rawValue < $1.day.rawValue } )) { day in
-                                    HStack {
-                                        Text(day.day.getString())
-                                            .bold()
-                                            .frame(maxWidth: .infinity, alignment: .leading)
-                                        Text(day.opening.formatted(date: .omitted, time: .shortened))
-                                        Text("—")
-                                        Text(day.closing.formatted(date: .omitted, time: .shortened))
-                                    }
-                                    .font(.caption)
-                                }
-                            }
-                            .padding(.vertical)
-                            .padding(.trailing)
-                        }
-                    }
-                }
-                .listRowSeparator(.hidden)
-                .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
-                
-                Section("Required information") {
-                    NavigationLink {
-                        EmptyView()
-                    } label: {
-                        VStack(spacing: 0) {
-                            Divider()
-                            VStack(alignment: .leading) {
-                                Text(viewModel.address)
-                            }
-                            .padding(.vertical)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                        }
-                    }
-                }
-                .listRowSeparator(.hidden)
-                .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
-                
+                titleTypeView
+                informationView
+                additionalInformationView
+                timetableView
+                requiredInformationView
                 if viewModel.user.status == .admin || viewModel.user.status == .moderator {
-                    Color.clear
-                        .frame(height: 30)
-                        .listRowSeparator(.hidden)
-                    Section("Admin Panel") {
-                        NavigationLink {
-                            EditPlaceAdminView(viewModel: viewModel)
-                        } label: {
-                            VStack(spacing: 0) {
-                                Divider()
-                                VStack(alignment: .leading, spacing: 10) {
-                                    HStack {
-                                        Circle()
-                                            .foregroundStyle(viewModel.isActive ? .green : .red)
-                                            .frame(width: 8)
-                                        Text(viewModel.isActive ? "active" : "not active")
-                                    }
-                                    HStack {
-                                        Circle()
-                                            .foregroundStyle(viewModel.isChecked ? .green : .red)
-                                            .frame(width: 8)
-                                        Text(viewModel.isChecked ? "checked" : "not checked")
-                                    }
-                                }
-                                .padding(.vertical)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                Text(viewModel.adminNotes)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                            }
-                        }
-                    }
-                    .listRowSeparator(.hidden)
-                    .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
+                    adminView
                 }
                 
                 Button("Delete Place") {
@@ -287,8 +333,7 @@ struct EditPlaceView: View {
                 viewModel.deleteLibraryPhoto(photoId: id)
             }
             .padding(.vertical)
-            
-            
+            Spacer(minLength: 40)
         }
         .listRowSeparator(.hidden)
         .listSectionSeparator(.hidden)
@@ -381,12 +426,13 @@ struct EditPlaceView: View {
     }
 }
 
-//#Preview {
-//    let appSettingsManager = AppSettingsManager()
-//    let errorManager = ErrorManager()
-//    let networkMonitorManager: NetworkMonitorManagerProtocol = NetworkMonitorManager(errorManager: errorManager)
-//    let editPlaceNetworkManager: EditPlaceNetworkManagerProtocol = EditPlaceNetworkManager(networkMonitorManager: networkMonitorManager)
-//    let user = AppUser(decodedUser: DecodedAppUser(id: 0, name: "Dima", email: "test@test.ru", status: .admin, sessionKey: "fddddddd", bio: "dddd", photo: nil))
-//    return EditPlaceView(viewModel: EditPlaceViewModel(id: 142, place: nil, user: user, networkManager: editPlaceNetworkManager, errorManager: errorManager))
-//      //  .modelContainer(for: [Place.self], inMemory: false)
-//}
+#Preview {
+    let appSettingsManager = AppSettingsManager()
+    let errorManager = ErrorManager()
+    let networkMonitorManager: NetworkMonitorManagerProtocol = NetworkMonitorManager(errorManager: errorManager)
+    let editPlaceNetworkManager: EditPlaceNetworkManagerProtocol = EditPlaceNetworkManager(networkMonitorManager: networkMonitorManager)
+    let user = AppUser(decodedUser: DecodedAppUser(id: 0, name: "Dima", email: "test@test.ru", status: .admin, sessionKey: "fddddddd", bio: "dddd", photo: nil))
+    return EditPlaceView(viewModel: EditPlaceViewModel(id: 142, place: nil, user: user, networkManager: editPlaceNetworkManager, errorManager: errorManager))
+      //  .modelContainer(for: [Place.self], inMemory: false)
+}
+

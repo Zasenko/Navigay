@@ -35,6 +35,7 @@ final class AddNewPlaceViewModel: ObservableObject {
     @Published var facebook: String = ""
     @Published var instagram: String = ""
     @Published var isOwned: Bool = false
+    @Published var adminNotes: String = ""
     @Published var isActive: Bool = false
     @Published var isChecked: Bool = false
     @Published var showMap: Bool = false
@@ -60,7 +61,13 @@ extension AddNewPlaceViewModel {
     func addNewPlace(from user: AppUser) {
         isLoading = true
         Task {
-            let errorMessage = "Something went wrong. The place didn't load to database. Please try again later."
+            guard let sessionKey = user.sessionKey else {
+                await MainActor.run {
+                    isLoading = false
+                }
+                return
+            }
+            let errorMessage = "Something went wrong. The place didn't load. Please try again later."
             guard !name.isEmpty else { return }
             guard let type = type?.rawValue else { return }
             guard !isoCountryCode.isEmpty else { return }
@@ -92,16 +99,14 @@ extension AddNewPlaceViewModel {
                                               instagram: instagram.isEmpty ? nil : instagram,
                                               ownderId: isOwned ? user.id : nil,
                                               addedBy: user.id,
+                                              sessionKey: sessionKey,
+                                              adminNotes: adminNotes.isEmpty ? nil : adminNotes,
                                               isActive: isActive,
                                               isChecked: isChecked)
             do {
                 let decodedResult = try await networkManager.addNewPlace(place: newPlace)
                 await MainActor.run {
-                    self.isLoading = false
                     self.id = decodedResult
-//                    withAnimation {
-//                        self.router = .photos
-//                    }
                 }
             } catch NetworkErrors.noConnection {
                 errorManager.showNetworkNoConnected()
@@ -109,6 +114,9 @@ extension AddNewPlaceViewModel {
                 errorManager.showApiError(apiError: apiError, or: errorMessage, img: nil, color: nil)
             } catch {
                 errorManager.showError(model: ErrorModel(error: error, message: errorMessage, img: nil, color: nil))
+            }
+            await MainActor.run {
+                isLoading = false
             }
         }
     }

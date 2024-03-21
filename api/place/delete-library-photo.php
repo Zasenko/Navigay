@@ -56,7 +56,12 @@ if (!hash_equals($hashed_session_key, $stored_hashed_session_key)) {
     $conn->close();
     sendError('Wrong session key.');
 }
-$user_status = $row['status'];
+// проверить все $user_status = $row['status'];
+$user_status = isset($row['status']) ? $row['status'] : '';
+if (!($user_status === "admin" || $user_status === "moderator" || $user_status === "partner")) {
+    $conn->close();
+    sendError('Admin access only.');
+}
 //-----------------
 
 $sql = "SELECT id, photos FROM Place WHERE id = ?";

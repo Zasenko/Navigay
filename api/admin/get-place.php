@@ -131,6 +131,7 @@ $place = array(
     'other_info' => $row['other_info'],
     'owner_id' => $row['owner_id'],
     'added_by' => $row['added_by'],
+    'admin_notes' => $row['admin_notes'],
     'is_active' => $is_active,
     'is_checked' => $is_checked,
     'created_at' => $row['created_at'],

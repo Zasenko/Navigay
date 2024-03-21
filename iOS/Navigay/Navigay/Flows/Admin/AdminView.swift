@@ -127,13 +127,11 @@ struct AdminView: View {
             }
             .onAppear() {
                 if !viewModel.isFetched {
-                    guard let user = authenticationManager.appUser else { return }
-                    viewModel.getAdminInfo(for: user)
+                    viewModel.getAdminInfo()
                 }
             }
             .refreshable {
-                guard let user = authenticationManager.appUser else { return }
-                viewModel.getAdminInfo(for: user)
+                viewModel.getAdminInfo()
             }
         }
     }
@@ -142,8 +140,6 @@ struct AdminView: View {
         Section {
             NavigationLink {
                 NewPlaceView(viewModel: AddNewPlaceViewModel(networkManager: EditPlaceNetworkManager(networkMonitorManager: authenticationManager.networkMonitorManager), errorManager: viewModel.errorManager))
-                
-                //                        NewPlaceView(viewModel: AddNewPlaceViewModel(userId: authenticationManager.appUser?.id ?? 0, networkManager: PlaceNetworkManager(appSettingsManager: AppSettingsManager(), errorManager: viewModel.errorManager), errorManager: viewModel.errorManager), authenticationManager: authenticationManager)
             } label: {
                 Label(
                     title: { Text("Add new Place") },
@@ -151,8 +147,7 @@ struct AdminView: View {
                 )
             }
             NavigationLink {
-                EmptyView()
-                //                        NewEventView(viewModel: NewEventViewModel(place: nil, copy: nil, networkManager: EventNetworkManager(appSettingsManager: AppSettingsManager(), errorManager: viewModel.errorManager), errorManager: viewModel.errorManager), authenticationManager: authenticationManager)
+                NewEventView(viewModel: NewEventViewModel(user: viewModel.user , place: nil, copy: nil, networkManager: EditEventNetworkManager(networkMonitorManager: authenticationManager.networkMonitorManager), errorManager: viewModel.errorManager))
             } label: {
                 Label(
                     title: { Text("Add new Event") },

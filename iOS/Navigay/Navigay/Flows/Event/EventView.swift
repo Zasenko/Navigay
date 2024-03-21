@@ -81,7 +81,7 @@ struct EventView: View {
                         EditEventView(viewModel: EditEventViewModel(eventID: viewModel.event.id, event: viewModel.event, networkManager: EditEventNetworkManager(networkMonitorManager: authenticationManager.networkMonitorManager), errorManager: viewModel.errorManager))
                     }
                     NavigationLink("Clone Event") {
-                        //                            NewEventView(viewModel: NewEventViewModel(place: nil, copy: viewModel.event, networkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager), authenticationManager: authenticationManager)
+                        NewEventView(viewModel: NewEventViewModel(user: user, place: nil, copy: viewModel.event, networkManager: EditEventNetworkManager(networkMonitorManager: authenticationManager.networkMonitorManager), errorManager: viewModel.errorManager))
                     }
                 } label: {
                     AppImages.iconSettings

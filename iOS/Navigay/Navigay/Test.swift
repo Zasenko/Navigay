@@ -15,23 +15,45 @@ struct Test: View {
     
     var body: some View {
         
+//        VStack {
+//            AppImages.iconSearchLocation
+//                .font(.largeTitle)
+//                .fontWeight(.light)
+//                .foregroundStyle(.secondary)
+//                .padding()
+//                .padding(.top)
+//            Group {
+//                Text("Oops! No matches found.")
+//                    .font(.title2)
+//                Text("Looks like our gay radar needs a caffeine boost! How about we try again? Navigator at your service!")
+//                    .font(.callout)
+//            }
+//            .foregroundStyle(.secondary)
+//            .multilineTextAlignment(.center)
+//            .textSelection(.enabled)
+//            .padding()
+//        }
+        
         VStack {
-            AppImages.iconSearchLocation
-                .font(.largeTitle)
-                .fontWeight(.light)
-                .foregroundStyle(.secondary)
+            Capsule()
+                .fill(.ultraThinMaterial)
+                .frame(width: 40, height: 5)
                 .padding()
-                .padding(.top)
-            Group {
-                Text("Oops! No matches found.")
+            VStack {
+                AppImages.iconCheckmark
                     .font(.title2)
-                Text("Looks like our gay radar needs a caffeine boost! How about we try again? Navigator at your service!")
+                    .fontWeight(.semibold)
+                    .foregroundStyle(.green)
+                    .padding()
+                
+                Text("The Poster has been successfully saved. Thank you for your contribution!")
                     .font(.callout)
+                    .foregroundStyle(.secondary)
+                    .padding()
+                    .textSelection(.enabled)
+                    .multilineTextAlignment(.center)
             }
-            .foregroundStyle(.secondary)
-            .multilineTextAlignment(.center)
-            .textSelection(.enabled)
-            .padding()
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     
 //        VStack {

@@ -9,60 +9,27 @@ import SwiftUI
 
 struct NewEventView: View {
     
-    @ObservedObject private var authenticationManager: AuthenticationManager
+    // MARK: - Private Properties
+    
+    @EnvironmentObject private var authenticationManager: AuthenticationManager
     @StateObject private var viewModel: NewEventViewModel
     @Environment(\.dismiss) private var dismiss
     
+    // MARK: - Init
     
-    init(viewModel: NewEventViewModel, authenticationManager: AuthenticationManager) {
+    init(viewModel: NewEventViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel)
-        self.authenticationManager = authenticationManager
     }
     
-    //MARK: - Body
+    // MARK: - Body
     
     var body: some View {
-        
-        if let user = authenticationManager.appUser, user.status == .admin {
-            editView
-        } else {
-            //TODO: - вью ошибки и переход назад
-            Color.red
-        }
-    }
-    
-    var editView: some View {
         NavigationStack {
             GeometryReader { geometry in
                 VStack(spacing: 0) {
                     Divider()
-                    
-                    if !viewModel.isEventAdded {
-                        NewEventInfoView(viewModel: viewModel, authenticationManager: authenticationManager)
-                            .disabled(viewModel.isLoading)
-                    } else {
-                        //youe event Added
-                        Color.green
-                            .ignoresSafeArea()
-                    }
+                    listView
                 }
-//                .navigationDestination(isPresented: $viewModel.showAddPosterView) {
-//                    EditEventCoverView(viewModel: EditEventCoverViewModel(poster: nil, smallPoster: nil)) { poster, smallPoster in
-//                        guard let user = authenticationManager.appUser,
-//                              let ids = viewModel.ids, !ids.isEmpty else { return }
-//                        Task {
-//                            let result = await viewModel.addPoster(to: ids, poster: poster, smallPoster: smallPoster, user: user)
-//                            if result {
-//                                dismiss()
-//                            } else {
-//                                viewModel.showAddPosterView = false
-//                                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-//                                    viewModel.showAddPosterView = true
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
                 .navigationBarBackButtonHidden()
                 .toolbarBackground(AppColors.background)
                 .toolbarTitleDisplayMode(.inline)
@@ -71,7 +38,6 @@ struct NewEventView: View {
                             Text("New Event")
                                 .font(.headline.bold())
                     }
-                    
                     ToolbarItem(placement: .topBarLeading) {
                         Button {
                             dismiss()
@@ -82,17 +48,13 @@ struct NewEventView: View {
                         }
                         .tint(.primary)
                     }
-                    
                     ToolbarItem(placement: .topBarTrailing) {
                         if viewModel.isLoading {
                             ProgressView()
                                 .tint(.blue)
                         } else {
                             Button("Add") {
-                                guard let user = authenticationManager.appUser, user.status == .admin else {
-                                    return
-                                }
-                                viewModel.addNewEvent(user: user)
+                                viewModel.addNewEvent()
                             }
                             .bold()
                             .disabled(viewModel.name.isEmpty)
@@ -102,36 +64,107 @@ struct NewEventView: View {
                             .disabled(viewModel.latitude == nil)
                             .disabled(viewModel.startDate == nil)
                         }
-//                        switch viewModel.router {
-//                        case .info:
-//                            if viewModel.isLoading {
-//                                ProgressView()
-//                                    .tint(.blue)
-//                            } else {
-//                                Button("Add") {
-//                                    guard let user = authenticationManager.appUser, user.status == .admin else {
-//                                        return
-//                                    }
-//                                    viewModel.addNewEvent(user: user)
-//                                }
-//                                .bold()
-//                                .disabled(viewModel.name.isEmpty)
-//                                .disabled(viewModel.addressOrigin.isEmpty == true)
-//                                .disabled(viewModel.type == nil)
-//                                .disabled(viewModel.longitude == nil)
-//                                .disabled(viewModel.latitude == nil)
-//                                .disabled(viewModel.startDate == nil)
-//                            }
-//                        case .poster:
-//                            Button("Done") {
-//                                dismiss()
-//                            }
-//                        }
                     }
                 }
-                
+                .disabled(viewModel.isLoading)
+                .navigationDestination(isPresented: $viewModel.isEventAdded) {
+                    EditEventCoverView(viewModel: viewModel)
+                }
             }
         }
+    }
+    
+    private var listView: some View {
+        ScrollView {
+            LazyVStack(spacing: 0) {
+                EventRequiredFieldsView(name: $viewModel.name, type: $viewModel.type, isoCountryCode: $viewModel.isoCountryCode, countryOrigin: $viewModel.countryOrigin, countryEnglish: $viewModel.countryEnglish, regionOrigin: $viewModel.regionOrigin, regionEnglish: $viewModel.regionEnglish, cityOrigin: $viewModel.cityOrigin, cityEnglish: $viewModel.cityEnglish, addressOrigin: $viewModel.addressOrigin, latitude: $viewModel.latitude, longitude: $viewModel.longitude)
+                    .padding(.bottom, 40)
+                NavigationLink {
+                    EditTextFieldView(text: viewModel.location, characterLimit: 255, minHaracters: 2, title: "Event location", placeholder: "Location's title") { string in
+                        viewModel.location = string
+                    }
+                } label: {
+                    EditField(title: "Event location", text: $viewModel.location, emptyFieldColor: .secondary)
+                        .padding(.horizontal)
+                }
+                .padding(.bottom, 40)
+                EventTimeFieldsView(startDate: $viewModel.startDate, startTime: $viewModel.startTime, finishDate: $viewModel.finishDate, finishTime: $viewModel.finishTime)
+                    .padding(.bottom, 40)
+                
+                
+                NavigationLink {
+                    EditDateView(date: nil, pickerStartDate: nil, editType: .start) { date in
+                        viewModel.cloneDate(newDate: date)
+                    } onDelete: {
+                        
+                    }
+                } label: {
+                    Text("+ Clone Event")
+
+                }
+                if !viewModel.repeatDates.isEmpty {
+                    ForEach(viewModel.repeatDates) { repeatDate in
+                        NavigationLink {
+                            RepitEventEditView(eventTime: repeatDate) { newTime in
+                                if let index = viewModel.repeatDates.firstIndex(where: { $0.id == newTime.id }) {
+                                    viewModel.repeatDates[index] = newTime
+                                }
+                            } onDelete: { deleteTime in
+                                if let index = viewModel.repeatDates.firstIndex(where: { $0.id == deleteTime.id }) {
+                                    viewModel.repeatDates.remove(at: index)
+                                }
+                            }
+                        } label: {
+                            VStack {
+                                if let startDate = repeatDate.startDate {
+                                    Text(startDate.formatted(date: .long, time: .omitted))
+                                        .multilineTextAlignment(.leading)
+                                        .tint(.primary)
+                                }
+                                
+                                if let startTime = repeatDate.startTime  {
+                                    Text(startTime.formatted(date: .omitted, time: .shortened))
+                                        .multilineTextAlignment(.leading)
+                                        .tint(.primary)
+                                }
+                                
+                                if let finishDate = repeatDate.finishDate {
+                                    Text(finishDate.formatted(date: .long, time: .omitted))
+                                        .multilineTextAlignment(.leading)
+                                        .tint(.primary)
+                                }
+                                
+                                if let finishTime = repeatDate.finishTime  {
+                                    Text(finishTime.formatted(date: .omitted, time: .shortened))
+                                        .multilineTextAlignment(.leading)
+                                        .tint(.primary)
+                                }
+                            }
+                            .background(.red)
+                            .padding()
+                        }
+                    }
+                }
+                NavigationLink {
+                    EditTextEditorView(title: "About", text: viewModel.about, characterLimit: 3000, onSave: { string in
+                        viewModel.about = string
+                    })
+                } label: {
+                    EditField(title: "About", text: $viewModel.about, emptyFieldColor: .secondary)
+                }
+                .padding(.horizontal)
+                
+                EventFeeFieldsView(isFree: $viewModel.isFree, fee: $viewModel.fee, tickets: $viewModel.tickets)
+                    .padding(.bottom, 40)
+                EventAdditionalFieldsView(tags: $viewModel.tags, isoCountryCode: $viewModel.isoCountryCode, phone: $viewModel.phone, email: $viewModel.email, www: $viewModel.www, facebook: $viewModel.facebook, instagram: $viewModel.instagram)
+                    .padding(.bottom, 40)
+                if let user = authenticationManager.appUser, user.status == .admin {
+                    ActivationFieldsView(isActive: $viewModel.isActive, isChecked: $viewModel.isChecked)
+                        .padding(.bottom, 40)
+                }
+            }
+        }
+        .scrollIndicators(.hidden)
     }
 }
 

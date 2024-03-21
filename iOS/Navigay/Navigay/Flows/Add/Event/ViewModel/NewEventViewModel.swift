@@ -26,11 +26,6 @@ final class NewEventViewModel: ObservableObject {
     
     //MARK: - Properties
     
-    var ids: [Int]? = nil
-    
-    @Published var showAddPosterView: Bool = false
-    @Published var isEventAdded: Bool = false
-    
     @Published var name: String = ""
     @Published var type: EventType? = nil
     @Published var isoCountryCode: String = ""
@@ -72,16 +67,28 @@ final class NewEventViewModel: ObservableObject {
     
     @Published var isLoading: Bool = false
     
+    @Published var isEventAdded: Bool = false
+    @Published var isPosterAdded: Bool = false
+    
     let errorManager: ErrorManagerProtocol
     let networkManager: EditEventNetworkManagerProtocol
+    
+    var ids: [Int]? = nil
     
     //MARK: - Private Properties
     
     private var place: Place? = nil
+    private var user: AppUser
 
     //MARK: - Inits
     
-    init(place: Place?, copy event: Event?, networkManager: EditEventNetworkManagerProtocol, errorManager: ErrorManagerProtocol) {
+    init(user: AppUser, place: Place?, copy event: Event?, networkManager: EditEventNetworkManagerProtocol, errorManager: ErrorManagerProtocol) {
+        self.user = user
+        if user.status == .admin || user.status == .moderator {
+            isOwned = false
+        } else {
+            isOwned = true
+        }
         if let place,
            let isoCountryCode = place.city?.region?.country?.isoCountryCode,
            place.city?.region?.country?.id != nil,
@@ -115,7 +122,6 @@ final class NewEventViewModel: ObservableObject {
                 self.place = place
             }
         }
-        
         self.networkManager = networkManager
         self.errorManager = errorManager
     }
@@ -139,7 +145,7 @@ extension NewEventViewModel {
         repeatDates.append(newEventTime)
     }
     
-    func addNewEvent(user: AppUser) {
+    func addNewEvent() {
         isLoading = true
         Task {
             guard let sessionKey = user.sessionKey else {
@@ -184,9 +190,6 @@ extension NewEventViewModel {
                 return EventTimeToSend(startDate: startDateString, startTime: startTimeString, finishDate: finishDateString, finishTime: finishTimeString)
             }
             datestToSend.append(contentsOf: repeatDatesToSend)
-            
-            
-            
             guard !datestToSend.isEmpty else {
                 await MainActor.run {
                     isLoading = false
@@ -224,20 +227,17 @@ extension NewEventViewModel {
                                               countryId: place?.city?.region?.country?.id,
                                               regionId: place?.city?.region?.id,
                                               cityId: place?.city?.id,
-                                              userId: user.id,
+                                              addedBy: user.id,
                                               sessionKey: sessionKey)
             let message = "Something went wrong. The event didn't load. Please try again later."
             do {
                 let ids = try await networkManager.addNewEvent(event: newEvent)
                 await MainActor.run {
                     self.ids = ids
-                    self.isLoading = false
                     withAnimation {
                         self.isEventAdded = true
-                        self.showAddPosterView = true
                     }
                 }
-                return
             } catch NetworkErrors.noConnection {
                 errorManager.showNetworkNoConnected()
             } catch NetworkErrors.apiError(let apiError) {
@@ -251,45 +251,24 @@ extension NewEventViewModel {
         }
     }
     
-    @MainActor
-    func addPoster(to eventsIDs: [Int], poster: UIImage, smallPoster: UIImage, user: AppUser) async -> Bool {
-        self.isLoading = true
-        do {
-            try await networkManager.addPosterToEvents(with: eventsIDs, poster: poster, smallPoster: smallPoster, from: user)
-            self.isLoading = false
-            return true
-        } catch {
-            debugPrint("ERROR - updateAvatar: ", error)
-            // errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
-            self.isLoading = false
-            return false
+    func addPoster(poster: UIImage, smallPoster: UIImage) {
+        guard let ids else { return }
+        isLoading = true
+        Task {
+            let message = "Something went wrong. The Poster didn't load. Please try again later."
+            do {
+                try await networkManager.addPosterToEvents(with: ids, poster: poster, smallPoster: smallPoster, from: user)
+                isPosterAdded.toggle()
+            } catch NetworkErrors.noConnection {
+                errorManager.showNetworkNoConnected()
+            } catch NetworkErrors.apiError(let apiError) {
+                errorManager.showApiError(apiError: apiError, or: message, img: AppImages.iconPhoto, color: nil)
+            } catch {
+                errorManager.showError(model: ErrorModel(error: error, message: message, img: AppImages.iconPhoto, color: nil))
+            }
+            await MainActor.run {
+                isLoading = false
+            }
         }
     }
-    
-        //MARK: - Private Functions
-        
-    //    private func update(uiImage: UIImage, previousImage: Image?) {
-    //        Task {
-    //            let scaledImage = uiImage.cropImage(maxWidth: 750, maxHeight: 750)
-    //            let scaledImageSmall = uiImage.cropImage(maxWidth: 350, maxHeight: 350)
-    //            do {
-    //                let decodedResult = try await networkManager.updatePoster(eventId: eventId, poster: scaledImage, smallPoster: scaledImageSmall)
-    //                guard decodedResult.result else {
-    //                    errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: errorModel)
-    //                    throw NetworkErrors.apiErrorTest
-    //                }
-    //                await MainActor.run {
-    //                    self.isLoading = false
-    //                }
-    //            } catch {
-    //                debugPrint("ERROR - updateAvatar: ", error)
-    //                errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
-    //                await MainActor.run {
-    //                    self.isLoading = false
-    //                    self.poster = previousImage
-    //                }
-    //            }
-    //        }
-    //    }
-    
 }

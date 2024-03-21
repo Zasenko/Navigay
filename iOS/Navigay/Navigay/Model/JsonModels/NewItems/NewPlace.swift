@@ -21,8 +21,6 @@ struct NewPlace: Codable {
     let address: String
     let latitude: Double
     let longitude: Double
-    
-   // let about: [DecodedAbout]?
     let about: String?
     let tags: [Int]?
     let timetable: [PlaceWorkDay]?
@@ -34,12 +32,15 @@ struct NewPlace: Codable {
     let instagram: String?
     
     let ownderId: Int?
+    
     let addedBy: Int?
+    let sessionKey: String
     
     let isActive: Bool
     let isChecked: Bool
+    let adminNotes: String?
     
-    init(name: String, type: Int, isoCountryCode: String, countryOrigin: String?, countryEnglish: String?, regionOrigin: String?, regionEnglish: String?, cityOrigin: String?, cityEnglish: String?, address: String, latitude: Double, longitude: Double, about: String?, tags: [Int]?, timetable: [PlaceWorkDay]?, otherInfo: String?, email: String?, phone: String?, www: String?, facebook: String?, instagram: String?, ownderId: Int?, addedBy: Int?, isActive: Bool, isChecked: Bool) {
+    init(name: String, type: Int, isoCountryCode: String, countryOrigin: String?, countryEnglish: String?, regionOrigin: String?, regionEnglish: String?, cityOrigin: String?, cityEnglish: String?, address: String, latitude: Double, longitude: Double, about: String?, tags: [Int]?, timetable: [PlaceWorkDay]?, otherInfo: String?, email: String?, phone: String?, www: String?, facebook: String?, instagram: String?, ownderId: Int?, addedBy: Int?, sessionKey: String, adminNotes: String?, isActive: Bool, isChecked: Bool) {
         self.name = name
         self.type = type
         self.isoCountryCode = isoCountryCode
@@ -63,6 +64,8 @@ struct NewPlace: Codable {
         self.instagram = instagram
         self.ownderId = ownderId
         self.addedBy = addedBy
+        self.sessionKey = sessionKey
+        self.adminNotes = adminNotes
         self.isActive = isActive
         self.isChecked = isChecked
     }

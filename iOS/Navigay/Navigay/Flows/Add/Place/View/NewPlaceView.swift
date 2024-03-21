@@ -9,19 +9,19 @@ import SwiftUI
 
 struct NewPlaceView: View {
     
-    //MARK: - Private Properties
+    // MARK: - Private Properties
     
     @StateObject private var viewModel: AddNewPlaceViewModel
     @EnvironmentObject private var authenticationManager: AuthenticationManager
     @Environment(\.dismiss) private var dismiss
     
-    //MARK: - Inits
+    // MARK: - Init
     
     init(viewModel: AddNewPlaceViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel)
     }
     
-    //MARK: - Body
+    // MARK: - Body
     
     var body: some View {
         NavigationStack {
@@ -56,6 +56,7 @@ struct NewPlaceView: View {
                             guard let user = authenticationManager.appUser else { return }
                             viewModel.addNewPlace(from: user)
                         }
+                        .bold()
                         .disabled(viewModel.name.isEmpty)
                         .disabled(viewModel.addressOrigin.isEmpty == true)
                         .disabled(viewModel.type == nil)
@@ -76,7 +77,7 @@ struct NewPlaceView: View {
     }
     
     private var listView: some View {
-        ScrollView(showsIndicators: false) {
+        ScrollView {
             LazyVStack(spacing: 0) {
                 Text("Add required information:")
                     .foregroundStyle(.secondary)
@@ -89,18 +90,26 @@ struct NewPlaceView: View {
                 PlaceAdditionalFieldsView(isoCountryCode: $viewModel.isoCountryCode, email: $viewModel.email, phone: $viewModel.phone, www: $viewModel.www, facebook: $viewModel.facebook, instagram: $viewModel.instagram, about: $viewModel.about, timetable: $viewModel.timetable, otherInfo: $viewModel.otherInfo, tags: $viewModel.tags)
                 
                 if authenticationManager.appUser?.status == .admin || authenticationManager.appUser?.status == .moderator {
-                    ActivationFieldsView(isActive: $viewModel.isActive, isChecked: $viewModel.isChecked)
-                        .padding(.bottom, 40)
+                    VStack {
+                        ActivationFieldsView(isActive: $viewModel.isActive, isChecked: $viewModel.isChecked)
+                        NavigationLink {
+                            EditTextEditorView(title: "Notes", text: viewModel.adminNotes, characterLimit: 3000, onSave: { string in
+                                viewModel.adminNotes = string
+                            })
+                        } label: {
+                            EditField(title: "Notes", text: $viewModel.adminNotes, emptyFieldColor: .secondary)
+                                .padding(.horizontal)
+                        }
+                    }
+                    .padding(.vertical, 40)
                 } else {
                     EditToggleField(toggle: $viewModel.isOwned, text: "Are you an owner of this place?")
                         .padding(.bottom, 40)
                 }
             }
         }
+        .scrollIndicators(.hidden)
     }
-    
-    
-    
 }
 
 //#Preview {

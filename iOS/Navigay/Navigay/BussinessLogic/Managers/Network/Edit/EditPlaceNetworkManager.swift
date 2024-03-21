@@ -66,8 +66,8 @@ extension EditPlaceNetworkManager: EditPlaceNetworkManagerProtocol {
         }
         let parameters = [
             "place_id": String(placeId),
-            "is_active": isActive.description,
-            "is_checked": isChecked.description,
+            "is_active": isActive ? "1" : "0",
+            "is_checked": isChecked ? "1" : "0",
             "admin_notes": adminNotes,
             "user_id": String(user.id),
             "session_key": sessionKey,

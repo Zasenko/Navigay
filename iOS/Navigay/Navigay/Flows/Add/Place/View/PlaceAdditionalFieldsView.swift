@@ -26,7 +26,6 @@ struct PlaceAdditionalFieldsView: View {
     
     var body: some View {
         NavigationStack {
-
                 LazyVStack(spacing: 0) {
                     VStack(spacing: 0) {
                         NavigationLink {
@@ -78,11 +77,11 @@ struct PlaceAdditionalFieldsView: View {
                     .padding(.bottom, 40)
 
                     NavigationLink {
-                        EditTextEditorView(title: "About", text: about, characterLimit: 3000, onSave: { string in
+                        EditTextEditorView(title: "Information", text: about, characterLimit: 3000, onSave: { string in
                             about = string
                         })
                     } label: {
-                        EditField(title: "About", text: $about, emptyFieldColor: .secondary)
+                        EditField(title: "Information", text: $about, emptyFieldColor: .secondary)
                     }
                     
                     tagsView
@@ -99,11 +98,11 @@ struct PlaceAdditionalFieldsView: View {
                     }
                     
                     NavigationLink {
-                        EditTextEditorView(title: "Other information", text: otherInfo, characterLimit: 255) { string in
+                        EditTextEditorView(title: "Other Information", text: otherInfo, characterLimit: 255) { string in
                             otherInfo = string
                         }
                     } label: {
-                        EditField(title: "Other information", text: $otherInfo, emptyFieldColor: .secondary)
+                        EditField(title: "Other Information", text: $otherInfo, emptyFieldColor: .secondary)
                             .padding(.bottom, 40)
                             .padding(.top, 40)
                     }

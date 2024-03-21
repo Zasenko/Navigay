@@ -29,7 +29,7 @@ struct PlaceRequiredFieldsView: View {
                                 viewModel.name = string
                             }
                         } label: {
-                            EditField(title: "Name", text: $viewModel.name, emptyFieldColor: .red)
+                            EditField(title: "Title", text: $viewModel.name, emptyFieldColor: .red)
                         }
                         Divider()
                             .padding(.horizontal)
