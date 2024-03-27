@@ -77,22 +77,20 @@ struct EventsView: View {
                             .foregroundStyle(.secondary)
                             .frame(maxWidth: .infinity, alignment: upcomingEvents.count > 2 ? .leading : .center)
                             .animation(.default, value: upcomingEvents.count)
-                        if upcomingEvents.count > 2 {
-                            Button {
-                                showCalendar = true
-                            } label: {
-                                //   HStack {
-                                AppImages.iconCalendar
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 25, height: 25)
-                                
-                                // }
-                                //   .padding()
-                                //  .background(.ultraThinMaterial)
-                                    .foregroundStyle(.blue)
-                                // .clipShape(Capsule())
-                            }
+                        Button {
+                            showCalendar = true
+                        } label: {
+                            //   HStack {
+                            AppImages.iconCalendar
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 25, height: 25)
+                            
+                            // }
+                            //   .padding()
+                            //  .background(.ultraThinMaterial)
+                                .foregroundStyle(.blue)
+                            // .clipShape(Capsule())
                         }
                     }
                     .padding(.horizontal)

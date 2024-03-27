@@ -80,6 +80,7 @@ extension PlaceView {
         
         func fetchPlace() {
             guard !placeNetworkManager.loadedPlaces.contains(where: { $0 ==  place.id } ) else {
+                updateEvents(events: place.events)
                 return
             }
             Task {
@@ -108,13 +109,15 @@ extension PlaceView {
                 }
             }
             let events = eventDataManager.updateEvents(decodedEvents: decodedPlace.events, for: place, modelContext: modelContext)
-            
+            updateEvents(events: events)
+        }
+        
+        private func updateEvents(events: [Event]) {
             Task {
                 let actualEvents = await eventDataManager.getActualEvents(for: events.sorted(by: { $0.id < $1.id}))
                 let todayEvents = await eventDataManager.getTodayEvents(from: actualEvents)
                 let upcomingEvents = await eventDataManager.getUpcomingEvents(from: actualEvents)
                 let eventsDatesWithoutToday = await eventDataManager.getActiveDates(for: actualEvents)
-                
                 await MainActor.run {
                     self.actualEvents = actualEvents
                     self.upcomingEvents = upcomingEvents
@@ -124,7 +127,6 @@ extension PlaceView {
                     //isLoading = false
                 }
             }
-            
         }
         
         func fetchComments() {
