@@ -15,7 +15,7 @@ struct AdminCountry: Identifiable, Codable {
     let about: String?
     let flagEmoji: String?
     let photo: String?
-    let showRegions: Bool
+    let showRegions: Bool?
     let isActive: Bool
     let isChecked: Bool
     

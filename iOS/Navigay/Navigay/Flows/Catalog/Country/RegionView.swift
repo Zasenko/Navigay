@@ -45,11 +45,21 @@ struct RegionView: View {
     
     var body: some View {
         Section {
-            Text(region.name ?? "")
+            HStack(spacing: 20) {
+                AppImages.iconRegion
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 20)
+                Group {
+                    Text("Region: ")
+                    + Text(region.name ?? "").bold()
+                }
                 .font(.callout)
                 .foregroundStyle(.secondary)
-                .padding(.top, 20)
-                .offset(x: 70)
+            }
+            .padding(.top, 20)
+            .offset(x: 30)
+            
             ForEach(region.cities.sorted(by: { $0.name < $1.name } )) { city in
                 NavigationLink {
                     CityView(modelContext: modelContext, city: city, catalogNetworkManager: catalogNetworkManager, eventNetworkManager: eventNetworkManager, placeNetworkManager: placeNetworkManager, errorManager: errorManager, authenticationManager: authenticationManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, catalogDataManager: catalogDataManager)

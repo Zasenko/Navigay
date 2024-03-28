@@ -10,9 +10,11 @@ import SwiftUI
 final class EditCityViewModel: ObservableObject {
     
     //MARK: - Properties
-
-    var nameOrigin: String = ""
+    let id: Int
+    
+    @Published var nameOrigin: String = ""
     @Published var nameEn: String = ""
+    
     @Published var photo: AdminPhoto? = nil
     @Published var photos: [AdminPhoto] = []
     @Published var about: String = ""
@@ -27,7 +29,8 @@ final class EditCityViewModel: ObservableObject {
     
     //MARK: - Private Properties
     
-    private let id: Int
+    private let user: AppUser
+    private let city: City?
     
     private var countryId: Int = 0
     private var regionId: Int = 0
@@ -37,11 +40,13 @@ final class EditCityViewModel: ObservableObject {
         
     // MARK: - Inits
     
-    init(id: Int, errorManager: ErrorManagerProtocol, networkManager: EditCityNetworkManagerProtocol) {
+    init(id: Int, city: City?, user: AppUser, errorManager: ErrorManagerProtocol, networkManager: EditCityNetworkManagerProtocol) {
         debugPrint("init EditCityViewModel city id: \(id)")
         self.errorManager = errorManager
         self.networkManager = networkManager
         self.id = id
+        self.user = user
+        self.city = city
     }
 }
 
@@ -49,52 +54,46 @@ extension EditCityViewModel {
     
     //MARK: - Functions
     
-    func fetchCity(for user: AppUser) async {
-        guard !fetched else { return }
-        do {
-            let decodedCity = try await networkManager.fetchCity(id: id, for: user)
-            await MainActor.run {
-                self.fetched = true
-                self.countryId = decodedCity.countryId
-                self.regionId = decodedCity.regionId
-                self.nameOrigin = decodedCity.nameOrigin ?? ""
-                self.nameEn = decodedCity.nameEn ?? ""
-                self.about = decodedCity.about ?? ""
-                self.isActive = decodedCity.isActive
-                self.isChecked = decodedCity.isChecked
-                self.photo = AdminPhoto(id: UUID().uuidString, image: nil, url: decodedCity.photo)
-                if let photos = decodedCity.photos, !photos.isEmpty {
-                    let adminPhotos = photos.compactMap( { AdminPhoto(id: $0.id, image: nil, url: $0.url)})
-                    self.photos = adminPhotos
-                } else {
-                    self.photos = []
+    func fetchCity() {
+        Task {
+            guard !fetched else { return }
+            do {
+                let decodedCity = try await networkManager.fetchCity(id: id, user: user)
+                await MainActor.run {
+                    self.countryId = decodedCity.countryId
+                    self.regionId = decodedCity.regionId
+                    self.nameOrigin = decodedCity.nameOrigin ?? ""
+                    self.nameEn = decodedCity.nameEn ?? ""
+                    self.about = decodedCity.about ?? ""
+                    self.isActive = decodedCity.isActive
+                    self.isChecked = decodedCity.isChecked
+                    self.photo = AdminPhoto(id: UUID().uuidString, image: nil, url: decodedCity.photo)
+                    if let photos = decodedCity.photos {
+                        let adminPhotos = photos.compactMap( { AdminPhoto(id: $0.id, image: nil, url: $0.url)})
+                        self.photos = adminPhotos
+                    }
+                    self.fetched = true
                 }
+            } catch NetworkErrors.noConnection {
+                errorManager.showNetworkNoConnected()
+            } catch NetworkErrors.apiError(let apiError) {
+                errorManager.showApiError(apiError: apiError, or: errorManager.errorMessage, img: nil, color: nil)
+            } catch {
+                errorManager.showError(model: ErrorModel(error: error, message: errorManager.errorMessage, img: nil, color: nil))
             }
-        } catch NetworkErrors.noConnection {
-            errorManager.showNetworkNoConnected()
-        } catch NetworkErrors.apiError(let apiError) {
-            errorManager.showApiError(apiError: apiError, or: errorManager.errorMessage, img: nil, color: nil)
-        } catch {
-            errorManager.showError(model: ErrorModel(error: error, message: errorManager.errorMessage, img: nil, color: nil))
         }
     }
     
-    func updateInfo(from user: AppUser) {
+    func updateInfo() {
         isLoading = true
         Task {
-            let city: AdminCity = AdminCity(id: id,
-                                            countryId: countryId,
-                                            regionId: regionId,
-                                            nameOrigin: nameOrigin.isEmpty ? nil : nameOrigin,
-                                            nameEn: nameEn.isEmpty ? nil : nameEn,
-                                            about: about.isEmpty ? nil : about,
-                                            photo: nil,
-                                            photos: nil,
-                                            isActive: isActive,
-                                            isChecked: isChecked,
-                                            userId: user.id)
             do {
-                try await networkManager.updateCity(city: city, from: user)
+                try await networkManager.updateCity(id: id, name: nameEn, about: about.isEmpty ? nil : about, isActive: isActive, isChecked: isChecked, user: user)
+                await MainActor.run {
+                   
+                    //todo update city
+                    
+                }
             } catch NetworkErrors.noConnection {
                 errorManager.showNetworkNoConnected()
             } catch NetworkErrors.apiError(let apiError) {
@@ -108,16 +107,18 @@ extension EditCityViewModel {
         }
     }
         
-    func updateImage(uiImage: UIImage, from user: AppUser) {
+    func updateImage(uiImage: UIImage) {
         isLoadingPhoto = true
         Task {
             let scaledImage = uiImage.cropImage(width: 600, height: 750)
             let scaledImageSmall = uiImage.cropImage(width: 150, height: 150)
             let message = "Something went wrong. The photo didn't load. Please try again later."
             do {
-                let newUrl = try await networkManager.updateCityPhoto(cityId: id, uiImage: scaledImage, uiImageSmall: scaledImageSmall, from: user)
+                let newUrl = try await networkManager.updateCityPhoto(cityId: id, uiImage: scaledImage, uiImageSmall: scaledImageSmall, user: user)
                 await MainActor.run {
                     photo = AdminPhoto(id: UUID().uuidString, image: Image(uiImage: uiImage), url: newUrl.posterUrl)
+                    
+                    //todo update city
                 }
             } catch NetworkErrors.noConnection {
                 errorManager.showNetworkNoConnected()
@@ -132,7 +133,7 @@ extension EditCityViewModel {
         }
     }
     
-    func updateLibraryPhoto(photoId: String, uiImage: UIImage, from user: AppUser) {
+    func updateLibraryPhoto(photoId: String, uiImage: UIImage) {
         isLoadingLibraryPhoto = true
         Task {
             let scaledImage = uiImage.cropImage(width: 600, height: 750)
@@ -160,7 +161,7 @@ extension EditCityViewModel {
         }
     }
     
-    func deleteLibraryPhoto(photoId: String, from user: AppUser) {
+    func deleteLibraryPhoto(photoId: String) {
         isLoadingLibraryPhoto = true
         Task {
             let message = "Something went wrong. The photo didn't delete. Please try again later."

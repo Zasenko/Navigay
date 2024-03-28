@@ -41,7 +41,7 @@ $country = array(
     'updated_at' => $row['updated_at']
 );
 
-$sql = "SELECT id, name_en, photo, updated_at FROM Region WHERE country_id = ? AND is_active = true";
+$sql = "SELECT id, name_en, small_photo, photo, updated_at FROM Region WHERE country_id = ? AND is_active = true";
 $params = [$country_id];
 $types = "i";
 $stmt = executeQuery($conn, $sql, $params, $types);
@@ -74,10 +74,13 @@ while ($row = $regions_result->fetch_assoc()) {
 
         $photo = $row['photo'];
         $photo_url = isset($photo) ? "https://www.navigay.me/" . $photo : null;
+        $small_photo = $row['small_photo'];
+        $small_photo_url = isset($small_photo) ? "https://www.navigay.me/" . $small_photo : null;
 
         $city = array(
             'id' => $row['id'],
             'name' => $row["name_en"],
+            'small_photo' => $small_photo_url,
             'photo' => $photo_url,
             'updated_at' => $row['updated_at']
         );

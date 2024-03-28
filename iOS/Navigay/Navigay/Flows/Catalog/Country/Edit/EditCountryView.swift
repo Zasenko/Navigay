@@ -12,7 +12,7 @@ struct EditCountryView: View {
     //MARK: - Private Properties
     
     @StateObject private var viewModel: EditCountryViewModel
-    @EnvironmentObject private var authenticationManager: AuthenticationManager
+   // @EnvironmentObject private var authenticationManager: AuthenticationManager
     @Environment(\.dismiss) private var dismiss
     
     //MARK: - Inits
@@ -40,8 +40,13 @@ struct EditCountryView: View {
             .toolbarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .principal) {
-                    Text("Edit: \(viewModel.nameOrigin)")
-                        .font(.headline.bold())
+                    VStack(spacing: 0) {
+                        Text("id: \(viewModel.id), code: \(viewModel.isoCountryCode)")
+                            .font(.caption).bold()
+                            .foregroundStyle(.secondary)
+                        Text(viewModel.nameOrigin)
+                            .font(.headline.bold())
+                    }
                 }
                 ToolbarItem(placement: .topBarLeading) {
                     Button {

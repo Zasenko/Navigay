@@ -20,7 +20,7 @@ struct CityCell: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 20) {
-                if let url = city.photo {
+                if let url = city.smallPhoto {
                     ImageLoadingView(url: url, width: 50, height: 50, contentMode: .fill) {
                         AppColors.lightGray6
                     }

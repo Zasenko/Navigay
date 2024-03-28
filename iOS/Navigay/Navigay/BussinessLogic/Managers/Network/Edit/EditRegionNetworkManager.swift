@@ -1,24 +1,22 @@
 //
-//  EditCountryNetworkManager.swift
+//  EditRegionNetworkManager.swift
 //  Navigay
 //
-//  Created by Dmitry Zasenko on 16.03.24.
+//  Created by Dmitry Zasenko on 28.03.24.
 //
 
 import SwiftUI
 
-protocol EditCountryNetworkManagerProtocol {
-    func fetchCountry(id: Int, for user: AppUser) async throws -> AdminCountry
-    func updateCountry(id: Int, name: String, flag: String, about: String, showRegions: Bool, isActive: Bool, isChecked: Bool, user: AppUser) async throws
-    func updateCountryPhoto(countryId: Int, uiImage: UIImage, from user: AppUser) async throws -> String
+protocol EditRegionNetworkManagerProtocol {
+    func fetchRegion(id: Int, user: AppUser) async throws -> AdminRegion
+    func updateRegion(id: Int, name: String, isActive: Bool, isChecked: Bool, user: AppUser) async throws
+    func updateRegionPhoto(regionId: Int, uiImage: UIImage, user: AppUser) async throws -> String
 }
 
-final class EditCountryNetworkManager {
+final class EditRegionNetworkManager {
     
     // MARK: - Properties
-    
-    
-    
+
     // MARK: - Private Properties
     
     private let scheme = "https"
@@ -35,17 +33,16 @@ final class EditCountryNetworkManager {
 
 // MARK: - CountryNetworkManagerProtocol
 
-extension EditCountryNetworkManager: EditCountryNetworkManagerProtocol {
-    
-    func fetchCountry(id: Int, for user: AppUser) async throws -> AdminCountry {
-        debugPrint("--- AdminNetworkManager fetchCountry id \(id)")
+extension EditRegionNetworkManager: EditRegionNetworkManagerProtocol {
+    func fetchRegion(id: Int, user: AppUser) async throws -> AdminRegion {
+        debugPrint("--- EditRegionNetworkManager fetchRegion id \(id)")
         guard networkMonitorManager.isConnected else {
             throw NetworkErrors.noConnection
         }
         guard let sessionKey = user.sessionKey else {
             throw NetworkErrors.noSessionKey
         }
-        let path = "/api/admin/get-country.php"
+        let path = "/api/admin/get-region.php"
         var urlComponents: URLComponents {
             var components = URLComponents()
             components.scheme = scheme
@@ -57,7 +54,7 @@ extension EditCountryNetworkManager: EditCountryNetworkManagerProtocol {
             throw NetworkErrors.badUrl
         }
         let parameters = [
-            "country_id": String(id),
+            "region_id": String(id),
             "user_id": String(user.id),
             "session_key": sessionKey,
         ]
@@ -70,25 +67,23 @@ extension EditCountryNetworkManager: EditCountryNetworkManagerProtocol {
         guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
             throw NetworkErrors.invalidData
         }
-        guard let decodedResult = try? JSONDecoder().decode(AdminCountryResult.self, from: data) else {
+        guard let decodedResult = try? JSONDecoder().decode(AdminRegionResult.self, from: data) else {
             throw NetworkErrors.decoderError
         }
-        guard decodedResult.result, let decodedCountry = decodedResult.country else {
+        guard decodedResult.result, let decodedRegion = decodedResult.region else {
             throw NetworkErrors.apiError(decodedResult.error)
         }
-        return decodedCountry
+        return decodedRegion
     }
     
-    
-    
-    func updateCountry(id: Int, name: String, flag: String, about: String, showRegions: Bool, isActive: Bool, isChecked: Bool, user: AppUser) async throws {
+    func updateRegion(id: Int, name: String, isActive: Bool, isChecked: Bool, user: AppUser) async throws {
         guard networkMonitorManager.isConnected else {
             throw NetworkErrors.noConnection
         }
         guard let sessionKey = user.sessionKey else {
             throw NetworkErrors.noSessionKey
         }
-        let path = "/api/admin/update-country.php"
+        let path = "/api/admin/update-region.php"
         var urlComponents: URLComponents {
             var components = URLComponents()
             components.scheme = scheme
@@ -100,11 +95,8 @@ extension EditCountryNetworkManager: EditCountryNetworkManagerProtocol {
             throw NetworkErrors.badUrl
         }
         let parameters = [
-            "country_id": String(id),
+            "region_id": String(id),
             "name_en": name,
-            "flag_emoji": flag,
-            "about": about,
-            "show_regions": showRegions ?  "1" : "0",
             "is_active": isActive ? "1" : "0",
             "is_checked": isChecked ? "1" : "0",
             "user_id": String(user.id),
@@ -125,6 +117,10 @@ extension EditCountryNetworkManager: EditCountryNetworkManagerProtocol {
         guard decodedResult.result else {
             throw NetworkErrors.apiError(decodedResult.error)
         }
+    }
+    
+    func updateRegionPhoto(regionId: Int, uiImage: UIImage, user: AppUser) async throws -> String {
+        return""
     }
     
     func updateCountryPhoto(countryId: Int, uiImage: UIImage, from user: AppUser) async throws -> String {
@@ -166,7 +162,7 @@ extension EditCountryNetworkManager: EditCountryNetworkManagerProtocol {
 
 // MARK: - Private Functions
 
-extension EditCountryNetworkManager {
+extension EditRegionNetworkManager {
     
     private func createBodyImageUpdating(image: UIImage, countryId: Int, userID: Int, sessionKey: String, boundary: String) async throws -> Data {
         var body = Data()

@@ -65,7 +65,7 @@ struct CityView: View {
                     if let user = authenticationManager.appUser, user.status == .admin {
                         ToolbarItem(placement: .topBarTrailing) {
                             NavigationLink {
-                                EditCityView(viewModel: EditCityViewModel(id: viewModel.city.id, errorManager: viewModel.errorManager, networkManager: EditCityNetworkManager(networkMonitorManager: authenticationManager.networkMonitorManager)))
+                                EditCityView(viewModel: EditCityViewModel(id: viewModel.city.id, city: viewModel.city, user: user, errorManager: viewModel.errorManager, networkManager: EditCityNetworkManager(networkMonitorManager: authenticationManager.networkMonitorManager)))
                             } label: {
                                 AppImages.iconSettings
                                     .bold()

@@ -60,6 +60,14 @@ extension AddNewPlaceViewModel {
     
     func addNewPlace(from user: AppUser) {
         isLoading = true
+        print("--------------------")
+        print(countryOrigin)
+        print(countryEnglish)
+        print(regionOrigin)
+        print(regionEnglish)
+        print(cityOrigin)
+        print(cityEnglish)
+        print("--------------------")
         Task {
             guard let sessionKey = user.sessionKey else {
                 await MainActor.run {

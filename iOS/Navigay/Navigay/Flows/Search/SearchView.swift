@@ -179,7 +179,7 @@ struct SearchView: View {
                             Button {
                                 viewModel.selectedEvent = event
                             } label: {
-                                EventCell(event: event, showCountryCity: false, showStartDayInfo: true, showStartTimeInfo: false)
+                                EventCell(event: event, showCountryCity: true, showStartDayInfo: true, showStartTimeInfo: false)
                                     .matchedGeometryEffect(id: "Event\(event.id)", in: animation)
                             }
                         }

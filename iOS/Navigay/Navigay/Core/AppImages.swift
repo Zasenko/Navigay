@@ -48,6 +48,8 @@ struct AppImages {
     static let iconWifi = Image(systemName:"wifi")
     static let iconNoWifi = Image(systemName:"wifi.slash")
     
+    static let iconRegion = Image("icon_region")
+    
     static let iconFacebook = Image("icon_facebook")
     static let iconInstagram = Image("icon_instagram")
     static let iconLocation = Image("icon_location")

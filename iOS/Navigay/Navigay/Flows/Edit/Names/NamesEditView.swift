@@ -18,7 +18,15 @@ struct NamesEditView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            EditField(title: "🏳️‍🌈 Original name", text: $nameOrigin, emptyFieldColor: .red)
+            Group {
+                Text("Original name: ")
+                + Text(nameOrigin).bold()
+            }
+            .font(.callout)
+            .foregroundStyle(.secondary)
+            .multilineTextAlignment(.leading)
+            .padding()
+            .frame(maxWidth: .infinity, alignment: .leading)
             Divider()
                 .padding(.horizontal)
             NavigationLink {

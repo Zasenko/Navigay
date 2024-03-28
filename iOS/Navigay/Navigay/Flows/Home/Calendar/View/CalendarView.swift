@@ -42,7 +42,7 @@ struct CalendarView: View {
             .scrollIndicators(.hidden)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         }
-        .background(AppColors.lightGray3)
+        .background(.yellow.opacity(0.2))
     }
     
     private var calendarView: some View {
