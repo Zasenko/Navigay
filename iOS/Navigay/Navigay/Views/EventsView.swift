@@ -46,16 +46,16 @@ struct EventsView: View {
                         .padding(.bottom)
                         .padding(.top)
                     if todayEvents.count == 1 {
-                        if let event = todayEvents.first {
+                        ForEach(todayEvents) { event in
                             Button {
                                 selectedEvent = event
                             } label: {
-                                EventCell(event: event, showCountryCity: false, showStartDayInfo: false, showStartTimeInfo: false)
-                                    .matchedGeometryEffect(id: "TE\(event.id)", in: animation)
-                                    .frame(width: size.width / 2)
-                                    .frame(maxWidth: .infinity)
-                                    .padding(.bottom)
+                                EventCell(event: event, showCountryCity: false, showStartDayInfo: true, showStartTimeInfo: false)
+                                    .matchedGeometryEffect(id: "TodayEv\(event.id)", in: animation)
                             }
+                            .frame(maxWidth: size.width / 2)
+                            .frame(maxWidth: .infinity)
+                            .padding(.bottom)
                         }
                     } else {
                         StaggeredGrid(columns: 2, showsIndicators: false, spacing: 10, list: todayEvents) { event in
@@ -63,7 +63,7 @@ struct EventsView: View {
                                 selectedEvent = event
                             } label: {
                                 EventCell(event: event, showCountryCity: false, showStartDayInfo: false, showStartTimeInfo: false)
-                                    .matchedGeometryEffect(id: "TE\(event.id)", in: animation)
+                                    .matchedGeometryEffect(id: "TodayEv\(event.id)", in: animation)
                             }
                         }
                         .padding(.horizontal, 10)
@@ -97,17 +97,17 @@ struct EventsView: View {
                     .padding(.top)
                     .padding(.bottom)
                     
-                    if upcomingEvents.count == 1 {
-                        if let event = upcomingEvents.first {
+                    if displayedEvents.count == 1 {
+                        ForEach(displayedEvents) { event in
                             Button {
                                 selectedEvent = event
                             } label: {
                                 EventCell(event: event, showCountryCity: false, showStartDayInfo: true, showStartTimeInfo: false)
-                                    .matchedGeometryEffect(id: "TE\(event.id)", in: animation)
-                                    .frame(width: size.width / 2)
-                                    .frame(maxWidth: .infinity)
-                                    .padding(.bottom)
+                                    .matchedGeometryEffect(id: "DisplayedEv\(event.id)", in: animation)
                             }
+                            .frame(maxWidth: size.width / 2)
+                            .frame(maxWidth: .infinity)
+                            .padding(.bottom)
                         }
                     } else {
                         StaggeredGrid(columns: 2, showsIndicators: false, spacing: 10, list: displayedEvents) { event in
@@ -115,7 +115,7 @@ struct EventsView: View {
                                 selectedEvent = event
                             } label: {
                                 EventCell(event: event, showCountryCity: false, showStartDayInfo: true, showStartTimeInfo: false)
-                                    .matchedGeometryEffect(id: "TE\(event.id)", in: animation)
+                                    .matchedGeometryEffect(id: "DisplayedEv\(event.id)", in: animation)
                             }
                         }
                         .padding(.horizontal, 10)
@@ -156,7 +156,7 @@ struct EventsView: View {
         Task {
             let events = await eventDataManager.getEvents(for: date, events: actualEvents )
             await MainActor.run {
-                displayedEvents = events
+                self.displayedEvents = events
             }
         }
     }

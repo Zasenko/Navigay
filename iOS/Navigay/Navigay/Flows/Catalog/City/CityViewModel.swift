@@ -113,10 +113,10 @@ extension CityView {
         
         private func fetch() async {
             guard !catalogNetworkManager.loadedCities.contains(where: { $0 == city.id}) else {
-                await MainActor.run {
-                    isLoading = false
-                }
                 return
+            }
+            await MainActor.run {
+                isLoading = true
             }
             do {
                 let decodedCity = try await catalogNetworkManager.fetchCity(id: city.id)
@@ -182,13 +182,13 @@ extension CityView {
             }
         }
         
-        func getEvents(for date: Date) {
-            Task {
-                let events = await eventDataManager.getEvents(for: date, events: actualEvents )
-                await MainActor.run {
-                    displayedEvents = events
-                }
-            }
-        }
+//        func getEvents(for date: Date) {
+//            Task {
+//                let events = await eventDataManager.getEvents(for: date, events: actualEvents )
+//                await MainActor.run {
+//                    displayedEvents = events
+//                }
+//            }
+//        }
     }
 }

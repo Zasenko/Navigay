@@ -164,11 +164,11 @@ struct HomeView: View {
                         scrollProxy.scrollTo(newValue, anchor: .top)
                     }
                 }
-                .onChange(of: viewModel.showCalendar, initial: false) { oldValue, newValue in
-                    withAnimation {
-                        scrollProxy.scrollTo("UpcomingEvents", anchor: .top)
-                    }
-                }
+//                .onChange(of: viewModel.showCalendar, initial: false) { oldValue, newValue in
+//                    withAnimation {
+//                        scrollProxy.scrollTo("UpcomingEvents", anchor: .top)
+//                    }
+//                }
             }
         }
     }

@@ -12,30 +12,19 @@ struct CityView: View {
     
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel: CityViewModel
-    @ObservedObject var authenticationManager: AuthenticationManager
+    @EnvironmentObject private var authenticationManager: AuthenticationManager
     
-    init(modelContext: ModelContext,
-         city: City,
-         catalogNetworkManager: CatalogNetworkManagerProtocol,
-         eventNetworkManager: EventNetworkManagerProtocol,
-         placeNetworkManager: PlaceNetworkManagerProtocol,
-         errorManager: ErrorManagerProtocol,
-         authenticationManager: AuthenticationManager,
-         placeDataManager: PlaceDataManagerProtocol,
-         eventDataManager: EventDataManagerProtocol,
-         catalogDataManager: CatalogDataManagerProtocol) {
-        let viewModel = CityViewModel(modelContext: modelContext, city: city, catalogNetworkManager: catalogNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, catalogDataManager: catalogDataManager)
+    init(viewModel: CityViewModel) {
         _viewModel = State(initialValue: viewModel)
-        _authenticationManager = ObservedObject(wrappedValue: authenticationManager)
     }
     
     var body: some View {
         NavigationStack {
-            GeometryReader { geometry in
-//                VStack(spacing: 0) {
-//                    Divider()
-                    listView(size: geometry.size)
-      //          }
+            
+            //                VStack(spacing: 0) {
+            //                    Divider()
+            listView
+            //          }
                 .toolbarTitleDisplayMode(.inline)
                 .toolbarBackground(AppColors.background)
                 .navigationBarBackButtonHidden()
@@ -74,44 +63,46 @@ struct CityView: View {
                         }
                     }
                 }
-            }
         }
     }
     
-    @ViewBuilder
-    private func listView(size: CGSize) -> some View {
-        List {
-            if !viewModel.allPhotos.isEmpty {
-                PhotosTabView(allPhotos: $viewModel.allPhotos, width: size.width)
-                    .frame(width: size.width, height: (size.width / 4) * 5)
-                    .listRowSeparator(.hidden)
-                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                    .padding(.bottom)
-            }
-            
-            if viewModel.actualEvents.count > 0 {
-                EventsView(modelContext: viewModel.modelContext, selectedDate: $viewModel.selectedDate, displayedEvents: $viewModel.displayedEvents, actualEvents: $viewModel.actualEvents, todayEvents: $viewModel.todayEvents, upcomingEvents: $viewModel.upcomingEvents, eventsDates: $viewModel.eventsDates, showCalendar: $viewModel.showCalendar, size: size, eventDataManager: viewModel.eventDataManager, placeDataManager: viewModel.placeDataManager, eventNetworkManager: viewModel.eventNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, errorManager: viewModel.errorManager)
-                    .listRowSeparator(.hidden)
-                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-            }
-            placesView
-            
-            Section {
-                if let about = viewModel.city.about {
-                    Text(about)
-                        .font(.callout)
-                        .foregroundStyle(.secondary)
-                        .padding(.vertical, 100)
+    private var listView: some View {
+        GeometryReader { geometry in
+            List {
+                if !viewModel.allPhotos.isEmpty {
+                    PhotosTabView(allPhotos: $viewModel.allPhotos, width: geometry.size.width)
+                        .frame(width: geometry.size.width, height: (geometry.size.width / 4) * 5)
                         .listRowSeparator(.hidden)
+                        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                        .padding(.bottom)
                 }
+                
+                if viewModel.actualEvents.count > 0 {
+                    EventsView(modelContext: viewModel.modelContext, selectedDate: $viewModel.selectedDate, displayedEvents: $viewModel.displayedEvents, actualEvents: $viewModel.actualEvents, todayEvents: $viewModel.todayEvents, upcomingEvents: $viewModel.upcomingEvents, eventsDates: $viewModel.eventsDates, showCalendar: $viewModel.showCalendar, size: geometry.size, eventDataManager: viewModel.eventDataManager, placeDataManager: viewModel.placeDataManager, eventNetworkManager: viewModel.eventNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, errorManager: viewModel.errorManager)
+                        .listRowSeparator(.hidden)
+                        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                }
+                
+                placesView
+                
+                Section {
+                    if let about = viewModel.city.about {
+                        Text(about)
+                            .font(.callout)
+                            .foregroundStyle(.secondary)
+                            .padding(.vertical, 100)
+                            .listRowSeparator(.hidden)
+                    }
+                }
+                
             }
-        }
-        .listSectionSeparator(.hidden)
-        .listStyle(.plain)
-        .scrollIndicators(.hidden)
-        .buttonStyle(PlainButtonStyle())
-        .onAppear() {
-            viewModel.getPlacesAndEventsFromDB()
+            .listSectionSeparator(.hidden)
+            .listStyle(.plain)
+            .scrollIndicators(.hidden)
+            .buttonStyle(PlainButtonStyle())
+            .onAppear() {
+                viewModel.getPlacesAndEventsFromDB()
+            }
         }
     }
     

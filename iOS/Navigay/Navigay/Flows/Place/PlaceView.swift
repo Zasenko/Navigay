@@ -23,7 +23,7 @@ struct PlaceView: View {
     // MARK: - Init
     
     init(viewModel: PlaceViewModel) {
-        _viewModel = State(wrappedValue: viewModel)
+        _viewModel = State(initialValue: viewModel)
     }
         
     // MARK: - Body
@@ -98,7 +98,7 @@ struct PlaceView: View {
             }
             .onAppear() {
                 viewModel.allPhotos = viewModel.place.getAllPhotos()
-                viewModel.fetchPlace()
+                viewModel.getEventsFromDB()
             }
         }
     }

@@ -23,6 +23,11 @@ $types = "i";
 $stmt = executeQuery($conn, $sql, $params, $types);
 $country_result = $stmt->get_result();
 $stmt->close();
+
+if ($country_result->num_rows === 0) {
+    $conn->close();
+    sendError('Country not found.');
+}
 $row = $country_result->fetch_assoc();
 
 $show_regions = (bool)$row['show_regions'];

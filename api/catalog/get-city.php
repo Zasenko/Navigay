@@ -21,18 +21,26 @@ $language = isset($_GET['language']) && in_array($_GET['language'], $languages) 
 
 require_once('../dbconfig.php');
 
-$sql = "SELECT id, name_en, about, photo, photos, updated_at FROM City WHERE id = ?";
+$sql = "SELECT id, name_en, about, small_photo, photo, photos, updated_at FROM City WHERE id = ?";
 $params = [$city_id];
 $types = "i";
 $stmt = executeQuery($conn, $sql, $params, $types);
 $result = $stmt->get_result();
 $stmt->close();
-
+if ($result->num_rows === 0) {
+    $conn->close();
+    sendError('City not found.');
+}
 $row = $result->fetch_assoc();
 
 //photo
 $photo = $row['photo'];
 $photo_url = isset($photo) ? "https://www.navigay.me/" . $photo : null;
+
+//photo
+$small_photo = $row['small_photo'];
+$small_photo_url = isset($small_photo) ? "https://www.navigay.me/" . $small_photo : null;
+
 //photos
 $photos_data = json_decode($row['photos'], true);
 $photos_urls = array();
@@ -49,6 +57,7 @@ $city_id = $row['id'];
 $city = array(
     'id' => $city_id,
     'name' => $row["name_en"],
+    'small_photo' => $small_photo_url,
     'photo' => $photo_url,
     'photos' => $photos_urls,
     'about' => $row['about'],
