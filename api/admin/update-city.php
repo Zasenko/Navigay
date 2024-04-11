@@ -1,64 +1,70 @@
 <?php
 
 require_once('../error-handler.php');
+require_once('../dbconfig.php');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    $conn->close();
     sendError('Invalid request method.');
 }
 
 $postData = file_get_contents('php://input');
 $data = json_decode($postData, true);
-
 if (empty($data)) {
     sendError('Empty Data.');
 }
-$city_id = $data["id"];
-if (!isset($city_id)) {
-    sendError('City ID is required.');
-}
-$city_id = intval($city_id);
+$city_id = isset($data["city_id"]) ? intval($data["city_id"]) : 0;
 if ($city_id <= 0) {
+    $conn->close();
     sendError('Invalid city ID.');
 }
-$user_id = $data["user_id"];
-if (empty($user_id)) {
-    sendError('admin ID is required.');
-}
-$user_id = intval($user_id);
-if ($user_id <= 0) {
-    sendError('Invalid admin ID.');
-}
 
-$name_origin = isset($data["name_origin"]) ? $data["name_origin"] : null;
 $name_en = isset($data["name_en"]) ? $data["name_en"] : null;
-
 $about = isset($data["about"]) ? $data["about"] : null;
 $is_active = isset($data["is_active"]) ? boolval($data["is_active"]) : false;
 $is_checked = isset($data["is_checked"]) ? boolval($data["is_checked"]) : false;
 
-require_once('../dbconfig.php');
+//-------- проверка юзера
+$user_id = isset($data["user_id"]) ? intval($data["user_id"]) : 0;
+if ($user_id <= 0) {
+    $conn->close();
+    sendError('Invalid user ID.');
+}
+$session_key = isset($data["session_key"]) ? $data["session_key"] : '';
+if (empty($session_key)) {
+    $conn->close();
+    sendError('Session key is required.');
+}
+$hashed_session_key = hash('sha256', $session_key);
 
-$sql = "SELECT status FROM User WHERE id = ?";
+$sql = "SELECT session_key, status FROM User WHERE id = ?";
 $params = [$user_id];
 $types = "i";
 $stmt = executeQuery($conn, $sql, $params, $types);
 $result = $stmt->get_result();
 $stmt->close();
-if (!($result->num_rows > 0)) {
+if ($result->num_rows === 0) {
     $conn->close();
-    sendUserError("User not found");
+    sendError('User not found.');
 }
 $row = $result->fetch_assoc();
 
-$status = isset($row['status']) ? $row['status'] : '';
-if (!($status === "admin" || $status === "moderator")) {
+$user_status = isset($row['status']) ? $row['status'] : '';
+if (!($user_status === "admin" || $user_status === "moderator")) {
     $conn->close();
-    sendUserError("User not admin");
+    sendError('Admin access only.');
 }
 
-$sql = "UPDATE City SET name_origin = ?, name_en = ?, about = ?, is_active = ?, is_checked = ? WHERE id = ?";
-$params = [$name_origin, $name_en, $about, $is_active, $is_checked, $city_id];
-$types = "sssiii";
+$stored_hashed_session_key = $row['session_key'];
+if (!hash_equals($hashed_session_key, $stored_hashed_session_key)) {
+    $conn->close();
+    sendError('Wrong session key.');
+}
+//-----------------
+
+$sql = "UPDATE City SET name_en = ?, about = ?, is_active = ?, is_checked = ? WHERE id = ?";
+$params = [$name_en, $about, $is_active, $is_checked, $city_id];
+$types = "ssiii";
 $stmt = executeQuery($conn, $sql, $params, $types);
 if (checkInsertResult($stmt, $conn, 'Failed to update city.')) {
     $conn->close();

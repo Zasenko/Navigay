@@ -17,6 +17,7 @@ extension PlaceView {
     class PlaceViewModel {
         
         //MARK: - Properties
+        var isLoading: Bool = false
         
         var showHeaderTitle: Bool = false
         
@@ -78,22 +79,53 @@ extension PlaceView {
         
         //MARK: - Functions
         
-        func fetchPlace() {
+        func getEventsFromDB() {
+            if place.lastUpdateComplite == nil {
+                isLoading = true
+                Task {
+                    await fetchPlace()
+                }
+            } else {
+                Task {
+                    let events = place.events.sorted(by: { $0.id < $1.id })
+                    
+                    let actualEvents = await self.eventDataManager.getActualEvents(for: events)
+                    let todayEvents = await eventDataManager.getTodayEvents(from: actualEvents)
+                    let upcomingEvents = await eventDataManager.getUpcomingEvents(from: actualEvents)
+                    let eventsDatesWithoutToday = await eventDataManager.getActiveDates(for: actualEvents)
+                    
+                    await MainActor.run {
+                        self.actualEvents = actualEvents
+                        self.upcomingEvents = upcomingEvents
+                        self.eventsDates = eventsDatesWithoutToday
+                        self.todayEvents = todayEvents
+                        self.displayedEvents = upcomingEvents
+                    }
+                    await fetchPlace()
+                }
+            }
+        }
+        
+        private func fetchPlace() async {
             guard !placeNetworkManager.loadedPlaces.contains(where: { $0 ==  place.id } ) else {
                 return
             }
-            Task {
-                do {
-                    let decodedPlace = try await placeNetworkManager.fetchPlace(id: place.id)
-                    await MainActor.run {
-                        updateFetchedResult(decodedPlace: decodedPlace)
-                    }
-                } catch NetworkErrors.noConnection {
-                } catch NetworkErrors.apiError(let apiError) {
-                    errorManager.showApiError(apiError: apiError, or: errorManager.updateMessage, img: nil, color: nil)
-                } catch {
-                    errorManager.showUpdateError(error: error)
+            await MainActor.run {
+                isLoading = true
+            }
+            do {
+                let decodedPlace = try await placeNetworkManager.fetchPlace(id: place.id)
+                await MainActor.run {
+                    updateFetchedResult(decodedPlace: decodedPlace)
                 }
+            } catch NetworkErrors.noConnection {
+            } catch NetworkErrors.apiError(let apiError) {
+                errorManager.showApiError(apiError: apiError, or: errorManager.updateMessage, img: nil, color: nil)
+            } catch {
+                errorManager.showUpdateError(error: error)
+            }
+            await MainActor.run { 
+                isLoading = false
             }
         }
         
@@ -108,23 +140,34 @@ extension PlaceView {
                 }
             }
             let events = eventDataManager.updateEvents(decodedEvents: decodedPlace.events, for: place, modelContext: modelContext)
-            
+            updateEvents(events: events)
+        }
+        
+        private func updateEvents(events: [Event]) {
             Task {
                 let actualEvents = await eventDataManager.getActualEvents(for: events.sorted(by: { $0.id < $1.id}))
                 let todayEvents = await eventDataManager.getTodayEvents(from: actualEvents)
                 let upcomingEvents = await eventDataManager.getUpcomingEvents(from: actualEvents)
+
                 let eventsDatesWithoutToday = await eventDataManager.getActiveDates(for: actualEvents)
                 
-                await MainActor.run {
+                let eventsIDs = actualEvents.map( { $0.id } )
+                var eventsToDelete: [Event] = []
+                self.actualEvents.forEach { event in
+                    if !eventsIDs.contains(event.id) {
+                        eventsToDelete.append(event)
+                    }
+                }
+                
+                await MainActor.run { [eventsToDelete] in
+                    eventsToDelete.forEach( { modelContext.delete($0) } )
                     self.actualEvents = actualEvents
                     self.upcomingEvents = upcomingEvents
                     self.eventsDates = eventsDatesWithoutToday
                     self.todayEvents = todayEvents
                     self.displayedEvents = upcomingEvents
-                    //isLoading = false
                 }
             }
-            
         }
         
         func fetchComments() {

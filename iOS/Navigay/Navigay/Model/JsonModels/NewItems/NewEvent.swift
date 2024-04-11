@@ -35,8 +35,10 @@ struct NewEvent: Codable {
     let tags: [Int]?
     let ownderId: Int?
     let placeId: Int?
+    
     let addedBy: Int
     let sessionKey: String
+    
     let isActive: Bool
     let isChecked: Bool
     
@@ -44,7 +46,7 @@ struct NewEvent: Codable {
     let regionId: Int?
     let cityId: Int?
     
-    init(name: String, type: Int, isoCountryCode: String, countryOrigin: String?, countryEnglish: String?, regionOrigin: String?, regionEnglish: String?, cityOrigin: String?, cityEnglish: String?, address: String, latitude: Double, longitude: Double, repeatDates: [EventTimeToSend], location: String?, about: String?, isFree: Bool, tickets: String?, fee: String?, email: String?, phone: String?, www: String?, facebook: String?, instagram: String?, tags: [Int]?, ownderId: Int?, placeId: Int?, isActive: Bool, isChecked: Bool, countryId: Int?, regionId: Int?, cityId: Int?, userId: Int, sessionKey: String) {
+    init(name: String, type: Int, isoCountryCode: String, countryOrigin: String?, countryEnglish: String?, regionOrigin: String?, regionEnglish: String?, cityOrigin: String?, cityEnglish: String?, address: String, latitude: Double, longitude: Double, repeatDates: [EventTimeToSend], location: String?, about: String?, isFree: Bool, tickets: String?, fee: String?, email: String?, phone: String?, www: String?, facebook: String?, instagram: String?, tags: [Int]?, ownderId: Int?, placeId: Int?, isActive: Bool, isChecked: Bool, countryId: Int?, regionId: Int?, cityId: Int?, addedBy: Int, sessionKey: String) {
         self.name = name
         self.type = type
         self.isoCountryCode = isoCountryCode
@@ -71,7 +73,7 @@ struct NewEvent: Codable {
         self.tags = tags
         self.ownderId = ownderId
         self.placeId = placeId
-        self.addedBy = userId
+        self.addedBy = addedBy
         self.sessionKey = sessionKey
         self.isActive = isActive
         self.isChecked = isChecked

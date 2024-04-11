@@ -31,23 +31,14 @@ struct AdminView: View {
                 Section("Unchecked Countries") {
                     ForEach(viewModel.uncheckedCountries) { country in
                         NavigationLink {
-                            EditCountryView(viewModel: EditCountryViewModel(id: country.id, country: nil, errorManager: viewModel.errorManager, networkManager: EditCountryNetworkManager(networkMonitorManager: authenticationManager.networkMonitorManager)))
+                            EditCountryView(viewModel: EditCountryViewModel(id: country.id, country: nil, user: viewModel.user, errorManager: viewModel.errorManager, networkManager: EditCountryNetworkManager(networkMonitorManager: authenticationManager.networkMonitorManager)))
                         } label: {
                             HStack(spacing: 10) {
-                                if let url = country.photo {
-                                    ImageLoadingView(url: url, width: 80, height: 80, contentMode: .fill) {
-                                        Color.red
-                                    }
-                                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                                } else {
-                                    Color.clear
-                                        .frame(width: 80, height: 80)
-                                }
                                 VStack(alignment: .leading, spacing: 10) {
                                     Text("id: \(country.id), code: \(country.isoCountryCode)")
                                         .font(.callout)
                                         .foregroundStyle(.secondary)
-                                    Text(country.nameOrigin ?? "")
+                                    Text(country.nameEn ?? country.nameOrigin ?? "")
                                         .font(.headline)
                                         .bold()
                                 }
@@ -57,42 +48,34 @@ struct AdminView: View {
                 }
                 Section("Unchecked Regions") {
                     EmptyView()
-//                    ForEach(viewModel.uncheckedRegions) { region in
-//                        NavigationLink {
-//                            EditRegionView(viewModel: EditRegionViewModel(region: region, errorManager: viewModel.errorManager, networkManager: viewModel.networkManager))
-//                        } label: {
-//                            VStack {
-//                                HStack(spacing: 10) {
-//                                    if let url = region.photo {
-//                                        ImageLoadingView(url: url, width: 80, height: 80, contentMode: .fill) {
-//                                            Color.red
-//                                        }
-//                                        .clipShape(RoundedRectangle(cornerRadius: 10))
-//                                    } else {
-//                                        Color.clear
-//                                            .frame(width: 80, height: 80)
-//                                    }
-//                                    VStack(alignment: .leading, spacing: 10) {
-//                                        Text("id \(region.id)")
-//                                            .font(.callout)
-//                                            .foregroundStyle(.secondary)
-//                                        Text(region.nameOrigin ?? "")
-//                                            .font(.headline)
-//                                            .bold()
-//                                    }
-//                                }
-//                            }
-//                        }
-//                    }
+                    ForEach(viewModel.uncheckedRegions) { region in
+                        NavigationLink {
+                            EditRegionView(viewModel: EditRegionViewModel(id: region.id, countryId: region.countryId, region: nil, user: viewModel.user, errorManager: viewModel.errorManager, networkManager: EditRegionNetworkManager(networkMonitorManager: authenticationManager.networkMonitorManager)))
+                        } label: {
+                            VStack {
+                                HStack(spacing: 10) {
+                                    
+                                    VStack(alignment: .leading, spacing: 10) {
+                                        Text("id \(region.id)")
+                                            .font(.callout)
+                                            .foregroundStyle(.secondary)
+                                        Text(region.nameEn ?? region.nameOrigin ?? "")
+                                            .font(.headline)
+                                            .bold()
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
                 Section("Unchecked Cities") {
                     ForEach(viewModel.uncheckedCities) { city in
                         NavigationLink {
-                            EditCityView(viewModel: EditCityViewModel(id: city.id, errorManager: viewModel.errorManager, networkManager: EditCityNetworkManager(networkMonitorManager: authenticationManager.networkMonitorManager)))
+                            EditCityView(viewModel: EditCityViewModel(id: city.id, city: nil, user: viewModel.user, errorManager: viewModel.errorManager, networkManager: EditCityNetworkManager(networkMonitorManager: authenticationManager.networkMonitorManager)))
                         } label: {
                             VStack {
                                 Text("id \(city.id)")
-                                Text(city.nameOrigin ?? "")
+                                Text(city.nameEn ?? city.nameOrigin ?? "")
                             }
                         }
                     }
@@ -127,13 +110,11 @@ struct AdminView: View {
             }
             .onAppear() {
                 if !viewModel.isFetched {
-                    guard let user = authenticationManager.appUser else { return }
-                    viewModel.getAdminInfo(for: user)
+                    viewModel.getAdminInfo()
                 }
             }
             .refreshable {
-                guard let user = authenticationManager.appUser else { return }
-                viewModel.getAdminInfo(for: user)
+                viewModel.getAdminInfo()
             }
         }
     }
@@ -142,8 +123,6 @@ struct AdminView: View {
         Section {
             NavigationLink {
                 NewPlaceView(viewModel: AddNewPlaceViewModel(networkManager: EditPlaceNetworkManager(networkMonitorManager: authenticationManager.networkMonitorManager), errorManager: viewModel.errorManager))
-                
-                //                        NewPlaceView(viewModel: AddNewPlaceViewModel(userId: authenticationManager.appUser?.id ?? 0, networkManager: PlaceNetworkManager(appSettingsManager: AppSettingsManager(), errorManager: viewModel.errorManager), errorManager: viewModel.errorManager), authenticationManager: authenticationManager)
             } label: {
                 Label(
                     title: { Text("Add new Place") },
@@ -151,8 +130,7 @@ struct AdminView: View {
                 )
             }
             NavigationLink {
-                EmptyView()
-                //                        NewEventView(viewModel: NewEventViewModel(place: nil, copy: nil, networkManager: EventNetworkManager(appSettingsManager: AppSettingsManager(), errorManager: viewModel.errorManager), errorManager: viewModel.errorManager), authenticationManager: authenticationManager)
+                NewEventView(viewModel: NewEventViewModel(user: viewModel.user , place: nil, copy: nil, networkManager: EditEventNetworkManager(networkMonitorManager: authenticationManager.networkMonitorManager), errorManager: viewModel.errorManager))
             } label: {
                 Label(
                     title: { Text("Add new Event") },

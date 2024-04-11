@@ -121,7 +121,7 @@ final class EventDataManager: EventDataManagerProtocol {
             }
             return isShow
         }
-        if upcomingEvents.count > 0 {
+        if upcomingEvents.count > 3 {
             return upcomingEvents.sorted(by: { $0.startDate < $1.startDate})
         } else {
             let allUpcomingEvents = events.filter { $0.startDate.isFutureDay }

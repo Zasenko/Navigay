@@ -83,10 +83,10 @@ struct CountryView: View {
                         }
                         .tint(.primary)
                     }
-                    if let user = authenticationManager.appUser, user.status == .admin {
+                    if let user = authenticationManager.appUser, (user.status == .admin || user.status == .moderator)  {
                         ToolbarItem(placement: .topBarTrailing) {
                             NavigationLink {
-                                EditCountryView(viewModel: EditCountryViewModel(id: viewModel.country.id, country: viewModel.country, errorManager: viewModel.errorManager, networkManager: EditCountryNetworkManager(networkMonitorManager: authenticationManager.networkMonitorManager)))
+                                EditCountryView(viewModel: EditCountryViewModel(id: viewModel.country.id, country: viewModel.country, user: user, errorManager: viewModel.errorManager, networkManager: EditCountryNetworkManager(networkMonitorManager: authenticationManager.networkMonitorManager)))
                             } label: {
                                 AppImages.iconSettings
                                     .bold()

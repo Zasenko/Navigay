@@ -129,21 +129,6 @@ extension HomeView {
             }
         }
         
-        func showUpcomingEvents() {
-            withAnimation {
-                self.displayedEvents = upcomingEvents
-            }
-        }
-        
-        func getEvents(for date: Date) {
-            Task {
-                let events = await eventDataManager.getEvents(for: date, events: actualEvents )
-                await MainActor.run {
-                    displayedEvents = events
-                }
-            }
-        }
-        
         //MARK: - Private Functions
         
         private func fetch(location: CLLocation) async {

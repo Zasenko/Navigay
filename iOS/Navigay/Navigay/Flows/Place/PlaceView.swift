@@ -20,10 +20,10 @@ struct PlaceView: View {
     @State private var viewModel: PlaceViewModel
     @EnvironmentObject private var authenticationManager: AuthenticationManager
     
-    // MARK: - Inits
+    // MARK: - Init
     
     init(viewModel: PlaceViewModel) {
-        _viewModel = State(wrappedValue: viewModel)
+        _viewModel = State(initialValue: viewModel)
     }
         
     // MARK: - Body
@@ -68,7 +68,6 @@ struct PlaceView: View {
                         Button {
                             viewModel.place.isLiked.toggle()
                             guard let user = authenticationManager.appUser else { return }
-                            
                             if let index = user.likedPlaces.firstIndex(where: {$0 == viewModel.place.id} ) {
                                 user.likedPlaces.remove(at: index)
                             } else {
@@ -80,13 +79,13 @@ struct PlaceView: View {
                                 .frame(width: 30, height: 30, alignment: .leading)
                         }
                         .tint(viewModel.place.isLiked ? .red :  .secondary)
-                        if let user = authenticationManager.appUser, user.status == .admin {
+                        if let user = authenticationManager.appUser, (user.status == .admin || user.status == .moderator) {
                             Menu {
                                 NavigationLink("Edit Place") {
                                     EditPlaceView(viewModel: EditPlaceViewModel(id: viewModel.place.id, place: viewModel.place, user: user, networkManager: EditPlaceNetworkManager(networkMonitorManager: authenticationManager.networkMonitorManager), errorManager: viewModel.errorManager))
                                 }
                                 NavigationLink("Add Event") {
-                                    EmptyView()
+                                    NewEventView(viewModel: NewEventViewModel(user: user, place: viewModel.place, copy: nil, networkManager: EditEventNetworkManager(networkMonitorManager: authenticationManager.networkMonitorManager), errorManager: viewModel.errorManager))
                                 }
                             } label: {
                                 AppImages.iconSettings
@@ -99,22 +98,8 @@ struct PlaceView: View {
             }
             .onAppear() {
                 viewModel.allPhotos = viewModel.place.getAllPhotos()
-                viewModel.fetchPlace()
+                viewModel.getEventsFromDB()
             }
-//            .navigationDestination(isPresented: $viewModel.showAddEventView) {
-//                if let user = authenticationManager.appUser, user.status == .admin {
-//                    NewEventView(viewModel: NewEventViewModel(place: viewModel.place, copy: nil, networkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager), authenticationManager: authenticationManager)
-//                    EmptyView()
-//                } else {
-//                    //TODO: - вью ошибки и переход назад
-//                    EmptyView()
-//                }
-//            }
-//            .fullScreenCover(isPresented: $viewModel.showEditView) {
-//                viewModel.showEditView = false
-//            } content: {
-//                EditPlaceView(viewModel: EditPlaceViewModel(place: viewModel.place, networkManager: AdminNetworkManager(errorManager: viewModel.errorManager)))
-//            }
         }
     }
     

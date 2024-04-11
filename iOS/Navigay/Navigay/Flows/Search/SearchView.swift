@@ -153,7 +153,7 @@ struct SearchView: View {
                             .offset(x: 70)
                         ForEach(viewModel.searchCities) { city in
                             NavigationLink {
-                                CityView(modelContext: viewModel.modelContext, city: city, catalogNetworkManager: viewModel.catalogNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, errorManager: viewModel.errorManager, authenticationManager: authenticationManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, catalogDataManager: viewModel.catalogDataManager)
+                                CityView(viewModel: CityView.CityViewModel(modelContext: viewModel.modelContext, city: city, catalogNetworkManager: viewModel.catalogNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, catalogDataManager: viewModel.catalogDataManager))
                             } label: {
                                 CityCell(city: city, showCountryRegion: true)
                             }
@@ -179,7 +179,7 @@ struct SearchView: View {
                             Button {
                                 viewModel.selectedEvent = event
                             } label: {
-                                EventCell(event: event, showCountryCity: false, showStartDayInfo: true, showStartTimeInfo: false)
+                                EventCell(event: event, showCountryCity: true, showStartDayInfo: true, showStartTimeInfo: false)
                                     .matchedGeometryEffect(id: "Event\(event.id)", in: animation)
                             }
                         }

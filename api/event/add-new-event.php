@@ -11,25 +11,23 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 $postData = file_get_contents('php://input');
-
 $decodedEvent = json_decode($postData, true);
 if (empty($decodedEvent)) {
     sendError('Empty Data.');
 }
-
 //-------- проверка юзера
-$user_id = isset($decodedEvent["addedBy"]) ? intval($decodedEvent["addedBy"]) : 0;
-if ($user_id <= 0) {
+$added_by = isset($decodedEvent["addedBy"]) ? intval($decodedEvent["addedBy"]) : 0;
+if ($added_by <= 0) {
     sendError('Invalid user ID.');
 }
 $session_key = isset($decodedEvent["sessionKey"]) ? $decodedEvent["sessionKey"] : '';
-if (empty($decodedEvent)) {
+if (empty($session_key)) {
     sendError('Session key is required.');
 }
 $hashed_session_key = hash('sha256', $session_key);
 
 $sql = "SELECT session_key, status FROM User WHERE id = ?";
-$params = [$user_id];
+$params = [$added_by];
 $types = "i";
 $stmt = executeQuery($conn, $sql, $params, $types);
 $result = $stmt->get_result();
@@ -45,7 +43,6 @@ if (!($status === "admin" || $status === "moderator" || $status === "partner")) 
     $conn->close();
     sendError('Admin access only.');
 }
-
 $stored_hashed_session_key = $row['session_key'];
 if (!hash_equals($hashed_session_key, $stored_hashed_session_key)) {
     $conn->close();
@@ -141,7 +138,7 @@ foreach ($decodedEvent['repeatDates'] as $repeatDate) {
 
     $sql = "INSERT INTO Event (name, type_id, country_id, region_id, city_id, latitude, longitude, address, start_date, start_time, finish_date, finish_time, location, about, is_free, tickets, fee, email, phone, www, facebook, instagram, tags, owner_id, place_id, added_by, is_active, is_checked) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-    $params = [$name, $type_id, $country_id, $region_id, $city_id, $latitude, $longitude, $address, $start_date, $start_time, $finish_date, $finish_time, $location, $about, $is_free, $tickets, $fee, $email, $phone, $www, $facebook, $instagram, $tags, $owner_id, $place_id, $user_id, $is_active, $is_checked];
+    $params = [$name, $type_id, $country_id, $region_id, $city_id, $latitude, $longitude, $address, $start_date, $start_time, $finish_date, $finish_time, $location, $about, $is_free, $tickets, $fee, $email, $phone, $www, $facebook, $instagram, $tags, $owner_id, $place_id, $added_by, $is_active, $is_checked];
     $types = "siiiiddsssssssissssssssiiiii";
 
     $stmt = executeQuery($conn, $sql, $params, $types);

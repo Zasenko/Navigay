@@ -9,7 +9,7 @@ import SwiftUI
 
 protocol EditCountryNetworkManagerProtocol {
     func fetchCountry(id: Int, for user: AppUser) async throws -> AdminCountry
-    func updateCountry(country: AdminCountry, from user: AppUser) async throws
+    func updateCountry(id: Int, name: String, flag: String, about: String, showRegions: Bool, isActive: Bool, isChecked: Bool, user: AppUser) async throws
     func updateCountryPhoto(countryId: Int, uiImage: UIImage, from user: AppUser) async throws -> String
 }
 
@@ -51,16 +51,21 @@ extension EditCountryNetworkManager: EditCountryNetworkManagerProtocol {
             components.scheme = scheme
             components.host = host
             components.path = path
-            components.queryItems = [
-                URLQueryItem(name: "id", value: String(id)),
-            ]
             return components
         }
         guard let url = urlComponents.url else {
             throw NetworkErrors.badUrl
         }
+        let parameters = [
+            "country_id": String(id),
+            "user_id": String(user.id),
+            "session_key": sessionKey,
+        ]
+        let requestData = try JSONSerialization.data(withJSONObject: parameters)
         var request = URLRequest(url: url)
-        request.httpMethod = "GET"
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = requestData
         let (data, response) = try await URLSession.shared.data(for: request)
         guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
             throw NetworkErrors.invalidData
@@ -74,7 +79,9 @@ extension EditCountryNetworkManager: EditCountryNetworkManagerProtocol {
         return decodedCountry
     }
     
-    func updateCountry(country: AdminCountry, from user: AppUser) async throws {
+    
+    
+    func updateCountry(id: Int, name: String, flag: String, about: String, showRegions: Bool, isActive: Bool, isChecked: Bool, user: AppUser) async throws {
         guard networkMonitorManager.isConnected else {
             throw NetworkErrors.noConnection
         }
@@ -92,11 +99,22 @@ extension EditCountryNetworkManager: EditCountryNetworkManagerProtocol {
         guard let url = urlComponents.url else {
             throw NetworkErrors.badUrl
         }
+        let parameters = [
+            "country_id": String(id),
+            "name_en": name,
+            "flag_emoji": flag,
+            "about": about,
+            "show_regions": showRegions ?  "1" : "0",
+            "is_active": isActive ? "1" : "0",
+            "is_checked": isChecked ? "1" : "0",
+            "user_id": String(user.id),
+            "session_key": sessionKey,
+        ]
+        let requestData = try JSONSerialization.data(withJSONObject: parameters)
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        let jsonData = try JSONEncoder().encode(country)
-        request.httpBody = jsonData
+        request.httpBody = requestData
         let (data, response) = try await URLSession.shared.data(for: request)
         guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
             throw NetworkErrors.invalidData
@@ -131,7 +149,7 @@ extension EditCountryNetworkManager: EditCountryNetworkManagerProtocol {
         request.httpMethod = "POST"
         let boundary = UUID().uuidString
         request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
-        request.httpBody = try await createBodyImageUpdating(image: uiImage, id: countryId, boundary: boundary)
+        request.httpBody = try await createBodyImageUpdating(image: uiImage, countryId: countryId, userID: user.id, sessionKey: sessionKey, boundary: boundary)
         let (data, response) = try await URLSession.shared.data(for: request)
         guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
             throw NetworkErrors.invalidData
@@ -150,20 +168,33 @@ extension EditCountryNetworkManager: EditCountryNetworkManagerProtocol {
 
 extension EditCountryNetworkManager {
     
-    private func createBodyImageUpdating(image: UIImage, id: Int, boundary: String) async throws -> Data {
+    private func createBodyImageUpdating(image: UIImage, countryId: Int, userID: Int, sessionKey: String, boundary: String) async throws -> Data {
         var body = Data()
         guard let imageData = image.jpegData(compressionQuality: 0.8) else {
             throw NetworkErrors.imageDataError
         }
         body.append("--\(boundary)\r\n".data(using: .utf8)!)
-        body.append("Content-Disposition: form-data; name=\"id\"\r\n\r\n".data(using: .utf8)!)
-        body.append("\(id)\r\n".data(using: .utf8)!)
+        // country_id
+        body.append("Content-Disposition: form-data; name=\"country_id\"\r\n\r\n".data(using: .utf8)!)
+        body.append("\(countryId)\r\n".data(using: .utf8)!)
         body.append("\r\n".data(using: .utf8)!)
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        // user_id
+        body.append("Content-Disposition: form-data; name=\"user_id\"\r\n\r\n".data(using: .utf8)!)
+        body.append("\(userID)\r\n".data(using: .utf8)!)
+        body.append("\r\n".data(using: .utf8)!)
+        // sessyinKey
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"session_key\"\r\n\r\n".data(using: .utf8)!)
+        body.append("\(sessionKey)".data(using: .utf8)!)
+        body.append("\r\n".data(using: .utf8)!)
+        //image
         body.append("--\(boundary)\r\n".data(using: .utf8)!)
         body.append("Content-Disposition: form-data; name=\"image\"; filename=\"image.jpg\"\r\n".data(using: .utf8)!)
         body.append("Content-Type: image/jpeg\r\n\r\n".data(using: .utf8)!)
         body.append(imageData)
         body.append("\r\n".data(using: .utf8)!)
+        
         body.append("--\(boundary)--\r\n".data(using: .utf8)!)
         return body
     }

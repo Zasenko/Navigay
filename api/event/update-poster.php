@@ -47,14 +47,6 @@ if (!hash_equals($hashed_session_key, $stored_hashed_session_key)) {
 }
 
 //---------- photos
-if (!isset($_FILES['poster']['tmp_name']) || !file_exists($_FILES['poster']['tmp_name'])) {
-    $conn->close();
-    sendError('The poster file does not exist.');
-}
-if (!isset($_FILES['small_poster']['tmp_name']) || !file_exists($_FILES['small_poster']['tmp_name'])) {
-    $conn->close();
-    sendError('The small poster file does not exist.');
-}
 if (empty($_FILES['poster']['name'])) {
     $conn->close();
     sendError('poster file is required.');
@@ -62,6 +54,14 @@ if (empty($_FILES['poster']['name'])) {
 if (empty($_FILES['small_poster']['name'])) {
     $conn->close();
     sendError('Small poster file is required.');
+}
+if (!isset($_FILES['poster']['tmp_name']) || !file_exists($_FILES['poster']['tmp_name'])) {
+    $conn->close();
+    sendError('The poster file does not exist.');
+}
+if (!isset($_FILES['small_poster']['tmp_name']) || !file_exists($_FILES['small_poster']['tmp_name'])) {
+    $conn->close();
+    sendError('The small poster file does not exist.');
 }
 $allowed_extensions = ['jpeg', 'jpg', 'png'];
 $max_file_size = 5 * 1024 * 1024; // 5 MB

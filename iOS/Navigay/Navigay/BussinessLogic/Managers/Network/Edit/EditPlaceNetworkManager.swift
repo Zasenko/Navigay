@@ -25,9 +25,7 @@ protocol EditPlaceNetworkManagerProtocol {
 }
 
 final class EditPlaceNetworkManager {
-    
-    // MARK: - Properties
-    
+        
     // MARK: - Private Properties
     
     private let scheme = "https"
@@ -42,7 +40,7 @@ final class EditPlaceNetworkManager {
     }
 }
 
-// MARK: - CountryNetworkManagerProtocol
+// MARK: - EditPlaceNetworkManagerProtocol
 
 extension EditPlaceNetworkManager: EditPlaceNetworkManagerProtocol {
     
@@ -66,8 +64,8 @@ extension EditPlaceNetworkManager: EditPlaceNetworkManagerProtocol {
         }
         let parameters = [
             "place_id": String(placeId),
-            "is_active": isActive.description,
-            "is_checked": isChecked.description,
+            "is_active": isActive ? "1" : "0",
+            "is_checked": isChecked ? "1" : "0",
             "admin_notes": adminNotes,
             "user_id": String(user.id),
             "session_key": sessionKey,
@@ -88,7 +86,6 @@ extension EditPlaceNetworkManager: EditPlaceNetworkManagerProtocol {
             throw NetworkErrors.apiError(decodedResult.error)
         }
     }
-    
     
     func updateTimetable(placeId: Int, timetable: [PlaceWorkDay]?, for user: AppUser) async throws {
         guard networkMonitorManager.isConnected else {

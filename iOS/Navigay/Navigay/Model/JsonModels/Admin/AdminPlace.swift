@@ -32,6 +32,7 @@ struct AdminPlace: Identifiable, Codable {
     let otherInfo: String?
     let ownerId: Int?
     let addedBy: Int?
+    let adminNotes: String?
     let isActive: Bool
     let isChecked: Bool
     let createdAt: String
@@ -61,6 +62,7 @@ struct AdminPlace: Identifiable, Codable {
         case otherInfo = "other_info"
         case ownerId = "owner_id"
         case addedBy = "added_by"
+        case adminNotes = "admin_notes"
         case isActive = "is_active"
         case isChecked = "is_checked"
         case createdAt = "created_at"
