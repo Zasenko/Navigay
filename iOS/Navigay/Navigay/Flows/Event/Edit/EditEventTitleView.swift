@@ -78,7 +78,6 @@ struct EditEventTitleView: View {
                         }
                         .bold()
                         .disabled(name.isEmpty || name.count < 2)
-                        .disabled(isLoading)
                     }
                 }
             }

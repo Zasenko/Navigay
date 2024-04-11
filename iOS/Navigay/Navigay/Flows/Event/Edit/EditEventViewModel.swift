@@ -91,40 +91,10 @@ extension EditEventViewModel {
     
     func fetchEvent() {
         guard !fetched else { return }
-        isLoading = true
         Task {
             do {
                 let event = try await networkManager.fetchEvent(id: id, for: user)
                 await MainActor.run {
-//                    self.name = "event.name"
-//                    self.type = .festival
-//                    self.countryId = nil
-//                    self.regionId = nil
-//                    self.cityId = nil
-//                    self.latitude = 0.0
-//                    self.longitude = 0.0
-//                    self.address = "eee"
-//                    self.startDate = "2024-04-13".dateFromString(format: "yyyy-MM-dd") ?? .now
-//                    self.startTime = "23:00:00".dateFromString(format: "HH:mm:ss")
-//                    self.finishDate = "2024-04-13".dateFromString(format: "yyyy-MM-dd")
-//                    self.finishTime = "08:00:00".dateFromString(format: "HH:mm:ss")
-//                    self.location = "event.location"
-//                    self.about = "event.about"
-//                    self.poster = AdminPhoto(id: UUID().uuidString, image: nil, url: "https://i.ebayimg.com/images/g/YocAAOSwx09jPfnj/s-l400.jpg")
-//                    self.smallPoster = AdminPhoto(id: UUID().uuidString, image: nil, url: "https://i.ebayimg.com/images/g/YocAAOSwx09jPfnj/s-l400.jpg")
-//                    self.isFree = false
-//                    self.tickets = ""
-//                    self.fee = ""
-//                    self.email = ""
-//                    self.phone = ""
-//                    self.www = ""
-//                    self.facebook = ""
-//                    self.instagram = ""
-//                    self.tags = []
-//                    self.isActive = false
-//                    self.isChecked = true
-//                    
-//                    self.fetched = true
                     self.name = event.name
                     self.type = event.type
                     self.countryId = event.countryId
@@ -160,8 +130,6 @@ extension EditEventViewModel {
                     }
                     
                     self.fetched = true
-                    
-                    
                 }
             } catch NetworkErrors.noConnection {
                 errorManager.showNetworkNoConnected()
@@ -169,9 +137,6 @@ extension EditEventViewModel {
                 errorManager.showApiError(apiError: apiError, or: errorManager.errorMessage, img: nil, color: nil)
             } catch {
                 errorManager.showError(model: ErrorModel(error: error, message: errorManager.errorMessage, img: nil, color: nil))
-            }
-            await MainActor.run {
-                self.isLoading = false
             }
         }
     }
@@ -265,6 +230,30 @@ extension EditEventViewModel {
             return false
     }
     
+    func updateFee(isFree: Bool, fee: String?, tickets: String?) async -> Bool {
+        do {
+            try await networkManager.updateTime(id: id, startDate: startDate, startTime: startTime, finishDate: finishDate, finishTime: finishTime, user: user)
+            await MainActor.run {
+                self.startDate = startDate
+                self.startTime = startTime
+                self.finishDate = finishDate
+                self.finishTime = finishTime
+                event?.startDate = startDate
+                event?.startTime = startTime
+                event?.finishDate = finishDate
+                event?.finishTime = finishTime
+            }
+            return true
+        } catch NetworkErrors.noConnection {
+            errorManager.showNetworkNoConnected()
+        } catch NetworkErrors.apiError(let apiError) {
+            errorManager.showApiError(apiError: apiError, or: errorManager.updateMessage, img: nil, color: nil)
+        } catch {
+            errorManager.showError(model: ErrorModel(error: error, message: errorManager.updateMessage, img: nil, color: nil))
+        }
+        return false
+    }
+    
     func updateActivity(isActive: Bool, isChecked: Bool, adminNotes: String) async -> Bool {
         do {
             try await networkManager.updateActivity(id: id, isActive: isActive, isChecked: isChecked, adminNotes: adminNotes.isEmpty ? nil : adminNotes, user: user)
@@ -314,41 +303,6 @@ extension EditEventViewModel {
         }
     }
     
-    
-//    func updateInfo() async -> Bool {
-//        let errorModel = ErrorModel(message: "Something went wrong. The city didn't update in database. Please try again later.", img: nil, color: nil)
-//        let about = about.map( { DecodedAbout(language: $0.language, about: $0.about) } )
-//        let city: AdminCity = AdminCity(id: id,
-//                                        countryId: countryId,
-//                                        regionId: regionId,
-//                                        nameOrigin: nameOrigin.isEmpty ? nil : nameOrigin,
-//                                        nameEn: nameEn.isEmpty ? nil : nameEn,
-//                                        nameFr: nameFr.isEmpty ? nil : nameFr,
-//                                        nameDe: nameDe.isEmpty ? nil : nameDe,
-//                                        nameRu: nameRu.isEmpty ? nil : nameRu,
-//                                        nameIt: nameIt.isEmpty ? nil : nameIt,
-//                                        nameEs: nameEs.isEmpty ? nil : nameEs,
-//                                        namePt: namePt.isEmpty ? nil : namePt,
-//                                        about: about.isEmpty ? nil : about,
-//                                        photo: nil,
-//                                        photos: nil,
-//                                        isActive: isActive,
-//                                        isChecked: isChecked)
-//        do {
-//            let decodedResult = try await networkManager.updateCity(city: city)
-//            guard decodedResult.result else {
-//                errorManager.showApiErrorOrMessage(apiError: decodedResult.error, or: errorModel)
-//                return false
-//            }
-//            return true
-//        } catch {
-//            debugPrint("ERROR - update country info: ", error)
-//            errorManager.showApiErrorOrMessage(apiError: nil, or: errorModel)
-//            return false
-//        }
-//    }
-
-    
     func deletePoster() {
         self.isLoadingPoster = true
         Task {
@@ -376,21 +330,23 @@ extension EditEventViewModel {
         }
     }
     
-    func deleteEvent() {
-        self.isLoading = true
-        Task {
-            do {
-                try await networkManager.deleteEvent(eventId: id, from: user)
-            } catch NetworkErrors.noConnection {
-                errorManager.showNetworkNoConnected()
-            } catch NetworkErrors.apiError(let apiError) {
-                errorManager.showApiError(apiError: apiError, or: errorManager.errorMessage, img: nil, color: nil)
-            } catch {
-                errorManager.showError(model: ErrorModel(error: error, message: errorManager.errorMessage, img: nil, color: nil))
-            }
-            await MainActor.run {
-                self.isLoading = false
-            }
+    func deleteEvent() async -> Bool {
+        await MainActor.run {
+            self.isLoading = true
         }
+        do {
+            try await networkManager.deleteEvent(eventId: id, from: user)
+            return true
+        } catch NetworkErrors.noConnection {
+            errorManager.showNetworkNoConnected()
+        } catch NetworkErrors.apiError(let apiError) {
+            errorManager.showApiError(apiError: apiError, or: errorManager.errorMessage, img: nil, color: nil)
+        } catch {
+            errorManager.showError(model: ErrorModel(error: error, message: errorManager.errorMessage, img: nil, color: nil))
+        }
+        await MainActor.run {
+            self.isLoading = false
+        }
+        return false
     }
 }

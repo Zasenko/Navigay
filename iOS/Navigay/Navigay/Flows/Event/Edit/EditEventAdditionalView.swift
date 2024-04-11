@@ -131,7 +131,6 @@ struct EditEventAdditionalInfoView: View {
                         update()
                     }
                     .bold()
-                    .disabled(isLoading)
                 }
             }
         }

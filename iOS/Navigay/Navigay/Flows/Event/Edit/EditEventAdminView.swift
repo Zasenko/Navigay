@@ -28,19 +28,22 @@ struct EditEventAdminView: View {
     var body: some View {
         VStack(spacing: 0) {
             Divider()
-            ActivationFieldsView(isActive: $isActive, isChecked: $isChecked)
-                .padding(.vertical)
-            Divider()
-            NavigationLink {
-                EditTextEditorView(title: "Notes", text: adminNotes, characterLimit: 3000, onSave: { string in
-                    adminNotes = string
-                })
-            } label: {
-                EditField(title: "Notes", text: $adminNotes, emptyFieldColor: .secondary)
+            ScrollView {
+                ActivationFieldsView(isActive: $isActive, isChecked: $isChecked)
                     .padding(.vertical)
+                Divider()
+                NavigationLink {
+                    EditTextEditorView(title: "Notes", text: adminNotes, characterLimit: 3000, onSave: { string in
+                        adminNotes = string
+                    })
+                } label: {
+                    EditField(title: "Notes", text: $adminNotes, emptyFieldColor: .secondary)
+                        .padding(.vertical)
+                }
+                .padding(.horizontal)
+                Spacer()
             }
-            .padding(.horizontal)
-            Spacer()
+            .scrollIndicators(.hidden)
         }
         .navigationBarBackButtonHidden()
         .toolbarBackground(AppColors.background)
@@ -69,7 +72,6 @@ struct EditEventAdminView: View {
                         update()
                     }
                     .bold()
-                    .disabled(isLoading)
                 }
             }
         }

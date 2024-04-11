@@ -74,7 +74,6 @@ struct EditEventAboutView: View {
                         update()
                     }
                     .bold()
-                    .disabled(isLoading)
                 }
             }
         }

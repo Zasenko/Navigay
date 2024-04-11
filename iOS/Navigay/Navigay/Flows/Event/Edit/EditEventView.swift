@@ -39,12 +39,18 @@ struct EditEventView: View {
                 .toolbarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .principal) {
-                        VStack(spacing: 0) {
-                            Text("ID: \(viewModel.id)")
-                                .font(.caption).bold()
-                                .foregroundStyle(.secondary)
-                            Text("Edit Event")
-                                .font(.headline).bold()
+                        HStack {
+                            if viewModel.isLoading {
+                                ProgressView()
+                                    .tint(.blue)
+                            }
+                            VStack(spacing: 0) {
+                                Text("ID: \(viewModel.id)")
+                                    .font(.caption).bold()
+                                    .foregroundStyle(.secondary)
+                                Text("Edit Event")
+                                    .font(.headline).bold()
+                            }
                         }
                     }
                     ToolbarItem(placement: .topBarLeading) {
@@ -58,8 +64,6 @@ struct EditEventView: View {
                         .tint(.primary)
                     }
                 }
-                .disabled(viewModel.isLoadingPoster)
-                .disabled(viewModel.isLoading)
                 .onAppear() {
                     viewModel.fetchEvent()
                 }
@@ -76,30 +80,12 @@ struct EditEventView: View {
                 informationView
                 additionalInformationView
                 timeView
-//                requiredInformationView
+                feeView
+                requiredInformationView
                 if viewModel.showAdminFields {
                     adminView
                 }
-//                
-//                Button("Delete Place") {
-//                    viewModel.showDeleteSheet.toggle()
-//                }
-//                .buttonStyle(.bordered)
-//                .padding()
-//                .alert("Delete Place", isPresented: $viewModel.showDeleteSheet) {
-//                    Button("Delete", role: .destructive) {
-////                        guard let user = authenticationManager.appUser else {
-////                            return
-////                        }
-////                        viewModel.deleteEvent(user: user)
-//                    }
-//                    Button("Cancel", role: .cancel) {
-//                        viewModel.showDeleteSheet.toggle()
-//                    }
-//                } message: {
-//                    Text("Are you shure you want to delete this Place?")
-//                }
-                
+                deleteButton
                 Color.clear
                     .frame(height: 50)
                     .listRowSeparator(.hidden)
@@ -234,7 +220,7 @@ struct EditEventView: View {
         Section {
             NavigationLink {
                 EmptyView()
-                //EditPlaceAdditionalInfoView(viewModel: viewModel)
+                EditEventAdditionalInfoView(viewModel: viewModel)
             } label: {
                 headerText(text: "Additional Information")
             }
@@ -289,6 +275,52 @@ struct EditEventView: View {
         .listRowSeparator(.hidden)
     }
     
+    private var feeView: some View {
+        Section {
+            NavigationLink {
+                EditEventFeeView(viewModel: viewModel)
+            } label: {
+                headerText(text: "Fee")
+            }
+            VStack(alignment: .leading, spacing: 0) {
+                Divider()
+                if viewModel.isFree {
+                    Text("free event")
+                } else {
+                    VStack(alignment: .leading) {
+                        Text("Fee: ").bold()
+                        + Text(viewModel.fee)
+                        Text("Tickets: ").bold()
+                        + Text(viewModel.tickets)
+                    }
+                    .font(.callout)
+                    .padding(.vertical)
+                }
+               
+            }
+            Spacer(minLength: 40)
+        }
+        .listRowSeparator(.hidden)
+    }
+    
+    private var requiredInformationView: some View {
+        Section {
+            NavigationLink {
+                EmptyView()
+            } label: {
+                headerText(text: "Required information")
+            }
+            VStack(spacing: 0) {
+                Divider()
+                Text(viewModel.address)
+                    .padding(.vertical)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            Spacer(minLength: 40)
+        }
+        .listRowSeparator(.hidden)
+    }
+    
     private var adminView: some View {
         Section {
             NavigationLink {
@@ -312,6 +344,31 @@ struct EditEventView: View {
             Spacer(minLength: 40)
         }
         .listRowSeparator(.hidden)
+    }
+    
+    private var deleteButton: some View {
+        Button("Delete Event") {
+            viewModel.showDeleteSheet.toggle()
+        }
+        .buttonStyle(.bordered)
+        .padding()
+        .alert("Delete Event", isPresented: $viewModel.showDeleteSheet) {
+            Button("Delete", role: .destructive) {
+                Task {
+                    if await viewModel.deleteEvent() {
+                        await MainActor.run {
+                            dismiss()
+                        }
+                    }
+                }
+                
+            }
+            Button("Cancel", role: .cancel) {
+                viewModel.showDeleteSheet.toggle()
+            }
+        } message: {
+            Text("Are you shure you want to delete this Event?")
+        }
     }
     
     private func headerText(text: String) -> some View {

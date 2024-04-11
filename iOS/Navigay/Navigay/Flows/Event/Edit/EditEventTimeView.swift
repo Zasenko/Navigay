@@ -67,7 +67,6 @@ struct EditEventTimeView: View {
                     }
                     .bold()
                     .disabled(startDate == nil)
-                    .disabled(isLoading)
                 }
             }
         }
