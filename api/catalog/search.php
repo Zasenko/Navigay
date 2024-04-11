@@ -23,8 +23,8 @@ $cities = array();
 $sql = "SELECT
 City.id, 
 City.name_en, 
+City.small_photo
 City.photo, 
-City.small_photo,
 City.updated_at, 
 City.region_id, 
 City.country_id, 

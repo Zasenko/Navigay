@@ -11,8 +11,8 @@ final class EditCountryViewModel: ObservableObject {
     
     //MARK: - Properties
     
-    private let id: Int
-    private var isoCountryCode: String = ""
+    let id: Int
+    var isoCountryCode: String = ""
     var nameOrigin: String = ""
     @Published var nameEn: String = ""
     @Published var flagEmoji: String = ""
@@ -21,17 +21,18 @@ final class EditCountryViewModel: ObservableObject {
     @Published var showRegions: Bool = false
     @Published var isActive: Bool = false
     @Published var isChecked: Bool = false
-    
-    var isLoading: Bool = false
-    var isLoadingPhoto: Bool = false
+    @Published var isLoading: Bool = false
+    @Published var isLoadingPhoto: Bool = false
     
     var isFetched: Bool = false
-    
+        
     //MARK: - Private Properties
     
     private let errorManager: ErrorManagerProtocol
     private let networkManager: EditCountryNetworkManagerProtocol
     private let user: AppUser
+    private let country: Country?
+
     
     // MARK: - Inits
     
@@ -40,6 +41,7 @@ final class EditCountryViewModel: ObservableObject {
         self.errorManager = errorManager
         self.networkManager = networkManager
         self.id = id
+        self.country = country
     }
 }
 
@@ -62,7 +64,7 @@ extension EditCountryViewModel {
                     flagEmoji = decodedCountry.flagEmoji ?? ""
                     photo = AdminPhoto(id: UUID().uuidString, image: nil, url: decodedCountry.photo)
                     about = decodedCountry.about ?? ""
-                    showRegions = decodedCountry.showRegions
+                    showRegions = decodedCountry.showRegions ?? false
                     isActive = decodedCountry.isActive
                     isChecked = decodedCountry.isChecked
                 }
@@ -80,20 +82,12 @@ extension EditCountryViewModel {
         await MainActor.run {
             isLoading = true
         }
-        let country: AdminCountry = AdminCountry(id: id,
-                                                 isoCountryCode: isoCountryCode,
-                                                 nameOrigin: nameOrigin.isEmpty ? nil : nameOrigin,
-                                                 nameEn: nameEn.isEmpty ? nil : nameEn,
-                                                 about: about.isEmpty ? nil : about,
-                                                 flagEmoji: flagEmoji.isEmpty ? nil : flagEmoji,
-                                                 photo: nil,
-                                                 showRegions: showRegions,
-                                                 isActive: isActive,
-                                                 isChecked: isChecked)
         do {
-            try await networkManager.updateCountry(country: country, from: user)
+            try await networkManager.updateCountry(id: id, name: nameEn, flag: flagEmoji, about: about, showRegions: showRegions, isActive: isActive, isChecked: isChecked, user: user)
             await MainActor.run {
                 isLoading = false
+                
+                //todo update country
             }
             return true
         } catch NetworkErrors.noConnection {
@@ -118,6 +112,9 @@ extension EditCountryViewModel {
                 let newUrl = try await networkManager.updateCountryPhoto(countryId: id, uiImage: scaledImage, from: user)
                 await MainActor.run {
                     photo = AdminPhoto(id: UUID().uuidString, image: Image(uiImage: uiImage), url: newUrl)
+                    
+                    //todo update country
+                    
                 }
             } catch NetworkErrors.noConnection {
                 errorManager.showNetworkNoConnected()

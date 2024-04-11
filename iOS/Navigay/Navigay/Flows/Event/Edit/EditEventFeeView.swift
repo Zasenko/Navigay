@@ -1,51 +1,41 @@
 //
-//  EditEventAboutView.swift
+//  EditEventFeeView.swift
 //  Navigay
 //
-//  Created by Dmitry Zasenko on 18.01.24.
+//  Created by Dmitry Zasenko on 11.04.24.
 //
 
 import SwiftUI
 
-struct EditEventAboutView: View {
-    
-    //MARK: - Private Properties
+struct EditEventFeeView: View {
     
     @ObservedObject private var viewModel: EditEventViewModel
     
-    @State private var isLoading: Bool = false
-    @State private var about: String = ""
+    @State private var didApear: Bool = false
     
-    @FocusState private var focused: Bool
+    @State private var isFree: Bool = false
+    @State private var fee: String = ""
+    @State private var tickets: String = ""
+    
+    private let title: String = "Fee"
+    
+    @State private var isLoading: Bool = false
     @Environment(\.dismiss) private var dismiss
     
-    private let title: String = "Information"
-    private let characterLimit: Int = 3000
-    
-    //MARK: - Inits
-
     init(viewModel: EditEventViewModel) {
         self.viewModel = viewModel
     }
     
-    // MARK: - Body
-    
     var body: some View {
-        VStack(alignment: .leading) {
+        VStack(spacing: 0) {
             Divider()
-            TextEditor(text: $about)
-                .font(.body)
-                .lineSpacing(5)
-                .padding(.horizontal, 10)
-                .focused($focused)
-                .onChange(of: about, initial: true) { oldValue, newValue in
-                    about = String(newValue.prefix(characterLimit))
-                }
-            Text(String(characterLimit - about.count))
-                .foregroundStyle(.secondary)
-                .frame(maxWidth: .infinity, alignment: .trailing)
-                .padding(.horizontal)
-                .padding(.bottom)
+            ScrollView {
+                EventFeeFieldsView(isFree: $isFree, fee: $fee, tickets: $tickets)
+                    .padding(.vertical)
+            }
+            .scrollIndicators(.hidden)
+            
+            Spacer()
         }
         .navigationBarBackButtonHidden()
         .toolbarBackground(AppColors.background)
@@ -74,22 +64,26 @@ struct EditEventAboutView: View {
                         update()
                     }
                     .bold()
+                    .disabled(!viewModel.isLoading)
                 }
             }
         }
-        .onAppear {
-            focused = true
-            self.about = viewModel.about
+        .onAppear() {
+            if !didApear {
+                isFree = viewModel.isFree
+                fee = viewModel.fee
+                tickets = viewModel.tickets
+                didApear = true
+            }
         }
     }
     
-    // MARK: - Private Functions
+    //MARK: - Private Functions
     
     private func update() {
         isLoading = true
-        focused = false
         Task {
-            if await viewModel.updateAbout(about: about) {
+            if await viewModel.updateFee(isFree: isFree, fee: fee.isEmpty ? nil : fee, tickets: tickets.isEmpty ? nil : tickets) {
                 await MainActor.run {
                     dismiss()
                 }
@@ -103,5 +97,5 @@ struct EditEventAboutView: View {
 }
 
 //#Preview {
-//    EditEventAboutView()
+//    EditEventFeeView()
 //}

@@ -137,7 +137,7 @@ struct AddLocationView: View {
         self.isoCountryCode = isoCountryCode
         
         getLocationLanguage(location: location) { language in
-            let preferredLanguage = language ?? (Locale.preferredLanguages.first ?? "en")
+            let preferredLanguage = language ?? "en"
             let preferredLocale = Locale(identifier: preferredLanguage)
             
             geocoder.reverseGeocodeLocation(location, preferredLocale: preferredLocale) { placemarks, error in
@@ -145,7 +145,6 @@ struct AddLocationView: View {
                     return
                 }
                 DispatchQueue.main.async {
-                    self.countryOrigin = place.country ?? ""
                     self.regionOrigin = place.administrativeArea ?? ""
                     self.cityOrigin = place.locality ?? ""
                     let thoroughfare = place.thoroughfare ?? ""
@@ -181,6 +180,7 @@ struct AddLocationView: View {
                         return
                     }
                     DispatchQueue.main.async {
+                        self.countryOrigin = place.country ?? ""
                         self.countryEnglish = place.country ?? ""
                         self.regionEnglish = place.administrativeArea ?? ""
                         self.cityEnglish = place.locality ?? ""

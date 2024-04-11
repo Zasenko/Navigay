@@ -12,6 +12,7 @@ import SwiftData
 final class City {
     let id: Int
     var name: String = ""
+    var smallPhoto: String? = nil
     var photo: String? = nil
     var photos: [String] = []
     var about: String? = nil
@@ -32,6 +33,7 @@ final class City {
         let lastUpdate = decodedCity.lastUpdate.dateFromString(format: "yyyy-MM-dd HH:mm:ss")
         if lastUpdateIncomplete != lastUpdate {
             name = decodedCity.name
+            smallPhoto = decodedCity.smallPhoto
             photo = decodedCity.photo
             lastUpdateIncomplete = lastUpdate
         }

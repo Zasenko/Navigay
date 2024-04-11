@@ -20,13 +20,12 @@ final class LocationManager: NSObject, ObservableObject {
     @Published var authorizationStatus: LocationStatus = .loading
     @Published var isAlertIfLocationDeniedDisplayed: Bool = false
     
-    var locationsChanged: (() -> Void)?
+    @AppStorage("lastUserLatitude") var lastLatitude: CLLocationDegrees = 0
+    @AppStorage("lastUserLongitude") var lastLongitude: CLLocationDegrees = 0
     
     // MARK: - Private Properties
     
     private let locationManager = CLLocationManager()
-    
-    //private let networkManager: LocationNetworkManagerProtocol
         
     //MARK: - Inits
     
@@ -68,13 +67,7 @@ extension LocationManager: CLLocationManagerDelegate {
        // manager.stopUpdatingLocation()
         guard let currentLocation = locations.last, currentLocation != userLocation else { return }
         userLocation = currentLocation
-        locationsChanged?()
-  //      fetchLocations(userLocation: currentLocation)
+        lastLatitude = currentLocation.coordinate.latitude
+        lastLongitude = currentLocation.coordinate.longitude
     }
-}
-
-extension LocationManager {
-    
-    //MARK: - Private Functions
-
 }
