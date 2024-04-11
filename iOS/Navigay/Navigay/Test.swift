@@ -12,52 +12,54 @@ struct Test: View {
     @State private var showHeader = false
     @State private var image = Image("16")
     @State private var scrollPosition: CGPoint = .zero
-    
+
+
     var body: some View {
-        
-//        VStack {
-//            AppImages.iconSearchLocation
-//                .font(.largeTitle)
-//                .fontWeight(.light)
-//                .foregroundStyle(.secondary)
-//                .padding()
-//                .padding(.top)
-//            Group {
-//                Text("Oops! No matches found.")
-//                    .font(.title2)
-//                Text("Looks like our gay radar needs a caffeine boost! How about we try again? Navigator at your service!")
-//                    .font(.callout)
-//            }
-//            .foregroundStyle(.secondary)
-//            .multilineTextAlignment(.center)
-//            .textSelection(.enabled)
-//            .padding()
-//        }
-        
+
         VStack {
-            Capsule()
-                .fill(.ultraThinMaterial)
-                .frame(width: 40, height: 5)
-                .padding()
-            ScrollView {
-                AppImages.iconCheckmark
+            HStack {
+                Text("Upcoming Events")
                     .font(.title2)
-                    .fontWeight(.semibold)
-                    .foregroundStyle(.green)
-                    .padding()
-                
-                Text("The Poster has been successfully saved.\nThank you for your contribution!")
-                    .font(.callout)
-                    .foregroundStyle(.secondary)
-                    .padding()
-                    .textSelection(.enabled)
-                    .multilineTextAlignment(.center)
+                    .bold()
+                    .foregroundStyle(.primary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                VStack(spacing: 0) {
+                    ZStack(alignment: .topLeading) {
+                        Button {
+                        } label: {
+                            
+                            HStack(alignment: .bottom) {
+                                AppImages.iconCalendar
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 25, height: 25)
+                                    .foregroundStyle(.blue)
+                                
+                                Text("Select date")
+                                    .font(.caption)
+                                    .foregroundStyle(.primary)
+                            }
+                            
+                            
+                            
+                            
+                            // .modifier(CapsuleSmall(foreground: .secondary))
+                        }
+                        Text("13 more")
+                            .font(.caption2).bold()
+                            .foregroundStyle(.primary)
+                            .padding(5)
+                            .background(.red)
+                            .cornerRadius(8, corners: [.allCorners])
+                            .offset(x: 18, y: -14)
+                    }
+                    
+                }
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-        }
-    
-//        VStack {
-//            
+            .padding(.horizontal)
+            .padding(.top)
+            .padding(.bottom)
+            
 //            Text("Hello world")
 //                .font(.largeTitle)
 //            Text("Hello world")
@@ -78,8 +80,8 @@ struct Test: View {
 //                .font(.caption)
 //            Text("Hello world")
 //                .font(.caption2)
-//        }
-//        
+        }
+        
 //        Button {
 //        } label: {
 //            HStack {
@@ -94,9 +96,9 @@ struct Test: View {
 //            }
 //            .tint(.blue)
 //        }
-
-             
-        
+//
+//             
+//        
 //        HStack {
 //            Image(systemName: "heart.fill")
 //                .foregroundColor(.red)

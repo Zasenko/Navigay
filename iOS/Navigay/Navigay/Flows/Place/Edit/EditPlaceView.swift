@@ -63,9 +63,7 @@ struct EditPlaceView: View {
             .disabled(viewModel.libraryPhotoLoading)
             .disabled(viewModel.isLoading)
             .onAppear() {
-                if !viewModel.fetched {
-                    viewModel.fetchPlace()
-                }
+                viewModel.fetchPlace()
             }
         }
     }
@@ -93,7 +91,6 @@ struct EditPlaceView: View {
             Spacer(minLength: 40)
         }
         .listRowSeparator(.hidden)
-      //  .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
     }
     
     private func headerText(text: String) -> some View {

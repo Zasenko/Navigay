@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import CoreLocation
 
 struct HomeView: View {
     
@@ -191,126 +192,17 @@ struct HomeView: View {
         .foregroundStyle(.secondary)
         .padding(.vertical)
     }
-    @Namespace private var animation
     
     private func eventsView(size: CGSize) -> some View {
         EventsView(modelContext: viewModel.modelContext, selectedDate: $viewModel.selectedDate, displayedEvents: $viewModel.displayedEvents, actualEvents: $viewModel.actualEvents, todayEvents: $viewModel.todayEvents, upcomingEvents: $viewModel.upcomingEvents, eventsDates: $viewModel.eventsDates, showCalendar: $viewModel.showCalendar, size: size, eventDataManager: viewModel.eventDataManager, placeDataManager: viewModel.placeDataManager, eventNetworkManager: viewModel.eventNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, errorManager: viewModel.errorManager)
-//        Section {
-//            if viewModel.todayEvents.count > 0 {
-//                Text("Today")
-//                    .font(.title)
-//                    .foregroundStyle(.secondary)
-//                    .frame(maxWidth: .infinity, alignment: .center)
-//                    .padding(.bottom, 10)
-//                    .padding(.top)
-//                if viewModel.todayEvents.count == 1 {
-//                    if let event = viewModel.todayEvents.first {
-//                        Button {
-//                            viewModel.selectedEvent = event
-//                        } label: {
-//                            EventCell(event: event, showCountryCity: false, showStartDayInfo: false, showStartTimeInfo: false)
-//                                .matchedGeometryEffect(id: "TE\(event.id)", in: animation)
-//                                .frame(width: size.width / 2)
-//                        }
-//                    }
-//                }
-//            } else {
-//                    StaggeredGrid(columns: viewModel.todayEvents.count == 1 ? 1 : 2, showsIndicators: false, spacing: 10, list: viewModel.todayEvents) { event in
-//                        Button {
-//                            viewModel.selectedEvent = event
-//                        } label: {
-//                            EventCell(event: event, showCountryCity: false, showStartDayInfo: false, showStartTimeInfo: false)
-//                                .matchedGeometryEffect(id: "TE\(event.id)", in: animation)
-//                        }
-//                    }
-//                    .padding(.horizontal, 10)
-//                }
-//            if viewModel.upcomingEvents.count > 0 {
-//                HStack {
-//                    Text(viewModel.selectedDate?.formatted(date: .long, time: .omitted) ?? "Upcoming Events")
-//                        .font(.title2)
-//                        .foregroundStyle(.secondary)
-//                        .frame(maxWidth: .infinity, alignment: .leading)
-//                        
-//                    Button {
-//                        viewModel.showCalendar = true
-//                    } label: {
-//                     //   HStack {
-//                            AppImages.iconCalendar
-//                                .resizable()
-//                                .scaledToFit()
-//                                .frame(width: 25, height: 25)
-//
-//                       // }
-//                     //   .padding()
-//                      //  .background(.ultraThinMaterial)
-//                        .foregroundStyle(.blue)
-//                       // .clipShape(Capsule())
-//                    }
-//                }
-//                .padding(.horizontal)
-//                .padding(.top)
-//                .padding(.bottom, 10)
-//                .id("UpcomingEvents")
-//                
-//                StaggeredGrid(columns: 2, showsIndicators: false, spacing: 10, list: viewModel.displayedEvents) { event in
-//                    Button {
-//                        viewModel.selectedEvent = event
-//                    } label: {
-//                        EventCell(event: event, showCountryCity: false, showStartDayInfo: true, showStartTimeInfo: false)
-//                            .matchedGeometryEffect(id: "DE\(event.id)", in: animation)
-//                    }
-//                }
-//                .padding(.horizontal, 10)
-//                .onChange(of: viewModel.selectedDate, initial: false) { oldValue, newValue in
-//                    viewModel.showCalendar = false
-//                    if let date = newValue {
-//                        getEvents(for: date)
-//                    } else {
-//                        showUpcomingEvents()
-//                    }
-//                    
-//                }
-//                .sheet(isPresented:  $viewModel.showCalendar) {} content: {
-//                    CalendarView(selectedDate: $viewModel.selectedDate, eventsDates: $viewModel.eventsDates)
-//                        .presentationDetents([.medium])
-//                        .presentationDragIndicator(.visible)
-//                        .presentationCornerRadius(25)
-//                }
-//                //                if selectedDate == nil {
-//                //                    let count = actualEvents.count - todayEvents.count - displayedEvents.count
-//                //                    if count > 0 {
-//                //                        Text("and \(count) more...")
-//                //                            .frame(maxWidth: .infinity)
-//                //                            .font(.caption)
-//                //                            .foregroundStyle(.secondary)
-//                //                    }
-//                //                }
-//            }
-//            
-//        }
-        
     }
-    
-    private func getEvents(for date: Date) {
-        Task {
-            let events = await viewModel.eventDataManager.getEvents(for: date, events: viewModel.actualEvents )
-            await MainActor.run {
-                viewModel.displayedEvents = events
-            }
-        }
-    }
-    
-    private func showUpcomingEvents() {
-        viewModel.displayedEvents = viewModel.upcomingEvents
-    }
-    
+
     private var placesView: some View {
         ForEach(viewModel.groupedPlaces.keys.sorted(), id: \.self) { key in
             Section {
                 Text(key.getPluralName())
                     .font(.title)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.primary)
                     .padding(.top, 50)
                     .padding(.bottom, 10)
                     .offset(x: 70)

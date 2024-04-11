@@ -90,11 +90,13 @@ struct CityView: View {
                         Text(about)
                             .font(.callout)
                             .foregroundStyle(.secondary)
-                            .padding(.vertical, 100)
+                            .padding(.top, 40)
                             .listRowSeparator(.hidden)
                     }
                 }
-                
+                Color.clear
+                    .frame(height: 50)
+                    .listSectionSeparator(.hidden)
             }
             .listSectionSeparator(.hidden)
             .listStyle(.plain)

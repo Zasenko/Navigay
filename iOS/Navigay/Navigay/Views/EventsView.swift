@@ -40,8 +40,9 @@ struct EventsView: View {
             Section {
                 if todayEvents.count > 0 {
                     Text("Today")
-                        .font(.title).bold()
-                        .foregroundStyle(.secondary)
+                        .font(.title2)
+                        .bold()
+                        .foregroundStyle(.primary)
                         .frame(maxWidth: .infinity, alignment: .center)
                         .padding(.bottom)
                         .padding(.top)
@@ -50,7 +51,7 @@ struct EventsView: View {
                             Button {
                                 selectedEvent = event
                             } label: {
-                                EventCell(event: event, showCountryCity: false, showStartDayInfo: true, showStartTimeInfo: false)
+                                EventCell(event: event, showCountryCity: false, showStartDayInfo: false, showStartTimeInfo: false)
                                     .matchedGeometryEffect(id: "TodayEv\(event.id)", in: animation)
                             }
                             .frame(maxWidth: size.width / 2)
@@ -72,31 +73,40 @@ struct EventsView: View {
                 }
                 if upcomingEvents.count > 0 {
                     HStack {
-                        Text(selectedDate?.formatted(date: .long, time: .omitted) ?? "Upcoming Events")
-                            .font(.title2).bold()
-                            .foregroundStyle(.secondary)
-                            .frame(maxWidth: .infinity, alignment: upcomingEvents.count > 2 ? .leading : .center)
-                            .animation(.default, value: upcomingEvents.count)
-                        Button {
-                            showCalendar = true
-                        } label: {
-                            //   HStack {
-                            AppImages.iconCalendar
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 25, height: 25)
-                            
-                            // }
-                            //   .padding()
-                            //  .background(.ultraThinMaterial)
-                                .foregroundStyle(.blue)
-                            // .clipShape(Capsule())
+                        Text("Upcoming Events")
+                            .font(.title2)
+                            .bold()
+                            .foregroundStyle(.primary)
+                            .frame(maxWidth: .infinity, alignment: (actualEvents.count - todayEvents.count - displayedEvents.count) > 0 ? .leading : .center)
+                        if (actualEvents.count - todayEvents.count - displayedEvents.count) > 0 {
+                            Button {
+                                showCalendar = true
+                            } label: {
+                                HStack {
+                                    AppImages.iconCalendar
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 25, height: 25)
+                                        .foregroundStyle(.blue)
+                                    Text("\(actualEvents.count - todayEvents.count - displayedEvents.count) more")
+                                        .font(.caption)
+                                        .foregroundStyle(.primary)
+                                }
+                                .modifier(CapsuleSmall(foreground: .secondary))
+                            }
                         }
+                        
                     }
                     .padding(.horizontal)
                     .padding(.top)
                     .padding(.bottom)
-                    
+                    if selectedDate != nil {
+                        Text(selectedDate?.formatted(date: .long, time: .omitted) ?? "")
+                            .font(.title3).bold()
+                            .foregroundStyle(.primary)
+                            .animation(.default, value: selectedDate)
+                            .frame(maxWidth: .infinity)
+                    }
                     if displayedEvents.count == 1 {
                         ForEach(displayedEvents) { event in
                             Button {
@@ -121,15 +131,6 @@ struct EventsView: View {
                         .padding(.horizontal, 10)
                         .padding(.bottom)
                     }
-                    //                if selectedDate == nil {
-                    //                    let count = actualEvents.count - todayEvents.count - displayedEvents.count
-                    //                    if count > 0 {
-                    //                        Text("and \(count) more...")
-                    //                            .frame(maxWidth: .infinity)
-                    //                            .font(.caption)
-                    //                            .foregroundStyle(.secondary)
-                    //                    }
-                    //                }
                 }
             }
             .fullScreenCover(item: $selectedEvent) { event in
