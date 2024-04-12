@@ -46,7 +46,7 @@ function getOrCreateRegionId($conn, $country_id, $region_name, $region_name_eng)
 }
 function getOrCreateCityId($conn, $country_id, $region_id, $city_name, $city_name_eng)
 {
-    $sql = "SELECT id FROM City WHERE country_id = ? AND region_id = ? AND name_origin = ? LIMIT 1";
+    $sql = "SELECT id, redirect_city_id FROM City WHERE country_id = ? AND region_id = ? AND name_origin = ? LIMIT 1";
     $params = [$country_id, $region_id, $city_name];
     $types = "iis";
     $stmt = executeQuery($conn, $sql, $params, $types);
@@ -55,7 +55,11 @@ function getOrCreateCityId($conn, $country_id, $region_id, $city_name, $city_nam
 
     if ($city_result->num_rows > 0) {
         $row = $city_result->fetch_assoc();
-        return $row["id"];
+        if (!is_null($row["redirect_city_id"]) && is_int($row["redirect_city_id"]) && $row["redirect_city_id"] > 0) {
+            return $row["redirect_city_id"];
+        } else {
+            return $row["id"];
+        }
     } else {
         $sql = "INSERT INTO City (country_id, region_id, name_origin, name_en) VALUES (?, ?, ?, ?)";
         $params = [$country_id, $region_id, $city_name, $city_name_eng];
