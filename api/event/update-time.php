@@ -19,10 +19,10 @@ if ($event_id <= 0) {
     sendError('Invalid event ID.');
 }
 
-$start_date = convertToMySQLDate($data['startDate']);
-$start_time = isset($data["startTime"]) ? convertToMySQLTime($data["startTime"]) : null;
-$data = isset($data["finishDate"]) ? convertToMySQLDate($data["finishDate"]) : null;
-$finish_time = isset($data["finishTime"]) ? convertToMySQLTime($data["finishTime"]) : null;
+$start_date = convertToMySQLDate($data['start_date']);
+$start_time = isset($data["start_time"]) ? convertToMySQLTime($data["start_time"]) : null;
+$finish_date = isset($data["finish_date"]) ? convertToMySQLDate($data["finish_date"]) : null;
+$finish_time = isset($data["finish_time"]) ? convertToMySQLTime($data["finish_time"]) : null;
 
 require_once('../dbconfig.php');
 

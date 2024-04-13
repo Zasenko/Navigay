@@ -45,20 +45,17 @@ struct RegionView: View {
     
     var body: some View {
         Section {
-            HStack(spacing: 20) {
+            HStack {
                 AppImages.iconRegion
                     .resizable()
                     .scaledToFit()
                     .frame(width: 20)
-                Group {
-                    Text("Region: ")
-                    + Text(region.name ?? "").bold()
-                }
-                .font(.caption)
-                .foregroundStyle(.secondary)
+                Text(region.name ?? "").bold()
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
             .padding(.top, 40)
-            .offset(x: 30)
+            .offset(x: 70)
             
             ForEach(region.cities.sorted(by: { $0.name < $1.name } )) { city in
                 NavigationLink {

@@ -29,14 +29,14 @@ struct PhotosTabView: View {
                 HStack(spacing: 10) {
                     ForEach(0..<allPhotos.count, id: \.self) { index in
                         Circle()
-                            .foregroundStyle(index == selectedPhotoIndex ? .gray : AppColors.lightGray5)
-                            .frame(width: 6, height: 6)
+                            .foregroundStyle(index == selectedPhotoIndex ? .blue : AppColors.lightGray3)
+                            .frame(width: index == selectedPhotoIndex ? 6 : 4, height: index == selectedPhotoIndex ? 6 : 4)
                             .onTapGesture {
                                 selectedPhotoIndex = index
                             }
                     }
                 }
-                .frame(height: 20)
+                .frame(height: 30)
                 .frame(maxWidth: .infinity)
             }
         }

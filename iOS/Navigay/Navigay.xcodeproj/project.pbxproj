@@ -27,7 +27,6 @@
 		0F2765482B0242430084B5DD /* EventTimeFieldsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2765472B0242430084B5DD /* EventTimeFieldsView.swift */; };
 		0F27654D2B025BC10084B5DD /* EditDateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F27654C2B025BC10084B5DD /* EditDateView.swift */; };
 		0F27654F2B026C810084B5DD /* EditTimeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F27654E2B026C810084B5DD /* EditTimeView.swift */; };
-		0F2765512B02712B0084B5DD /* EditDateType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2765502B02712B0084B5DD /* EditDateType.swift */; };
 		0F2765532B0272AB0084B5DD /* EventFeeFieldsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2765522B0272AB0084B5DD /* EventFeeFieldsView.swift */; };
 		0F2765572B0284630084B5DD /* EditToggleField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2765562B0284630084B5DD /* EditToggleField.swift */; };
 		0F2765592B02989A0084B5DD /* NewEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2765582B02989A0084B5DD /* NewEvent.swift */; };
@@ -39,6 +38,7 @@
 		0F28EC512B5916880069B5C2 /* EditEventAboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F28EC502B5916880069B5C2 /* EditEventAboutView.swift */; };
 		0F28EC532B5917630069B5C2 /* EditEventViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F28EC522B5917630069B5C2 /* EditEventViewModel.swift */; };
 		0F300F5F2B6918CD000F0302 /* AppUserViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F300F5E2B6918CD000F0302 /* AppUserViewModel.swift */; };
+		0F3496F92BC953580072750D /* AddDatesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F3496F82BC953580072750D /* AddDatesView.swift */; };
 		0F34DF7E2AE665BA005D29D0 /* AddLocationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F34DF7D2AE665BA005D29D0 /* AddLocationView.swift */; };
 		0F34DF832AE692BB005D29D0 /* SearchLocationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F34DF822AE692BB005D29D0 /* SearchLocationView.swift */; };
 		0F354CB12AFE144000594AE0 /* Photo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F354CB02AFE144000594AE0 /* Photo.swift */; };
@@ -239,7 +239,6 @@
 		0F2765472B0242430084B5DD /* EventTimeFieldsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventTimeFieldsView.swift; sourceTree = "<group>"; };
 		0F27654C2B025BC10084B5DD /* EditDateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditDateView.swift; sourceTree = "<group>"; };
 		0F27654E2B026C810084B5DD /* EditTimeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditTimeView.swift; sourceTree = "<group>"; };
-		0F2765502B02712B0084B5DD /* EditDateType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditDateType.swift; sourceTree = "<group>"; };
 		0F2765522B0272AB0084B5DD /* EventFeeFieldsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventFeeFieldsView.swift; sourceTree = "<group>"; };
 		0F2765562B0284630084B5DD /* EditToggleField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditToggleField.swift; sourceTree = "<group>"; };
 		0F2765582B02989A0084B5DD /* NewEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewEvent.swift; sourceTree = "<group>"; };
@@ -251,6 +250,7 @@
 		0F28EC502B5916880069B5C2 /* EditEventAboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditEventAboutView.swift; sourceTree = "<group>"; };
 		0F28EC522B5917630069B5C2 /* EditEventViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditEventViewModel.swift; sourceTree = "<group>"; };
 		0F300F5E2B6918CD000F0302 /* AppUserViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppUserViewModel.swift; sourceTree = "<group>"; };
+		0F3496F82BC953580072750D /* AddDatesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddDatesView.swift; sourceTree = "<group>"; };
 		0F34DF7D2AE665BA005D29D0 /* AddLocationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddLocationView.swift; sourceTree = "<group>"; };
 		0F34DF822AE692BB005D29D0 /* SearchLocationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchLocationView.swift; sourceTree = "<group>"; };
 		0F354CB02AFE144000594AE0 /* Photo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Photo.swift; sourceTree = "<group>"; };
@@ -496,8 +496,8 @@
 		0F2765492B0255490084B5DD /* Date&Time */ = {
 			isa = PBXGroup;
 			children = (
-				0F2765502B02712B0084B5DD /* EditDateType.swift */,
 				0F27654C2B025BC10084B5DD /* EditDateView.swift */,
+				0F3496F82BC953580072750D /* AddDatesView.swift */,
 				0F27654E2B026C810084B5DD /* EditTimeView.swift */,
 				0F69D5CF2B8F1F08007C7D63 /* RepitEventEditView.swift */,
 			);
@@ -1388,7 +1388,6 @@
 				0FC9652F2ADD329100108443 /* EventCell.swift in Sources */,
 				0FC965312ADD4C2900108443 /* LocationManager.swift in Sources */,
 				0F34DF7E2AE665BA005D29D0 /* AddLocationView.swift in Sources */,
-				0F2765512B02712B0084B5DD /* EditDateType.swift in Sources */,
 				0FD7749A2BA8462400842362 /* EditEventNetworkManager.swift in Sources */,
 				0F7E57ED2AE15BB50091A0F8 /* NewPlaceView.swift in Sources */,
 				0F3607362B62C4C800C74088 /* CatalogDataManager.swift in Sources */,
@@ -1468,6 +1467,7 @@
 				0FFB3A372AF0FB56001CF946 /* EditTextFieldView.swift in Sources */,
 				0F354CBB2AFE81F300594AE0 /* DecodedPhoto.swift in Sources */,
 				0F81F52E2BA1FCF700BECAA7 /* ResetPasswordMessageView.swift in Sources */,
+				0F3496F92BC953580072750D /* AddDatesView.swift in Sources */,
 				0FFB3A422AF14F66001CF946 /* PlaceRequiredFieldsView.swift in Sources */,
 				0F4997032B36DC5A003E4E2B /* PlaceViewModel.swift in Sources */,
 				0F69D5CC2B8E6FA0007C7D63 /* EditEventAdditionalView.swift in Sources */,

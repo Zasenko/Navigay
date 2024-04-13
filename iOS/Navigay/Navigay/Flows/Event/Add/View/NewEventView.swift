@@ -62,6 +62,7 @@ struct NewEventView: View {
                         .disabled(viewModel.longitude == nil)
                         .disabled(viewModel.latitude == nil)
                         .disabled(viewModel.startDate == nil)
+                        .disabled(viewModel.finishTime != nil && viewModel.finishDate == nil)
                     }
                 }
             }
@@ -88,63 +89,119 @@ struct NewEventView: View {
                 }
                 .padding(.bottom, 40)
                 
-                EventTimeFieldsView(startDate: $viewModel.startDate, startTime: $viewModel.startTime, finishDate: $viewModel.finishDate, finishTime: $viewModel.finishTime)
-                    .padding(.bottom, 40)
-                
-                //TODO
-                NavigationLink {
-                    EditDateView(date: nil, pickerStartDate: nil, editType: .start) { date in
-                        viewModel.cloneDate(newDate: date)
-                    } onDelete: {
-                        
-                    }
-                } label: {
-                    Text("+ Clone Event")
-
-                }
-                if !viewModel.repeatDates.isEmpty {
-                    ForEach(viewModel.repeatDates) { repeatDate in
+                VStack(spacing: 0) {
+                    EventTimeFieldsView(startDate: $viewModel.startDate, startTime: $viewModel.startTime, finishDate: $viewModel.finishDate, finishTime: $viewModel.finishTime)
+                    if viewModel.startDate != nil {
                         NavigationLink {
-                            RepitEventEditView(eventTime: repeatDate) { newTime in
-                                if let index = viewModel.repeatDates.firstIndex(where: { $0.id == newTime.id }) {
-                                    viewModel.repeatDates[index] = newTime
-                                }
-                            } onDelete: { deleteTime in
-                                if let index = viewModel.repeatDates.firstIndex(where: { $0.id == deleteTime.id }) {
-                                    viewModel.repeatDates.remove(at: index)
-                                }
+                            AddDatesView(eventDate: viewModel.startDate ?? Date(), eventsDates: viewModel.cloneDates.compactMap( { $0.startDate })) { dates in
+                                viewModel.cloneDates(newDates: dates)
                             }
                         } label: {
-                            VStack {
-                                if let startDate = repeatDate.startDate {
-                                    Text(startDate.formatted(date: .long, time: .omitted))
-                                        .multilineTextAlignment(.leading)
-                                        .tint(.primary)
-                                }
-                                
-                                if let startTime = repeatDate.startTime  {
-                                    Text(startTime.formatted(date: .omitted, time: .shortened))
-                                        .multilineTextAlignment(.leading)
-                                        .tint(.primary)
-                                }
-                                
-                                if let finishDate = repeatDate.finishDate {
-                                    Text(finishDate.formatted(date: .long, time: .omitted))
-                                        .multilineTextAlignment(.leading)
-                                        .tint(.primary)
-                                }
-                                
-                                if let finishTime = repeatDate.finishTime  {
-                                    Text(finishTime.formatted(date: .omitted, time: .shortened))
-                                        .multilineTextAlignment(.leading)
-                                        .tint(.primary)
-                                }
-                            }
-                            .background(.red)
-                            .padding()
+                            Text("+ Add another dates")
                         }
                     }
+                    if !viewModel.cloneDates.isEmpty {
+                        VStack(spacing: 0) {
+                            Text("Upcomming dates:")
+                                .padding()
+                            ForEach(viewModel.cloneDates) { repeatDate in
+                                Divider()
+                                NavigationLink {
+                                    RepitEventEditView(eventTime: repeatDate) { newTime in
+                                        if let index = viewModel.cloneDates.firstIndex(where: { $0.id == newTime.id }) {
+                                            viewModel.cloneDates[index] = newTime
+                                        }
+                                    } onDelete: { deleteTime in
+                                        if let index = viewModel.cloneDates.firstIndex(where: { $0.id == deleteTime.id }) {
+                                            viewModel.cloneDates.remove(at: index)
+                                        }
+                                    }
+                                } label: {
+                                    VStack {
+                                        HStack {
+                                            VStack {
+                                                if let startDate = repeatDate.startDate {
+                                                    if let finishDate = repeatDate.finishDate {
+                                                        if finishDate.isSameDayWithOtherDate(startDate) {
+                                                            Text(startDate.formatted(date: .long, time: .omitted))
+                                                                .font(.footnote)
+                                                                .tint(.primary)
+                                                            HStack {
+                                                                if let startTime = repeatDate.startTime {
+                                                                    HStack(spacing: 5) {
+                                                                        AppImages.iconClock
+                                                                        Text(startTime.formatted(date: .omitted, time: .shortened))
+                                                                    }
+                                                                }
+                                                                if let finishTime = repeatDate.finishTime {
+                                                                    Text("—")
+                                                                        .frame(width: 20, alignment: .center)
+                                                                    HStack(spacing: 5) {
+                                                                        AppImages.iconClock
+                                                                        Text(finishTime.formatted(date: .omitted, time: .shortened))
+                                                                    }
+                                                                }
+                                                            }
+                                                        } else {
+                                                            HStack(alignment: .top) {
+                                                                VStack(spacing: 5) {
+                                                                    Text(startDate.formatted(date: .long, time: .omitted))
+                                                                        .font(.footnote)
+                                                                        .tint(.primary)
+                                                                    if let startTime = repeatDate.startTime {
+                                                                        HStack(spacing: 5) {
+                                                                            AppImages.iconClock
+                                                                            Text(startTime.formatted(date: .omitted, time: .shortened))
+                                                                        }
+                                                                    }
+                                                                }
+                                                                Text("—")
+                                                                    .frame(width: 20, alignment: .center)
+                                                                VStack(spacing: 5) {
+                                                                    Text(finishDate.formatted(date: .long, time: .omitted))
+                                                                        .font(.footnote)
+                                                                        .tint(.primary)
+                                                                    if let finishTime = repeatDate.finishTime {
+                                                                        HStack(spacing: 5) {
+                                                                            AppImages.iconClock
+                                                                            Text(finishTime.formatted(date: .omitted, time: .shortened))
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    } else {
+                                                        Text(startDate.formatted(date: .long, time: .omitted))
+                                                            .font(.footnote)
+                                                            .tint(.primary)
+                                                        if let startTime = repeatDate.startTime {
+                                                            HStack(spacing: 5) {
+                                                                AppImages.iconClock
+                                                                Text(startTime.formatted(date: .omitted, time: .shortened))
+                                                            }
+                                                            
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            .font(.caption)
+                                            .tint(.secondary)
+                                            .frame(maxWidth: .infinity)
+                                            AppImages.iconRight
+                                                .foregroundStyle(.quaternary)
+                                        }
+                                        .padding()
+                                    }
+                                }
+                            }
+                        }
+                        .background(AppColors.lightGray6)
+                        .cornerRadius(10)
+                        .padding()
+                    }
                 }
+                .padding(.bottom, 40)
+
                 NavigationLink {
                     EditTextEditorView(title: "About", text: viewModel.about, characterLimit: 3000, onSave: { string in
                         viewModel.about = string

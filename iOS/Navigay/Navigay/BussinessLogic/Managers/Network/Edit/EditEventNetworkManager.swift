@@ -19,6 +19,7 @@ protocol EditEventNetworkManagerProtocol {
     func updateAdditionalInformation(id: Int, email: String?, phone: String?, www: String?, facebook: String?, instagram: String?, tags: [Tag]?, user: AppUser) async throws
     func updateActivity(id: Int, isActive: Bool, isChecked: Bool, adminNotes: String?, user: AppUser) async throws
     func updateTime(id: Int, startDate: Date, startTime: Date?, finishDate: Date?, finishTime: Date?, user: AppUser) async throws
+    func updateFee(id: Int, isFree: Bool, tickets: String?, fee: String?, user: AppUser) async throws
     
     func updatePoster(eventId: Int, poster: UIImage, smallPoster: UIImage, from user: AppUser) async throws -> PosterUrls
     func deletePoster(eventId: Int, from user: AppUser) async throws
@@ -47,7 +48,6 @@ final class EditEventNetworkManager {
 // MARK: - CountryNetworkManagerProtocol
 
 extension EditEventNetworkManager: EditEventNetworkManagerProtocol {
-    
     
     func fetchEvent(id: Int, for user: AppUser) async throws -> AdminEvent {
         debugPrint("-AdminNetworkManager- getEvent id \(id)")
@@ -245,8 +245,51 @@ extension EditEventNetworkManager: EditEventNetworkManagerProtocol {
         guard decodedResult.result else {
             throw NetworkErrors.apiError(decodedResult.error)
         }
-        
     }
+    
+    func updateFee(id: Int, isFree: Bool, tickets: String?, fee: String?, user: AppUser) async throws {
+        guard networkMonitorManager.isConnected else {
+            throw NetworkErrors.noConnection
+        }
+        guard let sessionKey = user.sessionKey else {
+            throw NetworkErrors.noSessionKey
+        }
+        let path = "/api/event/update-fee.php"
+        var urlComponents: URLComponents {
+            var components = URLComponents()
+            components.scheme = scheme
+            components.host = host
+            components.path = path
+            return components
+        }
+        guard let url = urlComponents.url else {
+            throw NetworkErrors.badUrl
+        }
+        let parameters = [
+            "event_id": String(id),
+            "is_free": isFree ? "1" : "0",
+            "tickets": tickets,
+            "fee": fee,
+            "user_id": String(user.id),
+            "session_key": sessionKey,
+        ]
+        let requestData = try JSONSerialization.data(withJSONObject: parameters)
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = requestData
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
+            throw NetworkErrors.invalidData
+        }
+        guard let decodedResult = try? JSONDecoder().decode(ApiResult.self, from: data) else {
+            throw NetworkErrors.decoderError
+        }
+        guard decodedResult.result else {
+            throw NetworkErrors.apiError(decodedResult.error)
+        }
+    }
+    
     
     func updateAdditionalInformation(id: Int, email: String?, phone: String?, www: String?, facebook: String?, instagram: String?, tags: [Tag]?, user: AppUser) async throws {
         guard networkMonitorManager.isConnected else {

@@ -128,4 +128,35 @@ extension AddNewPlaceViewModel {
             }
         }
     }
+    
+    func resetItems() {
+        name = ""
+        type = nil
+        isoCountryCode = ""
+        countryOrigin = ""
+        countryEnglish = ""
+        regionOrigin = ""
+        regionEnglish = ""
+        cityOrigin = ""
+        cityEnglish = ""
+        addressOrigin = ""
+        latitude = nil
+        longitude = nil
+        tags = []
+        timetable = []
+        otherInfo = ""
+        about = ""
+        phone = ""
+        email = ""
+        www = ""
+        facebook = ""
+        instagram = ""
+        isOwned = false
+        adminNotes = ""
+        isActive = false
+        isChecked = false
+        showMap = false
+        isLoading = false
+        showEditView = false
+    }
 }

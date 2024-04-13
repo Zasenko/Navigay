@@ -39,6 +39,7 @@ struct NewPlaceView: View {
                 }
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
+                        viewModel.resetItems()
                         dismiss()
                     } label: {
                         AppImages.iconLeft

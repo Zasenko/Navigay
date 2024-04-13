@@ -91,6 +91,7 @@ struct EditPlaceView: View {
             Spacer(minLength: 40)
         }
         .listRowSeparator(.hidden)
+        .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
     }
     
     private func headerText(text: String) -> some View {
@@ -128,6 +129,7 @@ struct EditPlaceView: View {
             Spacer(minLength: 40)
         }
         .listRowSeparator(.hidden)
+        .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
     }
     
     private var additionalInformationView: some View {
@@ -193,6 +195,7 @@ struct EditPlaceView: View {
             Spacer(minLength: 40)
         }
         .listRowSeparator(.hidden)
+        .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
     }
     
     private var timetableView: some View {
@@ -231,6 +234,7 @@ struct EditPlaceView: View {
             Spacer(minLength: 40)
         }
         .listRowSeparator(.hidden)
+        .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
     }
     
     private var requiredInformationView: some View {
@@ -249,6 +253,7 @@ struct EditPlaceView: View {
             Spacer(minLength: 40)
         }
         .listRowSeparator(.hidden)
+        .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
     }
     
     private var adminView: some View {
@@ -261,10 +266,20 @@ struct EditPlaceView: View {
             VStack(alignment: .leading, spacing: 0) {
                 Divider()
                 VStack(alignment: .leading) {
-                    Text(viewModel.isActive ? "active" : "not active")
-                        .foregroundStyle(viewModel.isActive ? .green : .red)
-                    Text(viewModel.isChecked ? "checked" : "not checked")
-                        .foregroundStyle(viewModel.isChecked ? .green : .red)
+                    HStack {
+                        Text("•")
+                            .font(.title).bold()
+                            .foregroundStyle(viewModel.isActive ? .green : .red)
+                        Text(viewModel.isActive ? "active" : "not active")
+                            .foregroundStyle(viewModel.isActive ? .green : .red)
+                    }
+                    HStack(spacing: 10) {
+                        Text("•")
+                            .font(.title).bold()
+                            .foregroundStyle(viewModel.isChecked ? .green : .red)
+                        Text(viewModel.isChecked ? "checked" : "not checked")
+                            .foregroundStyle(viewModel.isChecked ? .green : .red)
+                    }
                 }
                 .padding(.vertical)
                 Text(viewModel.adminNotes.isEmpty ? "Notes are not added." : viewModel.adminNotes)
@@ -274,6 +289,7 @@ struct EditPlaceView: View {
             Spacer(minLength: 40)
         }
         .listRowSeparator(.hidden)
+        .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
     }
     
     private var listView: some View {

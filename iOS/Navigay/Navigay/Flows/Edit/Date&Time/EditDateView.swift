@@ -7,6 +7,10 @@
 
 import SwiftUI
 
+enum EditDateType {
+    case start, finish
+}
+
 struct EditDateView: View {
     
     //MARK: - Properties
@@ -34,8 +38,13 @@ struct EditDateView: View {
     //MARK: - Inits
     
     init(date: Date?, pickerStartDate: Date?, editType: EditDateType, onSave: @escaping (Date) -> Void, onDelete: @escaping () -> Void) {
-        _date = State(initialValue: date ?? pickerStartDate ?? Date())
-        self.pickerStartDay = pickerStartDate ?? Date()
+        let currentDateComponents = Calendar.current.dateComponents([.year, .month, .day], from: Date())
+        var today: Date = Date()
+        if let dateWithoutTime = Calendar.current.date(from: currentDateComponents) {
+            today = dateWithoutTime
+        }
+        _date = State(initialValue: date ?? pickerStartDate ?? today)
+        self.pickerStartDay = pickerStartDate ?? today
         self.editType = editType
         self.showDeleteInfo = date != nil && editType == .finish ? true : false
         self.onSave = onSave

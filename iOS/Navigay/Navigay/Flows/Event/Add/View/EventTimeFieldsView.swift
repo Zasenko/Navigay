@@ -54,7 +54,6 @@ struct EventTimeFieldsView: View {
                     .foregroundStyle(.quaternary)
             }
             .padding()
-            .background(AppColors.lightGray6, in: RoundedRectangle(cornerRadius: 10))
         }
     }
     
@@ -82,7 +81,6 @@ struct EventTimeFieldsView: View {
                     .foregroundStyle(.quaternary)
             }
             .padding()
-            .background(AppColors.lightGray6, in: RoundedRectangle(cornerRadius: 10))
         }
     }
     
@@ -98,7 +96,7 @@ struct EventTimeFieldsView: View {
                 VStack(alignment: .leading) {
                     Text("Finish date")
                         .font(.callout)
-                        .foregroundStyle(finishDate == nil ? Color.secondary : .green)
+                        .foregroundStyle(finishDate == nil ? (finishTime == nil ? Color.secondary : .red) : .green)
                     if let finishDate {
                         Text(finishDate.formatted(date: .long, time: .omitted))
                             .multilineTextAlignment(.leading)
@@ -110,7 +108,6 @@ struct EventTimeFieldsView: View {
                     .foregroundStyle(.quaternary)
             }
             .padding()
-            .background(AppColors.lightGray6, in: RoundedRectangle(cornerRadius: 10))
         }
     }
     
@@ -138,7 +135,6 @@ struct EventTimeFieldsView: View {
                     .foregroundStyle(.quaternary)
             }
             .padding()
-            .background(AppColors.lightGray6, in: RoundedRectangle(cornerRadius: 10))
         }
     }
 }

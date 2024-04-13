@@ -44,7 +44,7 @@ final class NewEventViewModel: ObservableObject {
     @Published var finishDate: Date? = nil
     @Published var finishTime: Date? = nil
     
-    @Published var repeatDates: [EventTime] = []
+    @Published var cloneDates: [EventTime] = []
     
     @Published var isFree: Bool = false
     @Published var fee: String = ""
@@ -100,6 +100,7 @@ final class NewEventViewModel: ObservableObject {
             self.longitude = place.longitude
             self.location = place.name
             self.place = place
+            self.tags = place.tags
         } else if let event {
             self.name = event.name
             self.startTime = event.startTime
@@ -129,20 +130,23 @@ final class NewEventViewModel: ObservableObject {
 
 extension NewEventViewModel {
     
-    func cloneDate(newDate: Date) {
-        guard let existingStartDate = startDate else {
+    func cloneDates(newDates: [Date]) {
+        guard let startDate else {
             return
         }
-        var updatedFinishDate: Date? = nil
-        if let existingFinishDate = finishDate {
-            let calendar = Calendar.current
-            let difference = calendar.dateComponents([.day], from: existingStartDate, to: existingFinishDate)
-            if let updatedFinish = calendar.date(byAdding: difference, to: newDate) {
-                updatedFinishDate = updatedFinish
+        var cloneDates: [EventTime] = []
+        for newDate in newDates {
+            var newFinishDate: Date? = nil
+            if let finishDate {
+                let dayDifference = Calendar.current.dateComponents([.day, .hour], from: startDate, to: finishDate).day ?? 0
+                if let updatedFinishDate = Calendar.current.date(byAdding: .day, value: dayDifference, to: newDate) {
+                    newFinishDate = updatedFinishDate
+                }
             }
+            let newEventTime = EventTime(startDate: newDate, startTime: startTime, finishDate: newFinishDate, finishTime: finishTime)
+            cloneDates.append(newEventTime)
         }
-        let newEventTime = EventTime(startDate: newDate, startTime: startTime, finishDate: updatedFinishDate, finishTime: finishTime)
-        repeatDates.append(newEventTime)
+        self.cloneDates = cloneDates
     }
     
     func addNewEvent() {
@@ -180,7 +184,7 @@ extension NewEventViewModel {
             let finishTimeString = finishTime?.format("HH:mm")
             datestToSend.append(EventTimeToSend(startDate: startDateString, startTime: startTimeString, finishDate: finishDateString, finishTime: finishTimeString))
             
-            let repeatDatesToSend: [EventTimeToSend] = repeatDates.compactMap { repeatDate in
+            let cloneDatesToSend: [EventTimeToSend] = cloneDates.compactMap { repeatDate in
                 guard let startDateString = repeatDate.startDate?.format("yyyy-MM-dd") else {
                     return nil
                 }
@@ -189,7 +193,7 @@ extension NewEventViewModel {
                 let finishTimeString = repeatDate.finishTime?.format("HH:mm")
                 return EventTimeToSend(startDate: startDateString, startTime: startTimeString, finishDate: finishDateString, finishTime: finishTimeString)
             }
-            datestToSend.append(contentsOf: repeatDatesToSend)
+            datestToSend.append(contentsOf: cloneDatesToSend)
             guard !datestToSend.isEmpty else {
                 await MainActor.run {
                     isLoading = false
