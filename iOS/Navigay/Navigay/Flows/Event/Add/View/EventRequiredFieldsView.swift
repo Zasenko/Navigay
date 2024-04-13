@@ -49,6 +49,11 @@ struct EventRequiredFieldsView: View {
                 .cornerRadius(10)
                 .padding(.bottom, 40)
                 
+                locationField
+                if let latitude, let longitude {
+                    map(latitude: latitude, longitude: longitude)
+                        .padding(.bottom)
+                }
                 NavigationLink {
                     EditTextFieldView(text: addressOrigin, characterLimit: 50, minHaracters: 5, title: "Address", placeholder: "Address") { string in
                         addressOrigin = string
@@ -56,11 +61,6 @@ struct EventRequiredFieldsView: View {
                 } label: {
                     EditField(title: "Address", text: $addressOrigin, emptyFieldColor: .red)
                 }
-                locationField
-                map
-                ///place_id?
-                ///placeName?
-               // startDateField
             }
             .padding()
         }
@@ -110,26 +110,24 @@ struct EventRequiredFieldsView: View {
         .padding()
     }
     
-    //TODO сделать пин большим
-    private var map: some View {
+    @ViewBuilder
+    private func map(latitude: CLLocationDegrees, longitude: CLLocationDegrees) -> some View {
         VStack(spacing: 0) {
-            if let latitude, let longitude  {
-                let centerCoordinate = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
-                Map(position: $position, interactionModes: []) {
-                    if type != nil {
-                        Marker("", monogram: Text("🎉"), coordinate: centerCoordinate)
-                            .tint(.red)
-                    } else {
-                        Marker("", coordinate: CLLocationCoordinate2D(latitude: latitude, longitude: longitude))
-                    }
+            let centerCoordinate = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+            Map(position: $position, interactionModes: []) {
+                if type != nil {
+                    Marker("", monogram: Text("🎉"), coordinate: centerCoordinate)
+                        .tint(.red)
+                } else {
+                    Marker("", coordinate: CLLocationCoordinate2D(latitude: latitude, longitude: longitude))
                 }
-                .mapStyle(.standard(elevation: .flat, pointsOfInterest: .including([.publicTransport])))
-                .mapControlVisibility(.hidden)
-                .frame(height: 200)
-                .clipShape(RoundedRectangle(cornerRadius: 10))
-                .onAppear {
-                    position = .camera(MapCamera(centerCoordinate: centerCoordinate, distance: 100))
-                }
+            }
+            .mapStyle(.standard(elevation: .flat, pointsOfInterest: .including([.publicTransport])))
+            .mapControlVisibility(.hidden)
+            .frame(height: 200)
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+            .onAppear {
+                position = .camera(MapCamera(centerCoordinate: centerCoordinate, distance: 500))
             }
         }
     }

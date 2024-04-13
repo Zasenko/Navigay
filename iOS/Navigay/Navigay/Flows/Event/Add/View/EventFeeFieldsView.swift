@@ -17,7 +17,7 @@ struct EventFeeFieldsView: View {
         NavigationStack {
             VStack(spacing: 0) {
                 IsFreeView
-                    .padding(.bottom)
+                    .padding()
                 if !isFree {
                     VStack(spacing: 0) {
                         NavigationLink {
