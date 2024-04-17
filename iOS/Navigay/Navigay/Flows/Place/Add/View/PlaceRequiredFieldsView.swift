@@ -38,6 +38,12 @@ struct PlaceRequiredFieldsView: View {
                     .background(AppColors.lightGray6)
                     .cornerRadius(10)
                     .padding(.bottom, 40)
+                    
+                    locationField
+                    if let latitude = viewModel.latitude, let longitude = viewModel.longitude {
+                        map(latitude: latitude, longitude: longitude)
+                            .padding(.bottom)
+                    }
                     NavigationLink {
                         EditTextFieldView(text: viewModel.addressOrigin, characterLimit: 255, minHaracters: 5, title: "Address", placeholder: "Address") { string in
                             viewModel.addressOrigin = string
@@ -45,14 +51,8 @@ struct PlaceRequiredFieldsView: View {
                     } label: {
                         EditField(title: "Address", text: $viewModel.addressOrigin, emptyFieldColor: .red)
                     }
-                    Text(viewModel.countryOrigin)
-                    Text(viewModel.countryEnglish)
-                    Text(viewModel.regionOrigin)
-                    Text(viewModel.regionEnglish)
-                    Text(viewModel.cityOrigin)
-                    Text(viewModel.cityEnglish)
-                    locationField
-                    map
+                    
+                    
                 }
                 .padding(.horizontal)
         }
@@ -102,37 +102,67 @@ struct PlaceRequiredFieldsView: View {
         .padding()
     }
     
-    //TODO сделать пин большим
-    private var map: some View {
+//    //TODO сделать пин большим
+//    private var map: some View {
+//        VStack(spacing: 0) {
+//            if let latitude = viewModel.latitude, let longitude = viewModel.longitude  {
+//                let centerCoordinate = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+//                Map(position: $position, interactionModes: []) {
+//                    if let type = viewModel.type {
+//                        Marker("", monogram: Text(type.getImage()), coordinate: centerCoordinate)
+//                            .tint(type.getColor())
+//                    } else {
+//                        Marker("", coordinate: CLLocationCoordinate2D(latitude: latitude, longitude: longitude))
+//                    }
+//                }
+//                .mapStyle(.standard(elevation: .flat, pointsOfInterest: .including([.publicTransport])))
+//                .mapControlVisibility(.hidden)
+//                .frame(height: 200)
+//                .clipShape(RoundedRectangle(cornerRadius: 10))
+//                .padding(.bottom)
+//                .onAppear {
+//                    position = .camera(MapCamera(centerCoordinate: centerCoordinate, distance: 100))
+//                }
+//            }
+//        }
+//    }
+    
+    @ViewBuilder
+    private func map(latitude: CLLocationDegrees, longitude: CLLocationDegrees) -> some View {
         VStack(spacing: 0) {
-            if let latitude = viewModel.latitude, let longitude = viewModel.longitude  {
-                let centerCoordinate = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
-                Map(position: $position, interactionModes: []) {
-                    if let type = viewModel.type {
-                        Marker("", monogram: Text(type.getImage()), coordinate: centerCoordinate)
-                            .tint(type.getColor())
-                    } else {
-                        Marker("", coordinate: CLLocationCoordinate2D(latitude: latitude, longitude: longitude))
-                    }
-                }
-                .mapStyle(.standard(elevation: .flat, pointsOfInterest: .including([.publicTransport])))
-                .mapControlVisibility(.hidden)
-                .frame(height: 200)
-                .clipShape(RoundedRectangle(cornerRadius: 10))
-                .padding(.bottom)
-                .onAppear {
-                    position = .camera(MapCamera(centerCoordinate: centerCoordinate, distance: 100))
+            let centerCoordinate = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+            Map(position: $position, interactionModes: []) {
+                if viewModel.type != nil {
+                    Marker("", monogram: Text("🎉"), coordinate: centerCoordinate)
+                        .tint(.red)
+                } else {
+                    Marker("", coordinate: CLLocationCoordinate2D(latitude: latitude, longitude: longitude))
                 }
             }
+            .mapStyle(.standard(elevation: .flat, pointsOfInterest: .including([.publicTransport])))
+            .mapControlVisibility(.hidden)
+            .frame(height: 200)
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+            .onAppear {
+                position = .camera(MapCamera(centerCoordinate: centerCoordinate, distance: 500))
+            }
+            HStack(spacing: 5) {
+                Text(viewModel.countryOrigin)
+                Text("•")
+                Text(viewModel.cityOrigin)
+            }
+            .padding()
+            .font(.callout)
         }
     }
 }
 
-//#Preview {
-//    let decodetUser = DecodedAppUser(id: 0, name: "Test", email: "test@test.com", status: .admin, bio: nil, photo: nil, instagram: nil, likedPlacesId: nil)
-//    let user = AppUser(decodedUser: decodetUser)
-//    let errorManager = ErrorManager()
-//    let appSettingsManager = AppSettingsManager()
-//    let networkManage = PlaceNetworkManager(appSettingsManager: appSettingsManager)
-//    return PlaceRequiredFieldsView(viewModel: AddNewPlaceViewModel(user: user, networkManager: networkManage, errorManager: errorManager))
-//}
+#Preview {
+    let decodetUser = DecodedAppUser(id: 0, name: "Test", email: "test@test.com", status: .admin, sessionKey: "000", bio: nil, photo: nil)
+    let user = AppUser(decodedUser: decodetUser)
+    let errorManager = ErrorManager()
+    let appSettingsManager = AppSettingsManager()
+    let networkMonitorManager = NetworkMonitorManager(errorManager: errorManager)
+    let networkManager = EditPlaceNetworkManager(networkMonitorManager: networkMonitorManager)
+    return PlaceRequiredFieldsView(viewModel: AddNewPlaceViewModel(networkManager: networkManager, errorManager: errorManager))
+}

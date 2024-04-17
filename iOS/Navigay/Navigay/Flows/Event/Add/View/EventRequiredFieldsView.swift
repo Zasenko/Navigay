@@ -55,20 +55,6 @@ struct EventRequiredFieldsView: View {
                         .padding(.bottom)
                 }
                 
-                VStack {
-                    Text("isoCountryCode: ") + Text(isoCountryCode)
-                    Text("countryOrigin: ") + Text(countryOrigin)
-                    Text("countryEnglish: ") + Text(countryEnglish)
-                    Text("regionOrigin: ") + Text(regionOrigin)
-                    Text("regionEnglish: ") + Text(regionEnglish)
-                    Text("cityOrigin: ") + Text(cityOrigin)
-                    Text("cityEnglish: ") + Text(cityEnglish)
-                    Text("addressOrigin: ") + Text(addressOrigin)
-                }
-                .padding()
-                .font(.callout)
-                
-                
                 NavigationLink {
                     EditTextFieldView(text: addressOrigin, characterLimit: 50, minHaracters: 5, title: "Address", placeholder: "Address") { string in
                         addressOrigin = string
@@ -127,7 +113,7 @@ struct EventRequiredFieldsView: View {
     
     @ViewBuilder
     private func map(latitude: CLLocationDegrees, longitude: CLLocationDegrees) -> some View {
-        VStack(spacing: 0) {
+        VStack(spacing: 4) {
             let centerCoordinate = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
             Map(position: $position, interactionModes: []) {
                 if type != nil {
@@ -144,6 +130,13 @@ struct EventRequiredFieldsView: View {
             .onAppear {
                 position = .camera(MapCamera(centerCoordinate: centerCoordinate, distance: 500))
             }
+            HStack(spacing: 5) {
+                Text(countryOrigin)
+                Text("•")
+                Text(cityOrigin)
+            }
+            .padding(.horizontal)
+            .font(.callout)
         }
     }
 }
