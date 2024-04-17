@@ -36,121 +36,124 @@ struct EventsView: View {
     @State var columns: Int = 2
     
     var body: some View {
-            
-            Section {
-                if todayEvents.count > 0 {
-                    Text("Today")
+        Section {
+            if todayEvents.count > 0 {
+                Text("Today")
+                    .font(.title2)
+                    .bold()
+                    .foregroundStyle(.primary)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(.bottom)
+                    .padding(.top)
+                if todayEvents.count == 1 {
+                    ForEach(todayEvents) { event in
+                        Button {
+                            selectedEvent = event
+                        } label: {
+                            EventCell(event: event, showCountryCity: false, showStartDayInfo: false, showStartTimeInfo: false)
+                                .matchedGeometryEffect(id: "TodayEv\(event.id)", in: animation)
+                        }
+                        .frame(maxWidth: size.width / 2)
+                        .frame(maxWidth: .infinity)
+                        .padding(.bottom)
+                    }
+                } else {
+                    StaggeredGrid(columns: 2, showsIndicators: false, spacing: 10, list: todayEvents) { event in
+                        Button {
+                            selectedEvent = event
+                        } label: {
+                            EventCell(event: event, showCountryCity: false, showStartDayInfo: false, showStartTimeInfo: false)
+                                .matchedGeometryEffect(id: "TodayEv\(event.id)", in: animation)
+                        }
+                    }
+                    .padding(.horizontal, 10)
+                    .padding(.bottom)
+                }
+            }
+            if upcomingEvents.count > 0 {
+                HStack(alignment: .firstTextBaseline) {
+                    Text("Upcoming Events")
                         .font(.title2)
                         .bold()
                         .foregroundStyle(.primary)
-                        .frame(maxWidth: .infinity, alignment: .center)
-                        .padding(.bottom)
-                        .padding(.top)
-                    if todayEvents.count == 1 {
-                        ForEach(todayEvents) { event in
-                            Button {
-                                selectedEvent = event
-                            } label: {
-                                EventCell(event: event, showCountryCity: false, showStartDayInfo: false, showStartTimeInfo: false)
-                                    .matchedGeometryEffect(id: "TodayEv\(event.id)", in: animation)
-                            }
-                            .frame(maxWidth: size.width / 2)
-                            .frame(maxWidth: .infinity)
-                            .padding(.bottom)
-                        }
-                    } else {
-                        StaggeredGrid(columns: 2, showsIndicators: false, spacing: 10, list: todayEvents) { event in
-                            Button {
-                                selectedEvent = event
-                            } label: {
-                                EventCell(event: event, showCountryCity: false, showStartDayInfo: false, showStartTimeInfo: false)
-                                    .matchedGeometryEffect(id: "TodayEv\(event.id)", in: animation)
-                            }
-                        }
-                        .padding(.horizontal, 10)
-                        .padding(.bottom)
-                    }
-                }
-                if upcomingEvents.count > 0 {
-                    HStack {
-                        Text("Upcoming Events")
-                            .font(.title2)
-                            .bold()
-                            .foregroundStyle(.primary)
-                            .frame(maxWidth: .infinity, alignment: (actualEvents.count - todayEvents.count - displayedEvents.count) > 0 ? .leading : .center)
-                        if (actualEvents.count - todayEvents.count - displayedEvents.count) > 0 {
-                            Button {
-                                showCalendar = true
-                            } label: {
+                        .frame(maxWidth: .infinity, alignment: (actualEvents.count - todayEvents.count - displayedEvents.count) > 0 ? .leading : .center)
+                    if (actualEvents.count - todayEvents.count - displayedEvents.count) > 0 {
+                        Button {
+                            showCalendar = true
+                        } label: {
+                            VStack(spacing: 4) {
                                 HStack {
                                     AppImages.iconCalendar
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(width: 25, height: 25)
-                                        .foregroundStyle(.blue)
-                                    Text("\(actualEvents.count - todayEvents.count - displayedEvents.count) more")
+                                        .font(.headline)
+                                    Text("show calendar")
                                         .font(.caption)
-                                        .foregroundStyle(.primary)
+                                        .bold()
                                 }
-                                .modifier(CapsuleSmall(foreground: .secondary))
+                                .foregroundStyle(.blue)
+                                .padding()
+                                .background(AppColors.lightGray6)
+                                .clipShape(Capsule(style: .continuous))
+                                Text("\(actualEvents.count - todayEvents.count - displayedEvents.count) more events")
+                                    .font(.caption2)
+                                    .foregroundStyle(.secondary)
                             }
                         }
-                        
                     }
-                    .padding(.horizontal)
-                    .padding(.top)
-                    .padding(.bottom)
-                    if selectedDate != nil {
-                        Text(selectedDate?.formatted(date: .long, time: .omitted) ?? "")
-                            .font(.title3).bold()
-                            .foregroundStyle(.primary)
-                            .animation(.default, value: selectedDate)
-                            .frame(maxWidth: .infinity)
-                    }
-                    if displayedEvents.count == 1 {
-                        ForEach(displayedEvents) { event in
-                            Button {
-                                selectedEvent = event
-                            } label: {
-                                EventCell(event: event, showCountryCity: false, showStartDayInfo: true, showStartTimeInfo: false)
-                                    .matchedGeometryEffect(id: "DisplayedEv\(event.id)", in: animation)
-                            }
-                            .frame(maxWidth: size.width / 2)
-                            .frame(maxWidth: .infinity)
-                            .padding(.bottom)
+                }
+                .padding(.horizontal)
+                .padding(.top)
+                .padding(.bottom)
+                if selectedDate != nil {
+                    Text(selectedDate?.formatted(date: .long, time: .omitted) ?? "")
+                        .font(.title3).bold()
+                        .foregroundStyle(.primary)
+                        .animation(.default, value: selectedDate)
+                        .frame(maxWidth: .infinity)
+                }
+                if displayedEvents.count == 1 {
+                    ForEach(displayedEvents) { event in
+                        Button {
+                            selectedEvent = event
+                        } label: {
+                            EventCell(event: event, showCountryCity: false, showStartDayInfo: true, showStartTimeInfo: false)
+                                .matchedGeometryEffect(id: "DisplayedEv\(event.id)", in: animation)
                         }
-                    } else {
-                        StaggeredGrid(columns: 2, showsIndicators: false, spacing: 10, list: displayedEvents) { event in
-                            Button {
-                                selectedEvent = event
-                            } label: {
-                                EventCell(event: event, showCountryCity: false, showStartDayInfo: true, showStartTimeInfo: false)
-                                    .matchedGeometryEffect(id: "DisplayedEv\(event.id)", in: animation)
-                            }
-                        }
-                        .padding(.horizontal, 10)
+                        .frame(maxWidth: size.width / 2)
+                        .frame(maxWidth: .infinity)
                         .padding(.bottom)
                     }
-                }
-            }
-            .fullScreenCover(item: $selectedEvent) { event in
-                EventView(viewModel: EventView.EventViewModel.init(event: event, modelContext: modelContext, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager))
-            }
-            .onChange(of: selectedDate, initial: false) { oldValue, newValue in
-                showCalendar = false
-                if let date = newValue {
-                    getEvents(for: date)
                 } else {
-                    showUpcomingEvents()
+                    StaggeredGrid(columns: 2, showsIndicators: false, spacing: 10, list: displayedEvents) { event in
+                        Button {
+                            selectedEvent = event
+                        } label: {
+                            EventCell(event: event, showCountryCity: false, showStartDayInfo: true, showStartTimeInfo: false)
+                                .matchedGeometryEffect(id: "DisplayedEv\(event.id)", in: animation)
+                        }
+                    }
+                    .padding(.horizontal, 10)
+                    .padding(.bottom)
                 }
-                
             }
-            .sheet(isPresented:  $showCalendar) {} content: {
-                CalendarView(selectedDate: $selectedDate, eventsDates: $eventsDates)
-                    .presentationDetents([.medium])
-                    .presentationDragIndicator(.hidden)
-                    .presentationCornerRadius(25)
+        }
+        .fullScreenCover(item: $selectedEvent) { event in
+            EventView(viewModel: EventView.EventViewModel.init(event: event, modelContext: modelContext, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager))
+        }
+        .onChange(of: selectedDate, initial: false) { oldValue, newValue in
+            showCalendar = false
+            if let date = newValue {
+                getEvents(for: date)
+            } else {
+                showUpcomingEvents()
             }
+            
+        }
+        .sheet(isPresented:  $showCalendar) {} content: {
+            CalendarView(selectedDate: $selectedDate, eventsDates: $eventsDates)
+                .presentationDetents([.medium])
+                .presentationDragIndicator(.hidden)
+                .presentationCornerRadius(25)
+        }
     }
     
     private func getEvents(for date: Date) {
@@ -209,16 +212,16 @@ struct StaggeredGrid<Content: View, T: Identifiable>: View where T: Hashable {
     }
     
     var body: some View {
-            HStack(alignment: .top, spacing: /*@START_MENU_TOKEN@*/nil/*@END_MENU_TOKEN@*/) {
-                ForEach(setUpList(), id: \.self) { columnsData in
-                    LazyVStack(alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/, spacing: spacing) {
-                        ForEach(columnsData) { object in
-                           content(object)
-                        }
+        HStack(alignment: .top, spacing: /*@START_MENU_TOKEN@*/nil/*@END_MENU_TOKEN@*/) {
+            ForEach(setUpList(), id: \.self) { columnsData in
+                LazyVStack(alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/, spacing: spacing) {
+                    ForEach(columnsData) { object in
+                        content(object)
                     }
                 }
             }
-            .saveSize(in: $size)
+        }
+        .saveSize(in: $size)
     }
 }
 
