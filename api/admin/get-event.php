@@ -127,8 +127,9 @@ $event = array(
     'owner_id' => $row['owner_id'],
     'place_id' => $row['place_id'],
     'added_by' => $row['added_by'],
-    'is_active' => $is_checked,
-    'is_checked' => $is_active,
+    'admin_notes' => $row['admin_notes'],
+    'is_active' => $is_active,
+    'is_checked' => $is_checked,
     'created_at' => $row['created_at'],
     'updated_at' => $row['updated_at'],
 );

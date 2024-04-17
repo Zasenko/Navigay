@@ -16,8 +16,8 @@ final class AdminViewModel: ObservableObject {
     @Published var uncheckedCountries: [AdminCountry] = []
     @Published var uncheckedRegions: [AdminRegion] = []
     @Published var uncheckedCities: [AdminCity] = []
-    @Published var uncheckedPlaces: [AdminPlace] = []
-    @Published var uncheckedEvents: [AdminEvent] = []
+    @Published var uncheckedPlaces: [AdminPlacePreview] = []
+    @Published var uncheckedEvents: [AdminEventPreview] = []
     
     let user: AppUser
     
@@ -38,6 +38,7 @@ extension AdminViewModel {
                 let decodedResult = try await networkManager.getAdminInfo(for: user)
                 await MainActor.run {
                     uncheckedPlaces = decodedResult.places ?? []
+                    uncheckedEvents = decodedResult.events ?? []
                     uncheckedCities = decodedResult.cities ?? []
                     uncheckedRegions = decodedResult.regions ?? []
                     uncheckedCountries = decodedResult.countries ?? []

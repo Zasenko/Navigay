@@ -57,7 +57,7 @@ if (!hash_equals($hashed_session_key, $stored_hashed_session_key)) {
 }
 //-----------------
 
-$sql = "SELECT id, isoCountryCode, name_origin, name_en, flag_emoji, about, photo, show_regions, is_active, is_checked FROM Country WHERE id = ?";
+$sql = "SELECT * FROM Country WHERE id = ?";
 
 $params = [$country_id];
 $types = "i";
@@ -76,10 +76,9 @@ $photo_url = isset($photo) ? "https://www.navigay.me/" . $photo : null;
 $country = array(
     'id' => $row['id'],
     'isoCountryCode' => $row["isoCountryCode"],
-    'name_origin' => $row['name_origin'],
     'name_en' => $row['name_en'],
-    'flag_emoji' => $row['flag_emoji'],
     'about' => $row['about'],
+    'flag_emoji' => $row['flag_emoji'],
     'photo' => $photo_url,
     'show_regions' => $show_regions,
     'is_active' => $is_active,

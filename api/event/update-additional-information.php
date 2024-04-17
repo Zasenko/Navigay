@@ -23,8 +23,8 @@ $phone = isset($data["phone"]) ? $data["phone"] : null;
 $www = isset($data["www"]) ? $data["www"] : null;
 $facebook = isset($data["facebook"]) ? $data["facebook"] : null;
 $instagram = isset($data["instagram"]) ? $data["instagram"] : null;
-$tags = isset($data["tags"]) ? json_encode($data["tags"]) : null;
-
+$tags = isset($data["tags"]) ? json_decode($data["tags"], true) : null;
+$tags_json = $tags !== null ? json_encode($tags) : null;
 require_once('../dbconfig.php');
 
 //-------- проверка юзера
@@ -79,7 +79,7 @@ if (!($user_status === "admin" || $user_status === "moderator" || ($user_id === 
 }
 
 $sql = "UPDATE Event SET email = ?, phone = ?, www = ?, facebook = ?, instagram = ?, tags = ? WHERE id = ?";
-$params = [$email, $phone, $www, $facebook, $instagram, $tags, $event_id];
+$params = [$email, $phone, $www, $facebook, $instagram, $tags_json, $event_id];
 $types = "ssssssi";
 $stmt = executeQuery($conn, $sql, $params, $types);
 if (checkInsertResult($stmt, $conn, 'Failed to update addinional information in Event table.')) {

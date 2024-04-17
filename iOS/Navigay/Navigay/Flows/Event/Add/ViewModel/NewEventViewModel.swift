@@ -64,6 +64,7 @@ final class NewEventViewModel: ObservableObject {
     @Published var isOwned: Bool = false
     @Published var isActive: Bool = false
     @Published var isChecked: Bool = false
+    @Published var adminNotes: String = ""
     
     @Published var isLoading: Bool = false
     
@@ -75,10 +76,12 @@ final class NewEventViewModel: ObservableObject {
     
     var ids: [Int]? = nil
     
+    var user: AppUser
+    
     //MARK: - Private Properties
     
     private var place: Place? = nil
-    private var user: AppUser
+   
 
     //MARK: - Inits
     
@@ -203,13 +206,10 @@ extension NewEventViewModel {
             let newEvent: NewEvent = NewEvent(name: name,
                                               type: type,
                                               isoCountryCode: isoCountryCode,
-                                              countryOrigin: countryOrigin.isEmpty ? nil : countryOrigin,
-                                              countryEnglish: countryEnglish.isEmpty ? nil : countryEnglish,
-                                              regionOrigin: regionOrigin.isEmpty ? nil : regionOrigin,
-                                              regionEnglish: regionEnglish.isEmpty ? nil : regionEnglish,
-                                              cityOrigin: cityOrigin.isEmpty ? nil : cityOrigin,
-                                              cityEnglish: cityEnglish.isEmpty ? nil : cityEnglish,
-                                              address: addressOrigin,
+                                              countryNameEn: countryEnglish.isEmpty ? nil : countryEnglish,
+                                              regionNameEn: regionEnglish.isEmpty ? nil : regionEnglish,
+                                              cityNameEn: cityEnglish.isEmpty ? nil : cityEnglish,
+                                              address: addressOrigin.isEmpty ? nil : addressOrigin,
                                               latitude: latitude,
                                               longitude: longitude,
                                               repeatDates: datestToSend,
@@ -226,13 +226,14 @@ extension NewEventViewModel {
                                               tags: tags.isEmpty ? nil : tags,
                                               ownderId: isOwned ? user.id : nil,
                                               placeId: place?.id,
+                                              addedBy: user.id,
+                                              sessionKey: sessionKey,
                                               isActive: isActive,
                                               isChecked: isChecked,
+                                              adminNotes: adminNotes.isEmpty ? nil : adminNotes,
                                               countryId: place?.city?.region?.country?.id,
                                               regionId: place?.city?.region?.id,
-                                              cityId: place?.city?.id,
-                                              addedBy: user.id,
-                                              sessionKey: sessionKey)
+                                              cityId: place?.city?.id)
             let message = "Something went wrong. The event didn't load. Please try again later."
             do {
                 let ids = try await networkManager.addNewEvent(event: newEvent)

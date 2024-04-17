@@ -120,6 +120,7 @@ extension EditEventViewModel {
                     self.facebook = event.facebook ?? ""
                     self.instagram = event.instagram ?? ""
                     self.tags = event.tags ?? []
+                    self.adminNotes = event.adminNotes ?? ""
                     self.isActive = event.isActive
                     self.isChecked = event.isChecked
                     self.createdAt = event.createdAt
@@ -232,16 +233,14 @@ extension EditEventViewModel {
     
     func updateFee(isFree: Bool, fee: String?, tickets: String?) async -> Bool {
         do {
-            try await networkManager.updateTime(id: id, startDate: startDate, startTime: startTime, finishDate: finishDate, finishTime: finishTime, user: user)
+            try await networkManager.updateFee(id: id, isFree: isFree, tickets: fee, fee: tickets, user: user)
             await MainActor.run {
-                self.startDate = startDate
-                self.startTime = startTime
-                self.finishDate = finishDate
-                self.finishTime = finishTime
-                event?.startDate = startDate
-                event?.startTime = startTime
-                event?.finishDate = finishDate
-                event?.finishTime = finishTime
+                self.isFree = isFree
+                self.fee = fee ?? ""
+                self.tickets = tickets ?? ""
+                event?.isFree = isFree
+                event?.fee = fee
+                event?.tickets = tickets
             }
             return true
         } catch NetworkErrors.noConnection {

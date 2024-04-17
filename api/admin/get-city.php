@@ -97,11 +97,12 @@ $city = array(
     'id' => $row['id'],
     'country_id' => $row["country_id"],
     'region_id' => $row['region_id'],
-    'name_origin' => $row['name_origin'],
+    'name_origin_en' => $row['name_origin_en'],
     'name_en' => $row['name_en'],
     'about' => $row['about'],
     'photo' => $photo_url,
     'photos' => $library_photos,
+    'redirect_city_id' => $row['redirect_city_id'],
     'is_active' => $is_active,
     'is_checked' => $is_checked,
 );

@@ -12,12 +12,9 @@ struct NewPlace: Codable {
     let name: String
     let type: Int
     let isoCountryCode: String
-    let countryOrigin: String?
-    let countryEnglish: String?
-    let regionOrigin: String?
-    let regionEnglish: String?
-    let cityOrigin: String?
-    let cityEnglish: String?
+    let countryNameEn: String?
+    let regionNameEn: String?
+    let cityNameEn: String?
     let address: String
     let latitude: Double
     let longitude: Double
@@ -40,16 +37,17 @@ struct NewPlace: Codable {
     let isChecked: Bool
     let adminNotes: String?
     
-    init(name: String, type: Int, isoCountryCode: String, countryOrigin: String?, countryEnglish: String?, regionOrigin: String?, regionEnglish: String?, cityOrigin: String?, cityEnglish: String?, address: String, latitude: Double, longitude: Double, about: String?, tags: [Int]?, timetable: [PlaceWorkDay]?, otherInfo: String?, email: String?, phone: String?, www: String?, facebook: String?, instagram: String?, ownderId: Int?, addedBy: Int?, sessionKey: String, adminNotes: String?, isActive: Bool, isChecked: Bool) {
+    let countryId: Int?
+    let regionId: Int?
+    let cityId: Int?
+    
+    init(name: String, type: Int, isoCountryCode: String, countryNameEn: String?, regionNameEn: String?, cityNameEn: String?, address: String, latitude: Double, longitude: Double, about: String?, tags: [Int]?, timetable: [PlaceWorkDay]?, otherInfo: String?, email: String?, phone: String?, www: String?, facebook: String?, instagram: String?, ownderId: Int?, addedBy: Int?, sessionKey: String, isActive: Bool, isChecked: Bool, adminNotes: String?, countryId: Int?, regionId: Int?, cityId: Int?) {
         self.name = name
         self.type = type
         self.isoCountryCode = isoCountryCode
-        self.countryOrigin = countryOrigin
-        self.countryEnglish = countryEnglish
-        self.regionOrigin = regionOrigin
-        self.regionEnglish = regionEnglish
-        self.cityOrigin = cityOrigin
-        self.cityEnglish = cityEnglish
+        self.countryNameEn = countryNameEn
+        self.regionNameEn = regionNameEn
+        self.cityNameEn = cityNameEn
         self.address = address
         self.latitude = latitude
         self.longitude = longitude
@@ -65,8 +63,11 @@ struct NewPlace: Codable {
         self.ownderId = ownderId
         self.addedBy = addedBy
         self.sessionKey = sessionKey
-        self.adminNotes = adminNotes
         self.isActive = isActive
         self.isChecked = isChecked
+        self.adminNotes = adminNotes
+        self.countryId = countryId
+        self.regionId = regionId
+        self.cityId = cityId
     }
 }

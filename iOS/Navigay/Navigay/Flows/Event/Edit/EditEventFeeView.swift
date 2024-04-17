@@ -64,7 +64,6 @@ struct EditEventFeeView: View {
                         update()
                     }
                     .bold()
-                    .disabled(!viewModel.isLoading)
                 }
             }
         }

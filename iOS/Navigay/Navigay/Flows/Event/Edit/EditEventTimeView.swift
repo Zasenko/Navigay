@@ -67,6 +67,7 @@ struct EditEventTimeView: View {
                     }
                     .bold()
                     .disabled(startDate == nil)
+                    .disabled(finishTime != nil && finishDate == nil)
                 }
             }
         }

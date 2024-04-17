@@ -7,6 +7,18 @@
 
 import Foundation
 
+struct AdminPlacePreview: Identifiable, Codable {
+    let id: Int
+    let name: String
+    let type: PlaceType
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case name
+        case type = "type_id"
+    }
+}
+
 struct AdminPlace: Identifiable, Codable {
     
     let id: Int

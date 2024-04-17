@@ -1,34 +1,31 @@
 <?php
 
 require_once('../error-handler.php');
-
-if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
-    sendError('Invalid request method.');
-}
+require_once('../dbconfig.php');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    $conn->close();
     sendError('Invalid request method.');
 }
-
 $postData = file_get_contents('php://input');
 $data = json_decode($postData, true);
 if (empty($data)) {
+    $conn->close();
     sendError('Invalid or empty request data.');
 }
 
+//-------- проверка юзера
 $user_id = isset($data["user_id"]) ? intval($data["user_id"]) : 0;
 if ($user_id <= 0) {
+    $conn->close();
     sendError('Invalid user ID.');
 }
-
 $session_key = isset($data["session_key"]) ? $data["session_key"] : '';
 if (empty($session_key)) {
+    $conn->close();
     sendError('Session key is required.');
 }
-
-//TODO! проверка юзера на то, что он администратор
-
-require_once('../dbconfig.php');
+$hashed_session_key = hash('sha256', $session_key);
 
 $sql = "SELECT session_key, status FROM User WHERE id = ?";
 $params = [$user_id];
@@ -36,28 +33,26 @@ $types = "i";
 $stmt = executeQuery($conn, $sql, $params, $types);
 $result = $stmt->get_result();
 $stmt->close();
-
 if ($result->num_rows === 0) {
     $conn->close();
     sendError('User not found.');
 }
-
 $row = $result->fetch_assoc();
 
-$status = isset($row['status']) ? $row['status'] : '';
-if (!($status === "admin" || $status === "moderator")) {
+$user_status = isset($row['status']) ? $row['status'] : '';
+if (!($user_status === "admin" || $user_status === "moderator")) {
     $conn->close();
     sendError('Admin access only.');
 }
 
 $stored_hashed_session_key = $row['session_key'];
-$hashed_session_key = hash('sha256', $session_key);
 if (!hash_equals($hashed_session_key, $stored_hashed_session_key)) {
     $conn->close();
-    sendError('Wrong key.');
+    sendError('Wrong session key.');
 }
+//-----------------
 
-$sql = "SELECT id, isoCountryCode, name_origin, name_en, show_regions, is_active, is_checked FROM Country";
+$sql = "SELECT id, isoCountryCode, name_en, is_active, is_checked FROM Country";
 $stmt = $conn->prepare($sql);
 if (!$stmt) {
     $stmt->close();
@@ -73,13 +68,11 @@ $result = $stmt->get_result();
 $stmt->close();
 $countries = array();
 while ($row = $result->fetch_assoc()) {
-    $show_regions = (bool)$row['show_regions'];
     $is_active = (bool)$row['is_active'];
     $is_checked = (bool)$row['is_checked'];
     $country = array(
         'id' => $row['id'],
         'isoCountryCode' => $row["isoCountryCode"],
-        'name_origin' => $row['name_origin'],
         'name_en' => $row['name_en'],
         'is_active' => $is_active,
         'is_checked' => $is_checked,

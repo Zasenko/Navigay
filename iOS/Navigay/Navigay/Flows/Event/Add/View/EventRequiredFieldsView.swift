@@ -54,12 +54,27 @@ struct EventRequiredFieldsView: View {
                     map(latitude: latitude, longitude: longitude)
                         .padding(.bottom)
                 }
+                
+                VStack {
+                    Text("isoCountryCode: ") + Text(isoCountryCode)
+                    Text("countryOrigin: ") + Text(countryOrigin)
+                    Text("countryEnglish: ") + Text(countryEnglish)
+                    Text("regionOrigin: ") + Text(regionOrigin)
+                    Text("regionEnglish: ") + Text(regionEnglish)
+                    Text("cityOrigin: ") + Text(cityOrigin)
+                    Text("cityEnglish: ") + Text(cityEnglish)
+                    Text("addressOrigin: ") + Text(addressOrigin)
+                }
+                .padding()
+                .font(.callout)
+                
+                
                 NavigationLink {
                     EditTextFieldView(text: addressOrigin, characterLimit: 50, minHaracters: 5, title: "Address", placeholder: "Address") { string in
                         addressOrigin = string
                     }
                 } label: {
-                    EditField(title: "Address", text: $addressOrigin, emptyFieldColor: .red)
+                    EditField(title: "Address", text: $addressOrigin, emptyFieldColor: .secondary)
                 }
             }
             .padding()

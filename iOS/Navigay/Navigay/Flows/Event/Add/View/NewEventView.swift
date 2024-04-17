@@ -57,7 +57,7 @@ struct NewEventView: View {
                         }
                         .bold()
                         .disabled(viewModel.name.isEmpty)
-                        .disabled(viewModel.addressOrigin.isEmpty == true)
+                       // .disabled(viewModel.addressOrigin.isEmpty == true)
                         .disabled(viewModel.type == nil)
                         .disabled(viewModel.longitude == nil)
                         .disabled(viewModel.latitude == nil)
@@ -207,14 +207,25 @@ struct NewEventView: View {
                     EditField(title: "About", text: $viewModel.about, emptyFieldColor: .secondary)
                 }
                 .padding(.horizontal)
+                .padding(.bottom, 40)
                 
                 EventFeeFieldsView(isFree: $viewModel.isFree, fee: $viewModel.fee, tickets: $viewModel.tickets)
                     .padding(.bottom, 40)
                 EventAdditionalFieldsView(tags: $viewModel.tags, isoCountryCode: $viewModel.isoCountryCode, phone: $viewModel.phone, email: $viewModel.email, www: $viewModel.www, facebook: $viewModel.facebook, instagram: $viewModel.instagram)
                     .padding(.bottom, 40)
-                if let user = authenticationManager.appUser, user.status == .admin {
+                if viewModel.user.status == .admin {
                     ActivationFieldsView(isActive: $viewModel.isActive, isChecked: $viewModel.isChecked)
-                        .padding(.bottom, 40)
+                        .padding(.bottom)
+                    NavigationLink {
+                        EditTextEditorView(title: "Notes", text: viewModel.adminNotes, characterLimit: 3000, onSave: { string in
+                            viewModel.adminNotes = string
+                        })
+                    } label: {
+                        EditField(title: "Notes", text: $viewModel.adminNotes, emptyFieldColor: .secondary)
+                            .padding(.vertical)
+                    }
+                    .padding(.horizontal)
+                    .padding(.bottom, 40)
                 }
             }
         }
@@ -222,22 +233,14 @@ struct NewEventView: View {
     }
 }
 
-//#Preview {
-//    let decodetUser = DecodedAppUser(id: 0, name: "Test", email: "test@test.com", status: .user, bio: nil, photo: nil, instagram: nil, likedPlacesId: nil)
-//    let user = AppUser(decodedUser: decodetUser)
-//    let errorManager = ErrorManager()
-//    let appSettingsManager = AppSettingsManager()
-//    let networkManager = EventNetworkManager(appSettingsManager: appSettingsManager)
-//    return NewEventView(viewModel: NewEventViewModel(user: user, place: nil, networkManager: networkManager, errorManager: errorManager))
-//}
-
-
-struct NewEventPosterView: View {
-    
-    var body: some View {
-        VStack {
-            
-        }
-    }
-    
+#Preview {
+    let decodetUser = DecodedAppUser(id: 0, name: "Test", email: "test@test.com", status: .admin, sessionKey: "000", bio: nil, photo: nil)
+    let user = AppUser(decodedUser: decodetUser)
+    let errorManager = ErrorManager()
+    let appSettingsManager = AppSettingsManager()
+    let networkMonitorManager = NetworkMonitorManager(errorManager: errorManager)
+    let networkManager = EditEventNetworkManager(networkMonitorManager: networkMonitorManager)
+    let auth = AuthenticationManager(keychainManager: KeychainManager(), networkMonitorManager: networkMonitorManager, networkManager: AuthNetworkManager(networkMonitorManager: networkMonitorManager, appSettingsManager: appSettingsManager), errorManager: errorManager)
+    return NewEventView(viewModel: NewEventViewModel(user: user, place: nil, copy: nil, networkManager: networkManager, errorManager: errorManager))
+        .environmentObject(auth)
 }
