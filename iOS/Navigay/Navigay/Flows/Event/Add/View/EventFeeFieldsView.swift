@@ -16,8 +16,8 @@ struct EventFeeFieldsView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                IsFreeView
-                    .padding(.bottom)
+                freeView
+                    .padding()
                 if !isFree {
                     VStack(spacing: 0) {
                         NavigationLink {
@@ -47,7 +47,7 @@ struct EventFeeFieldsView: View {
         }
     }
     
-    private var IsFreeView: some View {
+    private var freeView: some View {
         HStack {
             Text("Is this a event free?")
                 .font(.callout)
@@ -55,7 +55,6 @@ struct EventFeeFieldsView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
             Toggle("", isOn: $isFree)
         }
-        .padding(.horizontal)
     }
 }
 

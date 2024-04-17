@@ -25,7 +25,7 @@ struct AdminView: View {
                 
                 Section {
                     NavigationLink("Countries") {
-                        AdminCountriesView(viewModel: AdminCountriesViewModel(errorManager: viewModel.errorManager, networkManager: viewModel.networkManager))
+                        AdminCountriesView(viewModel: AdminCountriesViewModel(user: viewModel.user, errorManager: viewModel.errorManager, networkManager: viewModel.networkManager))
                     }
                 }
                 Section("Unchecked Countries") {
@@ -38,7 +38,7 @@ struct AdminView: View {
                                     Text("id: \(country.id), code: \(country.isoCountryCode)")
                                         .font(.callout)
                                         .foregroundStyle(.secondary)
-                                    Text(country.nameEn ?? country.nameOrigin ?? "")
+                                    Text(country.nameEn ?? "")
                                         .font(.headline)
                                         .bold()
                                 }
@@ -54,7 +54,6 @@ struct AdminView: View {
                         } label: {
                             VStack {
                                 HStack(spacing: 10) {
-                                    
                                     VStack(alignment: .leading, spacing: 10) {
                                         Text("id \(region.id)")
                                             .font(.callout)
@@ -73,7 +72,7 @@ struct AdminView: View {
                         NavigationLink {
                             EditCityView(viewModel: EditCityViewModel(id: city.id, city: nil, user: viewModel.user, errorManager: viewModel.errorManager, networkManager: EditCityNetworkManager(networkMonitorManager: authenticationManager.networkMonitorManager)))
                         } label: {
-                            VStack {
+                            VStack(alignment: .leading) {
                                 Text("id \(city.id)")
                                 Text(city.nameEn ?? city.nameOrigin ?? "")
                             }
@@ -81,20 +80,30 @@ struct AdminView: View {
                     }
                 }
                 
-                Section("Unchecked Places") {
-                    ForEach(viewModel.uncheckedPlaces) { place in
-                        VStack {
-                            Text("id \(place.id)")
-                            Text(place.name)
-                            Text(place.type.getName())
-                           // Text(place.address ?? "")
+                Section("Unchecked Events") {
+                    ForEach(viewModel.uncheckedEvents) { event in
+                        NavigationLink {
+                            EditEventView(viewModel: EditEventViewModel(eventID: event.id, user: viewModel.user, event: nil, networkManager: EditEventNetworkManager(networkMonitorManager: authenticationManager.networkMonitorManager), errorManager: viewModel.errorManager))
+                        } label: {
+                            VStack(alignment: .leading) {
+                                Text("id \(event.id)")
+                                Text(event.name)
+                                Text(event.type.getName())
+                            }
                         }
                     }
                 }
                 
-                Section("Unchecked Events") {
-                    ForEach(viewModel.uncheckedEvents) { event in
-                        VStack {
+                Section("Unchecked Places") {
+                    ForEach(viewModel.uncheckedPlaces) { place in
+                        NavigationLink {
+                            EditPlaceView(viewModel: EditPlaceViewModel(id: place.id, place: nil, user: viewModel.user, networkManager: EditPlaceNetworkManager(networkMonitorManager: authenticationManager.networkMonitorManager), errorManager: viewModel.errorManager))
+                        } label: {
+                            VStack(alignment: .leading) {
+                                Text("id \(place.id)")
+                                Text(place.name)
+                                Text(place.type.getName())
+                            }
                         }
                     }
                 }

@@ -10,7 +10,6 @@ import Foundation
 struct AdminCountry: Identifiable, Codable {
     let id: Int
     let isoCountryCode: String
-    let nameOrigin: String?
     let nameEn: String?
     let about: String?
     let flagEmoji: String?
@@ -21,7 +20,6 @@ struct AdminCountry: Identifiable, Codable {
     
     enum CodingKeys: String, CodingKey {
         case id, isoCountryCode, photo, about
-        case nameOrigin = "name_origin"
         case nameEn = "name_en"
         case flagEmoji = "flag_emoji"
         case showRegions = "show_regions"

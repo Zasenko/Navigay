@@ -17,5 +17,6 @@ struct AdminInfo: Codable {
     let countries: [AdminCountry]?
     let regions: [AdminRegion]?
     let cities: [AdminCity]?
-    let places: [AdminPlace]?
+    let places: [AdminPlacePreview]?
+    let events: [AdminEventPreview]?
 }

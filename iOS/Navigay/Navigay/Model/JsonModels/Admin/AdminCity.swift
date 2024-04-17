@@ -25,7 +25,7 @@ struct AdminCity: Identifiable, Codable, Hashable  {
         case id, about, photo, photos
         case countryId = "country_id"
         case regionId = "region_id"
-        case nameOrigin = "name_origin"
+        case nameOrigin = "name_origin_en"
         case nameEn = "name_en"
         case isActive = "is_active"
         case isChecked = "is_checked"

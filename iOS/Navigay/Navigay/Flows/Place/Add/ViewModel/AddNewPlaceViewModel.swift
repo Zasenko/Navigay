@@ -87,12 +87,9 @@ extension AddNewPlaceViewModel {
             let newPlace: NewPlace = NewPlace(name: name,
                                               type: type,
                                               isoCountryCode: isoCountryCode,
-                                              countryOrigin: countryOrigin.isEmpty ? nil : countryOrigin,
-                                              countryEnglish: countryEnglish.isEmpty ? nil : countryEnglish,
-                                              regionOrigin: regionOrigin.isEmpty ? nil : regionOrigin,
-                                              regionEnglish: regionEnglish.isEmpty ? nil : regionEnglish,
-                                              cityOrigin: cityOrigin.isEmpty ? nil : cityOrigin,
-                                              cityEnglish: cityEnglish.isEmpty ? nil : cityEnglish,
+                                              countryNameEn: countryEnglish.isEmpty ? nil : countryEnglish,
+                                              regionNameEn: regionEnglish.isEmpty ? nil : regionEnglish,
+                                              cityNameEn: cityEnglish.isEmpty ? nil : cityEnglish,
                                               address: addressOrigin,
                                               latitude: latitude,
                                               longitude: longitude,
@@ -108,9 +105,12 @@ extension AddNewPlaceViewModel {
                                               ownderId: isOwned ? user.id : nil,
                                               addedBy: user.id,
                                               sessionKey: sessionKey,
-                                              adminNotes: adminNotes.isEmpty ? nil : adminNotes,
                                               isActive: isActive,
-                                              isChecked: isChecked)
+                                              isChecked: isChecked,
+                                              adminNotes: adminNotes.isEmpty ? nil : adminNotes,
+                                              countryId: nil,
+                                              regionId: nil,
+                                              cityId: nil)
             do {
                 let decodedResult = try await networkManager.addNewPlace(place: newPlace)
                 await MainActor.run {

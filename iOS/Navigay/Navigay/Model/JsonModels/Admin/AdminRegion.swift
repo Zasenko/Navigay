@@ -19,7 +19,7 @@ struct AdminRegion: Identifiable, Codable {
     enum CodingKeys: String, CodingKey {
         case id, photo
         case countryId = "country_id"
-        case nameOrigin = "name_origin"
+        case nameOrigin = "name_origin_en"
         case nameEn = "name_en"
         case isActive = "is_active"
         case isChecked = "is_checked"

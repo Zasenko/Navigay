@@ -13,7 +13,6 @@ final class EditCountryViewModel: ObservableObject {
     
     let id: Int
     var isoCountryCode: String = ""
-    var nameOrigin: String = ""
     @Published var nameEn: String = ""
     @Published var flagEmoji: String = ""
     @Published var photo: AdminPhoto? = nil
@@ -59,7 +58,6 @@ extension EditCountryViewModel {
                 await MainActor.run {
                     isFetched = true
                     isoCountryCode = decodedCountry.isoCountryCode
-                    nameOrigin = decodedCountry.nameOrigin ?? ""
                     nameEn = decodedCountry.nameEn ?? ""
                     flagEmoji = decodedCountry.flagEmoji ?? ""
                     photo = AdminPhoto(id: UUID().uuidString, image: nil, url: decodedCountry.photo)

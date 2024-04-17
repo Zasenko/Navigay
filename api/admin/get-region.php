@@ -76,9 +76,10 @@ $photo_url = isset($row['photo']) ? "https://www.navigay.me/" . $row['photo'] : 
 $region = array(
     'id' => $row['id'],
     'country_id' => $row["country_id"],
-    'name_origin' => $row['name_origin'],
+    'name_origin_en' => $row['name_origin_en'],
     'name_en' => $row['name_en'],
     'photo' => $photo_url,
+    'redirect_region_id' => $row['redirect_region_id'],
     'is_active' => $is_active,
     'is_checked' => $is_checked,
 );

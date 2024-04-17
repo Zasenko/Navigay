@@ -7,6 +7,18 @@
 
 import Foundation
 
+struct AdminEventPreview: Identifiable, Codable {
+    let id: Int
+    let name: String
+    let type: EventType
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case name
+        case type = "type_id"
+    }
+}
+
 struct AdminEvent: Identifiable, Codable {
     
     let id: Int
@@ -38,6 +50,7 @@ struct AdminEvent: Identifiable, Codable {
     let ownerId: Int?
     let placeId: Int?
     let addedBy: Int?
+    let adminNotes: String?
     let isActive: Bool
     let isChecked: Bool
     let createdAt: String
@@ -73,6 +86,7 @@ struct AdminEvent: Identifiable, Codable {
         case ownerId = "owner_id"
         case placeId = "place_id"
         case addedBy = "added_by"
+        case adminNotes = "admin_notes"
         case isActive = "is_active"
         case isChecked = "is_checked"
         case createdAt = "created_at"

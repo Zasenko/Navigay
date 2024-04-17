@@ -44,7 +44,7 @@ struct EditCountryView: View {
                         Text("id: \(viewModel.id), code: \(viewModel.isoCountryCode)")
                             .font(.caption).bold()
                             .foregroundStyle(.secondary)
-                        Text(viewModel.nameOrigin)
+                        Text(viewModel.nameEn)
                             .font(.headline.bold())
                     }
                 }
@@ -132,9 +132,7 @@ struct EditCountryView: View {
                     EditField(title: "Flag emoji", text: $viewModel.flagEmoji, emptyFieldColor: .red)
                 }
                 .padding()
-                NamesEditView(nameOrigin: $viewModel.nameOrigin, nameEn: $viewModel.nameEn)
-                    .padding()
-                
+                                
                 NavigationLink {
                     EditTextEditorView(title: "Edit description", text: viewModel.about, characterLimit: 3000) { string in
                         viewModel.about = string

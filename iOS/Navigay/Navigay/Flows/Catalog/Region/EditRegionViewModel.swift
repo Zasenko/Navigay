@@ -103,7 +103,7 @@ extension EditRegionViewModel {
             let scaledImage = uiImage.cropImage(width: 600, height: 750)
             let message = "Something went wrong. The photo didn't load. Please try again later."
             do {
-                let newUrl = try await networkManager.updateRegionPhoto(regionId: id, uiImage: uiImage, user: user)
+                let newUrl = try await networkManager.updateRegionPhoto(regionId: id, uiImage: scaledImage, user: user)
                 await MainActor.run {
                     photo = AdminPhoto(id: UUID().uuidString, image: Image(uiImage: uiImage), url: newUrl)
                     

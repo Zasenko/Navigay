@@ -76,7 +76,6 @@ struct AddLocationView: View {
                 .safeAreaInset(edge: .bottom) {
                     if let placemark = selectedPlacemark {
                         VStack {
-                            
                             Divider()
                             let thoroughfare = placemark.thoroughfare
                             let subThoroughfare = placemark.subThoroughfare
