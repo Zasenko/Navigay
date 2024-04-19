@@ -16,11 +16,8 @@ final class AddNewPlaceViewModel: ObservableObject {
     @Published var name: String = ""
     @Published var type: PlaceType? = nil
     @Published var isoCountryCode: String = ""
-    @Published var countryOrigin: String = ""
     @Published var countryEnglish: String = ""
-    @Published var regionOrigin: String = ""
     @Published var regionEnglish: String = ""
-    @Published var cityOrigin: String = ""
     @Published var cityEnglish: String = ""
     @Published var addressOrigin: String = ""
     @Published var latitude: Double? = nil
@@ -60,14 +57,6 @@ extension AddNewPlaceViewModel {
     
     func addNewPlace(from user: AppUser) {
         isLoading = true
-        print("--------------------")
-        print(countryOrigin)
-        print(countryEnglish)
-        print(regionOrigin)
-        print(regionEnglish)
-        print(cityOrigin)
-        print(cityEnglish)
-        print("--------------------")
         Task {
             guard let sessionKey = user.sessionKey else {
                 await MainActor.run {
@@ -133,11 +122,8 @@ extension AddNewPlaceViewModel {
         name = ""
         type = nil
         isoCountryCode = ""
-        countryOrigin = ""
         countryEnglish = ""
-        regionOrigin = ""
         regionEnglish = ""
-        cityOrigin = ""
         cityEnglish = ""
         addressOrigin = ""
         latitude = nil

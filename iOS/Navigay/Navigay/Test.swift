@@ -16,49 +16,36 @@ struct Test: View {
 
     var body: some View {
 
-        VStack {
-            HStack {
-                Text("Upcoming Events")
-                    .font(.title2)
+        VStack() {
+            Text("Upcoming Events")
+                .font(.title2)
+                .bold()
+                .foregroundStyle(.primary)
+                .frame(maxWidth: .infinity)
+            HStack(spacing: 20){
+                Text("13 more events")
+                    .font(.caption)
                     .bold()
-                    .foregroundStyle(.primary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                VStack(spacing: 0) {
-                    ZStack(alignment: .topLeading) {
-                        Button {
-                        } label: {
-                            
-                            HStack(alignment: .bottom) {
-                                AppImages.iconCalendar
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 25, height: 25)
-                                    .foregroundStyle(.blue)
-                                
-                                Text("Select date")
-                                    .font(.caption)
-                                    .foregroundStyle(.primary)
-                            }
-                            
-                            
-                            
-                            
-                            // .modifier(CapsuleSmall(foreground: .secondary))
-                        }
-                        Text("13 more")
-                            .font(.caption2).bold()
-                            .foregroundStyle(.primary)
-                            .padding(5)
-                            .background(.red)
-                            .cornerRadius(8, corners: [.allCorners])
-                            .offset(x: 18, y: -14)
+                    .foregroundStyle(.secondary)
+                Button {
+                } label: {
+                    HStack(spacing: 4) {
+                        AppImages.iconCalendar
+                            .font(.headline)
+                        Text("show calendar")
+                            .font(.caption)
+                            .bold()
                     }
-                    
+                    .foregroundStyle(.blue)
+                    .padding()
+                    .background(AppColors.lightGray6)
+                    .clipShape(Capsule(style: .continuous))
                 }
+
             }
-            .padding(.horizontal)
-            .padding(.top)
-            .padding(.bottom)
+            .frame(maxWidth: .infinity)
+        }
+        .padding()
             
 //            Text("Hello world")
 //                .font(.largeTitle)
@@ -80,7 +67,7 @@ struct Test: View {
 //                .font(.caption)
 //            Text("Hello world")
 //                .font(.caption2)
-        }
+        
         
 //        Button {
 //        } label: {

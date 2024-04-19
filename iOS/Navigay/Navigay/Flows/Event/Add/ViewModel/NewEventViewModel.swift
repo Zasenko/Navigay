@@ -29,11 +29,8 @@ final class NewEventViewModel: ObservableObject {
     @Published var name: String = ""
     @Published var type: EventType? = nil
     @Published var isoCountryCode: String = ""
-    @Published var countryOrigin: String = ""
     @Published var countryEnglish: String = ""
-    @Published var regionOrigin: String = ""
     @Published var regionEnglish: String = ""
-    @Published var cityOrigin: String = ""
     @Published var cityEnglish: String = ""
     @Published var addressOrigin: String = ""
     @Published var latitude: Double? = nil

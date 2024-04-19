@@ -13,11 +13,8 @@ struct AddLocationView: View {
     //MARK: - Properties
     
     @Binding var isoCountryCode: String
-    @Binding var countryOrigin: String
     @Binding var countryEnglish: String
-    @Binding var regionOrigin: String
     @Binding var regionEnglish: String
-    @Binding var cityOrigin: String
     @Binding var cityEnglish: String
     @Binding var addressOrigin: String
     @Binding var latitude: Double?
@@ -136,7 +133,7 @@ struct AddLocationView: View {
         self.isoCountryCode = isoCountryCode
         
         getLocationLanguage(location: location) { language in
-            let preferredLanguage = language ?? "en"
+            let preferredLanguage = language ?? "en-US"
             let preferredLocale = Locale(identifier: preferredLanguage)
             
             geocoder.reverseGeocodeLocation(location, preferredLocale: preferredLocale) { placemarks, error in
@@ -144,42 +141,17 @@ struct AddLocationView: View {
                     return
                 }
                 DispatchQueue.main.async {
-                    self.regionOrigin = place.administrativeArea ?? ""
-                    self.cityOrigin = place.locality ?? ""
                     let thoroughfare = place.thoroughfare ?? ""
                     let subThoroughfare = place.subThoroughfare ?? ""
                     let comma = thoroughfare.isEmpty || subThoroughfare.isEmpty  ? "" : ", "
                     self.addressOrigin = "\(thoroughfare)\(comma)\(subThoroughfare)"
-                    
-                    
-//                    var addressString = ""
-//                    if let thoroughfare = place.thoroughfare {
-//                        addressString += "\(thoroughfare), "
-//                    }
-//                    if let subThoroughfare = place.subThoroughfare {
-//                        addressString += "\(subThoroughfare), "
-//                    }
-//                    if let locality = place.locality {
-//                        addressString += "\(locality), "
-//                    }
-//                    if let administrativeArea = place.administrativeArea {
-//                        addressString += "\(administrativeArea), "
-//                    }
-//                    if let postalCode = place.postalCode {
-//                        addressString += "\(postalCode), "
-//                    }
-//                    if let country = place.country {
-//                        addressString += "\(country)"
-//                    }
-//                    self.addressOrigin = addressString
                 }
-                let preferredLocale = Locale(identifier: "en")
+                let preferredLocale = Locale(identifier: "en-US")
                 geocoder.reverseGeocodeLocation(location, preferredLocale: preferredLocale) { placemarks, error in
                     guard let place = placemarks?.first else {
                         return
                     }
                     DispatchQueue.main.async {
-                        self.countryOrigin = place.country ?? ""
                         self.countryEnglish = place.country ?? ""
                         self.regionEnglish = place.administrativeArea ?? ""
                         self.cityEnglish = place.locality ?? ""
@@ -204,5 +176,5 @@ struct AddLocationView: View {
 }
 
 #Preview {
-    AddLocationView(isoCountryCode: .constant(""), countryOrigin: .constant(""), countryEnglish: .constant(""), regionOrigin: .constant(""), regionEnglish: .constant(""), cityOrigin: .constant(""), cityEnglish: .constant(""), addressOrigin: .constant(""), latitude: .constant(0), longitude: .constant(0))
+    AddLocationView(isoCountryCode: .constant(""), countryEnglish: .constant(""), regionEnglish: .constant(""), cityEnglish: .constant(""), addressOrigin: .constant(""), latitude: .constant(0), longitude: .constant(0))
 }

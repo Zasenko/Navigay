@@ -39,7 +39,7 @@ struct EventCell: View {
                                 .aspectRatio(contentMode: .fit)
                                 .clipShape(Rectangle())
                                 .overlay(Rectangle().stroke(AppColors.lightGray5, lineWidth: 1))
-                                .transition(.scale.animation(.easeInOut))
+                                .transition(.scale.combined(with: .opacity).animation(.easeInOut))
                     }
                     .onAppear() {
                         Task {
@@ -144,6 +144,7 @@ struct EventCell: View {
                 }
             }
             .padding(.vertical, 10)
+            .frame(maxWidth: .infinity)
         }
         .background(AppColors.lightGray5)
 //        .frame(width: UIScreen.main.bounds.width / 2)

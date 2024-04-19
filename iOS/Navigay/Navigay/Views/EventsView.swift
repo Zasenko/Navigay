@@ -43,8 +43,7 @@ struct EventsView: View {
                     .bold()
                     .foregroundStyle(.primary)
                     .frame(maxWidth: .infinity, alignment: .center)
-                    .padding(.bottom)
-                    .padding(.top)
+                    .padding(.vertical)
                 if todayEvents.count == 1 {
                     ForEach(todayEvents) { event in
                         Button {
@@ -71,20 +70,25 @@ struct EventsView: View {
                 }
             }
             if upcomingEvents.count > 0 {
-                HStack(alignment: .firstTextBaseline) {
+                VStack() {
                     Text("Upcoming Events")
                         .font(.title2)
                         .bold()
                         .foregroundStyle(.primary)
-                        .frame(maxWidth: .infinity, alignment: (actualEvents.count - todayEvents.count - displayedEvents.count) > 0 ? .leading : .center)
+                        .frame(maxWidth: .infinity)
                     if (actualEvents.count - todayEvents.count - displayedEvents.count) > 0 {
-                        Button {
-                            showCalendar = true
-                        } label: {
-                            VStack(spacing: 4) {
-                                HStack {
+                        HStack(spacing: 20) {
+                            Text("\(actualEvents.count - todayEvents.count - displayedEvents.count) more events")
+                                .font(.caption)
+                                .bold()
+                                .foregroundStyle(.secondary)
+                            Button {
+                                showCalendar.toggle()
+                            } label: {
+                                HStack(spacing: 4) {
                                     AppImages.iconCalendar
                                         .font(.headline)
+                                    
                                     Text("show calendar")
                                         .font(.caption)
                                         .bold()
@@ -93,16 +97,15 @@ struct EventsView: View {
                                 .padding()
                                 .background(AppColors.lightGray6)
                                 .clipShape(Capsule(style: .continuous))
-                                Text("\(actualEvents.count - todayEvents.count - displayedEvents.count) more events")
-                                    .font(.caption2)
-                                    .foregroundStyle(.secondary)
                             }
+                            
                         }
+                        .frame(maxWidth: .infinity)
+                        
                     }
                 }
-                .padding(.horizontal)
-                .padding(.top)
-                .padding(.bottom)
+                .padding()
+                
                 if selectedDate != nil {
                     Text(selectedDate?.formatted(date: .long, time: .omitted) ?? "")
                         .font(.title3).bold()

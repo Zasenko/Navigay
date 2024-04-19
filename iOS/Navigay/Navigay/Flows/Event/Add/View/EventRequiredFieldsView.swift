@@ -13,11 +13,8 @@ struct EventRequiredFieldsView: View {
     @Binding var name: String
     @Binding var type: EventType?
     @Binding var isoCountryCode: String
-    @Binding var countryOrigin: String
     @Binding var countryEnglish: String
-    @Binding var regionOrigin: String
     @Binding var regionEnglish: String
-    @Binding var cityOrigin: String
     @Binding var cityEnglish: String
     @Binding var addressOrigin: String
     @Binding var latitude: Double?
@@ -105,7 +102,7 @@ struct EventRequiredFieldsView: View {
                 showMap.toggle()
             }
             .fullScreenCover(isPresented: $showMap) {
-                AddLocationView(isoCountryCode: $isoCountryCode, countryOrigin: $countryOrigin, countryEnglish: $countryEnglish, regionOrigin: $regionOrigin, regionEnglish: $regionEnglish, cityOrigin: $cityOrigin, cityEnglish: $cityEnglish, addressOrigin: $addressOrigin, latitude: $latitude, longitude: $longitude)
+                AddLocationView(isoCountryCode: $isoCountryCode, countryEnglish: $countryEnglish, regionEnglish: $regionEnglish, cityEnglish: $cityEnglish, addressOrigin: $addressOrigin, latitude: $latitude, longitude: $longitude)
             }
         }
         .padding()
@@ -131,9 +128,9 @@ struct EventRequiredFieldsView: View {
                 position = .camera(MapCamera(centerCoordinate: centerCoordinate, distance: 500))
             }
             HStack(spacing: 5) {
-                Text(countryOrigin)
+                Text(countryEnglish)
                 Text("•")
-                Text(cityOrigin)
+                Text(cityEnglish)
             }
             .padding(.horizontal)
             .font(.callout)
@@ -142,5 +139,5 @@ struct EventRequiredFieldsView: View {
 }
 
 #Preview {
-    EventRequiredFieldsView(name: .constant(""), type: .constant(nil), isoCountryCode: .constant(""), countryOrigin: .constant(""), countryEnglish: .constant(""), regionOrigin: .constant(""), regionEnglish: .constant(""), cityOrigin: .constant(""), cityEnglish: .constant(""), addressOrigin: .constant(""), latitude: .constant(16.55788), longitude: .constant(48.25656))
+    EventRequiredFieldsView(name: .constant(""), type: .constant(nil), isoCountryCode: .constant(""), countryEnglish: .constant(""), regionEnglish: .constant(""), cityEnglish: .constant(""), addressOrigin: .constant(""), latitude: .constant(16.55788), longitude: .constant(48.25656))
 }
