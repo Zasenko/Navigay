@@ -30,6 +30,7 @@ extension CityView {
         var showCalendar: Bool = false
         var eventsDates: [Date] = []
         var selectedDate: Date? = nil
+        var selectedEvent: Event?
         
         var gridLayout: [GridItem] = Array(repeating: GridItem(.flexible(), spacing: 20), count: 2)
         

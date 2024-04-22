@@ -10,14 +10,21 @@ import Network
 
 protocol NetworkMonitorManagerProtocol {
     var isConnected: Bool { get }
+    var notify: ((Bool) -> Void)? { get set }
 }
 
 final class NetworkMonitorManager: NetworkMonitorManagerProtocol {
     
     // MARK: - Properties
+    var notify: ((Bool) -> Void)?
     
-    var isConnected = true
+    var isConnected = true {
+        didSet {
+            notify?(isConnected)
+        }
+    }
     
+
     // MARK: - Private Properties
     
     private var errorManager: ErrorManagerProtocol

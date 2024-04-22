@@ -234,11 +234,13 @@ struct LoginView: View {
                     user.isUserLoggedIn = true
                     user.updateUser(decodedUser: decodedAppUser)
                     authenticationManager.appUser = user
+                    authenticationManager.isUserOnline = true
                     setLikedItems(for: user)
                 } else {
                     let user = AppUser(decodedUser: decodedAppUser)
                     user.isUserLoggedIn = true
                     authenticationManager.appUser = user
+                    authenticationManager.isUserOnline = true
                     context.insert(user)
                 }
                 onDismiss()

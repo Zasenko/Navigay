@@ -53,6 +53,23 @@ struct HomeView: View {
             guard let userLocation = newValue else { return }
             viewModel.updateAroundPlacesAndEvents(userLocation: userLocation)
         }
+        .onChange(of: viewModel.selectedDate, initial: false) { oldValue, newValue in
+            viewModel.showCalendar = false
+            if let date = newValue {
+                getEvents(for: date)
+            } else {
+                showUpcomingEvents()
+            }
+        }
+        .sheet(isPresented:  $viewModel.showCalendar) {} content: {
+            CalendarView(selectedDate: $viewModel.selectedDate, eventsDates: $viewModel.eventsDates)
+                .presentationDetents([.medium])
+                .presentationDragIndicator(.hidden)
+                .presentationCornerRadius(25)
+        }
+        .fullScreenCover(item: $viewModel.selectedEvent) { event in
+            EventView(viewModel: EventView.EventViewModel.init(event: event, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager))
+        }
     }
     
     // MARK: - Views
@@ -81,7 +98,7 @@ struct HomeView: View {
                                         .padding(5)
                                         .padding(.horizontal, 5)
                                         .background(AppColors.lightGray6)
-                                        .clipShape(Capsule(style: .continuous))
+                                        .clipShape(.capsule)
                                     }
                                 }
                             }
@@ -94,7 +111,6 @@ struct HomeView: View {
                 }
                 Divider()
                 listView
-                    .animation(.easeInOut, value: viewModel.displayedEvents)
             }
             .animation(.easeInOut, value: showSorting)
             .toolbarBackground(AppColors.background)
@@ -165,11 +181,11 @@ struct HomeView: View {
                         scrollProxy.scrollTo(newValue, anchor: .top)
                     }
                 }
-//                .onChange(of: viewModel.showCalendar, initial: false) { oldValue, newValue in
-//                    withAnimation {
-//                        scrollProxy.scrollTo("UpcomingEvents", anchor: .top)
-//                    }
-//                }
+                .onChange(of: viewModel.selectedDate, initial: false) { oldValue, newValue in
+                    withAnimation {
+                        scrollProxy.scrollTo("UpcomingEvents", anchor: .top)
+                    }
+                }
             }
         }
     }
@@ -194,7 +210,7 @@ struct HomeView: View {
     }
     
     private func eventsView(size: CGSize) -> some View {
-        EventsView(modelContext: viewModel.modelContext, selectedDate: $viewModel.selectedDate, displayedEvents: $viewModel.displayedEvents, actualEvents: $viewModel.actualEvents, todayEvents: $viewModel.todayEvents, upcomingEvents: $viewModel.upcomingEvents, eventsDates: $viewModel.eventsDates, showCalendar: $viewModel.showCalendar, size: size, eventDataManager: viewModel.eventDataManager, placeDataManager: viewModel.placeDataManager, eventNetworkManager: viewModel.eventNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, errorManager: viewModel.errorManager)
+        EventsView(modelContext: viewModel.modelContext, selectedDate: $viewModel.selectedDate, displayedEvents: $viewModel.displayedEvents, actualEvents: $viewModel.actualEvents, todayEvents: $viewModel.todayEvents, upcomingEvents: $viewModel.upcomingEvents, eventsDates: $viewModel.eventsDates, selectedEvent: $viewModel.selectedEvent, showCalendar: $viewModel.showCalendar, size: size)
     }
 
     private var placesView: some View {
@@ -218,6 +234,19 @@ struct HomeView: View {
             .listRowSeparator(.hidden)
             .id(key.getSortingMapCategory())
         }
+    }
+    
+    private func getEvents(for date: Date) {
+        Task {
+            let events = await viewModel.eventDataManager.getEvents(for: date, events: viewModel.actualEvents )
+            await MainActor.run {
+                viewModel.displayedEvents = events
+            }
+        }
+    }
+    
+    private func showUpcomingEvents() {
+        viewModel.displayedEvents = viewModel.upcomingEvents
     }
 }
 

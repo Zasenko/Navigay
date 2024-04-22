@@ -7,12 +7,6 @@
 
 import SwiftUI
 
-//enum UserAuthorizationStatus {
-//    case authorized
-//    case notAuthorized
-//    case loading
-//}
-
 enum AuthManagerErrors: Error {
     case emptyEmail
     case emptyPassword
@@ -28,13 +22,12 @@ final class AuthenticationManager: ObservableObject {
     // MARK: - Properties
     
     @AppStorage("lastLoginnedUserId") var lastLoginnedUserId: Int = 0
-    
-    //   @Published var userAuthorizationStatus: UserAuthorizationStatus = .loading
     @Published var appUser: AppUser? = nil
+    @Published var isUserOnline: Bool = false
     
     let errorManager: ErrorManagerProtocol
     let networkManager: AuthNetworkManagerProtocol
-    let networkMonitorManager: NetworkMonitorManagerProtocol
+    var networkMonitorManager: NetworkMonitorManagerProtocol
     
     // MARK: - Private Properties
     
@@ -59,11 +52,16 @@ extension AuthenticationManager {
     
     func authentificate(user: AppUser) {
         appUser = user
-        guard networkMonitorManager.isConnected else {
-            //следим за обновлением networkMonitorManager.isConnected и когда оно подключится - делаем логин
-            return
+        if networkMonitorManager.isConnected {
+            auth(user: user)
+        } else {
+            networkMonitorManager.notify = { [weak self] result in
+                guard let self = self else {return}
+                if result, !self.isUserOnline {
+                    self.auth(user: user)
+                }
+            }
         }
-        auth(user: user)
     }
     
     func logOut(user: AppUser) {
@@ -96,20 +94,18 @@ extension AuthenticationManager {
                 let decodedAppUser = try await networkManager.login(email: user.email, password: password)
                 await MainActor.run {
                     user.updateUser(decodedUser: decodedAppUser)
-                    user.isUserLoggedIn = true
+                    isUserOnline = true
                 }
                 return
-                
-            }  catch NetworkErrors.noConnection {
+            } catch NetworkErrors.noConnection {
                 errorManager.showError(model: ErrorModel(error: NetworkErrors.noConnection, message: "You're not logged in.", img: AppImages.iconPersonError, color: nil))
-                
             } catch NetworkErrors.apiError(let apiError) {
                 errorManager.showApiError(apiError: apiError, or: message, img: nil, color: nil)
             } catch {
                 errorManager.showError(model: ErrorModel(error: NetworkErrors.noConnection, message: message, img: AppImages.iconPersonError, color: nil))
             }
             await MainActor.run {
-                user.isUserLoggedIn = false
+                isUserOnline = false
             }
         }
     }
@@ -125,6 +121,7 @@ extension AuthenticationManager {
         user.isUserLoggedIn = true
         lastLoginnedUserId = user.id
         appUser = user
+        isUserOnline = true
         return user
     }
     

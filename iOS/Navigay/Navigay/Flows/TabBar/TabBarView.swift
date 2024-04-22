@@ -136,7 +136,6 @@ struct TabBarView: View {
                 }
                 TabBarButtonView(selectedPage: $selectedPage,
                                  button: searchButton)
-                
                 if let img = userImage {
                     Button {
                         selectedPage = .user
@@ -146,15 +145,29 @@ struct TabBarView: View {
                             .scaledToFit()
                             .frame(width: 22, height: 22)
                             .clipShape(Circle())
-                            .padding(1)
+                            .padding(3)
                             .overlay(
                                 Circle()
-                                    .stroke(AppColors.lightGray5, lineWidth: 2)
+                                    .stroke(authenticationManager.isUserOnline ? .green : .red, lineWidth: 2)
                             )
                     }
                 } else {
-                    TabBarButtonView(selectedPage: $selectedPage,
-                                     button: userButton)
+                    Button {
+                        selectedPage = .user
+                    } label: {
+                        userButton.img
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: authenticationManager.appUser == nil ? 25 : 22, height: authenticationManager.appUser == nil ? 25 : 22)
+                            .clipShape(Circle())
+                            .foregroundColor(selectedPage == .user ? .primary : AppColors.lightGray5)
+                            .bold()
+                            .padding(authenticationManager.appUser == nil ? 0 : 3)
+                            .overlay(
+                                Circle()
+                                    .stroke(authenticationManager.appUser == nil ? .clear : authenticationManager.isUserOnline ? .green : .red, lineWidth: 2)
+                            )
+                    }
                 }
                 
                 if let user = authenticationManager.appUser, (user.status == .admin || user.status == .moderator) {

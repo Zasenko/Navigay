@@ -20,90 +20,113 @@ struct CityView: View {
     
     var body: some View {
         NavigationStack {
-            
-            //                VStack(spacing: 0) {
-            //                    Divider()
-            listView
-            //          }
-                .toolbarTitleDisplayMode(.inline)
-                .toolbarBackground(AppColors.background)
-                .navigationBarBackButtonHidden()
-                .toolbar {
-                    ToolbarItem(placement: .principal) {
-                        HStack(spacing: 10) {
-                            if viewModel.isLoading {
-                                ProgressView()
-                                    .tint(.blue)
-                            }
-                            Text(viewModel.city.name)
-                                .font(.title2.bold())
+            VStack(spacing: 0) {
+                Divider()
+                listView
+            }
+            .toolbarTitleDisplayMode(.inline)
+            .toolbarBackground(AppColors.background)
+            .navigationBarBackButtonHidden()
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    HStack(spacing: 10) {
+                        if viewModel.isLoading {
+                            ProgressView()
+                                .tint(.blue)
                         }
+                        Text(viewModel.city.name)
+                            .font(.title2.bold())
                     }
-                    ToolbarItem(placement: .topBarLeading) {
-                        Button {
-                            withAnimation {
-                                dismiss()
-                            }
+                }
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        withAnimation {
+                            dismiss()
+                        }
+                    } label: {
+                        AppImages.iconLeft
+                            .bold()
+                            .frame(width: 30, height: 30, alignment: .leading)
+                    }
+                    .tint(.primary)
+                }
+                if let user = authenticationManager.appUser, user.status == .admin {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        NavigationLink {
+                            EditCityView(viewModel: EditCityViewModel(id: viewModel.city.id, city: viewModel.city, user: user, errorManager: viewModel.errorManager, networkManager: EditCityNetworkManager(networkMonitorManager: authenticationManager.networkMonitorManager)))
                         } label: {
-                            AppImages.iconLeft
+                            AppImages.iconSettings
                                 .bold()
-                                .frame(width: 30, height: 30, alignment: .leading)
-                        }
-                        .tint(.primary)
-                    }
-                    if let user = authenticationManager.appUser, user.status == .admin {
-                        ToolbarItem(placement: .topBarTrailing) {
-                            NavigationLink {
-                                EditCityView(viewModel: EditCityViewModel(id: viewModel.city.id, city: viewModel.city, user: user, errorManager: viewModel.errorManager, networkManager: EditCityNetworkManager(networkMonitorManager: authenticationManager.networkMonitorManager)))
-                            } label: {
-                                AppImages.iconSettings
-                                    .bold()
-                                    .foregroundStyle(.blue)
-                            }
+                                .foregroundStyle(.blue)
                         }
                     }
                 }
+            }
+            .onChange(of: viewModel.selectedDate, initial: false) { oldValue, newValue in
+                viewModel.showCalendar = false
+                if let date = newValue {
+                    getEvents(for: date)
+                } else {
+                    showUpcomingEvents()
+                }
+            }
+            .sheet(isPresented:  $viewModel.showCalendar) {} content: {
+                CalendarView(selectedDate: $viewModel.selectedDate, eventsDates: $viewModel.eventsDates)
+                    .presentationDetents([.medium])
+                    .presentationDragIndicator(.hidden)
+                    .presentationCornerRadius(25)
+            }
+            .fullScreenCover(item: $viewModel.selectedEvent) { event in
+                EventView(viewModel: EventView.EventViewModel.init(event: event, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager))
+            }
         }
     }
     
     private var listView: some View {
         GeometryReader { geometry in
-            List {
-                if !viewModel.allPhotos.isEmpty {
-                    PhotosTabView(allPhotos: $viewModel.allPhotos, width: geometry.size.width)
-                        .frame(width: geometry.size.width, height: (geometry.size.width / 4) * 5)
-                        .listRowSeparator(.hidden)
-                        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                        .padding(.bottom)
-                }
-                
-                if viewModel.actualEvents.count > 0 {
-                    EventsView(modelContext: viewModel.modelContext, selectedDate: $viewModel.selectedDate, displayedEvents: $viewModel.displayedEvents, actualEvents: $viewModel.actualEvents, todayEvents: $viewModel.todayEvents, upcomingEvents: $viewModel.upcomingEvents, eventsDates: $viewModel.eventsDates, showCalendar: $viewModel.showCalendar, size: geometry.size, eventDataManager: viewModel.eventDataManager, placeDataManager: viewModel.placeDataManager, eventNetworkManager: viewModel.eventNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, errorManager: viewModel.errorManager)
-                        .listRowSeparator(.hidden)
-                        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                }
-                
-                placesView
-                
-                Section {
-                    if let about = viewModel.city.about {
-                        Text(about)
-                            .font(.callout)
-                            .foregroundStyle(.secondary)
-                            .padding(.top, 40)
+            ScrollViewReader { scrollProxy in
+                List {
+                    if !viewModel.allPhotos.isEmpty {
+                        PhotosTabView(allPhotos: $viewModel.allPhotos, width: geometry.size.width)
+                            .frame(width: geometry.size.width, height: (geometry.size.width / 4) * 5)
                             .listRowSeparator(.hidden)
+                            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                            .padding(.bottom)
+                    }
+                    
+                    if viewModel.actualEvents.count > 0 {
+                        EventsView(modelContext: viewModel.modelContext, selectedDate: $viewModel.selectedDate, displayedEvents: $viewModel.displayedEvents, actualEvents: $viewModel.actualEvents, todayEvents: $viewModel.todayEvents, upcomingEvents: $viewModel.upcomingEvents, eventsDates: $viewModel.eventsDates, selectedEvent: $viewModel.selectedEvent, showCalendar: $viewModel.showCalendar, size: geometry.size)
+                            .listRowSeparator(.hidden)
+                            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                    }
+                    
+                    placesView
+                    
+                    Section {
+                        if let about = viewModel.city.about {
+                            Text(about)
+                                .font(.callout)
+                                .foregroundStyle(.secondary)
+                                .padding(.top, 40)
+                                .listRowSeparator(.hidden)
+                        }
+                    }
+                    Color.clear
+                        .frame(height: 50)
+                        .listSectionSeparator(.hidden)
+                }
+                .listSectionSeparator(.hidden)
+                .listStyle(.plain)
+                .scrollIndicators(.hidden)
+                .buttonStyle(PlainButtonStyle())
+                .onAppear() {
+                    viewModel.getPlacesAndEventsFromDB()
+                }
+                .onChange(of: viewModel.selectedDate, initial: false) { oldValue, newValue in
+                    withAnimation {
+                        scrollProxy.scrollTo("UpcomingEvents", anchor: .top)
                     }
                 }
-                Color.clear
-                    .frame(height: 50)
-                    .listSectionSeparator(.hidden)
-            }
-            .listSectionSeparator(.hidden)
-            .listStyle(.plain)
-            .scrollIndicators(.hidden)
-            .buttonStyle(PlainButtonStyle())
-            .onAppear() {
-                viewModel.getPlacesAndEventsFromDB()
             }
         }
     }
@@ -130,6 +153,19 @@ struct CityView: View {
         }
     }
 
+    private func getEvents(for date: Date) {
+        Task {
+            let events = await viewModel.eventDataManager.getEvents(for: date, events: viewModel.actualEvents )
+            await MainActor.run {
+                viewModel.displayedEvents = events
+            }
+        }
+    }
+    
+    private func showUpcomingEvents() {
+        viewModel.displayedEvents = viewModel.upcomingEvents
+    }
+    
 }
 
 //
