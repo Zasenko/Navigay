@@ -78,7 +78,7 @@ struct AddCommentView: View {
                     Button {
                         dismiss()
                     } label: {
-                        AppImages.iconLeft
+                        AppImages.iconX
                             .bold()
                             .frame(width: 30, height: 30, alignment: .leading)
                     }

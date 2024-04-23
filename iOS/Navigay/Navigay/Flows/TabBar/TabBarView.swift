@@ -76,22 +76,9 @@ struct TabBarView: View {
             tabBar
         }
         .ignoresSafeArea(.keyboard, edges: .bottom)
-//        .onAppear() {
-//            Task {
-//                if let url = authenticationManager.appUser?.photo {
-//                    if let image = await ImageLoader.shared.loadImage(urlString: url) {
-//                        await MainActor.run {
-//                            self.userImage = image
-//                        }
-//                        
-//                    }
-//                }
-//            }
-//        }
         .alert(isPresented: $locationManager.isAlertIfLocationDeniedDisplayed) {
-            //TODO!!!! текст
-            Alert(title: Text("Location access"),
-                  message: Text("Go to Settings?"),
+            Alert(title: Text("Location Access"),
+                  message: Text("To provide accurate search results, this app needs access to your location. Would you like to go to Settings to enable location access?"),
                   primaryButton: .default(Text("Settings"), action: {
                 selectedPage = .search
                 guard let url = URL(string: UIApplication.openSettingsURLString) else {
@@ -131,11 +118,9 @@ struct TabBarView: View {
             Divider()
             HStack(spacing: 40) {
                 if locationManager.authorizationStatus != .denied {
-                    TabBarButtonView(selectedPage: $selectedPage,
-                                     button: homeButton)
+                    TabBarButtonView(selectedPage: $selectedPage, button: homeButton)
                 }
-                TabBarButtonView(selectedPage: $selectedPage,
-                                 button: searchButton)
+                TabBarButtonView(selectedPage: $selectedPage, button: searchButton)
                 if let img = userImage {
                     Button {
                         selectedPage = .user
@@ -148,7 +133,7 @@ struct TabBarView: View {
                             .padding(3)
                             .overlay(
                                 Circle()
-                                    .stroke(authenticationManager.isUserOnline ? .green : .red, lineWidth: 2)
+                                    .stroke(authenticationManager.isUserOnline ? .green : .red, lineWidth: selectedPage == .user ? 3 : 2)
                             )
                     }
                 } else {
@@ -169,7 +154,6 @@ struct TabBarView: View {
                             )
                     }
                 }
-                
                 if let user = authenticationManager.appUser, (user.status == .admin || user.status == .moderator) {
                     TabBarButtonView(selectedPage: $selectedPage,
                                      button: adminButton)

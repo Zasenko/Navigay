@@ -19,6 +19,8 @@ struct WelcomeView: View {
     @State private var showLoginView = false
     @State private var showRegistrationView = false
     
+    // MARK: - Init
+    
     init(onFinish: @escaping () -> Void) {
         self.onFinish = onFinish
     }

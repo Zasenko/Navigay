@@ -16,10 +16,13 @@ struct PhotosTabView: View {
             TabView(selection: $selectedPhotoIndex) {
                 ForEach(allPhotos.indices, id: \.self) { index in
                     ImageLoadingView(url: allPhotos[index], width: width, height: (width / 4) * 5, contentMode: .fill) {
-                        AppColors.lightGray6 // TODO: animation
+                        AppColors.lightGray6
+                            .frame(width: width, height: (width / 4) * 5)
                     }
+                    .frame(width: width, height: (width / 4) * 5)
                     .clipped()
                     .tag(index)
+                    
                 }
             }
             .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))

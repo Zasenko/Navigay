@@ -23,7 +23,7 @@ $cities = array();
 $sql = "SELECT
 City.id, 
 City.name_en, 
-City.small_photo
+City.small_photo,
 City.photo, 
 City.updated_at, 
 City.region_id, 
@@ -40,11 +40,11 @@ Country.updated_at AS country_updated_at
 FROM City 
 LEFT JOIN Region ON Region.id = City.region_id 
 LEFT JOIN Country ON Country.id = City.country_id 
-WHERE (City.name_origin LIKE ? OR City.name_en LIKE ?) 
+WHERE City.name_en LIKE ? 
 AND City.is_active = true";
 $param = "%" . $search_text . "%";
-$params = [$param, $param];
-$types = "ss";
+$params = [$param];
+$types = "s";
 $stmt = executeQuery($conn, $sql, $params, $types);
 $cities_result = $stmt->get_result();
 $stmt->close();
@@ -105,12 +105,12 @@ Country.show_regions,
 Country.updated_at AS country_updated_at 
 FROM Region 
 LEFT JOIN Country ON Country.id = Region.country_id 
-WHERE (Region.name_origin LIKE ? OR Region.name_en LIKE ?) 
+WHERE Region.name_en LIKE ? 
 AND Region.is_active = true";
 
 $param = "%" . $search_text . "%";
-$params = [$param, $param];
-$types = "ss";
+$params = [$param];
+$types = "s";
 $stmt = executeQuery($conn, $sql, $params, $types);
 $regions_result = $stmt->get_result();
 $stmt->close();

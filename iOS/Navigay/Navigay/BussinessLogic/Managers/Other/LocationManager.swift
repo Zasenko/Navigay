@@ -31,8 +31,8 @@ final class LocationManager: NSObject, ObservableObject {
     
     override init() {
         super.init()
-        locationManager.distanceFilter = 5000 //TODO?
-        locationManager.desiredAccuracy = kCLLocationAccuracyHundredMeters //TODO?
+        locationManager.distanceFilter = 5000
+        locationManager.desiredAccuracy = kCLLocationAccuracyHundredMeters
         locationManager.delegate = self
         locationManager.requestWhenInUseAuthorization()
         if locationManager.authorizationStatus == .denied {
@@ -59,12 +59,10 @@ extension LocationManager: CLLocationManagerDelegate {
     }
     
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        debugPrint("---ERROR--- LocationManager: " , error.localizedDescription, error)
+        debugPrint(error.localizedDescription)
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        debugPrint("LocationManager didUpdateLocations")
-       // manager.stopUpdatingLocation()
         guard let currentLocation = locations.last, currentLocation != userLocation else { return }
         userLocation = currentLocation
         lastLatitude = currentLocation.coordinate.latitude
