@@ -300,15 +300,42 @@ struct PlaceView: View {
     }
 }
 
-//#Preview {
-//    let decodedPlace = DecodedPlace(id: 0, name: "HardOn", type: .bar, address: "bla bla", latitude: 48.19611791448819, longitude: 16.357055501725107, isActive: true, lastUpdate: "2023-11-19 08:00:45", avatar: nil, mainPhoto: nil, photos: nil, tags: nil, timetable: nil, otherInfo: nil, about: nil, www: nil, facebook: nil, instagram: nil, phone: nil, countryId: nil, regionId: <#T##Int?#>, cityId: nil, events: nil)
-//    let appSettingsManager = AppSettingsManager()
-//    let networkManager = PlaceNetworkManager(appSettingsManager: appSettingsManager)
-//    let errorManager = ErrorManager()
-//    let place = Place(decodedPlace: decodedPlace)
-//    return PlaceView(place: place, networkManager: networkManager, errorManager: errorManager)
-//      //  .modelContainer(for: [Place.self], inMemory: false)
-//}
+#Preview {
+    let decodedPlace = DecodedPlace(id: 0, name: "HardOn", type: .bar, address: "bla bla", latitude: 48.19611791448819, longitude: 16.357055501725107, lastUpdate: "2023-11-19 08:00:45", avatar: nil, mainPhoto: nil, photos: nil, tags: nil, timetable: nil, otherInfo: nil, about: nil, www: nil, facebook: nil, instagram: nil, phone: nil, city: nil, cityId: nil, events: nil)
+    let appSettingsManager = AppSettingsManager()
+    let errorManager = ErrorManager()
+    let networkMonitorManager = NetworkMonitorManager(errorManager: errorManager)
+    let placeNetworkManager = PlaceNetworkManager(networkMonitorManager: networkMonitorManager, appSettingsManager: appSettingsManager)
+    let eventNetworkManager = EventNetworkManager(networkMonitorManager: networkMonitorManager, appSettingsManager: appSettingsManager)
+    
+    let placeDataManager = PlaceDataManager()
+    let eventDataManager = EventDataManager()
+    let place = Place(decodedPlace: decodedPlace)
+    var sharedModelContainer: ModelContainer = {
+        let schema = Schema([
+            AppUser.self, Country.self, Region.self, City.self, Event.self, Place.self, User.self
+        ])
+        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+
+        do {
+            return try ModelContainer(for: schema, configurations: [modelConfiguration])
+        } catch {
+            fatalError("Could not create ModelContainer: \(error)")
+        }
+    }()
+    let authNetworkManager = AuthNetworkManager(networkMonitorManager: networkMonitorManager, appSettingsManager: appSettingsManager)
+    let keychainManager = KeychainManager()
+    let authenticationManager = AuthenticationManager(keychainManager: keychainManager, networkMonitorManager: networkMonitorManager, networkManager: authNetworkManager, errorManager: errorManager)
+    return PlaceView(viewModel: PlaceView.PlaceViewModel(place: place,
+                                                         modelContext: ModelContext(sharedModelContainer),
+                                                         placeNetworkManager: placeNetworkManager,
+                                                         eventNetworkManager: eventNetworkManager,
+                                                         errorManager: errorManager,
+                                                         placeDataManager: placeDataManager,
+                                                         eventDataManager: eventDataManager,
+                                                         showOpenInfo: false))
+    .environmentObject(authenticationManager)
+}
 
 struct TagsView: View {
     

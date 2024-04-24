@@ -14,36 +14,16 @@ struct Test: View {
     @State private var scrollPosition: CGPoint = .zero
 
 
+    private let firstReviewPrompt = "Hey there! Looks like this place is waiting to be discovered. Share your thoughts and be the first to leave a review!"
+    
     var body: some View {
-
-        VStack() {
-            Text("Upcoming Events")
-                .font(.title2)
-                .bold()
-                .foregroundStyle(.primary)
-                .frame(maxWidth: .infinity)
-            HStack(spacing: 20){
-                Text("13 more events")
-                    .font(.caption)
-                    .bold()
-                    .foregroundStyle(.secondary)
-                Button {
-                } label: {
-                    HStack(spacing: 4) {
-                        AppImages.iconCalendar
-                            .font(.headline)
-                        Text("show calendar")
-                            .font(.caption)
-                            .bold()
-                    }
-                    .foregroundStyle(.blue)
-                    .padding()
-                    .background(AppColors.lightGray6)
-                    .clipShape(Capsule(style: .continuous))
-                }
-
-            }
-            .frame(maxWidth: .infinity)
+        HStack(alignment: .top, spacing: 10) {
+            Image(systemName: "info.bubble")
+                .font(.title)
+                .foregroundStyle(.secondary)
+            Text(firstReviewPrompt)
+                .font(.subheadline)
+                .frame(maxWidth: .infinity, alignment: .leading)
         }
         .padding()
             
