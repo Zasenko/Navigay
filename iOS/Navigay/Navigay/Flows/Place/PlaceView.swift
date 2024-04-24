@@ -30,11 +30,9 @@ struct PlaceView: View {
     
     var body: some View {
         NavigationStack {
-            GeometryReader { outsideProxy in
             VStack(spacing: 0) {
                 Divider()
-                        createList(outsideProxy: outsideProxy)
-                    }
+                listView
             }
             .navigationBarBackButtonHidden()
             .toolbarBackground(AppColors.background)
@@ -100,188 +98,107 @@ struct PlaceView: View {
                 viewModel.allPhotos = viewModel.place.getAllPhotos()
                 viewModel.getEventsFromDB()
             }
+            .onChange(of: viewModel.selectedDate, initial: false) { oldValue, newValue in
+                viewModel.showCalendar = false
+                if let date = newValue {
+                    getEvents(for: date)
+                } else {
+                    showUpcomingEvents()
+                }
+            }
+            .sheet(isPresented:  $viewModel.showCalendar) {} content: {
+                CalendarView(selectedDate: $viewModel.selectedDate, eventsDates: $viewModel.eventsDates)
+                    .presentationDetents([.medium])
+                    .presentationDragIndicator(.hidden)
+                    .presentationCornerRadius(25)
+            }
+            .fullScreenCover(item: $viewModel.selectedEvent) { event in
+                EventView(viewModel: EventView.EventViewModel.init(event: event, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager))
+            }
         }
     }
     
     // MARK: - Views
     
-    @ViewBuilder
-    private func createList(outsideProxy: GeometryProxy) -> some View {
-        List {
-            headerView
-            headerSection(width: outsideProxy.size.width)
-            
-            TagsView(tags: viewModel.place.tags)
-                .padding(.bottom)
-                .listRowSeparator(.hidden)
-                .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
-            
-            createMap(size: outsideProxy.size)
-            
-            if !viewModel.place.timetable.isEmpty {
-                TimetableView(place: viewModel.place, showOpenInfo: viewModel.showOpenInfo)
-            }
-            
-            
-            if let otherInfo = viewModel.place.otherInfo {
-                Text(otherInfo)
-                    //.font(.caption)
-                    .foregroundStyle(.secondary)
-                    .listRowInsets(EdgeInsets(top: 20, leading: 20, bottom: 50, trailing: 20))
-                    .listSectionSeparator(.hidden)
-            }
-            
-            
-            ContactInfoView(phone: viewModel.place.phone, www: viewModel.place.www, facebook: viewModel.place.facebook, instagram: viewModel.place.instagram)
-                .listRowInsets(EdgeInsets(top: 50, leading: 20, bottom: 50, trailing: 20))
-                .listSectionSeparator(.hidden)
-            
-            if viewModel.actualEvents.count > 0 {
-                EventsView(modelContext: viewModel.modelContext, selectedDate: $viewModel.selectedDate, displayedEvents: $viewModel.displayedEvents, actualEvents: $viewModel.actualEvents, todayEvents: $viewModel.todayEvents, upcomingEvents: $viewModel.upcomingEvents, eventsDates: $viewModel.eventsDates, showCalendar: $viewModel.showCalendar, size: outsideProxy.size, eventDataManager: viewModel.eventDataManager, placeDataManager: viewModel.placeDataManager, eventNetworkManager: viewModel.eventNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, errorManager: viewModel.errorManager)
-                    .listRowSeparator(.hidden)
-                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-            }
-            
-            if let about = viewModel.place.about {
-                    Text(about)
-                        .font(.callout)
-                        .foregroundStyle(.secondary)
+    private var listView: some View {
+        GeometryReader { proxy in
+            ScrollViewReader { scrollProxy in
+                List {
+                    headerView
+                    headerSection(width: proxy.size.width)
+                    
+                    TagsView(tags: viewModel.place.tags)
+                        .padding(.bottom)
                         .listRowSeparator(.hidden)
-                        .listRowInsets(EdgeInsets(top: 50, leading: 20, bottom: 50, trailing: 20))
-            }
-            
-            if viewModel.place.photos.count > 0 {
-                //todo фотографии должны открываться
-                    LazyVGrid(columns: viewModel.gridLayoutPhotos, spacing: 2) {
-                        ForEach(viewModel.place.photos, id: \.self) { url in
-                            ImageLoadingView(url: url, width: (outsideProxy.size.width - 4) / 3, height: (outsideProxy.size.width - 4) / 3, contentMode: .fill) {
-                                AppColors.lightGray6 //TODO animation
-                            }
-                            .clipped()
-                        }
+                        .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
+                    
+                    createMap(size: proxy.size)
+                    
+                    if !viewModel.place.timetable.isEmpty {
+                        TimetableView(place: viewModel.place, showOpenInfo: viewModel.showOpenInfo)
                     }
-                .listRowSeparator(.hidden)
-                .listRowInsets(EdgeInsets(top: 50, leading: 0, bottom: 50, trailing: 0))
-            }
-            
-            Section {
-                HStack {
-                    Text("Reviews")
-                        .font(.title)
-                        .foregroundStyle(.secondary)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    if let user = authenticationManager.appUser, user.status != .blocked {
-                        //TODO: Add review designe
-                        ZStack {
-                            NavigationLink {
-                                AddCommentView(viewModel: AddCommentViewModel(placeId: viewModel.place.id, placeNetworkManager: viewModel.placeNetworkManager, errorManager: viewModel.errorManager))
-                            } label: {
-                                EmptyView()
-                            }
-                            Text("Add review")
-                                .font(.callout.bold())
-                                .padding()
-                                .foregroundStyle(.blue)
-                        }
-                        
-                    } else {
-                        Button {
-                            viewModel.showRegistrationView = true
-                        } label: {
-                            Text("Log in to write a review")
-                                .font(.callout.bold())
-                                .padding()
-                                .multilineTextAlignment(.center)
-                                .foregroundStyle(.blue)
-                        }
-                        .fullScreenCover(isPresented: $viewModel.showRegistrationView) {
-                            RegistrationView(authenticationManager: authenticationManager, errorManager: authenticationManager.errorManager) {
-                                viewModel.showRegistrationView = false
-                            }
-                        }
-                    }
-                }
-                .padding(.top, 50)
-                .padding(.bottom, 10)
-                .padding(.horizontal)
-                
-                if viewModel.comments.isEmpty {
-                    //TODO: No comments
-                    Text("No comments")
-                } else {
-                    ForEach(viewModel.comments) { comment in
-                        VStack(spacing: 0) {
-                            VStack(spacing: 10) {
-                                if comment.rating != 0 {
-                                    HStack {
-                                        ForEach(1..<6) { int in
-                                            Image(systemName: "star.fill")
-                                                .foregroundStyle(int <= comment.rating ? .yellow : .secondary)
-                                        }
-                                    }
-                                }
-                                if let comment = comment.comment {
-                                    Text(comment)
-                                        .font(.callout)
-                                        .foregroundStyle(.secondary)
-                                        .frame(maxWidth: .infinity, alignment: .leading)
-                                        .padding(.vertical)
-                                }
-                                if let photos = comment.photos {
-                                    HStack {
-                                        ForEach(photos, id: \.self) { photo in
-                                            ImageLoadingView(url: photo, width: outsideProxy.size.width / 4, height: outsideProxy.size.width / 4, contentMode: .fill) {
-                                                Color.orange
-                                            }
-                                            .clipShape(RoundedRectangle(cornerRadius: 20))
-                                            .overlay(RoundedRectangle(cornerRadius: 20).stroke(AppColors.lightGray5, lineWidth: 1))
-                                        }
-                                    }
-                                }
-                            }
-                            .padding()
-                            .background(AppColors.lightGray6)
-                            .clipShape(RoundedRectangle(cornerRadius: 20))
-                            HStack {
-                                if let user = comment.user {
-                                    if let url = user.photo {
-                                        ImageLoadingView(url: url, width: 50, height: 50, contentMode: .fill) {
-                                            AppColors.lightGray6 // TODO: animation in ImageLoadingView
-                                        }
-                                        .clipped()
-                                        .listRowSeparator(.hidden)
-                                        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                                    } else {
-                                        AppImages.iconPerson
-                                            .resizable()
-                                            .scaledToFit()
-                                            .frame(width: 20, height: 20)
-                                    }
-                                    Text(user.name)
-                                        .bold()
-                                        .frame(maxWidth: .infinity, alignment: .leading)
-                                }
-                                Text(comment.createdAt)
-                            }
-                            .font(.caption)
+                    
+                    
+                    if let otherInfo = viewModel.place.otherInfo {
+                        Text(otherInfo)
+                        //.font(.caption)
                             .foregroundStyle(.secondary)
-                            .padding(.horizontal)
-                            .padding(.top, 10)
+                            .listRowInsets(EdgeInsets(top: 20, leading: 20, bottom: 50, trailing: 20))
+                            .listSectionSeparator(.hidden)
+                    }
+                    
+                    
+                    ContactInfoView(phone: viewModel.place.phone, www: viewModel.place.www, facebook: viewModel.place.facebook, instagram: viewModel.place.instagram)
+                        .listRowInsets(EdgeInsets(top: 50, leading: 20, bottom: 50, trailing: 20))
+                        .listSectionSeparator(.hidden)
+                    
+                    if viewModel.actualEvents.count > 0 {
+                        EventsView(modelContext: viewModel.modelContext, selectedDate: $viewModel.selectedDate, displayedEvents: $viewModel.displayedEvents, actualEvents: $viewModel.actualEvents, todayEvents: $viewModel.todayEvents, upcomingEvents: $viewModel.upcomingEvents, eventsDates: $viewModel.eventsDates, selectedEvent: $viewModel.selectedEvent, showCalendar: $viewModel.showCalendar, size: proxy.size)
+                            .listRowSeparator(.hidden)
+                            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                    }
+                    
+                    if let about = viewModel.place.about {
+                        Text(about)
+                            .font(.callout)
+                            .foregroundStyle(.secondary)
+                            .listRowSeparator(.hidden)
+                            .listRowInsets(EdgeInsets(top: 50, leading: 20, bottom: 50, trailing: 20))
+                    }
+                    
+                    if viewModel.place.photos.count > 0 {
+                        //todo фотографии должны открываться
+                        LazyVGrid(columns: viewModel.gridLayoutPhotos, spacing: 2) {
+                            ForEach(viewModel.place.photos, id: \.self) { url in
+                                ImageLoadingView(url: url, width: (proxy.size.width - 4) / 3, height: (proxy.size.width - 4) / 3, contentMode: .fill) {
+                                    AppColors.lightGray6 //TODO animation
+                                }
+                                .clipped()
+                            }
                         }
-                        .padding()
-                        .padding(.vertical)
+                        .listRowSeparator(.hidden)
+                        .listRowInsets(EdgeInsets(top: 50, leading: 0, bottom: 50, trailing: 0))
+                    }
+                    CommentsView(placeNetworkManager: viewModel.placeNetworkManager, errorManager: viewModel.errorManager, size: proxy.size, place: viewModel.place, comments: $viewModel.comments)
+                        .listRowSeparator(.hidden)
+                        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                        .onAppear {
+                            viewModel.fetchComments()
+                        }
+                    Color.clear
+                        .frame(height: 50)
+                        .listRowSeparator(.hidden)
+                }
+                .listStyle(.plain)
+                .scrollIndicators(.hidden)
+                .buttonStyle(PlainButtonStyle())
+                .onChange(of: viewModel.selectedDate, initial: false) { oldValue, newValue in
+                    withAnimation {
+                        scrollProxy.scrollTo("UpcomingEvents", anchor: .top)
                     }
                 }
-            }
-            .listRowSeparator(.hidden)
-            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-            .onAppear {
-                viewModel.fetchComments()
             }
         }
-        .listStyle(.plain)
-        .scrollIndicators(.hidden)
-        .buttonStyle(PlainButtonStyle())
     }
     
     private var headerView: some View {
@@ -367,6 +284,19 @@ struct PlaceView: View {
         }
         .listRowSeparator(.hidden)
         .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+    }
+    
+    private func getEvents(for date: Date) {
+        Task {
+            let events = await viewModel.eventDataManager.getEvents(for: date, events: viewModel.actualEvents )
+            await MainActor.run {
+                viewModel.displayedEvents = events
+            }
+        }
+    }
+    
+    private func showUpcomingEvents() {
+        viewModel.displayedEvents = viewModel.upcomingEvents
     }
 }
 

@@ -29,6 +29,7 @@ extension HomeView {
         
         var selectedEvent: Event?
         
+        
         var aroundPlaces: [Place] = [] /// for Map
         var groupedPlaces: [PlaceType: [Place]] = [:]
         
@@ -76,12 +77,12 @@ extension HomeView {
         //MARK: - Functions
         
         func updateAroundPlacesAndEvents(userLocation: CLLocation) {
-            let radius: Double = 20000
-            
-            let allPlaces = placeDataManager.getAllPlaces(modelContext: modelContext)
-            let allEvents = eventDataManager.getAllEvents(modelContext: modelContext)
-            
             Task {
+                let radius: Double = 20000
+                
+                let allPlaces = placeDataManager.getAllPlaces(modelContext: modelContext)
+                let allEvents = eventDataManager.getAllEvents(modelContext: modelContext)
+                
                 let aroundPlaces = await placeDataManager.getAroundPlaces(radius: radius, allPlaces: allPlaces, userLocation: userLocation)
                 let aroundEvents = await eventDataManager.getAroundEvents(radius: radius, allEvents: allEvents, userLocation: userLocation)
                 

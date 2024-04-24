@@ -111,7 +111,7 @@ struct EditPhoneView: View {
                 hideKeyboard()
             }
             .sheet(isPresented: $presentSheet) {
-                NavigationView {
+                NavigationStack {
                     List(filteredResorts) { country in
                         HStack {
                             Text(country.flag)

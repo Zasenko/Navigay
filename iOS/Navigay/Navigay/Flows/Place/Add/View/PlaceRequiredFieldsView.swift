@@ -96,7 +96,7 @@ struct PlaceRequiredFieldsView: View {
                 viewModel.showMap.toggle()
             }
             .fullScreenCover(isPresented: $viewModel.showMap) {
-                AddLocationView(isoCountryCode: $viewModel.isoCountryCode, countryOrigin: $viewModel.countryOrigin, countryEnglish: $viewModel.countryEnglish, regionOrigin: $viewModel.regionOrigin, regionEnglish: $viewModel.regionEnglish, cityOrigin: $viewModel.cityOrigin, cityEnglish: $viewModel.cityEnglish, addressOrigin: $viewModel.addressOrigin, latitude: $viewModel.latitude, longitude: $viewModel.longitude)
+                AddLocationView(isoCountryCode: $viewModel.isoCountryCode, countryEnglish: $viewModel.countryEnglish, regionEnglish: $viewModel.regionEnglish, cityEnglish: $viewModel.cityEnglish, addressOrigin: $viewModel.addressOrigin, latitude: $viewModel.latitude, longitude: $viewModel.longitude)
             }
         }
         .padding()
@@ -147,9 +147,9 @@ struct PlaceRequiredFieldsView: View {
                 position = .camera(MapCamera(centerCoordinate: centerCoordinate, distance: 500))
             }
             HStack(spacing: 5) {
-                Text(viewModel.countryOrigin)
+                Text(viewModel.countryEnglish)
                 Text("•")
-                Text(viewModel.cityOrigin)
+                Text(viewModel.cityEnglish)
             }
             .padding()
             .font(.callout)

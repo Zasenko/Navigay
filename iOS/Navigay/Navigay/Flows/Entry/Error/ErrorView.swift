@@ -14,6 +14,7 @@ struct ErrorView: View {
     @StateObject var viewModel: ErrorViewModel
     let moveFrom: Edge
     let alignment: Alignment
+    
     // MARK: - Body
     
     var body: some View {
@@ -26,10 +27,9 @@ struct ErrorView: View {
                         .frame(width: 20, height: 20)
                         .foregroundColor(error.color)
                         .bold()
-                    
                     Text(error.message)
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(.primary)
                         .bold()
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }

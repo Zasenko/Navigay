@@ -20,6 +20,7 @@ struct RatingView: View {
             ForEach(1..<6) { i in
                 Image(systemName: "star.fill")
                     .resizable()
+                    .scaledToFit()
                     .frame(width: 30, height: 30)
                     .foregroundStyle(rating >= i ? .yellow : .gray)
                     .onTapGesture {

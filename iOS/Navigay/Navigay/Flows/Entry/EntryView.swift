@@ -15,12 +15,10 @@ enum EntryViewRouter {
 
 struct EntryView: View {
     
-    //MARK: - Private Properties
+    // MARK: - Private Properties
     
     @Query private var appUsers: [AppUser]
-    
     @AppStorage("firstTimeInApp") private var firstTimeInApp: Bool = true
-    
     @State private var router: EntryViewRouter = .welcomeView
     @StateObject private var authenticationManager: AuthenticationManager
     
@@ -28,7 +26,7 @@ struct EntryView: View {
     private let errorManager: ErrorManagerProtocol
     private let networkMonitor: NetworkMonitorManagerProtocol
     
-    //MARK: - Init
+    // MARK: - Init
     
     init() {
         let appSettingsManager = AppSettingsManager()
@@ -44,13 +42,9 @@ struct EntryView: View {
 
         _authenticationManager = StateObject(wrappedValue: authenticationManager)
         _router = State(wrappedValue: EntryViewRouter.welcomeView)
-        let id = authenticationManager.lastLoginnedUserId
-        if id != 0 {
-            _appUsers = Query(filter: #Predicate<AppUser>{ $0.id == id })
-        }
     }
     
-    //MARK: - Body
+    // MARK: - Body
     
     var body: some View {
         ZStack {
@@ -71,7 +65,7 @@ struct EntryView: View {
         .environmentObject(authenticationManager)
     }
     
-    //MARK: - Private Functions
+    // MARK: - Private Functions
     
     private func setRouter() {
         if firstTimeInApp {

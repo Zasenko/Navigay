@@ -38,7 +38,7 @@ extension PlaceView {
         var showCalendar: Bool = false
         var eventsDates: [Date] = []
         var selectedDate: Date? = nil
-        
+        var selectedEvent: Event?
         
         var gridLayoutPhotos: [GridItem] = Array(repeating: GridItem(.flexible(), spacing: 2), count: 3)
         var gridLayoutEvents: [GridItem] = Array(repeating: GridItem(.flexible(), spacing: 10), count: 2)

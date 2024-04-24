@@ -47,6 +47,9 @@ struct AppImages {
     static let iconCheckmark = Image(systemName:"checkmark")
     static let iconWifi = Image(systemName:"wifi")
     static let iconNoWifi = Image(systemName:"wifi.slash")
+  //  static let iconEllipsis = Image(systemName:"ellipsis")
+    static let iconEllipsisRectangle = Image(systemName:"ellipsis.rectangle")
+    static let iconArrowTurnDownRight =  Image(systemName:"arrow.turn.down.right")
     
     static let iconRegion = Image("icon_region")
     

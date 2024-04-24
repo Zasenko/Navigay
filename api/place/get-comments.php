@@ -83,7 +83,7 @@ while ($row = $result->fetch_assoc()) {
 
     if (isset($row['user_id']) || isset($row["user_name"])) {
         $user_photo = $row['user_photo'];
-        $user_photo_url = isset($user_photo) ? "https://www.navigay.me/" . $user_photo : null;
+        $user_photo_url = isset($user_photo) ? "https://www.navigay.me/images/users/" . $user_photo : null;
 
         $user = array(
             "id" => $row['user_id'],

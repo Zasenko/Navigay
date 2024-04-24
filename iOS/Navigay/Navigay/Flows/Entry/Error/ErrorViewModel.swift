@@ -12,7 +12,6 @@ final class ErrorViewModel: ObservableObject {
     // MARK: - Properties
     
     @Published var errors: [ErrorModel] = []
-
     var errorManager: ErrorManagerProtocol
     
     // MARK: - Inits
