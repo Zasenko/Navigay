@@ -50,6 +50,7 @@ struct AppImages {
   //  static let iconEllipsis = Image(systemName:"ellipsis")
     static let iconEllipsisRectangle = Image(systemName:"ellipsis.rectangle")
     static let iconArrowTurnDownRight =  Image(systemName:"arrow.turn.down.right")
+    static let iconInfoBubble =  Image(systemName:"info.bubble")
     
     static let iconRegion = Image("icon_region")
     
