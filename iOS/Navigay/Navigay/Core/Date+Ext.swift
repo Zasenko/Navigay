@@ -55,6 +55,13 @@ extension Date {
         }
         return allDates
     }
+    
+    func isSameMinutes(as otherDate: Date) -> Bool {
+        let calendar = Calendar.current
+        let components1 = calendar.dateComponents([.minute], from: self)
+        let components2 = calendar.dateComponents([.minute], from: otherDate)
+        return components1.minute == components2.minute
+    }
 
     func isSameHour(as otherDate: Date) -> Bool {
         let calendar = Calendar.current
@@ -65,6 +72,20 @@ extension Date {
     
     func isSameMonth(with otherDate: Date) -> Bool {
         Calendar.current.compare(self, to: otherDate, toGranularity: .month) == .orderedSame
+    }
+    
+    func isPastMinutes(as otherDate: Date) -> Bool {
+        let calendar = Calendar.current
+        let components1 = calendar.dateComponents([.minute], from: self)
+        let components2 = calendar.dateComponents([.minute], from: otherDate)
+        return components1.minute! < components2.minute!
+    }
+    
+    func isFutureMinutes(as otherDate: Date) -> Bool {
+        let calendar = Calendar.current
+        let components1 = calendar.dateComponents([.minute], from: self)
+        let components2 = calendar.dateComponents([.minute], from: otherDate)
+        return components1.minute! > components2.minute!
     }
     
     func isPastHour(of otherDate: Date) -> Bool {

@@ -18,10 +18,13 @@ final class EditEventViewModel: ObservableObject {
 
     @Published var name: String = ""
     @Published var type: EventType = .other
+    
     @Published var isoCountryCode: String? = nil
+    
     @Published var countryId: Int? = nil
     @Published var regionId: Int? = nil
     @Published var cityId: Int? = nil
+    
     @Published var latitude: Double = 0
     @Published var longitude: Double = 0
     @Published var address: String = ""
