@@ -24,7 +24,7 @@ struct MapSortingMenuView: View {
                         Button {
                             selectedCategory = category
                         } label: {
-                            Text(category.getName())
+                            Text(category == .events ? "Today's Events" : category.getName())
                         }
                     }
                 }

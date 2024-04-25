@@ -38,8 +38,10 @@ struct CommentsView: View {
                     Text("Reviews")
                         .font(.title)
                         .foregroundStyle(.secondary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     if let user = authenticationManager.appUser, user.status != .blocked {
                         addReviewButton
+                        
                     }
                 }
                 .padding(.top, 50)
@@ -129,7 +131,7 @@ struct CommentsView: View {
     }
     
     private func commentView(comment: DecodedComment) -> some View {
-        LazyVStack(spacing: 10) {
+        VStack(spacing: 10) {
             if comment.rating != 0 {
                 HStack(spacing: 4) {
                     ForEach(1..<6) { int in
@@ -190,7 +192,6 @@ struct CommentsView: View {
             }
             .font(.caption)
             .foregroundStyle(.secondary)
-            Divider()
             if let reply = comment.reply {
                 HStack(alignment: .top) {
                     AppImages.iconArrowTurnDownRight //arrow.turn.down.right
@@ -200,10 +201,11 @@ struct CommentsView: View {
                         .multilineTextAlignment(.leading)
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
+                .padding(.top)
             }
+            Divider()
         }
-        .padding(.horizontal)
-        .padding(.bottom)
+        .padding()
         .frame(maxWidth: .infinity)
     }
 }
@@ -220,7 +222,7 @@ struct CommentsView: View {
     
     let decodedCommentUser1: DecodedUser = DecodedUser(id: 1, name: "Stefan", bio: nil, photo: nil, updatedAt: "2024-02-22")
     let decodedCommentUser2: DecodedUser = DecodedUser(id: 1, name: "Stefan", bio: nil, photo: "https://sun9-64.userapi.com/s/v1/ig2/44i4TMbTQSNnMkNJYcu9VIiE0SFqhmdXuozczFkT_i8gLZ5omWmB3K9T85qrEx6uEyBtSndNHNqdc4XehNDu3V9P.jpg?size=200x200&quality=96&crop=56,56,288,288&ava=1", updatedAt: "2024-02-22")
-   // authenticationManager.appUser = appUser
+    authenticationManager.appUser = appUser
     let comments: [DecodedComment] = [
         DecodedComment(id: 1, comment: nil, rating: 2, photos: nil, isActive: true, createdAt: "2024-02-22", reply: nil, user: nil),
         DecodedComment(id: 2, comment: "Very nice place.", rating: 5, photos: nil, isActive: true, createdAt: "2022-05-22", reply: DecodedCommentReply(id: 1, comment: "Thank you so much for your kind words!", isActive: true, createdAt: "2024-02-22"), user: decodedCommentUser2),
