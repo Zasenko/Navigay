@@ -12,6 +12,8 @@ struct AdminCity: Identifiable, Codable, Hashable  {
     let id: Int
     let countryId: Int
     let regionId: Int
+    let latitude: Double?
+    let longitude: Double?
     let nameOrigin: String?
     let nameEn: String?
     let about: String?
@@ -22,7 +24,7 @@ struct AdminCity: Identifiable, Codable, Hashable  {
     let userId: Int?
     
     enum CodingKeys: String, CodingKey {
-        case id, about, photo, photos
+        case id, about, photo, photos, latitude, longitude
         case countryId = "country_id"
         case regionId = "region_id"
         case nameOrigin = "name_origin_en"

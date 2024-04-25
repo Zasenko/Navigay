@@ -11,19 +11,22 @@ final class EditCityViewModel: ObservableObject {
     
     //MARK: - Properties
     let id: Int
-    
     @Published var nameOrigin: String = ""
     @Published var nameEn: String = ""
-    
     @Published var photo: AdminPhoto? = nil
     @Published var photos: [AdminPhoto] = []
     @Published var about: String = ""
+    @Published var latitude: Double = 0
+    @Published var longitude: Double = 0
+    @Published var redirectCity: Int = 0
     @Published var isActive: Bool = false
     @Published var isChecked: Bool = false
     
     @Published var isLoading: Bool = false
     @Published var isLoadingPhoto: Bool = false
     @Published var isLoadingLibraryPhoto: Bool = false
+    
+    @Published var showMap: Bool = false
     
     var fetched: Bool = false
     
@@ -65,6 +68,8 @@ extension EditCityViewModel {
                     self.nameOrigin = decodedCity.nameOrigin ?? ""
                     self.nameEn = decodedCity.nameEn ?? ""
                     self.about = decodedCity.about ?? ""
+                    self.longitude = decodedCity.longitude ?? 0
+                    self.latitude = decodedCity.latitude ?? 0
                     self.isActive = decodedCity.isActive
                     self.isChecked = decodedCity.isChecked
                     self.photo = AdminPhoto(id: UUID().uuidString, image: nil, url: decodedCity.photo)
@@ -88,7 +93,7 @@ extension EditCityViewModel {
         isLoading = true
         Task {
             do {
-                try await networkManager.updateCity(id: id, name: nameEn, about: about.isEmpty ? nil : about, isActive: isActive, isChecked: isChecked, user: user)
+                try await networkManager.updateCity(id: id, name: nameEn, about: about.isEmpty ? nil : about, longitude: longitude == 0 ? nil : longitude, latitude: latitude == 0 ? nil : latitude, redirectCity: redirectCity == 0 ? nil : redirectCity, isActive: isActive, isChecked: isChecked, user: user)
                 await MainActor.run {
                    
                     //todo update city

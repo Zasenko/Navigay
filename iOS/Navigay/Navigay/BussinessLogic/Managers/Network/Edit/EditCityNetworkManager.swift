@@ -9,7 +9,7 @@ import SwiftUI
 
 protocol EditCityNetworkManagerProtocol {
     func fetchCity(id: Int, user: AppUser) async throws -> AdminCity
-    func updateCity(id: Int, name: String, about: String?, isActive: Bool, isChecked: Bool, user: AppUser) async throws
+    func updateCity(id: Int, name: String, about: String?, longitude: Double?, latitude: Double?, redirectCity: Int?, isActive: Bool, isChecked: Bool, user: AppUser) async throws
     func updateCityPhoto(cityId: Int, uiImage: UIImage, uiImageSmall: UIImage, user: AppUser) async throws -> PosterUrls
     func updateCityLibraryPhoto(cityId: Int, photoId: String, uiImage: UIImage, from user: AppUser) async throws -> String
     func deleteCityLibraryPhoto(cityId: Int, photoId: String, from user: AppUser) async throws
@@ -37,7 +37,6 @@ final class EditCityNetworkManager {
 // MARK: - CountryNetworkManagerProtocol
 
 extension EditCityNetworkManager: EditCityNetworkManagerProtocol {
-    
     func fetchCity(id: Int, user: AppUser) async throws -> AdminCity {
         debugPrint("--- EditCityNetworkManager fetchCity id \(id)")
         guard networkMonitorManager.isConnected else {
@@ -80,8 +79,7 @@ extension EditCityNetworkManager: EditCityNetworkManagerProtocol {
         return decodedCity
     }
     
-    func updateCity(id: Int, name: String, about: String?, isActive: Bool, isChecked: Bool, user: AppUser) async throws {
-        debugPrint("--- EditCityNetworkManager updateCity(city id: \(id))")
+    func updateCity(id: Int, name: String, about: String?, longitude: Double?, latitude: Double?, redirectCity: Int?, isActive: Bool, isChecked: Bool, user: AppUser) async throws {
         guard networkMonitorManager.isConnected else {
             throw NetworkErrors.noConnection
         }
@@ -100,7 +98,7 @@ extension EditCityNetworkManager: EditCityNetworkManagerProtocol {
         guard let url = urlComponents.url else {
             throw NetworkErrors.badUrl
         }
-        let parameters = [
+        var parameters = [
             "city_id": String(id),
             "name_en": name,
             "about": about,
@@ -109,6 +107,16 @@ extension EditCityNetworkManager: EditCityNetworkManagerProtocol {
             "user_id": String(user.id),
             "session_key": sessionKey,
         ]
+        
+        if let longitude, let latitude {
+               parameters["longitude"] = String(longitude)
+               parameters["latitude"] = String(latitude)
+           }
+        
+        if let redirectCity {
+            parameters["redirect_city"] = String(redirectCity)
+        }
+
         let requestData = try JSONSerialization.data(withJSONObject: parameters)
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
