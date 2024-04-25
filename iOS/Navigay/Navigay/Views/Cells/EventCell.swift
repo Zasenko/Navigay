@@ -29,15 +29,17 @@ struct EventCell: View {
         }
         .background(AppColors.lightGray5)
         .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous).stroke(AppColors.lightGray3, lineWidth: 1))
     }
+    
+    // MARK: - Views
     
     private var imgView: some View {
         ZStack(alignment: .topTrailing) {
             image?
                 .resizable()
                 .aspectRatio(contentMode: .fit)
-                .clipShape(Rectangle())
-                .overlay(Rectangle().stroke(AppColors.lightGray5, lineWidth: 1))
+                .clipped()
                 .transition(.scale.animation(.easeInOut))
             HStack(spacing: 0) {
                 if event.isLiked {
@@ -108,20 +110,34 @@ struct EventCell: View {
                 }
             }
             if showStartTimeInfo, let timeString = stringForToday() {
-                EventInfoRow(iconName: "clock", infoText: timeString)
+                infoRow(icon: AppImages.iconClock, text: timeString)
             }
-            
             if let location = event.location {
-                EventInfoRow(iconName: "location.fill", infoText: location)
+                infoRow(icon: AppImages.iconLocationFill, text: location)
             }
-            
             if showCountryCity {
-                EventInfoRow(infoText: "\(event.city?.name ?? "") • \(event.city?.region?.country?.name ?? "")")
+                Text("\(event.city?.name ?? "") • \(event.city?.region?.country?.name ?? "")")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
             }
+        }
+        .padding(10)
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+    
+    private func infoRow(icon: Image, text: String) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 4) {
+            icon
+                .font(.caption)
+                .foregroundColor(.secondary)
+            Text(text)
+                .font(.caption)
+                .foregroundColor(.secondary)
         }
     }
     
-    //TODO: сократить
+    // MARK: - Private Functions
+    
     private func stringForToday() -> String? {
         let startDate = event.startDate
         let startTime = event.startTime
@@ -135,21 +151,25 @@ struct EventCell: View {
                 if finishDate.isToday {
                     if let finishTime {
                         if finishTime.isPastHour(of: now) {
-                            return "закончилось в " + finishTime.formatted(date: .omitted, time: .shortened)//.format("HH:mm")
+                            return "ended at " + finishTime.formatted(date: .omitted, time: .shortened)
                         } else if finishTime.isSameHour(as: now) {
                             if finishTime.isFutureMinutes(as: now) {
-                                return "скоро закончится"
+                                return "ending soon"
                             } else {
-                                return "закончилось"
+                                return "ended"
                             }
                         } else {
-                            return "закончится в " + finishTime.formatted(date: .omitted, time: .shortened)//.format("HH:mm")
+                            return "ends at " + finishTime.formatted(date: .omitted, time: .shortened)
                         }
                     } else {
                         return nil
                     }
                 } else {
-                    return "идет до " + finishDate.formatted(date: .abbreviated, time: .omitted)//.format("dd-MM")
+                    let finishTimeString = finishTime?.formatted(date: .omitted, time: .shortened)
+                    return "ongoing until "
+                    + finishDate.formatted(Date.FormatStyle().month(.abbreviated).day())
+                    + (finishTimeString != nil ? ", " : "")
+                    + (finishTimeString ?? "")
                 }
             } else {
                 return nil
@@ -161,33 +181,37 @@ struct EventCell: View {
                         if finishDate.isToday {
                             if let finishTime {
                                 if finishTime.isPastHour(of: now) {
-                                    return "закончилось в " + finishTime.formatted(date: .omitted, time: .shortened)//.format("HH:mm")
+                                    return "ended at " + finishTime.formatted(date: .omitted, time: .shortened)
                                 } else if finishTime.isSameHour(as: now) {
                                     if finishTime.isFutureMinutes(as: now) {
-                                        return "скоро закончится"
+                                        return "ending soon"
                                     } else {
-                                        return "закончилось"
+                                        return "ended"
                                     }
                                 } else {
-                                    return "закончится в " + finishTime.formatted(date: .omitted, time: .shortened)//.format("HH:mm")
+                                    return "ends at " + finishTime.formatted(date: .omitted, time: .shortened)
                                 }
                             } else {
                                 return nil
                             }
                         } else {
-                            return "идет до " + finishDate.formatted(date: .abbreviated, time: .omitted)//.format("dd-MM")
+                            let finishTimeString = finishTime?.formatted(date: .omitted, time: .shortened)
+                            return "ongoing until "
+                            + finishDate.formatted(Date.FormatStyle().month(.abbreviated).day())
+                            + (finishTimeString != nil ? ", " : "")
+                            + (finishTimeString ?? "")
                         }
                     } else {
-                        return "началось в " + startTime.formatted(date: .omitted, time: .shortened)//.format("HH:mm")
+                        return "started at " + startTime.formatted(date: .omitted, time: .shortened)
                     }
                 } else if startTime.isSameHour(as: now) {
                     if startTime.isFutureMinutes(as: now) {
-                        return "скоро начнется"
+                        return "starting soon"
                     } else {
-                        return "началось"
+                        return "started"
                     }
                 } else {
-                    return "начнется в " + startTime.formatted(date: .omitted, time: .shortened)//.format("HH:mm")
+                    return "starts at " + startTime.formatted(date: .omitted, time: .shortened)
                 }
             } else {
                 return nil
@@ -203,32 +227,8 @@ struct EventCell: View {
     let appSettingsManager = AppSettingsManager()
     let  networkMonitorManager = NetworkMonitorManager(errorManager: errorManager)
     let eventNetworkManager = EventNetworkManager(networkMonitorManager: networkMonitorManager, appSettingsManager: appSettingsManager)
-    let decodedEvent = DecodedEvent(id: 0, name: "HARD ON party", type: .party, startDate: "2024-04-23", startTime: "13:34:00", finishDate: "2024-04-24", finishTime: "19:20:00", address: "", latitude: 16.25566, longitude: 48.655885, poster: "https://www.navigay.me/images/events/AT/12/1700152341132_227.jpg", smallPoster: "https://www.navigay.me/images/events/AT/12/1700152341132_684.jpg", isFree: true, tags: nil, location: "Cafe Savoy", lastUpdate: "2023-11-16 17:26:12", about: nil, fee: nil, tickets: nil, www: nil, facebook: nil, instagram: nil, phone: nil, place: nil, owner: nil, city: nil, cityId: nil)
+    let decodedEvent = DecodedEvent(id: 0, name: "HARD ON party", type: .party, startDate: "2024-04-23", startTime: "13:34:00", finishDate: "2024-04-25", finishTime: "19:20:00", address: "", latitude: 16.25566, longitude: 48.655885, poster: "https://www.navigay.me/images/events/AT/12/1700152341132_227.jpg", smallPoster: "https://www.navigay.me/images/events/AT/12/1700152341132_684.jpg", isFree: true, tags: nil, location: "Cafe Savoy", lastUpdate: "2023-11-16 17:26:12", about: nil, fee: nil, tickets: nil, www: nil, facebook: nil, instagram: nil, phone: nil, place: nil, owner: nil, city: nil, cityId: nil)
     let event = Event(decodedEvent: decodedEvent)
     event.isLiked = true
     return EventCell(event: event, showCountryCity: false, showStartDayInfo: true, showStartTimeInfo: true)
-}
-
-// Компонент для отображения строки информации с иконкой
-struct EventInfoRow: View {
-    let iconName: String?
-    let infoText: String
-    
-    init(iconName: String? = nil, infoText: String) {
-        self.iconName = iconName
-        self.infoText = infoText
-    }
-    
-    var body: some View {
-        HStack(alignment: .firstTextBaseline, spacing: 4) {
-            if let iconName = iconName {
-                Image(systemName: iconName)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
-            Text(infoText)
-                .font(.caption)
-                .foregroundColor(.secondary)
-        }
-    }
 }
