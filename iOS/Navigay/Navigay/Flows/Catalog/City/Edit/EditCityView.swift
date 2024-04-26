@@ -125,6 +125,14 @@ struct EditCityView: View {
                 NamesEditView(nameOrigin: $viewModel.nameOrigin, nameEn: $viewModel.nameEn)
                     .padding()
                 
+                Toggle(isOn: $viewModel.isCapital) {
+                    Text("⭐️ Capital")
+                }
+                
+                Toggle(isOn: $viewModel.isParadise) {
+                    Text("🏳️‍🌈 Gay paradice")
+                }
+                                
                 if viewModel.latitude != 0, viewModel.longitude != 0 {
                     Map(position: $position, interactionModes: [.zoom]) {
                         Marker("", coordinate: CLLocationCoordinate2D(latitude: viewModel.latitude, longitude: viewModel.longitude))

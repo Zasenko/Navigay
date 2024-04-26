@@ -93,6 +93,22 @@ struct CityView: View {
                             .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                             .padding(.bottom)
                     }
+                    HStack {
+                        if viewModel.city.isCapital {
+                            VStack(spacing: 0) {
+                                Text("⭐️")
+                                Text("capital")
+                            }
+                            .frame(maxWidth: .infinity)
+                        }
+                        if viewModel.city.isParadise {
+                            VStack(spacing: 0) {
+                                Text("🏳️‍🌈")
+                                Text("heaven")
+                            }
+                            .frame(maxWidth: .infinity)
+                        }
+                    }
                     
                     if viewModel.actualEvents.count > 0 {
                         EventsView(modelContext: viewModel.modelContext, selectedDate: $viewModel.selectedDate, displayedEvents: $viewModel.displayedEvents, actualEvents: $viewModel.actualEvents, todayEvents: $viewModel.todayEvents, upcomingEvents: $viewModel.upcomingEvents, eventsDates: $viewModel.eventsDates, selectedEvent: $viewModel.selectedEvent, showCalendar: $viewModel.showCalendar, size: geometry.size)

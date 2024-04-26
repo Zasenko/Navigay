@@ -30,19 +30,35 @@ struct CityCell: View {
                     Color.clear
                         .frame(width: 50, height: 50)
                 }
-                
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(city.name)
-                        .font(.title3)
-                    if showCountryRegion, let region = city.region {
-                        Group {
-                            Text(region.country?.name ?? "")
-                                .bold()
-                            + Text("  •  \(region.name ?? "")")
+                HStack(spacing: 10) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(city.name)
+                            .font(.title3)
+                        if showCountryRegion, let region = city.region {
+                            Group {
+                                Text(region.country?.name ?? "")
+                                    .bold()
+                                + Text("  •  \(region.name ?? "")")
+                            }
+                            .font(.footnote)
+                            .foregroundColor(.secondary)
+                            .multilineTextAlignment(.leading)
                         }
-                        .font(.footnote)
-                        .foregroundColor(.secondary)
-                        .multilineTextAlignment(.leading)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    if city.isCapital {
+                        VStack(spacing: 0) {
+                            Text("⭐️")
+                            Text("capital")
+                                .font(.caption2)
+                        }
+                    }
+                    if city.isParadise {
+                        VStack(spacing: 0) {
+                            Text("🏳️‍🌈")
+                            Text("heaven")
+                                .font(.caption2)
+                        }
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)

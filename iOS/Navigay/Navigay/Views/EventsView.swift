@@ -54,7 +54,7 @@ struct EventsView: View {
                         Button {
                             selectedEvent = event
                         } label: {
-                            EventCell(event: event, showCountryCity: false, showStartDayInfo: false, showStartTimeInfo: false)
+                            EventCell(event: event, showCountryCity: false, showStartDayInfo: false, showStartTimeInfo: true)
                                 .matchedGeometryEffect(id: "TodayEv\(event.id)", in: animation)
                         }
                     }

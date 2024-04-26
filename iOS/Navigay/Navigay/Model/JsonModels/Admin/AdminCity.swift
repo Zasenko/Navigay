@@ -7,8 +7,7 @@
 
 import Foundation
 
-struct AdminCity: Identifiable, Codable, Hashable  {
-    
+struct AdminCity: Identifiable, Codable {
     let id: Int
     let countryId: Int
     let regionId: Int
@@ -19,6 +18,9 @@ struct AdminCity: Identifiable, Codable, Hashable  {
     let about: String?
     let photo: String?
     let photos: [DecodedPhoto]?
+    let isCapital: Bool?
+    let isGayParadise: Bool?
+    let redirectCityId: Int?
     let isActive: Bool
     let isChecked: Bool
     let userId: Int?
@@ -29,16 +31,11 @@ struct AdminCity: Identifiable, Codable, Hashable  {
         case regionId = "region_id"
         case nameOrigin = "name_origin_en"
         case nameEn = "name_en"
+        case isCapital = "is_capital"
+        case isGayParadise = "is_gay_paradise"
+        case redirectCityId = "redirect_city_id"
         case isActive = "is_active"
         case isChecked = "is_checked"
         case userId = "user_id"
-    }
-    
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-    }
-    
-    static func == (lhs: AdminCity, rhs: AdminCity) -> Bool {
-        return lhs.id == rhs.id
     }
 }

@@ -22,6 +22,8 @@ extension CountryView {
         let placeDataManager: PlaceDataManagerProtocol
         let eventDataManager: EventDataManagerProtocol
         let catalogDataManager: CatalogDataManagerProtocol
+        
+        var showMap: Bool = false
                 
         // MARK: - Init
         
@@ -98,7 +100,6 @@ extension CountryView {
                 }
             }
             return regions
-         
         }
         
         func updateCities(decodedCities: [DecodedCity]?, for region: Region) {

@@ -18,9 +18,13 @@ if ($city_id <= 0) {
     $conn->close();
     sendError('Invalid city ID.');
 }
-
 $name_en = isset($data["name_en"]) ? $data["name_en"] : null;
 $about = isset($data["about"]) ? $data["about"] : null;
+$longitude = isset($data["longitude"]) ? floatval($data["longitude"]) : null;
+$latitude = isset($data["latitude"]) ? floatval($data["latitude"]) : null;
+$is_capital = isset($data["is_capital"]) ? boolval($data["is_capital"]) : false;
+$is_gay_paradise = isset($data["is_gay_paradise"]) ? boolval($data["is_gay_paradise"]) : false;
+$redirect_city_id = isset($data["redirect_city_id"]) ? intval($data["redirect_city_id"]) : null;
 $is_active = isset($data["is_active"]) ? boolval($data["is_active"]) : false;
 $is_checked = isset($data["is_checked"]) ? boolval($data["is_checked"]) : false;
 
@@ -62,9 +66,9 @@ if (!hash_equals($hashed_session_key, $stored_hashed_session_key)) {
 }
 //-----------------
 
-$sql = "UPDATE City SET name_en = ?, about = ?, is_active = ?, is_checked = ? WHERE id = ?";
-$params = [$name_en, $about, $is_active, $is_checked, $city_id];
-$types = "ssiii";
+$sql = "UPDATE City SET name_en = ?, about = ?, latitude = ?, longitude = ?, is_capital = ?, is_gay_paradise = ?, redirect_city_id = ?, is_active = ?, is_checked = ? WHERE id = ?";
+$params = [$name_en, $about, $latitude, $longitude, $is_capital, $is_gay_paradise, $redirect_city_id, $is_active, $is_checked, $city_id];
+$types = "ssddiiiiii";
 $stmt = executeQuery($conn, $sql, $params, $types);
 if (checkInsertResult($stmt, $conn, 'Failed to update city.')) {
     $conn->close();

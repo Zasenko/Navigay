@@ -9,8 +9,11 @@ import SwiftUI
 
 final class EditCityViewModel: ObservableObject {
     
-    //MARK: - Properties
+    // MARK: - Properties
+    
     let id: Int
+    var fetched: Bool = false
+    
     @Published var nameOrigin: String = ""
     @Published var nameEn: String = ""
     @Published var photo: AdminPhoto? = nil
@@ -18,33 +21,28 @@ final class EditCityViewModel: ObservableObject {
     @Published var about: String = ""
     @Published var latitude: Double = 0
     @Published var longitude: Double = 0
-    @Published var redirectCity: Int = 0
+    @Published var isCapital: Bool = false
+    @Published var isParadise: Bool = false
+    @Published var redirectCityId: Int = 0
     @Published var isActive: Bool = false
     @Published var isChecked: Bool = false
-    
     @Published var isLoading: Bool = false
     @Published var isLoadingPhoto: Bool = false
     @Published var isLoadingLibraryPhoto: Bool = false
-    
     @Published var showMap: Bool = false
     
-    var fetched: Bool = false
-    
-    //MARK: - Private Properties
+    // MARK: - Private Properties
     
     private let user: AppUser
     private let city: City?
-    
     private var countryId: Int = 0
     private var regionId: Int = 0
-    
     private let errorManager: ErrorManagerProtocol
     private let networkManager: EditCityNetworkManagerProtocol
         
     // MARK: - Inits
     
     init(id: Int, city: City?, user: AppUser, errorManager: ErrorManagerProtocol, networkManager: EditCityNetworkManagerProtocol) {
-        debugPrint("init EditCityViewModel city id: \(id)")
         self.errorManager = errorManager
         self.networkManager = networkManager
         self.id = id
@@ -55,7 +53,7 @@ final class EditCityViewModel: ObservableObject {
 
 extension EditCityViewModel {
     
-    //MARK: - Functions
+    // MARK: - Functions
     
     func fetchCity() {
         Task {
@@ -63,21 +61,24 @@ extension EditCityViewModel {
             do {
                 let decodedCity = try await networkManager.fetchCity(id: id, user: user)
                 await MainActor.run {
-                    self.countryId = decodedCity.countryId
-                    self.regionId = decodedCity.regionId
-                    self.nameOrigin = decodedCity.nameOrigin ?? ""
-                    self.nameEn = decodedCity.nameEn ?? ""
-                    self.about = decodedCity.about ?? ""
-                    self.longitude = decodedCity.longitude ?? 0
-                    self.latitude = decodedCity.latitude ?? 0
-                    self.isActive = decodedCity.isActive
-                    self.isChecked = decodedCity.isChecked
-                    self.photo = AdminPhoto(id: UUID().uuidString, image: nil, url: decodedCity.photo)
+                    countryId = decodedCity.countryId
+                    regionId = decodedCity.regionId
+                    nameOrigin = decodedCity.nameOrigin ?? ""
+                    nameEn = decodedCity.nameEn ?? ""
+                    about = decodedCity.about ?? ""
+                    longitude = decodedCity.longitude ?? 0
+                    latitude = decodedCity.latitude ?? 0
+                    isCapital = decodedCity.isCapital ?? false
+                    isParadise = decodedCity.isGayParadise ?? false
+                    redirectCityId = decodedCity.redirectCityId ?? 0
+                    isActive = decodedCity.isActive
+                    isChecked = decodedCity.isChecked
+                    photo = AdminPhoto(id: UUID().uuidString, image: nil, url: decodedCity.photo)
                     if let photos = decodedCity.photos {
                         let adminPhotos = photos.compactMap( { AdminPhoto(id: $0.id, image: nil, url: $0.url)})
                         self.photos = adminPhotos
                     }
-                    self.fetched = true
+                    fetched = true
                 }
             } catch NetworkErrors.noConnection {
                 errorManager.showNetworkNoConnected()
@@ -93,11 +94,17 @@ extension EditCityViewModel {
         isLoading = true
         Task {
             do {
-                try await networkManager.updateCity(id: id, name: nameEn, about: about.isEmpty ? nil : about, longitude: longitude == 0 ? nil : longitude, latitude: latitude == 0 ? nil : latitude, redirectCity: redirectCity == 0 ? nil : redirectCity, isActive: isActive, isChecked: isChecked, user: user)
+                let about = self.about.isEmpty ? nil : about
+                let latitude = self.latitude == 0 ? nil : latitude
+                let longitude = self.longitude == 0 ? nil : longitude
+                try await networkManager.updateCity(id: id, name: nameEn, about: about, longitude: longitude, latitude: latitude, isCapital: isCapital, isParadise: isParadise, redirectCity: redirectCityId == 0 ? nil : redirectCityId, isActive: isActive, isChecked: isChecked, user: user)
                 await MainActor.run {
-                   
-                    //todo update city
-                    
+                    city?.name = nameEn
+                    city?.about = about
+                    city?.longitude = latitude ?? 0
+                    city?.latitude = longitude ?? 0
+                    city?.isCapital = isCapital
+                    city?.isParadise = isParadise
                 }
             } catch NetworkErrors.noConnection {
                 errorManager.showNetworkNoConnected()

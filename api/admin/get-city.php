@@ -73,6 +73,9 @@ if ($result->num_rows === 0) {
 
 $row = $result->fetch_assoc();
 
+$is_capital = (bool)$row['is_capital'];
+$is_gay_paradise = (bool)$row['is_gay_paradise'];
+
 $is_active = (bool)$row['is_active'];
 $is_checked = (bool)$row['is_checked'];
 
@@ -102,6 +105,10 @@ $city = array(
     'about' => $row['about'],
     'photo' => $photo_url,
     'photos' => $library_photos,
+    'latitude' => $row['latitude'],
+    'longitude' => $row['longitude'],
+    'is_capital' => $is_capital,
+    'is_gay_paradise' => $is_gay_paradise,
     'redirect_city_id' => $row['redirect_city_id'],
     'is_active' => $is_active,
     'is_checked' => $is_checked,

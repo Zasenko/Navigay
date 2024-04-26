@@ -21,7 +21,7 @@ $language = isset($_GET['language']) && in_array($_GET['language'], $languages) 
 
 require_once('../dbconfig.php');
 
-$sql = "SELECT id, name_en, about, small_photo, photo, photos, updated_at FROM City WHERE id = ?";
+$sql = "SELECT id, name_en, about, small_photo, photo, photos, latitude, longitude, is_capital, is_gay_paradise, updated_at FROM City WHERE id = ?";
 $params = [$city_id];
 $types = "i";
 $stmt = executeQuery($conn, $sql, $params, $types);
@@ -33,17 +33,19 @@ if ($result->num_rows === 0) {
 }
 $row = $result->fetch_assoc();
 
+//small_photo
+$small_photo = $row['small_photo'];
+$small_photo_url = isset($small_photo) ? "https://www.navigay.me/" . $small_photo : null;
 //photo
 $photo = $row['photo'];
 $photo_url = isset($photo) ? "https://www.navigay.me/" . $photo : null;
-
-//photo
-$small_photo = $row['small_photo'];
-$small_photo_url = isset($small_photo) ? "https://www.navigay.me/" . $small_photo : null;
-
 //photos
 $photos_data = json_decode($row['photos'], true);
 $photos_urls = array();
+
+$is_capital = (bool)$row['is_capital'];
+$is_gay_paradise = (bool)$row['is_gay_paradise'];
+
 foreach ($photos_data as $photoItem) {
     $url_data = $photoItem['url'];
     if (isset($url_data) && is_string($url_data)) {
@@ -61,6 +63,10 @@ $city = array(
     'photo' => $photo_url,
     'photos' => $photos_urls,
     'about' => $row['about'],
+    'latitude' => $row['latitude'],
+    'longitude' => $row['longitude'],
+    'is_capital' => $is_capital,
+    'is_gay_paradise' => $is_gay_paradise,
     'updated_at' => $row['updated_at']
 );
 

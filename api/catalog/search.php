@@ -25,17 +25,23 @@ City.id,
 City.name_en, 
 City.small_photo,
 City.photo, 
+City.latitude, 
+City.longitude, 
+City.is_capital, 
+City.is_gay_paradise, 
 City.updated_at, 
 City.region_id, 
 City.country_id, 
 Region.name_en AS region_name, 
 Region.photo AS region_photo, 
+Region.is_active AS region_is_active, 
 Region.updated_at AS region_updated_at, 
 Country.isoCountryCode, 
 Country.name_en AS country_name, 
 Country.flag_emoji, 
 Country.photo AS country_photo, 
 Country.show_regions,
+Country.is_active AS country_is_active, 
 Country.updated_at AS country_updated_at 
 FROM City 
 LEFT JOIN Region ON Region.id = City.region_id 
@@ -55,37 +61,50 @@ while ($row = $cities_result->fetch_assoc()) {
     $small_photo = $row['small_photo'];
     $small_photo_url = isset($small_photo) ? "https://www.navigay.me/" . $small_photo : null;
 
+    $is_capital = (bool)$row['is_capital'];
+    $is_gay_paradise = (bool)$row['is_gay_paradise'];
+
+    $region_is_active = (bool)$row['region_is_active'];
     $region_photo = $row['region_photo'];
     $region_photo_url = isset($region_photo) ? "https://www.navigay.me/" . $region_photo : null;
 
+    $country_is_active = (bool)$row['country_is_active'];
     $show_regions = (bool)$row['show_regions'];
     $country_photo = $row['country_photo'];
     $country_photo_url = isset($country_photo) ? "https://www.navigay.me/" . $country_photo : null;
 
-    $country = array(
-        'id' => $row['country_id'],
-        'name' => $row['country_name'],
-        'isoCountryCode' => $row["isoCountryCode"],
-        'flag_emoji' => $row['flag_emoji'],
-        'photo' => $country_photo_url,
-        'show_regions' => $show_regions,
-        'updated_at' => $row['country_updated_at']
-    );
-    $region = array(
-        'id' => $row['region_id'],
-        'name' => $row["region_name"],
-        'photo' => $region_photo_url,
-        'updated_at' => $row['region_updated_at'],
-        'country' => $country,
-    );
     $city = array(
         'id' => $row['id'],
         'name' => $row["name_en"],
         'small_photo' => $small_photo_url,
         'photo' => $photo_url,
+        'latitude' => $row['latitude'],
+        'longitude' => $row['longitude'],
+        'is_capital' => $is_capital,
+        'is_gay_paradise' => $is_gay_paradise,
         'updated_at' => $row['updated_at'],
-        'region' => $region,
     );
+    if ($region_is_active) {
+        $region = array(
+            'id' => $row['region_id'],
+            'name' => $row["region_name"],
+            'photo' => $region_photo_url,
+            'updated_at' => $row['region_updated_at'],
+        );
+        if ($country_is_active) {
+            $country = array(
+                'id' => $row['country_id'],
+                'name' => $row['country_name'],
+                'isoCountryCode' => $row["isoCountryCode"],
+                'flag_emoji' => $row['flag_emoji'],
+                'photo' => $country_photo_url,
+                'show_regions' => $show_regions,
+                'updated_at' => $row['country_updated_at']
+            );
+            $region['country'] = $country;
+        }
+        $city['region'] = $region;
+    }
     array_push($cities, $city);
 }
 
@@ -102,6 +121,7 @@ Country.name_en AS country_name,
 Country.flag_emoji, 
 Country.photo AS country_photo, 
 Country.show_regions, 
+Country.is_active AS country_is_active, 
 Country.updated_at AS country_updated_at 
 FROM Region 
 LEFT JOIN Country ON Country.id = Region.country_id 
@@ -121,29 +141,32 @@ while ($row = $regions_result->fetch_assoc()) {
 
     $region_id = $row['id'];
 
+    $country_is_active = (bool)$row['country_is_active'];
     $show_regions = (bool)$row['show_regions'];
     $country_photo = $row['country_photo'];
     $country_photo_url = isset($country_photo) ? "https://www.navigay.me/" . $country_photo : null;
-
-    $country = array(
-        'id' => $row['country_id'],
-        'name' => $row['country_name'],
-        'isoCountryCode' => $row["isoCountryCode"],
-        'flag_emoji' => $row['flag_emoji'],
-        'photo' => $country_photo_url,
-        'show_regions' => $show_regions,
-        'updated_at' => $row['country_updated_at']
-    );
 
     $region = array(
         'id' => $region_id,
         'name' => $row["name_en"],
         'photo' => $photo_url,
         'updated_at' => $row['updated_at'],
-        'country' => $country,
     );
 
-    $sql = "SELECT id, name_en, small_photo, photo, updated_at FROM City WHERE region_id = ? AND is_active = true";
+    if ($country_is_active) {
+        $country = array(
+            'id' => $row['country_id'],
+            'name' => $row['country_name'],
+            'isoCountryCode' => $row["isoCountryCode"],
+            'flag_emoji' => $row['flag_emoji'],
+            'photo' => $country_photo_url,
+            'show_regions' => $show_regions,
+            'updated_at' => $row['country_updated_at'],
+        );
+        $region['country'] = $country;
+    };
+
+    $sql = "SELECT id, name_en, small_photo, photo, latitude, longitude, is_capital, is_gay_paradise, updated_at FROM City WHERE region_id = ? AND is_active = true";
     $params = [$region_id];
     $types = "i";
     $stmt = executeQuery($conn, $sql, $params, $types);
@@ -158,11 +181,18 @@ while ($row = $regions_result->fetch_assoc()) {
         $small_photo = $row['small_photo'];
         $small_photo_url = isset($small_photo) ? "https://www.navigay.me/" . $small_photo : null;
 
+        $is_capital = (bool)$row['is_capital'];
+        $is_gay_paradise = (bool)$row['is_gay_paradise'];
+
         $region_city = array(
             'id' => $row['id'],
             'name' => $row["name_en"],
             'small_photo' => $small_photo_url,
             'photo' => $photo_url,
+            'latitude' => $row['latitude'],
+            'longitude' => $row['longitude'],
+            'is_capital' => $is_capital,
+            'is_gay_paradise' => $is_gay_paradise,
             'updated_at' => $row['updated_at'],
         );
     }
@@ -194,13 +224,20 @@ Country.name_en AS country_name,
 Country.flag_emoji, 
 Country.photo AS country_photo, 
 Country.show_regions, 
+Country.is_active AS country_is_active, 
 Country.updated_at AS country_updated_at, 
 Region.name_en AS region_name, 
 Region.photo AS region_photo, 
+Region.is_active AS region_is_active, 
 Region.updated_at AS region_updated_at, 
 City.name_en AS city_name, 
 City.photo AS city_photo, 
 City.small_photo AS city_small_photo, 
+City.latitude AS city_latitude, 
+City.longitude AS city_longitude, 
+City.is_capital AS city_is_capital, 
+City.is_gay_paradise AS city_is_gay_paradise, 
+City.is_active AS city_is_active, 
 City.updated_at AS city_updated_at 
 FROM Place
 LEFT JOIN Country ON Country.id = Place.country_id
@@ -219,22 +256,25 @@ $stmt->close();
 while ($row = $result->fetch_assoc()) {
     $tags = json_decode($row['tags'], true);
     $timetable = json_decode($row['timetable'], true);
-
     $avatar = $row['avatar'];
     $avatar_url = isset($avatar) ? "https://www.navigay.me/" . $avatar : null;
-
     $main_photo = $row['main_photo'];
     $main_photo_url = isset($main_photo) ? "https://www.navigay.me/" . $main_photo : null;
 
+    $city_is_active = (bool)$row['city_is_active'];
     $city_photo = $row['city_photo'];
     $city_photo_url = isset($city_photo) ? "https://www.navigay.me/" . $city_photo : null;
-
     $city_small_photo = $row['city_small_photo'];
     $city_small_photo_url = isset($city_small_photo) ? "https://www.navigay.me/" . $city_small_photo : null;
+    $city_is_capital = (bool)$row['city_is_capital'];
+    $city_is_gay_paradise = (bool)$row['city_is_gay_paradise'];
 
+
+    $region_is_active = (bool)$row['region_is_active'];
     $region_photo = $row['region_photo'];
     $region_photo_url = isset($region_photo) ? "https://www.navigay.me/" . $region_photo : null;
 
+    $country_is_active = (bool)$row['country_is_active'];
     $show_regions = (bool)$row['show_regions'];
     $country_photo = $row['country_photo'];
     $country_photo_url = isset($country_photo) ? "https://www.navigay.me/" . $country_photo : null;
@@ -251,18 +291,28 @@ while ($row = $result->fetch_assoc()) {
         'tags' => $tags,
         'timetable' => $timetable,
         'updated_at' => $row['updated_at'],
-        'city' => array(
+    );
+    if ($city_is_active) {
+        $city = array(
             'id' => $row['city_id'],
             'name' => $row["city_name"],
             'small_photo' => $city_small_photo_url,
             'photo' => $city_photo_url,
+            'latitude' => $row['city_latitude'],
+            'longitude' => $row['city_longitude'],
+            'is_capital' => $city_is_capital,
+            'is_gay_paradise' => $city_is_gay_paradise,
             'updated_at' => $row['city_updated_at'],
-            'region' => array(
+        );
+        if ($region_is_active) {
+            $region = array(
                 'id' => $row['region_id'],
                 'name' => $row["region_name"],
                 'photo' => $region_photo_url,
                 'updated_at' => $row['region_updated_at'],
-                'country' => array(
+            );
+            if ($country_is_active) {
+                $country = array(
                     'id' => $row['country_id'],
                     'name' => $row['country_name'],
                     'isoCountryCode' => $row["isoCountryCode"],
@@ -270,10 +320,13 @@ while ($row = $result->fetch_assoc()) {
                     'photo' => $country_photo_url,
                     'show_regions' => $show_regions,
                     'updated_at' => $row['country_updated_at']
-                ),
-            ),
-        ),
-    );
+                );
+                $region['country'] = $country;
+            }
+            $city['region'] = $region;
+        }
+        $place['city'] = $city;
+    }
     array_push($places, $place);
 }
 
@@ -303,13 +356,19 @@ Country.name_en AS country_name,
 Country.flag_emoji, 
 Country.photo AS country_photo, 
 Country.show_regions, 
+Country.is_active AS country_is_active, 
 Country.updated_at AS country_updated_at, 
 Region.name_en AS region_name, 
 Region.photo AS region_photo, 
+Region.is_active AS region_is_active, 
 Region.updated_at AS region_updated_at, 
 City.name_en AS city_name, 
 City.small_photo AS city_small_photo, 
 City.photo AS city_photo, 
+City.latitude AS city_latitude, 
+City.longitude AS city_longitude, 
+City.is_capital AS city_is_capital, 
+City.is_gay_paradise AS city_is_gay_paradise, 
 City.updated_at AS city_updated_at 
 FROM Event";
 $sql .= " LEFT JOIN Country ON Country.id = Event.country_id";
@@ -341,6 +400,10 @@ while ($row = $result->fetch_assoc()) {
     $city_photo = $row['city_photo'];
     $city_photo_url = isset($city_photo) ? "https://www.navigay.me/" . $city_photo : null;
 
+    $city_is_capital = (bool)$row['city_is_capital'];
+    $city_is_gay_paradise = (bool)$row['city_is_gay_paradise'];
+
+
     $region_photo = $row['region_photo'];
     $region_photo_url = isset($region_photo) ? "https://www.navigay.me/" . $region_photo : null;
 
@@ -365,18 +428,30 @@ while ($row = $result->fetch_assoc()) {
         'poster_small' => $poster_small_url,
         'is_free' => $is_free,
         'updated_at' => $row['updated_at'],
-        'city' => array(
+    );
+
+    if ($city_is_active) {
+        $city = array(
             'id' => $row['city_id'],
             'name' => $row["city_name"],
             'small_photo' => $city_small_photo_url,
             'photo' => $city_photo_url,
+            'latitude' => $row['city_latitude'],
+            'longitude' => $row['city_longitude'],
+            'is_capital' => $city_is_capital,
+            'is_gay_paradise' => $city_is_gay_paradise,
             'updated_at' => $row['city_updated_at'],
-            'region' => array(
+            // 'region' => $region,
+        );
+        if ($region_is_active) {
+            $region = array(
                 'id' => $row['region_id'],
                 'name' => $row["region_name"],
                 'photo' => $region_photo_url,
                 'updated_at' => $row['region_updated_at'],
-                'country' => array(
+            );
+            if ($country_is_active) {
+                $country = array(
                     'id' => $row['country_id'],
                     'name' => $row['country_name'],
                     'isoCountryCode' => $row["isoCountryCode"],
@@ -384,10 +459,13 @@ while ($row = $result->fetch_assoc()) {
                     'photo' => $country_photo_url,
                     'show_regions' => $show_regions,
                     'updated_at' => $row['country_updated_at']
-                ),
-            ),
-        ),
-    );
+                );
+                $region['country'] = $country;
+            }
+            $city['region'] = $region;
+        }
+        $event['city'] = $city;
+    }
     array_push($events, $event);
 }
 

@@ -16,6 +16,12 @@ final class City {
     var photo: String? = nil
     var photos: [String] = []
     var about: String? = nil
+    
+    var latitude: Double = 0
+    var longitude: Double = 0
+    var isCapital: Bool = false
+    var isParadise: Bool = false
+    
     var region: Region? = nil
     
     @Relationship(deleteRule: .cascade, inverse: \Place.city) var places: [Place] = []
@@ -35,6 +41,10 @@ final class City {
             name = decodedCity.name
             smallPhoto = decodedCity.smallPhoto
             photo = decodedCity.photo
+            latitude = decodedCity.latitude
+            longitude = decodedCity.longitude
+            isCapital = decodedCity.isCapital
+            isParadise = decodedCity.isGayParadise
             lastUpdateIncomplete = lastUpdate
         }
     }

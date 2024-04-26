@@ -9,7 +9,7 @@ import SwiftUI
 
 protocol EditCityNetworkManagerProtocol {
     func fetchCity(id: Int, user: AppUser) async throws -> AdminCity
-    func updateCity(id: Int, name: String, about: String?, longitude: Double?, latitude: Double?, redirectCity: Int?, isActive: Bool, isChecked: Bool, user: AppUser) async throws
+    func updateCity(id: Int, name: String, about: String?, longitude: Double?, latitude: Double?, isCapital: Bool, isParadise: Bool, redirectCity: Int?, isActive: Bool, isChecked: Bool, user: AppUser) async throws
     func updateCityPhoto(cityId: Int, uiImage: UIImage, uiImageSmall: UIImage, user: AppUser) async throws -> PosterUrls
     func updateCityLibraryPhoto(cityId: Int, photoId: String, uiImage: UIImage, from user: AppUser) async throws -> String
     func deleteCityLibraryPhoto(cityId: Int, photoId: String, from user: AppUser) async throws
@@ -79,14 +79,13 @@ extension EditCityNetworkManager: EditCityNetworkManagerProtocol {
         return decodedCity
     }
     
-    func updateCity(id: Int, name: String, about: String?, longitude: Double?, latitude: Double?, redirectCity: Int?, isActive: Bool, isChecked: Bool, user: AppUser) async throws {
+    func updateCity(id: Int, name: String, about: String?, longitude: Double?, latitude: Double?, isCapital: Bool, isParadise: Bool, redirectCity: Int?, isActive: Bool, isChecked: Bool, user: AppUser) async throws {
         guard networkMonitorManager.isConnected else {
             throw NetworkErrors.noConnection
         }
         guard let sessionKey = user.sessionKey else {
             throw NetworkErrors.noSessionKey
         }
-        
         let path = "/api/admin/update-city.php"
         var urlComponents: URLComponents {
             var components = URLComponents()
@@ -102,21 +101,20 @@ extension EditCityNetworkManager: EditCityNetworkManagerProtocol {
             "city_id": String(id),
             "name_en": name,
             "about": about,
+            "is_gay_paradise": isParadise ? "1" : "0",
+            "is_capital": isCapital ? "1" : "0",
             "is_active": isActive ? "1" : "0",
             "is_checked": isChecked ? "1" : "0",
             "user_id": String(user.id),
             "session_key": sessionKey,
         ]
-        
         if let longitude, let latitude {
                parameters["longitude"] = String(longitude)
                parameters["latitude"] = String(latitude)
            }
-        
         if let redirectCity {
-            parameters["redirect_city"] = String(redirectCity)
+            parameters["redirect_city_id"] = String(redirectCity)
         }
-
         let requestData = try JSONSerialization.data(withJSONObject: parameters)
         var request = URLRequest(url: url)
         request.httpMethod = "POST"

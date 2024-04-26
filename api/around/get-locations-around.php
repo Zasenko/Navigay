@@ -170,7 +170,12 @@ foreach ($city_ids as $city_id) {
     $sql = "SELECT
         City.id, 
         City.name_$language, 
+        City.small_photo,
         City.photo, 
+        City.latitude, 
+        City.longitude, 
+        City.is_capital, 
+        City.is_gay_paradise, 
         City.updated_at, 
         City.region_id, 
         City.country_id, 
@@ -195,8 +200,15 @@ foreach ($city_ids as $city_id) {
     $stmt->close();
 
     while ($row = $cities_result->fetch_assoc()) {
+
+        $small_photo = $row['small_photo'];
+        $small_photo_url = isset($small_photo) ? "https://www.navigay.me/" . $small_photo : null;
+
         $photo = $row['photo'];
         $photo_url = isset($photo) ? "https://www.navigay.me/" . $photo : null;
+
+        $is_capital = (bool)$row['is_capital'];
+        $is_gay_paradise = (bool)$row['is_gay_paradise'];
 
         $region_photo = $row['region_photo'];
         $region_photo_url = isset($region_photo) ? "https://www.navigay.me/" . $region_photo : null;
@@ -224,7 +236,12 @@ foreach ($city_ids as $city_id) {
         $city = array(
             'id' => $row['id'],
             'name' => $row["name_$language"],
+            'small_photo' => $small_photo_url,
             'photo' => $photo_url,
+            'latitude' => $row['latitude'],
+            'longitude' => $row['longitude'],
+            'is_capital' => $is_capital,
+            'is_gay_paradise' => $is_gay_paradise,
             'updated_at' => $row['updated_at'],
             'region' => $region,
         );

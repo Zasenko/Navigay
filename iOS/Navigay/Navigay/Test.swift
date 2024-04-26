@@ -17,15 +17,15 @@ struct Test: View {
     private let firstReviewPrompt = "Hey there! Looks like this place is waiting to be discovered. Share your thoughts and be the first to leave a review!"
     
     var body: some View {
-        HStack(alignment: .top, spacing: 10) {
-            Image(systemName: "info.bubble")
-                .font(.title)
-                .foregroundStyle(.secondary)
-            Text(firstReviewPrompt)
-                .font(.subheadline)
-                .frame(maxWidth: .infinity, alignment: .leading)
-        }
-        .padding()
+//        HStack(alignment: .top, spacing: 10) {
+//            Image(systemName: "info.bubble")
+//                .font(.title)
+//                .foregroundStyle(.secondary)
+//            Text(firstReviewPrompt)
+//                .font(.subheadline)
+//                .frame(maxWidth: .infinity, alignment: .leading)
+//        }
+//        .padding()
             
 //            Text("Hello world")
 //                .font(.largeTitle)
@@ -65,24 +65,29 @@ struct Test: View {
 //        }
 //
 //             
-//        
-//        HStack {
-//            Image(systemName: "heart.fill")
-//                .foregroundColor(.red)
-//            Text("0.5")
-//            
-//        }
-//        .padding (10)
-//        .background(Color.white)
-//        .clipShape(RoundedRectangle(cornerRadius: 25.0, style: .continuous))
-//        .overlay(alignment: .bottom) {
-//            Image(systemName: "arrowtriangle.left.fill")
-//                .rotationEffect (Angle(degrees: 270))
-//                .foregroundColor(.white)
-//                .offset(y: 10)
-//            
-//        }
-//        .background(.black)
+//       
+        VStack {
+            HStack {
+                Image(systemName: "heart.fill")
+                    .foregroundColor(.red)
+                Text("0.5")
+                
+            }
+            .padding (10)
+            .background(Color.white)
+            .clipShape(RoundedRectangle(cornerRadius: 25.0, style: .continuous))
+            .overlay(alignment: .bottom) {
+                Image(systemName: "arrowtriangle.left.fill")
+                    .rotationEffect (Angle(degrees: 270))
+                    .foregroundColor(.white)
+                    .offset(y: 10)
+                
+            }
+            
+        }
+        .ignoresSafeArea()
+        .background(.black)
+        
     }
 }
 

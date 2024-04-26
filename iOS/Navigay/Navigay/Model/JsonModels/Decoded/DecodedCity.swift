@@ -17,17 +17,24 @@ struct DecodedCity: Identifiable, Codable {
         case lastUpdate = "updated_at"
         case about
         case photos
+        case latitude
+        case longitude
+        case isCapital = "is_capital"
+        case isGayParadise = "is_gay_paradise"
         case places
         case events
         case region
     }
 
-    
     let id: Int
     let name: String
     let smallPhoto: String?
     let photo: String?
     let photos: [String]?
+    let latitude: Double
+    let longitude: Double
+    let isCapital: Bool
+    let isGayParadise: Bool
     let lastUpdate: String
     
     let about: String?

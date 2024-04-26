@@ -133,7 +133,7 @@ struct TabBarView: View {
                             .padding(3)
                             .overlay(
                                 Circle()
-                                    .stroke(authenticationManager.isUserOnline ? .green : .red, lineWidth: selectedPage == .user ? 3 : 2)
+                                    .stroke(selectedPage == .user ? authenticationManager.isUserOnline ? .green : .red : AppColors.lightGray5, lineWidth: selectedPage == .user ? 3 : 2)
                             )
                     }
                 } else {
@@ -150,7 +150,7 @@ struct TabBarView: View {
                             .padding(authenticationManager.appUser == nil ? 0 : 3)
                             .overlay(
                                 Circle()
-                                    .stroke(authenticationManager.appUser == nil ? .clear : authenticationManager.isUserOnline ? .green : .red, lineWidth: 2)
+                                    .stroke(authenticationManager.appUser == nil ? .clear : selectedPage == .user ? authenticationManager.isUserOnline ? .green : .red : AppColors.lightGray5, lineWidth: selectedPage == .user ? 3 : 2)
                             )
                     }
                 }

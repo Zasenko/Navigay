@@ -46,7 +46,7 @@ $country = array(
     'updated_at' => $row['updated_at']
 );
 
-$sql = "SELECT id, name_en, small_photo, photo, updated_at FROM Region WHERE country_id = ? AND is_active = true";
+$sql = "SELECT id, name_en, photo, updated_at FROM Region WHERE country_id = ? AND is_active = true";
 $params = [$country_id];
 $types = "i";
 $stmt = executeQuery($conn, $sql, $params, $types);
@@ -67,7 +67,7 @@ while ($row = $regions_result->fetch_assoc()) {
         'updated_at' => $row['updated_at']
     );
 
-    $sql = "SELECT id, name_en, photo, updated_at FROM City WHERE region_id = ? AND is_active = true";
+    $sql = "SELECT id, name_en, small_photo, photo, latitude, longitude, is_capital, is_gay_paradise, updated_at FROM City WHERE region_id = ? AND is_active = true";
     $params = [$region_id];
     $types = "i";
     $stmt = executeQuery($conn, $sql, $params, $types);
@@ -82,11 +82,18 @@ while ($row = $regions_result->fetch_assoc()) {
         $small_photo = $row['small_photo'];
         $small_photo_url = isset($small_photo) ? "https://www.navigay.me/" . $small_photo : null;
 
+        $is_capital = (bool)$row['is_capital'];
+        $is_gay_paradise = (bool)$row['is_gay_paradise'];
+
         $city = array(
             'id' => $row['id'],
             'name' => $row["name_en"],
             'small_photo' => $small_photo_url,
             'photo' => $photo_url,
+            'latitude' => $row['latitude'],
+            'longitude' => $row['longitude'],
+            'is_capital' => $is_capital,
+            'is_gay_paradise' => $is_gay_paradise,
             'updated_at' => $row['updated_at']
         );
         array_push($cities, $city);
