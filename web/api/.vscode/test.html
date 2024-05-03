@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loading...</title>
+    <meta name="description" content="Get information about cities including events, places, and dates.">
+    <meta name="keywords" content="city information, events, places, dates, tourism">
+    <style>
+        .places-main-container {
+            display: flex;
+            /* отображаем места в ряд по горизонтали */
+            flex-wrap: wrap;
+            /* разрешаем перенос мест на новую строку */
+            gap: 20px;
+            /* промежуток между местами */
+        }
+
+        .places-type-and-places-container {
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #F5F5F5;
+        }
+
+        .places-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .place {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .place-info {
+            display: flex;
+            flex-direction: column;
+            align-items: left;
+        }
+
+        .place img {
+            width: 50px;
+            height: 50px;
+            border: 1px solid #ccc;
+            border-radius: 50%;
+            margin-right: 10px;
+            /* Отступ справа от изображения */
+        }
+
+        .place-name,
+        .place-address {
+            margin-bottom: 10px;
+            /* Отступ между названием и адресом */
+        }
+
+        .all-events-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+        }
+
+        .events-main-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .events-header-container {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+        }
+
+        .events-container {
+            display: flex;
+            /* отображаем места в ряд по горизонтали */
+            flex-wrap: wrap;
+            /* разрешаем перенос мест на новую строку */
+            gap: 20px;
+            /* промежуток между местами */
+            align-items: center;
+        }
+
+        .event-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .event img {
+            width: 50px;
+            height: 50px;
+            border: 1px solid #ccc;
+            border-radius: 50%;
+            margin-right: 10px;
+            /* Отступ справа от изображения */
+        }
+
+        .event-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .event-name {
+            margin-bottom: 10px;
+            /* Отступ между названием и адресом */
+        }
+
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+        }
+
+        .day {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>City Information</h1>
+    <div id="cityInfo">
+        <!-- City information will be populated here -->
+    </div>
+
+    <button id="showCalendarBtn">Show Calendar</button>
+    <div id="calendarContainer" style="display: none;">
+        <!-- Calendar will be populated here -->
+    </div>
+
+
+    <h2>All Dates</h2>
+    <div id="allDates"></div>
+
+    <h2>Events</h2>
+    <div id="events">
+    </div>
+
+    <h2>Places</h2>
+    <div id="places"></div>
+
+    <script>
+        function formatDate(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0'); // добавляем ведущий ноль, если месяц состоит из одной цифры
+            const day = String(date.getDate()).padStart(2, '0'); // добавляем ведущий ноль, если день состоит из одной цифры
+            return `${year}-${month}-${day}`;
+        }
+
+        async function fetchCityInfo(id) {
+            try {
+                const currentDate = new Date();
+                const formattedDate = formatDate(currentDate);
+                const url = `vienna-test.php?id=${id}&user_date=${formattedDate}&language=en`;
+
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data.result && data.city) {
+                    // Set document title dynamically
+                    document.title = data.city.name;
+                    renderCityInfo(data.city);
+                    renderEvents(data.city.events);
+                    renderPlaces(data.city.places);
+                    renderAllDates(data.city.events.allDates);
+                } else {
+                    console.error('Error fetching city information');
+                }
+            } catch (error) {
+                console.error('Error fetching city information:', error);
+            }
+        }
+
+        async function fetchEvents(selectedDate) {
+            const cityId = ''; // Fill in the city ID
+            const url = `get-events.php?city_id=${cityId}&date=${selectedDate}`;
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                if (data.result) {
+                    return data.events;
+                } else {
+                    console.error('Error fetching events:', data);
+                    return [];
+                }
+            } catch (error) {
+                console.error('Error fetching events:', error);
+                return [];
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchCityInfo();
+
+            const showCalendarBtn = document.getElementById('showCalendarBtn');
+            const calendarContainer = document.getElementById('calendarContainer');
+
+            showCalendarBtn.addEventListener('click', () => {
+                calendarContainer.style.display = 'block';
+                renderCalendar();
+            });
+
+            calendarContainer.addEventListener('click', async (event) => {
+                if (event.target.classList.contains('day')) {
+                    const selectedDate = event.target.textContent;
+                    const events = await fetchEvents(selectedDate);
+                    renderEvents(events);
+                }
+            });
+        });
+
+        function renderAllDates(allDates) {
+            const allDatesDiv = document.getElementById('allDates');
+            if (typeof allDates === 'object' && allDates !== null) {
+                const datesArray = Object.values(allDates).map(date => new Date(date)); // Convert dates to Date objects
+                const datesByMonth = groupDatesByMonth(datesArray); // Group dates by month
+
+                // Render the calendar
+                const calendarHTML = renderCalendar(datesByMonth);
+                allDatesDiv.innerHTML = calendarHTML;
+            } else {
+                allDatesDiv.textContent = 'Invalid data';
+            }
+        }
+
+        function groupDatesByMonth(dates) {
+            const groupedDates = {};
+            dates.forEach(date => {
+                const year = date.getFullYear();
+                const month = date.getMonth();
+                if (!groupedDates[year]) {
+                    groupedDates[year] = {};
+                }
+                if (!groupedDates[year][month]) {
+                    groupedDates[year][month] = [];
+                }
+                groupedDates[year][month].push(date.getDate());
+            });
+            return groupedDates;
+        }
+
+        function renderCalendar(datesByMonth) {
+            let calendarHTML = '';
+            for (const year in datesByMonth) {
+                if (datesByMonth.hasOwnProperty(year)) {
+                    calendarHTML += `<h3>${year}</h3>`;
+                    for (const month in datesByMonth[year]) {
+                        if (datesByMonth[year].hasOwnProperty(month)) {
+                            calendarHTML += `<div class="calendar"><h4>${getMonthName(month)}</h4>`;
+                            datesByMonth[year][month].forEach(day => {
+                                calendarHTML += `<div class="day">${day}</div>`;
+                            });
+                            calendarHTML += `</div>`;
+                        }
+                    }
+                }
+            }
+            return calendarHTML;
+        }
+
+        function getMonthName(monthIndex) {
+            const monthNames = [
+                'January', 'February', 'March', 'April', 'May', 'June',
+                'July', 'August', 'September', 'October', 'November', 'December'
+            ];
+            return monthNames[monthIndex];
+        }
+
+        function renderCityInfo(city) {
+            const cityInfoDiv = document.getElementById('cityInfo');
+            cityInfoDiv.innerHTML = `
+                <h1>${city.name}</h1>
+                <p>${city.about}</p>
+                <img src="${city.small_photo}" alt="${city.name} Photo">
+
+            `;
+        }
+
+        function renderPlaces(groupedPlaces) {
+            const placesDiv = document.getElementById('places');
+            placesDiv.classList.add('places-main-container');
+
+            for (const type in groupedPlaces) {
+                if (groupedPlaces.hasOwnProperty(type)) {
+
+                    const mainDiv = document.createElement('div');
+                    mainDiv.classList.add('places-type-and-places-container');
+
+
+                    const placesOfType = groupedPlaces[type];
+                    const typeHeader = document.createElement('h3');
+                    const typeName = convertPlaceTypeToString(type);
+                    typeHeader.textContent = `${typeName}`;
+                    mainDiv.appendChild(typeHeader);
+
+                    //места
+                    const placesContainer = document.createElement('div');
+                    placesContainer.classList.add('places-container');
+                    placesOfType.forEach(place => {
+                        const placeDiv = document.createElement('div');
+                        placeDiv.classList.add('place');
+
+                        const placeHTML = `
+                        <img src="${place.avatar}" alt="${place.name} Avatar">
+                        <div class="place-name">${place.name}</div>
+                        <div class="place-address">${place.address}</div>
+                        </div>
+                        `;
+                        placeDiv.innerHTML = placeHTML;
+                        placesContainer.appendChild(placeDiv);
+                    });
+
+                    mainDiv.appendChild(placesContainer);
+                    placesDiv.appendChild(mainDiv);
+                }
+            }
+        }
+
+        function convertPlaceTypeToString(type) {
+            switch (parseInt(type)) {
+                case 1: return "Bars";
+                case 2: return "Cafes";
+                case 3: return "Restaurants";
+                case 4: return "Clubs";
+                case 5: return "Hotels";
+                case 6: return "Saunas";
+                case 7: return "Cruise bars";
+                case 8: return "Beaches";
+                case 9: return "Shops";
+                case 10: return "Sport";
+                case 11: return "Cultur";
+                case 12: return "Communities";
+                case 0: return "Other";
+                case 13: return "Hostels";
+                case 14: return "Medicine";
+                case 15: return "Cruise Clubs";
+                case 16: return "Rights";
+                default: return "Other";
+            }
+        }
+
+        function renderEvents(events) {
+            //all events
+            const allEventsDiv = document.getElementById('events');
+            allEventsDiv.classList.add('all-events-container');
+
+            if (events.today.length > 0) {
+                //events main
+                const eventsMainDiv = document.createElement('div');
+                eventsMainDiv.classList.add('events-main-container');
+
+                //header
+                const eventHeaderDiv = document.createElement('h3');
+                eventHeaderDiv.textContent = 'Today';
+                eventsMainDiv.appendChild(eventHeaderDiv);
+
+                // events
+                const eventsDiv = document.createElement('div');
+                eventsDiv.classList.add('events-container');
+
+                events.today.forEach(event => {
+                    //info
+                    const eventDiv = document.createElement('div');
+                    eventDiv.classList.add('event-container');
+                    eventDiv.innerHTML = `
+                    <img src="${event.poster_small}" alt="${event.poster_small} Avatar">
+                    <p><strong>Name:</strong> ${event.name}</p>
+                    <p><strong>Start Date:</strong> ${event.start_date}</p>
+                    `;
+                    eventsDiv.appendChild(eventDiv);
+                });
+                eventsMainDiv.appendChild(eventsDiv);
+                allEventsDiv.appendChild(eventsMainDiv);
+            }
+
+            if (events.upcoming.length > 0) {
+                //events main
+                const eventsMainDiv = document.createElement('div');
+                eventsMainDiv.classList.add('events-main-container');
+
+                //header
+                const eventHeaderDiv = document.createElement('h3');
+                eventHeaderDiv.textContent = 'Upcoming Events';
+                eventsMainDiv.appendChild(eventHeaderDiv);
+
+                // events
+                const eventsDiv = document.createElement('div');
+                eventsDiv.classList.add('events-container');
+
+                events.upcoming.forEach(event => {
+                    //info
+                    const eventDiv = document.createElement('div');
+                    eventDiv.classList.add('event-container');
+                    eventDiv.innerHTML = `
+                    <img src="${event.poster_small}" alt="${event.poster_small} Avatar">
+                    <p><strong>Name:</strong> ${event.name}</p>
+                    <p><strong>Start Date:</strong> ${event.start_date}</p>
+                    `;
+                    eventsDiv.appendChild(eventDiv);
+                });
+                eventsMainDiv.appendChild(eventsDiv);
+                allEventsDiv.appendChild(eventsMainDiv);
+            }
+        }
+
+        // Fetch city information when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            // Get the id from the URL query parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const id = urlParams.get('id');
+            // Fetch city information using the id
+            fetchCityInfo(id);
+        });
+    </script>
+</body>
+
+</html>

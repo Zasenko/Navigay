@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title> OpenStreenMap </title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.5.1/leaflet.css">
+    <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js'></script>
+    <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.5.1/leaflet.js'></script>
+</head>
+
+<body>
+    <div id="map" style="height: 700px; border: 1px solid #AAA;"></div>
+
+    <script type="text/javascript">
+        var map = L.map('map', {
+            center: [36.7046887, 3.2317183],
+            zoom: 10,
+        });
+
+        L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+            subdomains: ['a', 'b', 'c']
+        }).addTo(map);
+
+        // Just for testing, add some markers.
+        var marks = [
+            { text: 'Building 135', latlng: [36.728217, 3.105652], },
+            { text: 'Building 233', latlng: [36.728217, 3.205652], },
+            { text: 'Building 45', latlng: [36.728217, 3.305652], },
+            { text: 'Building 15', latlng: [36.680448, 3.253714], },
+        ];
+
+        for (var i = 0; i <= marks.length; i++) {
+            L.marker(marks[i].latlng)
+                .bindTooltip(marks[i].text, {
+                    direction: 'top',
+                    sticky: false,
+                    offset: [0, -15],
+                })
+                .addTo(map);
+        }
+    </script>
+</body>
+
+</html>

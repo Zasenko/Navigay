@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loading...</title>
+    <meta name="description" content="Get information about cities including events, places, and dates.">
+    <meta name="keywords" content="city information, events, places, dates, tourism">
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <style>
+        .places-main-container {
+            display: flex;
+            /* отображаем места в ряд по горизонтали */
+            flex-wrap: wrap;
+            /* разрешаем перенос мест на новую строку */
+            gap: 20px;
+            /* промежуток между местами */
+        }
+
+        .places-type-and-places-container {
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #F5F5F5;
+        }
+
+        .places-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .place {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .place-info {
+            display: flex;
+            flex-direction: column;
+            align-items: left;
+        }
+
+        .place img {
+            width: 50px;
+            height: 50px;
+            border: 1px solid #ccc;
+            border-radius: 50%;
+            margin-right: 10px;
+            /* Отступ справа от изображения */
+        }
+
+        .place-name,
+        .place-address {
+            margin-bottom: 10px;
+            /* Отступ между названием и адресом */
+        }
+
+        .all-events-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+        }
+
+        .events-main-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .events-header-container {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+        }
+
+        .events-container {
+            display: flex;
+            /* отображаем места в ряд по горизонтали */
+            flex-wrap: wrap;
+            /* разрешаем перенос мест на новую строку */
+            gap: 20px;
+            /* промежуток между местами */
+            align-items: center;
+        }
+
+        .event-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .event img {
+            width: 50px;
+            height: 50px;
+            border: 1px solid #ccc;
+            border-radius: 50%;
+            margin-right: 10px;
+            /* Отступ справа от изображения */
+        }
+
+        .event-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .event-name {
+            margin-bottom: 10px;
+            /* Отступ между названием и адресом */
+        }
+
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+        }
+
+        .day {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="header"></div>
+    <script>
+        // Загружаем содержимое header.html в div с id="header"
+        fetch('header.html')
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('header').innerHTML = html;
+                // Добавляем активный класс к текущей странице
+                var currentPage = window.location.pathname.split('/').pop().split('.')[0];
+                var currentPageLink = document.getElementById(currentPage);
+                if (currentPageLink) {
+                    currentPageLink.classList.add('active');
+                }
+            })
+            .catch(error => console.error('Ошибка загрузки header.html:', error));
+    </script>
+    <div id="placeInfo">
+        <!-- Place information will be populated here -->
+    </div>
+
+    <h2>All Dates</h2>
+    <div id="allDates"></div>
+
+    <h2>Events</h2>
+    <div id="events">
+    </div>
+
+    <script>
+        function formatDate(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0'); // добавляем ведущий ноль, если месяц состоит из одной цифры
+            const day = String(date.getDate()).padStart(2, '0'); // добавляем ведущий ноль, если день состоит из одной цифры
+            return `${year}-${month}-${day}`;
+        }
+
+        async function fetchPlace(id) {
+            try {
+                const currentDate = new Date();
+                const formattedDate = formatDate(currentDate);
+                const url = `get-place.php?id=${id}&user_date=${formattedDate}&language=en`;
+
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data.result && data.place) {
+                    // Set document title dynamically
+                    document.title = data.place.name;
+                    renderPlaceInfo(data.place);
+                    renderEvents(data.place.events);
+                    // renderAllDates(data.city.events.allDates);
+                } else {
+                    console.error('Error fetching place information');
+                }
+            } catch (error) {
+                console.error('Error fetching place information:', error);
+            }
+        }
+
+        function renderAllDates(allDates) {
+            const allDatesDiv = document.getElementById('allDates');
+            if (typeof allDates === 'object' && allDates !== null) {
+                const datesArray = Object.values(allDates).map(date => new Date(date)); // Convert dates to Date objects
+                const datesByMonth = groupDatesByMonth(datesArray); // Group dates by month
+
+                // Render the calendar
+                const calendarHTML = renderCalendar(datesByMonth);
+                allDatesDiv.innerHTML = calendarHTML;
+            } else {
+                allDatesDiv.textContent = 'Invalid data';
+            }
+        }
+
+        function renderPlaceInfo(place) {
+            const placeInfoDiv = document.getElementById('placeInfo');
+
+            let content = `
+                <h1>${place.name}</h1>
+                <p>${place.type}</p>
+                <img src="${place.main_photo}" alt="${place.name} Photo">
+            `;
+
+            if (place.about.length > 0) {
+                content += `
+                <p>${place.about}</p>
+                `;
+            }
+
+            placeInfoDiv.innerHTML = content;
+        }
+
+        function renderEvents(events) {
+            //all events
+            const allEventsDiv = document.getElementById('events');
+            allEventsDiv.classList.add('all-events-container');
+
+            if (events.today.length > 0) {
+                //events main
+                const eventsMainDiv = document.createElement('div');
+                eventsMainDiv.classList.add('events-main-container');
+
+                //header
+                const eventHeaderDiv = document.createElement('h3');
+                eventHeaderDiv.textContent = 'Today';
+                eventsMainDiv.appendChild(eventHeaderDiv);
+
+                // events
+                const eventsDiv = document.createElement('div');
+                eventsDiv.classList.add('events-container');
+
+                events.today.forEach(event => {
+                    //info
+                    const eventDiv = document.createElement('div');
+                    eventDiv.classList.add('event-container');
+                    eventDiv.innerHTML = `
+                    <img src="${event.poster_small}" alt="${event.poster_small} Avatar">
+                    <p><strong>Name:</strong> ${event.name}</p>
+                    <p><strong>Start Date:</strong> ${event.start_date}</p>
+                    `;
+                    eventsDiv.appendChild(eventDiv);
+                });
+                eventsMainDiv.appendChild(eventsDiv);
+                allEventsDiv.appendChild(eventsMainDiv);
+            }
+
+            if (events.upcoming.length > 0) {
+                //events main
+                const eventsMainDiv = document.createElement('div');
+                eventsMainDiv.classList.add('events-main-container');
+
+                //header
+                const eventHeaderDiv = document.createElement('h3');
+                eventHeaderDiv.textContent = 'Upcoming Events';
+                eventsMainDiv.appendChild(eventHeaderDiv);
+
+                // events
+                const eventsDiv = document.createElement('div');
+                eventsDiv.classList.add('events-container');
+
+                events.upcoming.forEach(event => {
+                    //info
+                    const eventDiv = document.createElement('div');
+                    eventDiv.classList.add('event-container');
+                    eventDiv.innerHTML = `
+                    <img src="${event.poster_small}" alt="${event.poster_small} Avatar">
+                    <p><strong>Name:</strong> ${event.name}</p>
+                    <p><strong>Start Date:</strong> ${event.start_date}</p>
+                    `;
+                    eventsDiv.appendChild(eventDiv);
+                });
+                eventsMainDiv.appendChild(eventsDiv);
+                allEventsDiv.appendChild(eventsMainDiv);
+            }
+        }
+
+        // Fetch city information when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            // Get the id from the URL query parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const id = urlParams.get('id');
+            // Fetch city information using the id
+            fetchPlace(id);
+        });
+    </script>
+</body>
+
+</html>
