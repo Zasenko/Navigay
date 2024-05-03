@@ -181,9 +181,13 @@ struct CommentsView: View {
                 }
                 
                 Menu {
-                    Button(action: /*@START_MENU_TOKEN@*/{}/*@END_MENU_TOKEN@*/, label: {
+                    Button{
+                        // EDIT
+                        // пожаловаться
+                        // delite
+                    } label: {
                         Text("Button")
-                    })
+                    }
                 } label: {
                     AppImages.iconEllipsisRectangle
                         .font(.callout)

@@ -52,7 +52,7 @@ struct AdminRegionsView: View {
     
     @StateObject private var viewModel: AdminRegionsViewModel
     @EnvironmentObject private var authManager: AuthenticationManager
-
+    
     init(viewModel: AdminRegionsViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel)
     }
@@ -61,35 +61,45 @@ struct AdminRegionsView: View {
         NavigationStack {
             List {
                 ForEach(viewModel.regions) { region in
-                    NavigationLink {
-                        EditRegionView(viewModel: EditRegionViewModel(id: region.id, countryId: viewModel.country.id, region: nil, user: viewModel.user, errorManager: viewModel.errorManager, networkManager: EditRegionNetworkManager(networkMonitorManager: authManager.networkMonitorManager)))
-                    } label: {
-                        HStack {
-                            VStack(alignment: .leading, spacing: 10) {
-                                Text("id: \(region.id)")
-                                    .font(.footnote)
-                                    .foregroundStyle(.secondary)
-                                Text(region.nameEn ?? "")
-                                    .font(.headline)
-                                    .bold()
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                            }
-                            VStack(alignment: .leading, spacing: 10) {
-                                HStack {
-                                    Circle()
-                                        .foregroundStyle(region.isActive ? .green : .red)
-                                        .frame(width: 8)
-                                    Text("is active")
+                    Section {
+                        NavigationLink {
+                            EditRegionView(viewModel: EditRegionViewModel(id: region.id, countryId: viewModel.country.id, region: nil, user: viewModel.user, errorManager: viewModel.errorManager, networkManager: EditRegionNetworkManager(networkMonitorManager: authManager.networkMonitorManager)))
+                        } label: {
+                            HStack {
+                                VStack(alignment: .leading, spacing: 10) {
+                                    Text("id: \(region.id)")
+                                        .font(.footnote)
+                                        .foregroundStyle(.secondary)
+                                    Text(region.nameEn ?? "")
+                                        .font(.headline)
+                                        .bold()
+                                        .frame(maxWidth: .infinity, alignment: .leading)
                                 }
-                                HStack {
-                                    Circle()
-                                        .foregroundStyle(region.isChecked ? .green : .red)
-                                        .frame(width: 8)
-                                    Text("is checked")
+                                VStack(alignment: .leading, spacing: 10) {
+                                    HStack {
+                                        Circle()
+                                            .foregroundStyle(region.isActive ? .green : .red)
+                                            .frame(width: 8)
+                                        Text("is active")
+                                    }
+                                    HStack {
+                                        Circle()
+                                            .foregroundStyle(region.isChecked ? .green : .red)
+                                            .frame(width: 8)
+                                        Text("is checked")
+                                    }
                                 }
                             }
                         }
+                    } footer: {
+                        NavigationLink {
+                            AdminCitiesView(viewModel: AdminCitiesViewModel(region: region, user: viewModel.user, errorManager: viewModel.errorManager, networkManager: viewModel.networkManager))
+                        } label: {
+                            Text("Show cities")
+                                .padding()
+                        }
                     }
+
                 }
             }
             //.navigationBarBackButtonHidden()
@@ -98,7 +108,7 @@ struct AdminRegionsView: View {
             .toolbar {
                 ToolbarItem(placement: .principal) {
                     VStack(spacing: 0) {
-                        Text(viewModel.country.nameEn ?? "")
+                        Text(viewModel.country.nameEn ?? "ID: \(viewModel.country.id)")
                             .font(.caption).bold()
                             .foregroundStyle(.secondary)
                         Text("Regions")

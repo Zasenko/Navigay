@@ -12,6 +12,8 @@
 		0AC12DA92BB5879A00343DE3 /* AdminRegionResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AC12DA82BB5879A00343DE3 /* AdminRegionResult.swift */; };
 		0F0317152BD7AC67003B2E6C /* CommentsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F0317142BD7AC67003B2E6C /* CommentsView.swift */; };
 		0F0E352E2B7B9DDB00D396B0 /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F0E352D2B7B9DDB00D396B0 /* WelcomeView.swift */; };
+		0F10CCBF2BDBC36E007E3E2A /* AdminCitiesResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F10CCBE2BDBC36E007E3E2A /* AdminCitiesResult.swift */; };
+		0F10CCC12BDBC3D9007E3E2A /* AdminCitiesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F10CCC02BDBC3D9007E3E2A /* AdminCitiesView.swift */; };
 		0F151F402AE90DBC0049C60F /* Language.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F151F3F2AE90DBC0049C60F /* Language.swift */; };
 		0F151F422AE90E680049C60F /* UIImage+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F151F412AE90E680049C60F /* UIImage+Ext.swift */; };
 		0F151F442AE90E8B0049C60F /* View+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F151F432AE90E8B0049C60F /* View+Ext.swift */; };
@@ -228,6 +230,8 @@
 		0AC12DA82BB5879A00343DE3 /* AdminRegionResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdminRegionResult.swift; sourceTree = "<group>"; };
 		0F0317142BD7AC67003B2E6C /* CommentsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentsView.swift; sourceTree = "<group>"; };
 		0F0E352D2B7B9DDB00D396B0 /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
+		0F10CCBE2BDBC36E007E3E2A /* AdminCitiesResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdminCitiesResult.swift; sourceTree = "<group>"; };
+		0F10CCC02BDBC3D9007E3E2A /* AdminCitiesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdminCitiesView.swift; sourceTree = "<group>"; };
 		0F151F3F2AE90DBC0049C60F /* Language.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Language.swift; sourceTree = "<group>"; };
 		0F151F412AE90E680049C60F /* UIImage+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Ext.swift"; sourceTree = "<group>"; };
 		0F151F432AE90E8B0049C60F /* View+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+Ext.swift"; sourceTree = "<group>"; };
@@ -659,6 +663,7 @@
 				0FF7B8F72B3B2800003A4B6A /* AdminCityResult.swift */,
 				0AC12DA82BB5879A00343DE3 /* AdminRegionResult.swift */,
 				0A1954AA2BD04B89001E4841 /* AdminRegionsResult.swift */,
+				0F10CCBE2BDBC36E007E3E2A /* AdminCitiesResult.swift */,
 				0FD577192B56BEA600C65C21 /* AdminPlaceResult.swift */,
 				0F3CD2BF2B91FC7D00A50579 /* AdminEventResult.swift */,
 			);
@@ -943,6 +948,7 @@
 				0F7E57EA2AE15B550091A0F8 /* AdminView.swift */,
 				0FF7B8F32B3B0D47003A4B6A /* AdminCountriesView.swift */,
 				0F26F8702B85ED99004DEDBF /* AdminRegionsView.swift */,
+				0F10CCC02BDBC3D9007E3E2A /* AdminCitiesView.swift */,
 			);
 			path = Admin;
 			sourceTree = "<group>";
@@ -1362,6 +1368,7 @@
 				0F151F402AE90DBC0049C60F /* Language.swift in Sources */,
 				0F741A742ACD644D00A7759E /* DecodedCity.swift in Sources */,
 				0F459E232B3B59F900D7E843 /* CommentsResult.swift in Sources */,
+				0F10CCBF2BDBC36E007E3E2A /* AdminCitiesResult.swift in Sources */,
 				0F27654D2B025BC10084B5DD /* EditDateView.swift in Sources */,
 				0FF7B8F42B3B0D47003A4B6A /* AdminCountriesView.swift in Sources */,
 				0FF5C7272B1F44B900D9EA57 /* LoginViewModel.swift in Sources */,
@@ -1426,6 +1433,7 @@
 				0FB1C1AC2BD67CFD003A5E7E /* SizeCalculator.swift in Sources */,
 				0F741A9A2ACDB7CE00A7759E /* TabBarButtonView.swift in Sources */,
 				0F6E088B2B51799300950055 /* CityCell.swift in Sources */,
+				0F10CCC12BDBC3D9007E3E2A /* AdminCitiesView.swift in Sources */,
 				0F89545D2AF420B900CE46EC /* PlaceAdditionalInfo.swift in Sources */,
 				0F459E1D2B3B43A200D7E843 /* RegionView.swift in Sources */,
 				0F7E98052BA5BEEC001A1550 /* EditCityNetworkManager.swift in Sources */,
