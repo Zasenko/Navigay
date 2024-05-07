@@ -1,0 +1,346 @@
+["2024-05-10", "2024-05-15", "2024-06-11"]
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <title>Flatpickr events calendar</title>
+
+
+    <link href='https://fonts.googleapis.com/css?family=Montserrat:400,500,600,700,800,900' rel='stylesheet'>
+    <link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css'>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 500;
+        }
+
+        body {
+            padding: 0;
+            margin: 0;
+        }
+
+        .cal-modal-container {
+            background: #1D252C;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: olive;
+        }
+
+        .cal-modal {
+            background: #1D252C;
+            color: #fff;
+            text-align: center;
+        }
+
+        #calendar {
+            display: inline-block;
+        }
+
+        #calendar .placeholder {
+            display: none;
+            width: 300px;
+
+        }
+
+        #calendar .flatpickr-calendar {
+            background: none;
+            border: 0;
+            border-radius: 0;
+            box-shadow: none;
+            color: #fff;
+            top: 0;
+        }
+
+        #calendar .flatpickr-calendar .flatpickr-innerContainer {
+            overflow: visible;
+        }
+
+        #calendar .flatpickr-calendar .flatpickr-innerContainer .flatpickr-weekdays {
+            overflow: visible;
+        }
+
+        #calendar .flatpickr-calendar .flatpickr-months .flatpickr-month {
+            color: inherit;
+            margin-bottom: 10px;
+        }
+
+        #calendar .flatpickr-calendar .flatpickr-months .flatpickr-month .flatpickr-current-month {
+            font-size: 16px;
+        }
+
+        #calendar .flatpickr-calendar .flatpickr-months .flatpickr-month .flatpickr-current-month .numInputWrapper {
+            display: none;
+        }
+
+        #calendar .flatpickr-calendar .flatpickr-months .flatpickr-prev-month,
+        #calendar .flatpickr-calendar .flatpickr-months .flatpickr-next-month {
+            top: calc(50% - 23px);
+        }
+
+        #calendar .flatpickr-calendar .flatpickr-months .flatpickr-prev-month svg,
+        #calendar .flatpickr-calendar .flatpickr-months .flatpickr-next-month svg {
+            height: 46px;
+            width: 46px;
+        }
+
+        #calendar .flatpickr-calendar .flatpickr-months .flatpickr-prev-month svg path,
+        #calendar .flatpickr-calendar .flatpickr-months .flatpickr-next-month svg path {
+            fill: #3DAE2B;
+        }
+
+        #calendar .flatpickr-calendar .flatpickr-months .flatpickr-prev-month {
+            left: -60px;
+        }
+
+        #calendar .flatpickr-calendar .flatpickr-months .flatpickr-next-month {
+            right: -60px;
+        }
+
+        #calendar .flatpickr-calendar .flatpickr-weekdays .flatpickr-weekdaycontainer {
+            max-width: 307.875px;
+            padding: 0 10px;
+            position: relative;
+        }
+
+        #calendar .flatpickr-calendar .flatpickr-weekdays .flatpickr-weekdaycontainer::after {
+            content: '';
+            background: #343F48;
+            position: absolute;
+            top: -32px;
+            bottom: -230px;
+            right: 0;
+            width: 1px;
+        }
+
+        #calendar .flatpickr-calendar .flatpickr-weekdays .flatpickr-weekdaycontainer:last-child::after {
+            content: none;
+        }
+
+        #calendar .flatpickr-calendar .flatpickr-weekdays .flatpickr-weekdaycontainer .flatpickr-weekday {
+            color: blue;
+            font-weight: 700;
+        }
+
+        #calendar .flatpickr-calendar .dayContainer {
+            box-shadow: none;
+            padding: 0 10px;
+            position: static;
+
+        }
+
+        #calendar .flatpickr-calendar .dayContainer:last-child::after {
+            content: none;
+
+        }
+
+        #calendar .flatpickr-calendar .flatpickr-day {
+            background: blue;
+            border: 0;
+            color: #1D252C;
+            font-weight: 500;
+            transition: color 0.1s, background 0.1s;
+
+        }
+
+        #calendar .flatpickr-calendar .flatpickr-day:hover {
+            background: #3DAE2B;
+            color: #fff;
+        }
+
+        #calendar .flatpickr-calendar .flatpickr-day.flatpickr-disabled,
+        #calendar .flatpickr-calendar .flatpickr-day.flatpickr-disabled:hover {
+            background: none;
+            color: #fff;
+            cursor: default;
+        }
+
+        #calendar .flatpickr-calendar .flatpickr-day.selected:not(.hidden),
+        #calendar .flatpickr-calendar .flatpickr-day.selected:not(.hidden):hover,
+        #calendar .flatpickr-calendar .flatpickr-day.selected:not(.hidden):focus {
+            background: #37A628;
+            color: #fff;
+        }
+
+        #calendar .flatpickr-calendar .flatpickr-day.nextMonthDay,
+        #calendar .flatpickr-calendar .flatpickr-day.prevMonthDay {
+            background: none;
+            color: rgba(207, 210, 211, 0.1) !important;
+            cursor: default;
+            visibility: visible;
+        }
+    </style>
+
+    <style>
+        html {
+            font-size: px;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100%;
+        }
+
+        /* Ваши стили */
+        /* ... */
+    </style>
+</head>
+
+<body>
+    <button id="showCalendarBtn">Show Calendar</button>
+
+    <div id='cal-test'></div>
+
+    <div id='test'>
+        <!-- Содержимое событий -->
+    </div>
+
+    <!-- Скрипты -->
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js'></script>
+    <script src='https://cdn.jsdelivr.net/npm/flatpickr'></script>
+    <script>
+        // JavaScript код для календаря
+        // generate events
+        var flatpickr;
+        function showCalendar() {
+
+            const tD = document.getElementById('cal-test');
+
+            const ttD = document.createElement('div');
+            // eventDiv.classList.add('event-container');
+            ttD.innerHTML = `
+                        <div class='cal-modal-container'>
+                            <div class='cal-modal'>
+                                <div id='calendar'>
+                                    <div class='placeholder'></div>
+                                    <div class='calendar-events'></div>
+                                </div>
+                                </div>
+                        </div>
+            `;
+            tD.appendChild(ttD);
+
+            var eventDates = {};
+            let day1 = formatDate(new Date(new Date().setMonth(new Date().getMonth() + 1)));
+            eventDates[day1] = [
+                'Event 1, Location',
+                'Event 2, Location 2'
+            ];
+
+            let day2 = formatDate(new Date(new Date().setDate(new Date().getDate() + 40)));
+            eventDates[day2] = [
+                'Event 2, Location 3'
+            ];
+
+
+            // set maxDates
+            var maxDate = {
+                1: new Date(new Date().setMonth(new Date().getMonth() + 11)),
+                2: new Date(new Date().setMonth(new Date().getMonth() + 10)),
+                3: new Date(new Date().setMonth(new Date().getMonth() + 9))
+            };
+
+            var dates = ["2024-05-10", "2024-05-15", "2024-06-11"];
+
+            // Преобразование строковых дат в объекты Date
+            var dateObjects = dates.map(function (dateString) {
+                return new Date(dateString);
+            });
+
+            // Поиск максимальной даты среди объектов Date
+            var maxDate = new Date(Math.max.apply(null, dateObjects));
+
+            flatpickr = $('#calendar .placeholder').flatpickr({
+                inline: true,
+                minDate: 'today',
+                maxDate: maxDate,
+
+                showMonths: 1,
+                enable: ["2024-05-10", "2024-05-15", "2024-06-11"],
+                disableMobile: 'true',
+                onChange: function (date, str, inst) {
+                    var contents = '';
+
+                    const allEventsDiv = document.getElementById('test');
+                    allEventsDiv.innerHTML = str;
+
+                    if (date.length) {
+                        for (i = 0; i < eventDates[str].length; i++) {
+                            contents += '<div class=event><div class=date>' + flatpickr.formatDate(date[0], 'l J F') + '</div><div class=location>' + eventDates[str][i] + '</div></div>';
+                        }
+                    }
+                    // const allEventsDiv = document.getElementById('test');
+                    // allEventsDiv.innerHTML = contents;
+                },
+                locale: {
+                    weekdays: {
+                        shorthand: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
+                        longhand: [
+                            'Sunday',
+                            'Monday',
+                            'Tuesday',
+                            'Wednesday',
+                            'Thursday',
+                            'Friday',
+                            'Saturday'
+                        ]
+                    }
+                }
+            });
+
+
+            eventCaledarResize($(window));
+            $(window).on('resize', function () {
+                eventCaledarResize($(this));
+            });
+
+        }
+
+        function eventCaledarResize($el) {
+            var width = $el.width();
+            if (flatpickr) {
+                if (flatpickr.selectedDates.length) {
+                    flatpickr.clear();
+                }
+                if (width >= 992 && flatpickr.config.showMonths !== 3) {
+                    flatpickr.set('showMonths', 3);
+                    flatpickr.set('maxDate', maxDate[3]);
+                }
+                if (width < 992 && width >= 768 && flatpickr.config.showMonths !== 2) {
+                    flatpickr.set('showMonths', 2);
+                    flatpickr.set('maxDate', maxDate[2]);
+                }
+                if (width < 768 && flatpickr.config.showMonths !== 1) {
+                    flatpickr.set('showMonths', 1);
+                    flatpickr.set('maxDate', maxDate[1]);
+                    $('.flatpickr-calendar').css('width', ''); // Изменение ширины на пустую строку
+                }
+            }
+        }
+
+        function formatDate(date) {
+            let d = date.getDate();
+            let m = date.getMonth() + 1; //Month from 0 to 11
+            let y = date.getFullYear();
+            return '' + y + '-' + (m <= 9 ? '0' + m : m) + '-' + (d <= 9 ? '0' + d : d);
+        }
+        // Остальной JavaScript код
+        // ...
+
+
+        document.getElementById('showCalendarBtn').addEventListener('click', function () {
+            showCalendar();
+        });
+
+
+    </script>
+
+</body>
+
+</html>

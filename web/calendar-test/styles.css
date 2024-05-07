@@ -1,0 +1,49 @@
+* {
+    box-sizing: border-box;
+    font-family: 'Montserrat', sans-serif;
+    ;
+    font-weight: 500;
+}
+
+body {
+    padding: 0;
+    margin: 0;
+}
+
+.cal-modal-container {
+    background: rgba(0, 0, 0, .4);
+    display: none;
+    /* По умолчанию скрываем контейнер календаря */
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+}
+
+.cal-modal {
+    background: #1D252C;
+    color: #fff;
+    padding: 40px 60px;
+    text-align: center;
+
+    h3 {
+        font-size: 37px;
+        font-weight: 900;
+        margin: 0 0 1rem;
+    }
+}
+
+#calendar {
+    display: inline-block;
+
+    .placeholder {
+        display: none;
+        width: 300px;
+    }
+
+    /* Остальные стили календаря оставляем без изменений */
+}
+
+/* Добавляем стили для отображения контейнера календаря при активации кнопки */
+.cal-modal-container.show {
+    display: flex;
+}
