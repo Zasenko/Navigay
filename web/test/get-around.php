@@ -65,7 +65,7 @@ while ($row = $result->fetch_assoc()) {
     array_push($places, $place);
 }
 
-$sql = "SELECT id, name, type_id, city_id, latitude, longitude, start_date, start_time, finish_date, finish_time, address, location, poster, poster_small, is_free, tags, place_id, is_active, updated_at FROM Event WHERE SQRT(POW(latitude - ?, 2) + POW(longitude - ?, 2)) * 111.32 <= 20 AND is_active = true AND ((finish_date IS NULL AND start_date >= ?) OR (finish_date IS NOT NULL AND finish_date >= ?))";
+$sql = "SELECT id, name, type_id, city_id, latitude, longitude, start_date, start_time, finish_date, finish_time, address, location, poster, poster_small, is_free, tags, place_id, is_active, updated_at FROM Event WHERE SQRT(POW(latitude - ?, 2) + POW(longitude - ?, 2)) * 111.32 <= 20 AND is_active = true AND ((finish_date IS NULL AND start_date >= ?) OR (finish_date IS NOT NULL AND finish_date > ?))";
 
 $params = [$float_latitude, $float_longitude, $user_date, $user_date];
 $types = "ddss";

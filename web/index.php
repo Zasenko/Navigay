@@ -1,3 +1,7 @@
+<?php
+session_start();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -5,44 +9,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Catalog</title>
-    <meta name="description"
-        content="Navigay offers a comprehensive catalog of gay events and venues across different countries and cities worldwide. Explore our curated selection of gay-friendly places and exciting events in various countries and cities.">
+    <meta name="description" content="Navigay offers a comprehensive catalog of gay events and venues across different countries and cities worldwide. Explore our curated selection of gay-friendly places and exciting events in various countries and cities.">
     <meta name="author" content="Dmitry Zasenko">
-
-
-    <meta name="author" content="Dmitry Zasenko">
-    <link rel="apple-touch-icon-precomposed" sizes="57x57"
-        href="../images/other/app_icons/apple-touch-icon-57x57.png" />
-    <link rel="apple-touch-icon-precomposed" sizes="114x114"
-        href="../images/other/app_icons/apple-touch-icon-114x114.png" />
-    <link rel="apple-touch-icon-precomposed" sizes="72x72"
-        href="../images/other/app_icons/apple-touch-icon-72x72.png" />
-    <link rel="apple-touch-icon-precomposed" sizes="144x144"
-        href="../images/other/app_icons/apple-touch-icon-144x144.png" />
-    <link rel="apple-touch-icon-precomposed" sizes="60x60"
-        href="../images/other/app_icons/apple-touch-icon-60x60.png" />
-    <link rel="apple-touch-icon-precomposed" sizes="120x120"
-        href="../images/other/app_icons/apple-touch-icon-120x120.png" />
-    <link rel="apple-touch-icon-precomposed" sizes="76x76"
-        href="../images/other/app_icons/apple-touch-icon-76x76.png" />
-    <link rel="apple-touch-icon-precomposed" sizes="152x152"
-        href="../images/other/app_icons/apple-touch-icon-152x152.png" />
-    <link rel="icon" type="image/png" href="../images/other/app_icons/favicon-196x196.png" sizes="196x196" />
-    <link rel="icon" type="image/png" href="../images/other/app_icons/favicon-96x96.png" sizes="96x96" />
-    <link rel="icon" type="image/png" href="../images/other/app_icons/favicon-32x32.png" sizes="32x32" />
-    <link rel="icon" type="image/png" href="../images/other/app_icons/favicon-16x16.png" sizes="16x16" />
-    <link rel="icon" type="image/png" href="../images/other/app_icons/favicon-128.png" sizes="128x128" />
-    <meta name="application-name" content="&nbsp;" />
-    <meta name="msapplication-TileColor" content="#FFFFFF" />
-    <meta name="msapplication-TileImage" content="../images/other/app_icons/mstile-144x144.png" />
-    <meta name="msapplication-square70x70logo" content="../images/other/app_icons/mstile-70x70.png" />
-    <meta name="msapplication-square150x150logo" content="../images/other/app_icons/mstile-150x150.png" />
-    <meta name="msapplication-wide310x150logo" content="../images/other/app_icons/mstile-310x150.png" />
-    <meta name="msapplication-square310x310logo" content="../images/other/app_icons/mstile-310x310.png" />
-
-
-    <link rel="stylesheet" type="text/css" href="../style.css">
-
+    <?php include('../header/head-icons.php'); ?>
+    <link rel="stylesheet" type="text/css" href="../css/header.css">
+    <link rel="stylesheet" href="../css/style.css">
     <style>
         main {
             width: 100%;
@@ -156,7 +127,7 @@
 </head>
 
 <body>
-    <header id="header"></header>
+    <?php include('header/header.php'); ?>
     <main>
         <h1>Countries</h1>
         <div class="countries-text">
@@ -169,29 +140,6 @@
         </div>
         <div id="countries" class="countries-main-container"></div>
     </main>
-    <script>
-        // Загружаем содержимое header.html в div с id="header"
-        fetch('../header/')
-            .then(response => response.text())
-            .then(html => {
-                document.getElementById('header').innerHTML = html;
-                // Добавляем активный класс к текущей странице
-                var currentPage = window.location.pathname.split('/').filter(Boolean).pop();
-                // Убираем пустые строки из массива и извлекаем последний элемент, который будет именем текущего файла
-
-                // Проверяем, если текущая страница - страница каталога
-                if (currentPage === 'catalog') {
-                    // Если да, то ищем ссылку на каталог в навигационном меню
-                    var catalogLink = document.getElementById('catalog');
-                    // Проверяем, найдена ли ссылка
-                    if (catalogLink) {
-                        // Если да, добавляем ей класс 'active'
-                        catalogLink.classList.add('active');
-                    }
-                }
-            })
-            .catch(error => console.error('Ошибка загрузки header.html:', error));
-    </script>
     <script>
         async function fetchCountries() {
             try {

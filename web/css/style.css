@@ -18,6 +18,7 @@ h1 {
     font-weight: 900;
     font-size: 3em;
     text-align: center;
+    height: 50vh;
 }
 
 .rainbowGradient {
@@ -102,61 +103,3 @@ a:visited {
 .button:active {
     background-color: #ffbf00;
 }
-
-
-
-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    padding-block: 0.5em;
-    border-bottom: 1px solid rgb(242, 242, 242);
-}
-
-.nav-logo {
-    height: 2em;
-    padding-inline: 1em;
-}
-
-.nav-links-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 1em;
-}
-
-.nav-link {
-    color: black !important;
-    /* Используем !important, чтобы переопределить внешние стили */
-    text-decoration: none;
-    font-family: 'Roboto', sans-serif;
-    font-size: 1em;
-    font-weight: 400;
-
-}
-
-.nav-link:hover {
-    color: black !important;
-    text-decoration-line: underline;
-}
-
-.active.nav-link {
-    color: black !important;
-    font-weight: 900;
-    pointer-events: none;
-}
-
-.nav-icon-search {
-    width: 1em;
-    padding-block: 0.5em;
-    padding-inline: 1em;
-}
-
-.nav-icon-search.active {
-    filter: invert(34%) sepia(98%) saturate(7410%) hue-rotate(354deg) brightness(104%) contrast(101%);
-}
-
-/* .active .nav-icon-search {
-content: url('новая_ссылка_на_картинку_для_активного_состояния.png');
-} */

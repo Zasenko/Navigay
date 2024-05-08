@@ -1,0 +1,147 @@
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    border-bottom: 1px solid rgb(242, 242, 242);
+}
+
+.nav-overlay {
+    height: 0;
+    width: 100%;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    background-color: white;
+    overflow-x: hidden;
+    transition: 0.3s;
+}
+
+.nav-overlay-content {
+    position: relative;
+    width: 100%;
+    text-align: center;
+}
+
+.nav-overlay a {
+    padding: 8px;
+    text-decoration: none;
+    color: #818181;
+    display: block;
+    transition: 0.3s;
+
+    font-family: 'Roboto', sans-serif;
+    font-size: 2em;
+    font-weight: 400;
+}
+
+.nav-overlay a:hover,
+.nav-overlay a:focus {
+    color: #f1f1f1;
+}
+
+
+.nav-menu-btn {
+    display: none;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    outline: none;
+
+    padding-right: 24px;
+}
+
+.nav-menu-close-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    outline: none;
+}
+
+.nav-menu-close-btn-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top: 1em;
+    padding-bottom: 2em;
+}
+
+.nav-logo {
+    height: 2em;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    padding-left: 16px;
+}
+
+.nav-links-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1em;
+    padding-right: 24px;
+
+}
+
+.nav-link {
+    color: black;
+    text-decoration: none;
+    font-family: 'Roboto', sans-serif;
+    font-size: 1em;
+    font-weight: 400;
+}
+
+.nav-link:hover {
+    color: black;
+    text-decoration-line: underline;
+}
+
+.disabled {
+    color: black !important;
+    font-weight: 900;
+    pointer-events: none;
+}
+
+.nav-icon-search {
+    width: 1em;
+}
+
+.nav-icon-search.active {
+    filter: invert(34%) sepia(98%) saturate(7410%) hue-rotate(354deg) brightness(104%) contrast(101%);
+}
+
+.nav-menu-img {
+    width: 1em;
+}
+
+.nav-close-img {
+    width: 1.5em;
+}
+
+@media screen and (max-width: 450px) {
+    .nav-overlay a {
+        font-size: 20px;
+    }
+
+    .nav-menu-btn {
+        display: block;
+    }
+
+    .nav-links-container {
+        display: none;
+    }
+}
+
+@media screen and (min-width: 451px) {
+    .nav-overlay a {
+        font-size: 40px;
+    }
+
+    .nav-menu-btn {
+        display: none;
+    }
+
+    .nav-links-container {
+        display: flex;
+    }
+}

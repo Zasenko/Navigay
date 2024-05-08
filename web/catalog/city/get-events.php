@@ -22,7 +22,7 @@ $language = isset($_GET['language']) && in_array($_GET['language'], $languages) 
 
 require_once('../../api/dbconfig.php');
 
-$sql = "SELECT id, name, type_id, latitude, longitude, start_date, start_time, finish_date, finish_time, address, location, poster, poster_small, is_free, tags, updated_at FROM Event WHERE city_id = ? AND is_active = true AND ((finish_date IS NULL AND start_date = ?) OR (finish_date IS NOT NULL AND finish_date > ? AND start_date <= ?))";
+$sql = "SELECT id, name, type_id, latitude, longitude, start_date, start_time, finish_date, finish_time, address, location, poster, poster_small, is_free, tags, updated_at FROM Event WHERE city_id = ? AND is_active = true AND ((finish_date IS NULL AND start_date = ?) OR (finish_date IS NOT NULL AND (start_date = ? OR (finish_date > ? AND start_date < ?))))";
 
 $params = [$city_id, $user_date, $user_date, $user_date];
 $types = "isss";
