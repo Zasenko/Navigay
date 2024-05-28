@@ -42,7 +42,20 @@ struct CalendarView: View {
             .scrollIndicators(.hidden)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         }
-        .background(.yellow.opacity(0.2))
+        .background {
+            ZStack(alignment: .center) {
+                Image("bg2")
+                    .resizable()
+                    .scaledToFill()
+                    .ignoresSafeArea()
+                    .scaleEffect(CGSize(width: 2, height: 2))
+                    .blur(radius: 100)
+                    .saturation(2)
+                Rectangle()
+                    .fill(.ultraThinMaterial)
+                    .ignoresSafeArea()
+            }
+        }
     }
     
     private var calendarView: some View {

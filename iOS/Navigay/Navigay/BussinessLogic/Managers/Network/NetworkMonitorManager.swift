@@ -16,8 +16,8 @@ protocol NetworkMonitorManagerProtocol {
 final class NetworkMonitorManager: NetworkMonitorManagerProtocol {
     
     // MARK: - Properties
-    var notify: ((Bool) -> Void)?
     
+    var notify: ((Bool) -> Void)?
     var isConnected = true {
         didSet {
             notify?(isConnected)

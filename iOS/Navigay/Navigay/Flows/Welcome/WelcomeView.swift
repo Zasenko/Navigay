@@ -31,9 +31,8 @@ struct WelcomeView: View {
         VStack {
             VStack(alignment: .center, spacing: 0) {
                 Text("Welcome to")
-                    .font(.title2)
+                    .font(.title2).bold()
                     .fontWeight(.light)
-                
                 AppImages.logoFull
                     .resizable()
                     .scaledToFit()
@@ -57,6 +56,25 @@ struct WelcomeView: View {
                     
                         .font(.subheadline)
                 }
+            }
+        }
+        .background {
+//            Image("bg")
+//                .resizable()
+//                .scaledToFill()
+            
+            
+            ZStack(alignment: .center) {
+                Image("bg2")
+                    .resizable()
+                    .scaledToFill()
+                    .ignoresSafeArea()
+                    .scaleEffect(CGSize(width: 2, height: 2))
+                    .blur(radius: 100)
+                    .saturation(2)
+                Rectangle()
+                    .fill(.ultraThinMaterial)
+                    .ignoresSafeArea()
             }
         }
     }
@@ -119,6 +137,9 @@ struct WelcomeView: View {
     }
 }
 
-//#Preview {
-//    WelcomeView()
-//}
+#Preview {
+//    WelcomeView() {
+//        
+//    }
+    EntryView()
+}
