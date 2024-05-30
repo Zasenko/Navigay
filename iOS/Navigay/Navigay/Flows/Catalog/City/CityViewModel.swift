@@ -27,6 +27,7 @@ extension CityView {
         var upcomingEvents: [Event] = []
         var displayedEvents: [Event] = []
         
+        var eventsCount: Int = 0
         var showCalendar: Bool = false
         var eventsDates: [Date] = []
         var selectedDate: Date? = nil
@@ -77,34 +78,28 @@ extension CityView {
         }
         
         func getPlacesAndEventsFromDB() {
-            if city.lastUpdateComplite == nil {
-                isLoading = true
-                Task {
-                    await fetch()
+            Task {
+                let places = city.places.sorted(by: { $0.name < $1.name })
+                let events = city.events.sorted(by: { $0.id < $1.id })
+                
+                let groupedPlaces = await placeDataManager.createGroupedPlaces(places: places)
+                
+                let actualEvents = await self.eventDataManager.getActualEvents(for: events)
+                let todayEvents = await eventDataManager.getTodayEvents(from: actualEvents)
+                let upcomingEvents = await eventDataManager.getUpcomingEvents(from: actualEvents)
+                let eventsDatesWithoutToday = await eventDataManager.getActiveDates(for: actualEvents)
+                
+                await MainActor.run {
+                    self.actualEvents = actualEvents
+                    self.upcomingEvents = upcomingEvents
+                    self.aroundPlaces = aroundPlaces
+                    self.eventsDates = eventsDatesWithoutToday
+                    self.todayEvents = todayEvents
+                    self.displayedEvents = upcomingEvents
+                    self.groupedPlaces = groupedPlaces
+                    self.eventsCount = actualEvents.count
                 }
-            } else {
-                Task {
-                    let places = city.places.sorted(by: { $0.name < $1.name })
-                    let events = city.events.sorted(by: { $0.id < $1.id })
-                    
-                    let groupedPlaces = await placeDataManager.createGroupedPlaces(places: places)
-                    
-                    let actualEvents = await self.eventDataManager.getActualEvents(for: events)
-                    let todayEvents = await eventDataManager.getTodayEvents(from: actualEvents)
-                    let upcomingEvents = await eventDataManager.getUpcomingEvents(from: actualEvents)
-                    let eventsDatesWithoutToday = await eventDataManager.getActiveDates(for: actualEvents)
-                    
-                    await MainActor.run {
-                        self.actualEvents = actualEvents
-                        self.upcomingEvents = upcomingEvents
-                        self.aroundPlaces = aroundPlaces
-                        self.eventsDates = eventsDatesWithoutToday
-                        self.todayEvents = todayEvents
-                        self.displayedEvents = upcomingEvents
-                        self.groupedPlaces = groupedPlaces
-                    }
-                    await fetch()
-                }
+                await fetch()
             }
         }
         
@@ -178,7 +173,11 @@ extension CityView {
                     self.todayEvents = todayEvents
                     self.displayedEvents = upcomingEvents
                     self.groupedPlaces = groupedPlaces
+                    self.eventsCount = actualEvents.count
                     isLoading = false
+                    
+                    let newPhotosLinks = city.getAllPhotos()
+                    allPhotos = newPhotosLinks
                 }
             }
         }

@@ -1,0 +1,87 @@
+{
+    "result": true,
+    "items": {
+        "found_around": false,
+        "cities": [
+            {
+                "id": 43,
+                "name": "Brussels",
+                "small_photo": "https://www.navigay.me/images/cities/43/1713193656619_678.jpg",
+                "latitude": 50.84667051184433,
+                "longitude": 4.352501780571501,
+                "is_capital": true,
+                "is_gay_paradise": true,
+                "place_count": 5,
+                "event_count": 0,
+                "updated_at": "2024-04-25 11:45:56"
+            },
+            {
+                "id": 51,
+                "name": "Antwerp",
+                "small_photo": "https://www.navigay.me/images/cities/51/1713531221348_432.jpg",
+                "latitude": 51.2213853,
+                "longitude": 4.400168,
+                "is_capital": false,
+                "is_gay_paradise": false,
+                "place_count": 1,
+                "event_count": 0,
+                "updated_at": "2024-04-25 11:49:28"
+            },
+            {
+                "id": 41,
+                "name": "Cologne",
+                "small_photo": "https://www.navigay.me/images/cities/41/1713804195383_830.jpg",
+                "latitude": 50.9375229,
+                "longitude": 6.95948,
+                "is_capital": false,
+                "is_gay_paradise": false,
+                "place_count": 0,
+                "event_count": 2,
+                "updated_at": "2024-04-25 11:46:44"
+            }
+        ],
+        "regions": [
+            {
+                "id": 40,
+                "country_id": 16,
+                "name": "Brussels-Capital Region",
+                "photo": null,
+                "updated_at": "2024-04-17 10:25:15"
+            },
+            {
+                "id": 42,
+                "country_id": 16,
+                "name": "Antwerp",
+                "photo": null,
+                "updated_at": "2024-04-19 12:49:47"
+            },
+            {
+                "id": 39,
+                "country_id": 9,
+                "name": "North Rhine-Westphalia",
+                "photo": null,
+                "updated_at": "2024-04-23 08:25:34"
+            }
+        ],
+        "countries": [
+            {
+                "id": 16,
+                "isoCountryCode": "BE",
+                "name": "Belgium",
+                "flag_emoji": "🇧🇪",
+                "photo": "https://www.navigay.me/images/countries/16/1711619485176_703.jpg",
+                "show_regions": false,
+                "updated_at": "2024-03-28 15:06:46"
+            },
+            {
+                "id": 9,
+                "isoCountryCode": "DE",
+                "name": "Germany",
+                "flag_emoji": "🇩🇪",
+                "photo": "https://www.navigay.me/images/countries/9/1706252186627_350.jpg",
+                "show_regions": false,
+                "updated_at": "2024-04-17 10:17:43"
+            }
+        ]
+    }
+}

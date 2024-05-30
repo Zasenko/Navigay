@@ -61,7 +61,7 @@ struct RegionView: View {
                 NavigationLink {
                     CityView(viewModel: CityView.CityViewModel(modelContext: modelContext, city: city, catalogNetworkManager: catalogNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, catalogDataManager: catalogDataManager))
                 } label: {
-                    CityCell(city: city, showCountryRegion: false)
+                    CityCell(city: city, showCountryRegion: false, showLocationsCount: true)
                 }
             }
         }

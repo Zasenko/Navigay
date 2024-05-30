@@ -196,4 +196,47 @@ enum SortingCategory {
             return ""
         }
     }
+    
+    func getPluralName() -> String {
+        switch self {
+        case .bar:
+            return "Bars"
+        case .cafe:
+            return "Cafes"
+        case .restaurant:
+            return "Restaurants"
+        case .club:
+            return "Clubs"
+        case .hotel:
+            return "Hotels"
+        case .sauna:
+            return "Saunas"
+        case .cruiseBar:
+            return "Cruise bars"
+        case .beach:
+            return "Beaches"
+        case .shop:
+            return "Shops"
+        case .gym:
+            return "Sport"
+        case .culture:
+            return "Cultur"
+        case .community:
+            return "Communities"
+        case .other:
+            return "Other"
+        case .hostel:
+            return "Hostels"
+        case .medicine:
+            return "Medicine"
+        case .cruiseClub:
+            return "Cruise clubs"
+        case .rights:
+            return "Rights"
+        case .events:
+            return "Events"
+        case .all:
+            return "All"
+        }
+    }
 }

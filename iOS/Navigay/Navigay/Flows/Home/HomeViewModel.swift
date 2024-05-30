@@ -18,13 +18,16 @@ extension HomeView {
         
         var modelContext: ModelContext
         
-        var actualEvents: [Event] = []
+        var actualEvents: [Event] = []  // delete
         var todayEvents: [Event] = []
         var upcomingEvents: [Event] = []
         var displayedEvents: [Event] = []
         
+        var dateEvents: [Date: [Int]] = [:]
+
         var showCalendar: Bool = false
         var eventsDates: [Date] = []
+        var eventsCount: Int = 0
         var selectedDate: Date? = nil
         
         var selectedEvent: Event?
@@ -103,7 +106,10 @@ extension HomeView {
                     }
                     self.todayEvents = todayEvents
                     self.displayedEvents = upcomingEvents
+                    self.eventsCount = actualEvents.count
                     self.groupedPlaces = groupedPlaces
+                    
+                   // self.dateEvents =
                     if !aroundPlaces.isEmpty && !aroundEvents.isEmpty {
                         isLoading = false
                     }
@@ -132,24 +138,26 @@ extension HomeView {
         
         //MARK: - Private Functions
         
+        
         private func fetch(location: CLLocation) async {
             let message = "Something went wrong. The information didn't update. Please try again later."
             do {
-                let decodedResult = try await aroundNetworkManager.fetchLocations(location: location)
+                let decodedResult = try await aroundNetworkManager.fetchAround(location: location)
                 await MainActor.run {
                     if decodedResult.foundAround {
                         isLocationsAround20Found = true
+                        let cities = catalogDataManager.updateCities(decodedCities: decodedResult.cities, modelContext: modelContext)
+                        let places = placeDataManager.updatePlaces(decodedPlaces: decodedResult.places, for: cities, modelContext: modelContext)
+                        let eventsItems = eventDataManager.updateEvents(decodedEvents: decodedResult.events, for: cities, modelContext: modelContext)
+                        places.forEach { place in
+                            let distance = location.distance(from: CLLocation(latitude: place.latitude, longitude: place.longitude))
+                            place.getDistanceText(distance: distance, inKm: true)
+                        }
+                        
+                        updateFetchedResult(places: places.sorted(by: { $0.name < $1.name }), events: eventsItems, userLocation: location)
                     } else {
                         isLocationsAround20Found = false
                     }
-                    let cities = catalogDataManager.updateCities(decodedCities: decodedResult.cities, modelContext: modelContext)
-                    let places = placeDataManager.updatePlaces(decodedPlaces: decodedResult.places, for: cities, modelContext: modelContext)
-                    let events = eventDataManager.updateEvents(decodedEvents: decodedResult.events, for: cities, modelContext: modelContext)
-                    places.forEach { place in
-                        let distance = location.distance(from: CLLocation(latitude: place.latitude, longitude: place.longitude))
-                        place.getDistanceText(distance: distance, inKm: true)
-                    }
-                    updateFetchedResult(places: places.sorted(by: { $0.name < $1.name }), events: events.sorted(by: { $0.id < $1.id }), userLocation: location)
                 }
             } catch NetworkErrors.apiError(let error) {
                 if let error, error.show {
@@ -162,44 +170,68 @@ extension HomeView {
             }
         }
         
-        private func updateFetchedResult(places: [Place], events: [Event], userLocation: CLLocation) {
+        func fetchEvents(for date: Date) async {
+            let ids = dateEvents.filter { $0.key == date }.flatMap { $0.value.map { $0 } }
+            guard !ids.isEmpty else { return }
+            let message = "Something went wrong. The information didn't update. Please try again later."
+            do {
+                let (decodedEvents, decodedCities) = try await eventNetworkManager.fetchEvents(ids: ids)
+               await MainActor.run {
+                        let cities = catalogDataManager.updateCities(decodedCities: decodedCities, modelContext: modelContext)
+                        let events = eventDataManager.updateEvents(decodedEvents: decodedEvents, for: cities, modelContext: modelContext)
+                   self.displayedEvents = events
+                }
+            } catch NetworkErrors.apiError(let error) {
+                if let error, error.show {
+                    errorManager.showError(model: ErrorModel(error: NetworkErrors.api, message: error.message))
+                } else {
+                    errorManager.showError(model: ErrorModel(error: NetworkErrors.api, message: message))
+                }
+            } catch {
+                errorManager.showError(model: ErrorModel(error: error, message: message))
+            }
+        }
+        private func updateFetchedResult(places: [Place], events: EventsItems, userLocation: CLLocation) {
             Task {
                 let groupedPlaces = await placeDataManager.createGroupedPlaces(places: places)
-                let actualEvents = await eventDataManager.getActualEvents(for: events)
-                let todayEvents = await eventDataManager.getTodayEvents(from: events)
-                let upcomingEvents = await eventDataManager.getUpcomingEvents(from: events)
-                let eventsDatesWithoutToday = await eventDataManager.getActiveDates(for: actualEvents)
                 
-                let eventsIDs = actualEvents.map( { $0.id } )
-                var eventsToDelete: [Event] = []
-                self.actualEvents.forEach { event in
-                    if !eventsIDs.contains(event.id) {
-                        eventsToDelete.append(event)
-                    }
-                }
+                let tEvents = events.today.sorted(by: { $0.id < $1.id })
+                let uEvents = events.upcoming.sorted(by: { $0.id < $1.id }).sorted(by: { $0.startDate < $1.startDate })
+               let activeDates = events.allDates.keys.sorted().filter( { $0.isToday || $0.isFutureDay } )
+               // let activeDates = await eventDataManager.getActiveDates(for: actualEvents)
+//
+//                let eventsIDs = actualEvents.map( { $0.id } )
+//                var eventsToDelete: [Event] = []
+//                self.actualEvents.forEach { event in
+//                    if !eventsIDs.contains(event.id) {
+//                        eventsToDelete.append(event)
+//                    }
+//                }
+//                
+//                let placesIDs = aroundPlaces.map( { $0.id } )
+//                var placesToDelete: [Place] = []
+//                self.aroundPlaces.forEach { place in
+//                    if !placesIDs.contains(place.id) {
+//                        placesToDelete.append(place)
+//                    }
+//                }
                 
-                let placesIDs = aroundPlaces.map( { $0.id } )
-                var placesToDelete: [Place] = []
-                self.aroundPlaces.forEach { place in
-                    if !placesIDs.contains(place.id) {
-                        placesToDelete.append(place)
-                    }
-                }
-                
-                await MainActor.run { [eventsToDelete, placesToDelete] in
-                    eventsToDelete.forEach( { modelContext.delete($0) } )
-                    placesToDelete.forEach( { modelContext.delete($0) } )
-                    self.actualEvents = actualEvents
+                await MainActor.run { //[eventsToDelete, placesToDelete] in
+                   // eventsToDelete.forEach( { modelContext.delete($0) } )
+                  //  placesToDelete.forEach( { modelContext.delete($0) } )
+                  //  self.actualEvents = actualEvents
                     self.upcomingEvents = upcomingEvents
                     self.aroundPlaces = places
-                    self.eventsDates = eventsDatesWithoutToday
-                    places.forEach { place in
-                        let distance = userLocation.distance(from: CLLocation(latitude: place.latitude, longitude: place.longitude))
-                        place.getDistanceText(distance: distance, inKm: true)
-                    }
-                        self.todayEvents = todayEvents
-                        self.displayedEvents = upcomingEvents
+                    self.eventsDates = activeDates
+//                    places.forEach { place in
+//                        let distance = userLocation.distance(from: CLLocation(latitude: place.latitude, longitude: place.longitude))
+//                        place.getDistanceText(distance: distance, inKm: true)
+//                    }
+                        self.todayEvents = tEvents
+                        self.displayedEvents = uEvents
                         self.groupedPlaces = groupedPlaces
+                    self.eventsCount = events.count
+                    self.dateEvents = events.allDates
                         isLoading = false
                 }
             }

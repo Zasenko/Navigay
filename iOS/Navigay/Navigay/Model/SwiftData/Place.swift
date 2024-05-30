@@ -45,37 +45,49 @@ final class Place {
     
     func updatePlaceIncomplete(decodedPlace: DecodedPlace) {
         let lastUpdate = decodedPlace.lastUpdate.dateFromString(format: "yyyy-MM-dd HH:mm:ss")
-        if lastUpdateIncomplete != lastUpdate {
-            name = decodedPlace.name
-            type = decodedPlace.type
-            avatar = decodedPlace.avatar
-            mainPhoto = decodedPlace.mainPhoto
-            address = decodedPlace.address
-            latitude = decodedPlace.latitude
-            longitude = decodedPlace.longitude
-            tags.removeAll()
-            if let dacodedTags = decodedPlace.tags {
-                for tag in dacodedTags {
-                    tags.append(tag)
-                }
+        guard lastUpdateIncomplete != lastUpdate else { return }
+        name = decodedPlace.name
+        type = decodedPlace.type
+        avatar = decodedPlace.avatar
+        address = decodedPlace.address
+        latitude = decodedPlace.latitude
+        longitude = decodedPlace.longitude
+        tags.removeAll()
+        if let dacodedTags = decodedPlace.tags {
+            for tag in dacodedTags {
+                tags.append(tag)
             }
-            lastUpdateIncomplete = lastUpdate
         }
+        lastUpdateIncomplete = lastUpdate
     }
     
     func updatePlaceComplite(decodedPlace: DecodedPlace) {
         let lastUpdate = decodedPlace.lastUpdate.dateFromString(format: "yyyy-MM-dd HH:mm:ss")
-        if lastUpdateComplite != lastUpdate {
-            updatePlaceIncomplete(decodedPlace: decodedPlace)
-            about = decodedPlace.about
-            photos = decodedPlace.photos ?? []
-            otherInfo = decodedPlace.otherInfo
-            phone = decodedPlace.phone
-            www = decodedPlace.www
-            facebook = decodedPlace.facebook
-            instagram = decodedPlace.instagram
-            lastUpdateComplite = lastUpdate
+        guard lastUpdateComplite != lastUpdate else { return }
+        
+        name = decodedPlace.name
+        type = decodedPlace.type
+        avatar = decodedPlace.avatar
+        mainPhoto = decodedPlace.mainPhoto
+        address = decodedPlace.address
+        latitude = decodedPlace.latitude
+        longitude = decodedPlace.longitude
+        tags.removeAll()
+        if let dacodedTags = decodedPlace.tags {
+            for tag in dacodedTags {
+                tags.append(tag)
+            }
         }
+        
+        about = decodedPlace.about
+        photos = decodedPlace.photos ?? []
+        otherInfo = decodedPlace.otherInfo
+        phone = decodedPlace.phone
+        www = decodedPlace.www
+        facebook = decodedPlace.facebook
+        instagram = decodedPlace.instagram
+        
+        lastUpdateComplite = lastUpdate
     }
     
     func getAllPhotos() -> [String] {

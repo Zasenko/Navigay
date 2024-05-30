@@ -61,42 +61,61 @@ final class Event {
     
     func updateEventIncomplete(decodedEvent: DecodedEvent) {
         let lastUpdate = decodedEvent.lastUpdate.dateFromString(format: "yyyy-MM-dd HH:mm:ss")
-        if lastUpdateIncomplete != lastUpdate {
-            name = decodedEvent.name
-            type = decodedEvent.type
-            startDate = decodedEvent.startDate.dateFromString(format: "yyyy-MM-dd") ?? .now
-            startTime = decodedEvent.startTime?.dateFromString(format: "HH:mm:ss")
-            finishDate = decodedEvent.finishDate?.dateFromString(format: "yyyy-MM-dd")
-            finishTime = decodedEvent.finishTime?.dateFromString(format: "HH:mm:ss")
-            address = decodedEvent.address
-            latitude = decodedEvent.latitude
-            longitude = decodedEvent.longitude
-            poster = decodedEvent.poster
-            smallPoster = decodedEvent.smallPoster
-            isFree = decodedEvent.isFree
-            tags.removeAll()
-            if let dacodedTags = decodedEvent.tags {
-                for tag in dacodedTags {
-                    tags.append(tag)
-                }
+        guard lastUpdateIncomplete != lastUpdate else { return }
+        name = decodedEvent.name
+        type = decodedEvent.type
+        startDate = decodedEvent.startDate.dateFromString(format: "yyyy-MM-dd") ?? .now
+        startTime = decodedEvent.startTime?.dateFromString(format: "HH:mm:ss")
+        finishDate = decodedEvent.finishDate?.dateFromString(format: "yyyy-MM-dd")
+        finishTime = decodedEvent.finishTime?.dateFromString(format: "HH:mm:ss")
+        address = decodedEvent.address
+        latitude = decodedEvent.latitude
+        longitude = decodedEvent.longitude
+        smallPoster = decodedEvent.smallPoster
+        isFree = decodedEvent.isFree
+        tags.removeAll()
+        if let dacodedTags = decodedEvent.tags {
+            for tag in dacodedTags {
+                tags.append(tag)
             }
-            location = decodedEvent.location
-            lastUpdateIncomplete = lastUpdate
         }
+        location = decodedEvent.location
+        lastUpdateIncomplete = lastUpdate
     }
     
     func updateEventComplete(decodedEvent: DecodedEvent) {
         let lastUpdate = decodedEvent.lastUpdate.dateFromString(format: "yyyy-MM-dd HH:mm:ss")
-        if lastUpdateComplite != lastUpdate {
-            updateEventIncomplete(decodedEvent: decodedEvent)
-            about = decodedEvent.about
-            www = decodedEvent.www
-            facebook = decodedEvent.facebook
-            instagram = decodedEvent.instagram
-            phone = decodedEvent.phone
-            tickets = decodedEvent.tickets
-            fee = decodedEvent.fee
-            lastUpdateComplite = lastUpdate
+        guard lastUpdateComplite != lastUpdate else { return }
+        
+        name = decodedEvent.name
+        type = decodedEvent.type
+        startDate = decodedEvent.startDate.dateFromString(format: "yyyy-MM-dd") ?? .now
+        startTime = decodedEvent.startTime?.dateFromString(format: "HH:mm:ss")
+        finishDate = decodedEvent.finishDate?.dateFromString(format: "yyyy-MM-dd")
+        finishTime = decodedEvent.finishTime?.dateFromString(format: "HH:mm:ss")
+        address = decodedEvent.address
+        latitude = decodedEvent.latitude
+        longitude = decodedEvent.longitude
+        poster = decodedEvent.poster
+        smallPoster = decodedEvent.smallPoster
+        isFree = decodedEvent.isFree
+        tags.removeAll()
+        if let dacodedTags = decodedEvent.tags {
+            for tag in dacodedTags {
+                tags.append(tag)
+            }
         }
+        location = decodedEvent.location
+        
+        about = decodedEvent.about
+        www = decodedEvent.www
+        facebook = decodedEvent.facebook
+        instagram = decodedEvent.instagram
+        phone = decodedEvent.phone
+        tickets = decodedEvent.tickets
+        fee = decodedEvent.fee
+        
+        lastUpdateComplite = lastUpdate
+        
     }
 }

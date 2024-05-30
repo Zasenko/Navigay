@@ -14,7 +14,7 @@ struct CatalogView: View {
     
     @State private var viewModel: CatalogViewModel
     @EnvironmentObject private var authenticationManager: AuthenticationManager
-    @FocusState private var focused: Bool
+   // @FocusState private var focused: Bool
     
     // MARK: - Init
     
@@ -36,29 +36,23 @@ struct CatalogView: View {
                     Text("Catalog")
                         .font(.title).bold()
                 }
-                ToolbarItem(placement: .topBarTrailing) {
-                    searchButton
-                }
             }
             .toolbarBackground(AppColors.background)
             .animation(.default, value: viewModel.isLoading)
             .animation(.default, value: viewModel.countries.count)
-            .navigationDestination(isPresented: $viewModel.showSearchView) {
-                SearchView(viewModel: SearchView.SearchViewModel(modelContext: viewModel.modelContext, catalogNetworkManager: viewModel.catalogNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, catalogDataManager: viewModel.catalogDataManager))
-            }
         }
     }
     
-    private var searchButton: some View {
-        Button {
-            viewModel.showSearchView = true
-            focused = true
-        } label: {
-            AppImages.iconSearch
-                .bold()
-                .tint(.blue)
-        }
-    }
+//    private var searchButton: some View {
+//        Button {
+//            viewModel.showSearchView = true
+//            focused = true
+//        } label: {
+//            AppImages.iconSearch
+//                .bold()
+//                .tint(.blue)
+//        }
+//    }
     
     private var listView: some View {
         List {

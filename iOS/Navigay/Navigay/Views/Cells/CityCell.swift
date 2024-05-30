@@ -11,10 +11,13 @@ struct CityCell: View {
     
     private let city: City
     private let showCountryRegion: Bool
+    private let showLocationsCount: Bool
+
     
-    init(city: City, showCountryRegion: Bool) {
+    init(city: City, showCountryRegion: Bool, showLocationsCount: Bool) {
         self.city = city
         self.showCountryRegion = showCountryRegion
+        self.showLocationsCount = showLocationsCount
     }
     
     var body: some View {
@@ -34,15 +37,24 @@ struct CityCell: View {
                     VStack(alignment: .leading, spacing: 4) {
                         Text(city.name)
                             .font(.title3)
-                        if showCountryRegion, let region = city.region {
+                        if showCountryRegion {
                             Group {
-                                Text(region.country?.name ?? "")
+                                Text(city.region?.country?.name ?? "")
                                     .bold()
-                                + Text("  •  \(region.name ?? "")")
+                                + Text("  •  \(city.region?.name ?? "")")
                             }
                             .font(.footnote)
                             .foregroundColor(.secondary)
                             .multilineTextAlignment(.leading)
+                        }
+                        if showLocationsCount {
+                            if let text = city.locatinsCountString {
+                                Text(text)
+                                .font(.footnote)
+                                .foregroundColor(.secondary)
+                                .multilineTextAlignment(.leading)
+                            }
+                            
                         }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)

@@ -35,6 +35,7 @@ extension PlaceView {
         var upcomingEvents: [Event] = []
         var displayedEvents: [Event] = []
         
+        var eventsCount: Int = 0
         var showCalendar: Bool = false
         var eventsDates: [Date] = []
         var selectedDate: Date? = nil
@@ -166,6 +167,7 @@ extension PlaceView {
                     self.eventsDates = eventsDatesWithoutToday
                     self.todayEvents = todayEvents
                     self.displayedEvents = upcomingEvents
+                    self.eventsCount = actualEvents.count
                 }
             }
         }

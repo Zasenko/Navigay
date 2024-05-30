@@ -65,7 +65,7 @@ struct CityView: View {
             .onChange(of: viewModel.selectedDate, initial: false) { oldValue, newValue in
                 viewModel.showCalendar = false
                 if let date = newValue {
-                    getEvents(for: date)
+                   // getEvents(for: date)
                 } else {
                     showUpcomingEvents()
                 }
@@ -109,9 +109,12 @@ struct CityView: View {
                             .frame(maxWidth: .infinity)
                         }
                     }
+                    .listRowSeparator(.hidden)
+                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                    .padding(.bottom)
                     
                     if viewModel.actualEvents.count > 0 {
-                        EventsView(modelContext: viewModel.modelContext, selectedDate: $viewModel.selectedDate, displayedEvents: $viewModel.displayedEvents, actualEvents: $viewModel.actualEvents, todayEvents: $viewModel.todayEvents, upcomingEvents: $viewModel.upcomingEvents, eventsDates: $viewModel.eventsDates, selectedEvent: $viewModel.selectedEvent, showCalendar: $viewModel.showCalendar, size: geometry.size)
+                        EventsView(modelContext: viewModel.modelContext, selectedDate: $viewModel.selectedDate, displayedEvents: $viewModel.displayedEvents, actualEvents: $viewModel.actualEvents, eventsCount: $viewModel.eventsCount, todayEvents: $viewModel.todayEvents, upcomingEvents: $viewModel.upcomingEvents, eventsDates: $viewModel.eventsDates, selectedEvent: $viewModel.selectedEvent, showCalendar: $viewModel.showCalendar, size: geometry.size)
                             .listRowSeparator(.hidden)
                             .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                     }
@@ -169,14 +172,14 @@ struct CityView: View {
         }
     }
 
-    private func getEvents(for date: Date) {
-        Task {
-            let events = await viewModel.eventDataManager.getEvents(for: date, events: viewModel.actualEvents )
-            await MainActor.run {
-                viewModel.displayedEvents = events
-            }
-        }
-    }
+//    private func getEvents(for date: Date) {
+//        Task {
+//            let events = await viewModel.eventDataManager.getEvents(for: date, events: viewModel.actualEvents )
+//            await MainActor.run {
+//                viewModel.displayedEvents = events
+//            }
+//        }
+//    }
     
     private func showUpcomingEvents() {
         viewModel.displayedEvents = viewModel.upcomingEvents

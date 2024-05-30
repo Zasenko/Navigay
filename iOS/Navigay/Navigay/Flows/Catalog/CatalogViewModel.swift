@@ -17,9 +17,9 @@ extension CatalogView {
         var isLoading: Bool = false
         var countries: [Country] = []
         
-        var showSearchView: Bool = false
-        var isSearching: Bool = false
-        var searchText: String = ""
+     //   var showSearchView: Bool = false
+       // var isSearching: Bool = false
+       // var searchText: String = ""
 
         let catalogNetworkManager: CatalogNetworkManagerProtocol
         let placeNetworkManager: PlaceNetworkManagerProtocol

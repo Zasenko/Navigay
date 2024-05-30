@@ -18,6 +18,7 @@ protocol PlaceDataManagerProtocol {
     
     ///Grouped by type
     func createGroupedPlaces(places: [Place]) async -> [PlaceType: [Place]]
+    func createHomeGroupedPlaces(places: [Place]) async -> [SortingCategory: [Place]]
     
     func getClosestPlaces(from places: [Place], userLocation: CLLocation, count: Int) async -> [Place]
     
@@ -49,6 +50,10 @@ final class PlaceDataManager: PlaceDataManagerProtocol {
 
     func createGroupedPlaces(places: [Place]) async -> [PlaceType: [Place]] {
         return Dictionary(grouping: places) { $0.type }
+    }
+    
+    func createHomeGroupedPlaces(places: [Place]) async -> [SortingCategory: [Place]] {
+        return Dictionary(grouping: places) { SortingCategory(placeType: $0.type) }
     }
 
     func getClosestPlaces(from places: [Place], userLocation: CLLocation, count: Int) async -> [Place] {
@@ -118,6 +123,7 @@ final class PlaceDataManager: PlaceDataManagerProtocol {
                     }
                 }
             }
+            try modelContext.save()
             return places
         } catch {
             debugPrint(error)

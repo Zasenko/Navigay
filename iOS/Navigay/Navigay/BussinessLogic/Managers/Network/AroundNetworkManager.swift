@@ -12,7 +12,7 @@ protocol AroundNetworkManagerProtocol {
     var userLocations: [CLLocation] { get set }    
     var appSettingsManager: AppSettingsManagerProtocol { get }
     func fetchLocations(location: CLLocation) async throws -> ItemsResult
-    func fetchAround(location: CLLocation) async throws -> ItemsResult
+    func fetchAround(location: CLLocation) async throws -> AroundItemsResult
 }
 
 final class AroundNetworkManager {
@@ -82,7 +82,7 @@ extension AroundNetworkManager: AroundNetworkManagerProtocol {
         return decodedItems
     }
     
-    func fetchAround(location: CLLocation) async throws -> ItemsResult {
+    func fetchAround(location: CLLocation) async throws -> AroundItemsResult {
         debugPrint("--- fetchLocations around()")
         guard networkMonitorManager.isConnected else {
             throw NetworkErrors.noConnection
@@ -110,7 +110,7 @@ extension AroundNetworkManager: AroundNetworkManagerProtocol {
         guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
             throw NetworkErrors.invalidData
         }
-        guard let decodedResult = try? JSONDecoder().decode(AroundResult.self, from: data) else {
+        guard let decodedResult = try? JSONDecoder().decode(AroundResultNew.self, from: data) else {
             throw NetworkErrors.decoderError
         }
         guard decodedResult.result, let decodedItems = decodedResult.items else {

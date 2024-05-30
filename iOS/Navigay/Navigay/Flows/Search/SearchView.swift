@@ -31,27 +31,7 @@ struct SearchView: View {
                 header
                 list
             }
-            .navigationBarBackButtonHidden()
-            .toolbarTitleDisplayMode(.inline)
-            .toolbarBackground(AppColors.background)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button {
-                        withAnimation {
-                            dismiss()
-                        }
-                    } label: {
-                        AppImages.iconLeft
-                            .bold()
-                            .frame(width: 30, height: 30, alignment: .leading)
-                    }
-                    .tint(.primary)
-                }
-                ToolbarItem(placement: .principal) {
-                    Text("Search")
-                        .font(.title2).bold()
-                }
-            }
+            .toolbar(.hidden, for: .navigationBar)
             .onChange(of: viewModel.isSearching) { _, newValue in
                 if newValue {
                     hideKeyboard()
@@ -83,20 +63,25 @@ struct SearchView: View {
                         .bold()
                         .frame(width: 40, height: 40)
                 }
-                TextField("", text: $viewModel.searchText)
-                    .textInputAutocapitalization(.never)
-                    .autocorrectionDisabled(true)
-                    .lineLimit(1)
-                    .frame(maxWidth: .infinity)
-                    .focused($focused)
-                    .onAppear() {
-                        focused = true
-                    }
+//                if !focused {
+                    TextField("", text: $viewModel.searchText)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled(true)
+                        .lineLimit(1)
+                        .frame(maxWidth: .infinity)
+                        .focused($focused)
+                    //                    .onAppear() {
+                    //                        focused = true
+                    //                    }
+//                }
             }
             .padding(.trailing, 10)
             .background(AppColors.lightGray6)
             .cornerRadius(16)
             .frame(maxWidth: .infinity)
+            .onTapGesture {
+                focused = true
+            }
             if !viewModel.searchText.isEmpty {
                 Button("Cancel") {
                     focused = false
@@ -155,7 +140,7 @@ struct SearchView: View {
                             NavigationLink {
                                 CityView(viewModel: CityView.CityViewModel(modelContext: viewModel.modelContext, city: city, catalogNetworkManager: viewModel.catalogNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, catalogDataManager: viewModel.catalogDataManager))
                             } label: {
-                                CityCell(city: city, showCountryRegion: true)
+                                CityCell(city: city, showCountryRegion: true, showLocationsCount: false)
                             }
                         }
                     }
@@ -198,6 +183,9 @@ struct SearchView: View {
             .listStyle(.plain)
             .scrollIndicators(.hidden)
             .buttonStyle(PlainButtonStyle())
+            .onTapGesture {
+                focused = false
+            }
         }
     }
     

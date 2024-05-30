@@ -16,6 +16,7 @@ struct DecodedRegion: Identifiable, Codable {
         case lastUpdate = "updated_at"
         case cities
         case country
+        case countryId  = "country_id"
     }
     
     let id: Int
@@ -24,4 +25,5 @@ struct DecodedRegion: Identifiable, Codable {
     let lastUpdate: String
     let cities: [DecodedCity]?
     let country: DecodedCountry?
+    let countryId: Int?
 }

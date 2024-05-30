@@ -10,8 +10,10 @@ import SwiftData
 
 struct CitiesView: View {
     
-    private var modelContext: ModelContext
     private var cities: [City]
+    private let showCountryRegion: Bool
+    
+    private var modelContext: ModelContext
     private let catalogNetworkManager: CatalogNetworkManagerProtocol
     private let eventNetworkManager: EventNetworkManagerProtocol
     private let placeNetworkManager: PlaceNetworkManagerProtocol
@@ -19,11 +21,12 @@ struct CitiesView: View {
     private let placeDataManager: PlaceDataManagerProtocol
     private let eventDataManager: EventDataManagerProtocol
     private let catalogDataManager: CatalogDataManagerProtocol
-    
+
     @ObservedObject var authenticationManager: AuthenticationManager
     
     init(modelContext: ModelContext,
          cities: [City],
+         showCountryRegion: Bool,
          catalogNetworkManager: CatalogNetworkManagerProtocol,
          eventNetworkManager: EventNetworkManagerProtocol,
          placeNetworkManager: PlaceNetworkManagerProtocol,
@@ -34,6 +37,8 @@ struct CitiesView: View {
          catalogDataManager: CatalogDataManagerProtocol) {
         self.modelContext = modelContext
         self.cities = cities
+        self.showCountryRegion = showCountryRegion
+        
         self.catalogNetworkManager = catalogNetworkManager
         self.eventNetworkManager = eventNetworkManager
         self.placeNetworkManager = placeNetworkManager
@@ -51,7 +56,7 @@ struct CitiesView: View {
                     NavigationLink {
                         CityView(viewModel: CityView.CityViewModel(modelContext: modelContext, city: city, catalogNetworkManager: catalogNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, catalogDataManager: catalogDataManager))
                     } label: {
-                        CityCell(city: city, showCountryRegion: false)
+                        CityCell(city: city, showCountryRegion: showCountryRegion, showLocationsCount: true)
                     }
                 }
             }

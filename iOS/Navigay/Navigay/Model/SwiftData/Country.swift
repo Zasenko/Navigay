@@ -35,16 +35,17 @@ final class Country {
         guard lastUpdateIncomplete != lastUpdate else { return }
         flagEmoji = decodedCountry.flagEmoji
         name = decodedCountry.name
-        photo = decodedCountry.photo
         showRegions = decodedCountry.showRegions
         lastUpdateIncomplete = lastUpdate
-        
     }
     
     func updateCountryComplite(decodedCountry: DecodedCountry) {
         let lastUpdate = decodedCountry.lastUpdate.dateFromString(format: "yyyy-MM-dd HH:mm:ss")
         guard lastUpdateComplite != lastUpdate else { return }
-        updateCountryIncomplete(decodedCountry: decodedCountry)
+        flagEmoji = decodedCountry.flagEmoji
+        name = decodedCountry.name
+        photo = decodedCountry.photo
+        showRegions = decodedCountry.showRegions
         about = decodedCountry.about
         lastUpdateComplite = lastUpdate
         
