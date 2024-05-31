@@ -23,7 +23,9 @@ final class Country {
     var lastUpdateComplite: Date? = nil
     
     @Relationship(deleteRule: .cascade, inverse: \Region.country) var regions: [Region] = []
-        
+    
+    @Transient var locatinsCountString: String? = nil
+    
     init(decodedCountry: DecodedCountry) {
         self.id = decodedCountry.id
         self.isoCountryCode = decodedCountry.isoCountryCode
@@ -49,5 +51,29 @@ final class Country {
         about = decodedCountry.about
         lastUpdateComplite = lastUpdate
         
+    }
+    
+    func getLocationsCountText(eventsCount: Int?, placesCount: Int?) {
+        var text = ""
+        if let eventsCount {
+            if eventsCount > 0 {
+                text.append(contentsOf: "\(eventsCount) events")
+            }
+        }
+        if let placesCount {
+            
+            if placesCount > 0 {
+                if let eventsCount,
+                   eventsCount > 0 {
+                    text.append(contentsOf: "  •  \(placesCount) places")
+                } else {
+                    text.append(contentsOf: "\(placesCount) places")
+
+                }
+            }
+        }
+        if !text.isEmpty {
+            self.locatinsCountString = text
+        }
     }
 }

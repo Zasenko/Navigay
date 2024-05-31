@@ -14,7 +14,6 @@ struct CatalogView: View {
     
     @State private var viewModel: CatalogViewModel
     @EnvironmentObject private var authenticationManager: AuthenticationManager
-   // @FocusState private var focused: Bool
     
     // MARK: - Init
     
@@ -42,17 +41,6 @@ struct CatalogView: View {
             .animation(.default, value: viewModel.countries.count)
         }
     }
-    
-//    private var searchButton: some View {
-//        Button {
-//            viewModel.showSearchView = true
-//            focused = true
-//        } label: {
-//            AppImages.iconSearch
-//                .bold()
-//                .tint(.blue)
-//        }
-//    }
     
     private var listView: some View {
         List {
@@ -85,17 +73,17 @@ struct CatalogView: View {
                     .font(.title)
                     .frame(width: 50, height: 50)
                     .clipShape(Circle())
-                Text(country.name)
-                    .font(.title2)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                // TODO:
-                //                                    HStack {
-                //                                        Text("25 мест")
-                //                                        Text("| ")
-                //                                        Text("17 мероприятий")
-                //                                    }
-                //                                    .foregroundStyle(.secondary)
-                //                                    .font(.caption2)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(country.name)
+                        .font(.title2)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    if country.locatinsCountString != nil {
+                        Text(country.locatinsCountString ?? "")
+                            .font(.footnote)
+                            .foregroundColor(.secondary)
+                            .multilineTextAlignment(.leading)
+                    }
+                }
             }
             .padding(.vertical, 10)
             Divider()

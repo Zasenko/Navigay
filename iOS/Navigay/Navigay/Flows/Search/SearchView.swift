@@ -29,7 +29,27 @@ struct SearchView: View {
         NavigationStack {
             VStack(spacing: 0) {
                 header
+                    .background {
+                        ZStack(alignment: .center) {
+                            Image("bg2")
+                                .resizable()
+                                .scaledToFill()
+                                .ignoresSafeArea()
+                                .scaleEffect(CGSize(width: 1.5, height: 1.5))
+                                .blur(radius: 50)
+                                .saturation(3)
+                            Rectangle()
+                                .fill(.ultraThinMaterial)
+                                .ignoresSafeArea()
+                        }
+                        .opacity(focused ? 1 : 0)
+                        .animation(.easeInOut, value: focused)
+                    }
+                if focused {
+                    Divider()
+                }
                 list
+                    .background(AppColors.background)
             }
             .toolbar(.hidden, for: .navigationBar)
             .onChange(of: viewModel.isSearching) { _, newValue in
@@ -63,17 +83,12 @@ struct SearchView: View {
                         .bold()
                         .frame(width: 40, height: 40)
                 }
-//                if !focused {
-                    TextField("", text: $viewModel.searchText)
+                    TextField("Search...", text: $viewModel.searchText)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled(true)
                         .lineLimit(1)
                         .frame(maxWidth: .infinity)
                         .focused($focused)
-                    //                    .onAppear() {
-                    //                        focused = true
-                    //                    }
-//                }
             }
             .padding(.trailing, 10)
             .background(AppColors.lightGray6)
@@ -95,6 +110,7 @@ struct SearchView: View {
             }
         }
         .padding(.horizontal)
+        .padding(.bottom, 8)
         .frame(maxWidth: .infinity)
         .animation(.interactiveSpring, value: viewModel.searchText.isEmpty)
     }
@@ -179,6 +195,7 @@ struct SearchView: View {
                     .frame(height: 50)
                     .listRowSeparator(.hidden)
             }
+            .scrollContentBackground(.hidden)
             .listSectionSeparator(.hidden)
             .listStyle(.plain)
             .scrollIndicators(.hidden)
@@ -279,4 +296,36 @@ struct SearchView: View {
         .listSectionSeparator(.hidden)
         .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
     }
+}
+
+//-
+import SwiftData
+#Preview {
+    let errorManager: ErrorManagerProtocol = ErrorManager()
+    let appSettingsManager: AppSettingsManagerProtocol = AppSettingsManager()
+    let networkMonitorManager: NetworkMonitorManagerProtocol = NetworkMonitorManager(errorManager: errorManager)
+    let keychainManager: KeychainManagerProtocol = KeychainManager()
+
+    var sharedModelContainer: ModelContainer = {
+        let schema = Schema([
+            AppUser.self, Country.self, Region.self, City.self, Event.self, Place.self, User.self
+        ])
+        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+
+        do {
+            return try ModelContainer(for: schema, configurations: [modelConfiguration])
+        } catch {
+            fatalError("Could not create ModelContainer: \(error)")
+        }
+    }()
+    let placeNetworkManager = PlaceNetworkManager(networkMonitorManager: networkMonitorManager, appSettingsManager: appSettingsManager)
+    let eventNetworkManager = EventNetworkManager(networkMonitorManager: networkMonitorManager, appSettingsManager: appSettingsManager)
+    let catalogNetworkManager = CatalogNetworkManager(networkMonitorManager: networkMonitorManager, appSettingsManager: appSettingsManager)
+    let placeDataManager = PlaceDataManager()
+    let eventDataManager = EventDataManager()
+    let catalogDataManager = CatalogDataManager()
+    let authNetworkManager = AuthNetworkManager(networkMonitorManager: networkMonitorManager, appSettingsManager: appSettingsManager)
+    let authenticationManager = AuthenticationManager(keychainManager: keychainManager, networkMonitorManager: networkMonitorManager, networkManager: authNetworkManager, errorManager: errorManager)
+    return SearchView(viewModel: SearchView.SearchViewModel(modelContext: sharedModelContainer.mainContext, catalogNetworkManager: catalogNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, catalogDataManager: catalogDataManager))
+        .environmentObject(authenticationManager)
 }

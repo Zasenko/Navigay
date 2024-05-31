@@ -145,9 +145,11 @@ final class CatalogDataManager: CatalogDataManagerProtocol {
             for decodedCountry in decodedCountries {
                 if let country = allCountries.first(where: { $0.id == decodedCountry.id} ) {
                     country.updateCountryIncomplete(decodedCountry: decodedCountry)
+                    country.getLocationsCountText(eventsCount: decodedCountry.eventsCount, placesCount: decodedCountry.placesCount)
                     countries.append(country)
                 } else {
                     let country = Country(decodedCountry: decodedCountry)
+                    country.getLocationsCountText(eventsCount: decodedCountry.eventsCount, placesCount: decodedCountry.placesCount)
                     modelContext.insert(country)
                     countries.append(country)
                 }

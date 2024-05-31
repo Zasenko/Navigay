@@ -43,18 +43,7 @@ struct CalendarView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         }
         .background {
-            ZStack(alignment: .center) {
-                Image("bg2")
-                    .resizable()
-                    .scaledToFill()
-                    .ignoresSafeArea()
-                    .scaleEffect(CGSize(width: 2, height: 2))
-                    .blur(radius: 100)
-                    .saturation(2)
-                Rectangle()
-                    .fill(.ultraThinMaterial)
-                    .ignoresSafeArea()
-            }
+            RainbowBG()
         }
     }
     
@@ -192,6 +181,23 @@ struct CalendarView: View {
         //        print(test)
         
         // return formatter.string(from: currentDate)
+    }
+}
+
+struct RainbowBG: View {
+    var body: some View {
+        ZStack(alignment: .center) {
+            Image("bg2")
+                .resizable()
+                .scaledToFill()
+                .ignoresSafeArea()
+                .scaleEffect(CGSize(width: 2, height: 2))
+                .blur(radius: 100)
+                .saturation(2)
+            Rectangle()
+                .fill(.ultraThinMaterial)
+                .ignoresSafeArea()
+        }
     }
 }
 

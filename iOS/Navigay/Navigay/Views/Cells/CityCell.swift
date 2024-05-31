@@ -48,13 +48,12 @@ struct CityCell: View {
                             .multilineTextAlignment(.leading)
                         }
                         if showLocationsCount {
-                            if let text = city.locatinsCountString {
-                                Text(text)
+                            if city.locatinsCountString != nil {
+                                Text(city.locatinsCountString ?? "")
                                 .font(.footnote)
                                 .foregroundColor(.secondary)
                                 .multilineTextAlignment(.leading)
                             }
-                            
                         }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)

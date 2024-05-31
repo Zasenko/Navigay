@@ -19,6 +19,8 @@ struct DecodedCountry: Identifiable, Codable {
         case lastUpdate = "updated_at"
         case about
         case regions
+        case placesCount = "place_count"
+        case eventsCount = "event_count"
     }
     
     let id: Int
@@ -31,4 +33,7 @@ struct DecodedCountry: Identifiable, Codable {
     
     let about: String?
     let regions: [DecodedRegion]?
+    
+    let placesCount: Int?
+    let eventsCount: Int?
 }

@@ -280,16 +280,14 @@ struct HomeView2: View {
                         .padding(.vertical)
                     Text("Unfortunately, we could not find any locations around you.")
                         .font(.title3)
-
-                    
                     Text("These are the list of cities nearest to you:")
-                        .font(.title2)
+                        .font(.title3)
                         .padding(.vertical)
                 }
                 .fontWeight(.light)
                 .multilineTextAlignment(.center)
                 .foregroundStyle(.secondary)
-                .padding(.vertical)
+                .frame(maxWidth: .infinity)
                 
                 CitiesView(modelContext: viewModel.modelContext, cities: viewModel.citiesAround, showCountryRegion: true, catalogNetworkManager: viewModel.catalogNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, errorManager: viewModel.errorManager, authenticationManager: authenticationManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, catalogDataManager: viewModel.catalogDataManager)
                 
