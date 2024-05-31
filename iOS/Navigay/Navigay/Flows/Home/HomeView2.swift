@@ -81,6 +81,7 @@ struct HomeView2: View {
                     //  }
                         .foregroundColor(.primary)
                 }
+                
                 if !(viewModel.isLoading || locationManager.isAlertIfLocationDeniedDisplayed || !viewModel.isLocationsAround20Found) {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button {
@@ -141,10 +142,10 @@ struct HomeView2: View {
                     if viewModel.isLocationsAround20Found {
                         menuView
                         Divider()
-                        tabView(size: geomentry.size)
+                        if viewModel.sortingHomeCategories.count > 0 {
+                            tabView(size: geomentry.size)
+                        }
                     } else {
-                        Divider()
-                            .padding(.top)
                         notFoundView
                     }
                 }
@@ -288,7 +289,7 @@ struct HomeView2: View {
                 .multilineTextAlignment(.center)
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity)
-                
+                .padding(.vertical)
                 CitiesView(modelContext: viewModel.modelContext, cities: viewModel.citiesAround, showCountryRegion: true, catalogNetworkManager: viewModel.catalogNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, errorManager: viewModel.errorManager, authenticationManager: authenticationManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, catalogDataManager: viewModel.catalogDataManager)
                 
             }

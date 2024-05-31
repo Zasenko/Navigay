@@ -17,6 +17,8 @@ struct CalendarView: View {
     @State private var currentDate: Date = Date()
     @State private var currentMonth: Int = 0
     
+    @Environment(\.colorScheme) private var deviceColorScheme
+
     private let days: [String] = ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"] //TODO!!!!!!!!!!!!!!!!!!!!!!
     
     init(selectedDate: Binding<Date?>, eventsDates: Binding<[Date]>) {
@@ -37,7 +39,7 @@ struct CalendarView: View {
                 } label: {
                     Text("Show upcoming events")
                 }
-                .tint(.blue)
+                .tint(deviceColorScheme == .light ? .blue : .white)
             }
             .scrollIndicators(.hidden)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
@@ -115,7 +117,12 @@ struct CalendarView: View {
                 } label: {
                     Text("\(value.day)")
                         .font(.body)
-                        .foregroundStyle(value.date.isToday ? .red : eventsDates.contains(where: { $0.isSameDayWithOtherDate(value.date)}) ? .blue : .secondary)
+                        .foregroundStyle(value.date.isToday ? .red : eventsDates.contains(where: { $0.isSameDayWithOtherDate(value.date)}) ?  deviceColorScheme == .light ? .blue : .white : .secondary)
+                    
+                    
+                    
+                    
+                    
                         .fontWeight(value.date.isToday || eventsDates.contains(where: { $0.isSameDayWithOtherDate(value.date)}) ? .bold : .regular)
                         .frame(width: 35, height: 35, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
                         .background(value.date.isToday ? .clear : eventsDates.contains(where: { $0.isSameDayWithOtherDate(value.date)}) ? .blue.opacity(0.2) : .clear)
@@ -193,7 +200,7 @@ struct RainbowBG: View {
                 .ignoresSafeArea()
                 .scaleEffect(CGSize(width: 2, height: 2))
                 .blur(radius: 100)
-                .saturation(2)
+                .saturation(3)
             Rectangle()
                 .fill(.ultraThinMaterial)
                 .ignoresSafeArea()

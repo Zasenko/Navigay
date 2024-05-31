@@ -324,6 +324,7 @@ import SwiftData
     let placeDataManager = PlaceDataManager()
     let eventDataManager = EventDataManager()
     let catalogDataManager = CatalogDataManager()
+    
     let authNetworkManager = AuthNetworkManager(networkMonitorManager: networkMonitorManager, appSettingsManager: appSettingsManager)
     let authenticationManager = AuthenticationManager(keychainManager: keychainManager, networkMonitorManager: networkMonitorManager, networkManager: authNetworkManager, errorManager: errorManager)
     return SearchView(viewModel: SearchView.SearchViewModel(modelContext: sharedModelContainer.mainContext, catalogNetworkManager: catalogNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, catalogDataManager: catalogDataManager))
