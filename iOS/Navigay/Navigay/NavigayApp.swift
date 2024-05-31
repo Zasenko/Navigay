@@ -56,7 +56,7 @@ struct BannerView: UIViewControllerRepresentable {
     func makeUIViewController(context: Context) -> UIViewController {
         
         let viewController = UIViewController()
-        bannerView.adUnitID = "ca-app-pub-4296517230777607/4758100440"
+        bannerView.adUnitID = "ca-app-pub-4296517230777607/1201998816"
         bannerView.rootViewController = viewController
         viewController.view.addSubview(bannerView)
         viewController.view.backgroundColor = .blue
