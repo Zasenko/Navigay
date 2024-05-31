@@ -55,7 +55,9 @@ function getActiveDates($events)
             $activeDates[$event['start_date']][] = $event['id'];
         } elseif ($event['finish_date'] !== null) {
             $eventDates = getAllDatesBetween($event['start_date'], $event['finish_date']);
-            if ($event['finish_time'] !== null && $event['finish_time'] <= '10:59') {
+            if ($event['finish_time'] === null) {
+                array_pop($eventDates);
+            } elseif ($event['finish_time'] !== null && $event['finish_time'] < '11:00') {
                 array_pop($eventDates);
             }
             foreach ($eventDates as $date) {
@@ -127,10 +129,10 @@ while ($row = $result->fetch_assoc()) {
         'city_id' => $row['city_id'],
         'updated_at' => $row['updated_at'],
     );
-    // $tags = json_decode($row['tags'], true);
-    // if (!empty($tags)) {
-    //     $place['tags'] = $tags;
-    // }
+    $tags = json_decode($row['tags'], true);
+    if (!empty($tags)) {
+        $place['tags'] = $tags;
+    }
     $timetable = json_decode($row['timetable'], true);
     if (!empty($timetable)) {
         $place['timetable'] = $timetable;
