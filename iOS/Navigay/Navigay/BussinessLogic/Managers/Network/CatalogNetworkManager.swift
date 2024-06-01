@@ -7,11 +7,6 @@
 
 import Foundation
 
-//enum CatalogNetworkManagerErrors: Error {
-//    case noCountry
-//    case noCity
-//}
-
 struct SearchItems {
     let cities: [City]
     let regions: [Region]
@@ -77,7 +72,8 @@ extension CatalogNetworkManager: CatalogNetworkManagerProtocol {
             components.host = host
             components.path = path
             components.queryItems = [
-                URLQueryItem(name: "language", value: self.appSettingsManager.language)
+                URLQueryItem(name: "language", value: self.appSettingsManager.language),
+                URLQueryItem(name: "user_date", value: Date().iso8601withFractionalSeconds)
             ]
             return components
         }
@@ -113,7 +109,8 @@ extension CatalogNetworkManager: CatalogNetworkManagerProtocol {
             components.path = path
             components.queryItems = [
                 URLQueryItem(name: "id", value: String(id)),
-                URLQueryItem(name: "language", value: self.appSettingsManager.language)
+                URLQueryItem(name: "language", value: self.appSettingsManager.language),
+                URLQueryItem(name: "user_date", value: Date().iso8601withFractionalSeconds)
             ]
             return components
         }
@@ -187,7 +184,8 @@ extension CatalogNetworkManager: CatalogNetworkManagerProtocol {
             components.path = path
             components.queryItems = [
                 URLQueryItem(name: "text", value: text),
-                URLQueryItem(name: "language", value: self.appSettingsManager.language)
+                URLQueryItem(name: "language", value: self.appSettingsManager.language),
+                URLQueryItem(name: "user_date", value: Date().iso8601withFractionalSeconds)
             ]
             return components
         }

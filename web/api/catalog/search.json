@@ -1,0 +1,138 @@
+{
+    "result": true,
+    "items": {
+        "places": [
+            {
+                "id": 109,
+                "name":"PRIDE - Das lesbisch\/schwule
+Österreichmagazin","type_id":0,"avatar":"https:\/\/www.navigay.me\/images\/places\/AT\/109\/1705649134638_819.jpg","address":"Schillerstraße,
+                49","latitude":48.299004067668314,"longitude":14.298236302128341,"city_id":28,"updated_at":"2024-01-19
+07: 28: 46"}],"events":[{"id":129,"name":"28. Vienna Pride","type_id":4,"address":"Rathauspark,
+                1","latitude":48.210259180638566,"longitude":16.359086211477166,"start_date":"2024-06-08","start_time":"13: 00: 00","finish_date":"2024-06-08","finish_time":"23: 00: 00","location":"Ring
+Straße","poster_small":"https:\/\/www.navigay.me\/images\/events\/AT\/129\/1706448843509_731.jpg","is_free":true,"city_id":17,"updated_at":"2024-01-28
+13: 34: 03","tags":[5,24,29,28,9,12,18,3,17,10]},{"id":140,"name":"Vienna Pride
+Village","type_id":3,"address":"Rathauspark,
+                1","latitude":48.210199090469914,"longitude":16.359980891743792,"start_date":"2024-06-06","start_time":"11: 00: 00","finish_date":"2024-06-08","finish_time":"00: 00: 00","location":"Rathausplatz","poster_small":"https:\/\/www.navigay.me\/images\/events\/AT\/140\/1706558029606_309.jpg","is_free":true,"city_id":17,"updated_at":"2024-01-29
+19: 53: 49","tags":[5,24,29,28,9,18,10]},{"id":165,"name":"THE PRIDE BEACH FESTIVAL","type_id":3,"address":"Zrće
+Beach","latitude":44.540355884291536,"longitude":14.914455304241041,"start_date":"2024-08-31","start_time":null,"finish_date":"2024-09-02","finish_time":null,"location":"Zrće
+Beach","poster_small":"https:\/\/www.navigay.me\/images\/events\/HR\/165\/1707298929801_206.jpg","is_free":false,"city_id":36,"updated_at":"2024-02-07
+09: 42: 09","tags":[14,12,18,22,5]},{"id":178,"name":"PRIDE RUN
+VIENNA","type_id":0,"address":"Universitätsring","latitude":48.21021648252423,"longitude":16.36062669114632,"start_date":"2024-06-07","start_time":"20: 00: 00","finish_date":null,"finish_time":null,"location":"Ringstrasse","poster_small":"https:\/\/www.navigay.me\/images\/events\/AT\/178\/1707838530103_493.jpg","is_free":true,"city_id":17,"updated_at":"2024-02-13
+15: 35: 30"},{"id":203,"name":"Maspalomas Fetish Pride","type_id":4,"address":"Avenida de Estados
+Unidos","latitude":27.75757479514852,"longitude":-15.57689032106607,"start_date":"2024-10-04","start_time":null,"finish_date":"2024-10-13","finish_time":null,"location":null,"poster_small":"https:\/\/www.navigay.me\/images\/events\/ES\/203\/1708435106120_824.jpg","is_free":false,"city_id":37,"updated_at":"2024-02-20
+13: 18: 26","tags":[28,9,24,29,5]},{"id":216,"name":"Pride Festival Cologne 2024","type_id":4,"address":"Different
+Locations","latitude":50.93658402850684,"longitude":6.960645488794824,"start_date":"2024-07-19","start_time":"23: 00: 00","finish_date":"2024-07-22","finish_time":"06: 00: 00","location":null,"poster_small":"https:\/\/www.navigay.me\/images\/events\/DE\/216\/1709102092839_207.jpg","is_free":false,"city_id":41,"updated_at":"2024-02-28
+06: 34: 52"},{"id":299,"name":"VIENNA PRIDE DRAG
+BEACH","type_id":0,"address":"Dampfschiffstraße","latitude":48.21204105500458,"longitude":16.386130536685783,"start_date":"2024-06-02","start_time":"10: 00: 00","finish_date":"2024-06-02","finish_time":"23: 00: 00","location":"Strandbar
+Herrmann","poster_small":"https:\/\/www.navigay.me\/images\/events\/2024\/03\/15\/299\/1710510856802_779.jpg","is_free":true,"city_id":17,"updated_at":"2024-03-15
+13: 54: 16"},{"id":311,"name":"Miss*ter Vienna Pride","type_id":0,"address":"Arthur-Schnitzler-Platz,
+                1","latitude":48.2052266,"longitude":16.357045,"start_date":"2024-06-01","start_time":"22: 00: 00","finish_date":"2024-06-02","finish_time":"03: 30: 00","location":"Rote
+Bar","poster_small":"https:\/\/www.navigay.me\/images\/events\/2024\/03\/26\/311\/1711472786025_593.jpg","is_free":false,"city_id":17,"updated_at":"2024-03-26
+17: 06: 26","tags":[5,14,12,18,10]},{"id":314,"name":"VIENNA PRIDE VOGA","type_id":0,"address":"Ostösterreichischer
+Grenzlandweg","latitude":48.22430106083425,"longitude":16.4146835717953,"start_date":"2024-06-02","start_time":"18: 00: 00","finish_date":"2024-06-02","finish_time":"19: 30: 00","location":"Donauinsel
+(Nähe
+Wasserspielplatz)","poster_small":"https:\/\/www.navigay.me\/images\/events\/2024\/03\/30\/314\/1711830171553_654.jpg","is_free":false,"city_id":17,"updated_at":"2024-03-30
+20: 22: 51"},{"id":315,"name":"VIENNA PRIDE VOGA","type_id":0,"address":"Ostösterreichischer
+Grenzlandweg","latitude":48.22430106083425,"longitude":16.4146835717953,"start_date":"2024-06-09","start_time":"18: 00: 00","finish_date":"2024-06-09","finish_time":"19: 30: 00","location":"Donauinsel
+(Nähe
+Wasserspielplatz)","poster_small":"https:\/\/www.navigay.me\/images\/events\/2024\/03\/30\/315\/1711830171553_654.jpg","is_free":false,"city_id":17,"updated_at":"2024-03-30
+20: 22: 51"},{"id":366,"name":"Ultimate Pride After Party: Circus XXL - Heroes &
+Legends!","type_id":1,"address":"Riesenradplatz,
+                7","latitude":48.217165,"longitude":16.3970114,"start_date":"2024-06-08","start_time":"23: 00: 00","finish_date":"2024-06-09","finish_time":"06: 00: 00","location":"Prater
+Dom","poster_small":"https:\/\/www.navigay.me\/images\/events\/2024\/04\/17\/366\/1713364522827_940.jpg","is_free":false,"city_id":17,"updated_at":"2024-04-17
+15: 31: 10","tags":[28,14,12,18,10,4]},{"id":370,"name":"🍎 EDEN - PRIDE MONTH OPENING 🍎","type_id":1,"address":"Tiefer
+Graben,
+                22","latitude":48.21254544606042,"longitude":16.36852039240208,"start_date":"2024-06-01","start_time":"22: 00: 00","finish_date":"2024-06-02","finish_time":"06: 00: 00","location":"Why
+Not
+Vienna","poster_small":"https:\/\/www.navigay.me\/images\/events\/2024\/04\/22\/370\/1713776274485_246.jpg","is_free":false,"city_id":17,"updated_at":"2024-04-22
+08: 57: 54","tags":[5,29,14,12,18,3,10,28]},{"id":372,"name":"Astronaughty - PRIDE
+Edition","type_id":1,"address":"Neubaugasse,
+                2","latitude":48.1985913,"longitude":16.3500206,"start_date":"2024-06-08","start_time":"23: 00: 00","finish_date":"2024-06-09","finish_time":"06: 00: 00","location":"Camera
+Club","poster_small":"https:\/\/www.navigay.me\/images\/events\/2024\/04\/22\/372\/1713802381939_995.jpg","is_free":false,"city_id":17,"updated_at":"2024-04-22
+16: 13: 01","tags":[28,14,12,18,10,3,29]},{"id":373,"name":"KEN Club ! - Pride Special: Love Without
+Limits","type_id":1,"address":"Praterstern,
+                5","latitude":48.2176862,"longitude":16.3932858,"start_date":"2024-06-08","start_time":"23: 00: 00","finish_date":"2024-06-09","finish_time":"06: 00: 00","location":"Flucc
+- Deck & Wanne &
+Terrassen","poster_small":"https:\/\/www.navigay.me\/images\/events\/2024\/04\/22\/373\/1713802616782_170.jpg","is_free":false,"city_id":17,"updated_at":"2024-04-22
+16: 16: 56","tags":[28,29,14,12,18,10,4]},{"id":376,"name":"PLAY with GUYZ - Official Opening Party Pride
+Festival","type_id":1,"address":"Vogelsanger Straße,
+                406","latitude":50.9543211,"longitude":6.8891305,"start_date":"2024-07-19","start_time":"23: 00: 00","finish_date":"2024-07-20","finish_time":"07: 00: 00","location":"Schrotty","poster_small":"https:\/\/www.navigay.me\/images\/events\/2024\/04\/22\/376\/1713806883907_891.jpg","is_free":false,"city_id":41,"updated_at":"2024-04-22
+17: 32: 37","tags":[28,14,15,12,18,16,10]},{"id":383,"name":"Vienna Pride Pool
+Day","type_id":0,"address":"Wolfgang-Schmitz-Promenade","latitude":48.2116856,"longitude":16.381754,"start_date":"2024-05-31","start_time":"12: 00: 00","finish_date":"2024-06-01","finish_time":"04: 00: 00","location":"Badeschiff
+Wien","poster_small":"https:\/\/www.navigay.me\/images\/events\/2024\/05\/16\/383\/1715852583075_851.jpg","is_free":false,"city_id":17,"updated_at":"2024-05-16
+09: 43: 03","tags":[28,5,29,18,10,1]},{"id":386,"name":"Pride Brunch im JO&JOE","type_id":0,"address":"Europaplatz,
+                1","latitude":48.1959138,"longitude":16.3379402,"start_date":"2024-06-02","start_time":"10: 30: 00","finish_date":"2024-06-02","finish_time":"14: 00: 00","location":"JO&JOE
+Vienna","poster_small":"https:\/\/www.navigay.me\/images\/events\/2024\/05\/16\/386\/1715853021172_398.jpg","is_free":false,"city_id":17,"updated_at":"2024-05-16
+09: 50: 21","tags":[14,18,10,11,5]},{"id":388,"name":"Vienna Pride Sonntagsbrunch im Café
+Savoy","type_id":0,"address":"Linke Wienzeile,
+                36","latitude":48.19762186077136,"longitude":16.360169843894518,"start_date":"2024-06-02","start_time":"10: 00: 00","finish_date":"2024-06-02","finish_time":"14: 00: 00","location":"Café
+Savoy","poster_small":"https:\/\/www.navigay.me\/images\/events\/2024\/05\/16\/388\/1715853214030_899.jpg","is_free":false,"city_id":17,"updated_at":"2024-05-16
+09: 53: 34","tags":[5,29,23,10,11,4]},{"id":389,"name":"Vienna Pride Sonntagsbrunch im Café
+Savoy","type_id":0,"address":"Linke Wienzeile,
+                36","latitude":48.19762186077136,"longitude":16.360169843894518,"start_date":"2024-06-09","start_time":"10: 00: 00","finish_date":"2024-06-09","finish_time":"14: 00: 00","location":"Café
+Savoy","poster_small":"https:\/\/www.navigay.me\/images\/events\/2024\/05\/16\/389\/1715853214030_899.jpg","is_free":false,"city_id":17,"updated_at":"2024-05-16
+09: 53: 34","tags":[5,29,23,10,11,4]},{"id":390,"name":"Vienna Pride Cinema
+Night","type_id":0,"address":"Urban-Loritz-Platz,
+                2A","latitude":48.2030724,"longitude":16.337081,"start_date":"2024-06-04","start_time":"18: 00: 00","finish_date":null,"finish_time":null,"location":"Kino
+am
+Dach","poster_small":"https:\/\/www.navigay.me\/images\/events\/2024\/05\/16\/390\/1715853421267_923.jpg","is_free":false,"city_id":17,"updated_at":"2024-05-16
+09: 57: 01","tags":[5,30,10]},{"id":392,"name":"Männer im Garten - Pride Afterparty","type_id":1,"address":"Volksgarten,
+                6","latitude":48.2069469,"longitude":16.3616332,"start_date":"2024-06-08","start_time":"23: 00: 00","finish_date":"2024-06-09","finish_time":"05: 00: 00","location":"Volksgarten
+Pavillon","poster_small":"https:\/\/www.navigay.me\/images\/events\/2024\/05\/16\/392\/1715853817336_903.jpg","is_free":false,"city_id":17,"updated_at":"2024-05-16
+10: 03: 37","tags":[5,25,10,18,12,14,28,24,29]},{"id":393,"name":"GLITTERBOMB - PRIDE
+Edition","type_id":1,"address":"Tiefer Graben,
+                22","latitude":48.21254544606042,"longitude":16.36852039240208,"start_date":"2024-06-08","start_time":"21: 00: 00","finish_date":"2024-06-09","finish_time":"06: 00: 00","location":"Why
+Not
+Vienna","poster_small":"https:\/\/www.navigay.me\/images\/events\/2024\/05\/21\/393\/1716277306425_279.jpg","is_free":false,"city_id":17,"updated_at":"2024-05-21
+07: 41: 46","tags":[5,29,14,12,18,3,10,28]},{"id":395,"name":"Warmer Salon Pride Edition | Live Podcast
+Aufzeichnung","type_id":0,"address":"Gumpendorfer Straße,
+                5","latitude":48.20082593170344,"longitude":16.36205426049513,"start_date":"2024-06-04","start_time":"19: 30: 00","finish_date":null,"finish_time":null,"location":"Felixx","poster_small":"https:\/\/www.navigay.me\/images\/events\/2024\/05\/21\/395\/1716277597081_927.jpg","is_free":false,"city_id":17,"updated_at":"2024-05-21
+07: 46: 37","tags":[23,10,5,18]},{"id":401,"name":"QUEERSPHERE ~ a pride bodypositivity + queer
+rave","type_id":1,"address":"Spittelauer Lände,
+                12","latitude":48.2345588,"longitude":16.3607546,"start_date":"2024-06-08","start_time":"23: 00: 00","finish_date":"2024-06-09","finish_time":"12: 00: 00","location":"Das
+Werk
+Wien","poster_small":"https:\/\/www.navigay.me\/images\/events\/2024\/05\/21\/401\/1716278331890_443.jpg","is_free":false,"city_id":17,"updated_at":"2024-05-21
+07: 58: 51","tags":[14,12,18,10,6]},{"id":402,"name":"Candy‘s „Pride-Flohmarkt“","type_id":0,"address":"Margaretenstraße,
+                60","latitude":48.193579530604005,"longitude":16.36128609441275,"start_date":"2024-06-02","start_time":"17: 00: 00","finish_date":null,"finish_time":null,"location":"R.O.P.P.
+- Republic of Patta
+Patta","poster_small":"https:\/\/www.navigay.me\/images\/events\/2024\/05\/22\/402\/1716354336080_792.jpg","is_free":true,"city_id":17,"updated_at":"2024-05-22
+05: 06: 05","tags":[5,29,23,10,11,13,3]},{"id":403,"name":"KEN Club! - Pride Pump
+🏳️‍🌈💪","type_id":1,"address":"Praterstern,
+                5","latitude":48.2176862,"longitude":16.3932858,"start_date":"2024-05-31","start_time":"23: 00: 00","finish_date":"2024-06-01","finish_time":"06: 00: 00","location":"Fluc
++ Fluc
+Wanne","poster_small":"https:\/\/www.navigay.me\/images\/events\/2024\/05\/22\/403\/1716354701294_273.jpg","is_free":false,"city_id":17,"updated_at":"2024-05-22
+05: 11: 41","tags":[28,5,29,12,18,10,4,14,2]},{"id":404,"name":"FISH MARKET Official Pride
+Afterparty","type_id":1,"address":"Spittelauer Lände,
+                12","latitude":48.2345588,"longitude":16.3607546,"start_date":"2024-06-08","start_time":"23: 00: 00","finish_date":"2024-06-09","finish_time":"06: 00: 00","location":"Grelle
+Forelle","poster_small":"https:\/\/www.navigay.me\/images\/events\/2024\/05\/22\/404\/1716379546555_447.jpg","is_free":false,"city_id":17,"updated_at":"2024-05-22
+12: 05: 46","tags":[6,14,12,18,10]},{"id":405,"name":"GAYT Gallery's 5th Annual PRIDE 'A
+COLLECTION'","type_id":0,"address":"Schönbrunner Straße,
+                68","latitude":48.18976990671689,"longitude":16.35259050374649,"start_date":"2024-06-01","start_time":"18: 00: 00","finish_date":"2024-06-01","finish_time":"22: 00: 00","location":"Gayt","poster_small":"https:\/\/www.navigay.me\/images\/events\/2024\/05\/22\/405\/1716380219495_445.jpg","is_free":true,"city_id":17,"updated_at":"2024-05-22
+12: 16: 59","tags":[5,15,13]},{"id":408,"name":"CoNNect Pride Edition feat. Hot Hunks
+Show","type_id":1,"address":"Mahlerstraße,
+                11","latitude":48.2025545,"longitude":16.3726864,"start_date":"2024-06-01","start_time":"23: 00: 00","finish_date":"2024-06-02","finish_time":"06: 00: 00","location":"Opera
+Club","poster_small":"https:\/\/www.navigay.me\/images\/events\/2024\/05\/23\/408\/1716446035468_418.jpg","is_free":false,"city_id":17,"updated_at":"2024-05-23
+06: 33: 55","tags":[28,14,2,12,18,10,23,17]},{"id":409,"name":"PRIDE WARM-UP","type_id":1,"address":"Tiefer Graben,
+                22","latitude":48.21254544606042,"longitude":16.36852039240208,"start_date":"2024-06-07","start_time":"22: 00: 00","finish_date":"2024-06-08","finish_time":"00: 00: 00","location":"Why
+Not
+Vienna","poster_small":"https:\/\/www.navigay.me\/images\/events\/2024\/05\/26\/409\/1716703582925_431.jpg","is_free":false,"city_id":17,"updated_at":"2024-05-26
+06: 06: 22","tags":[5,29,14,12,18,3,10,28]},{"id":410,"name":"Pride Brunch","type_id":0,"address":"Margaretenstraße,
+                60","latitude":48.193579530604005,"longitude":16.36128609441275,"start_date":"2024-06-02","start_time":"11: 00: 00","finish_date":null,"finish_time":null,"location":"R.O.P.P.
+- Republic of Patta
+Patta","poster_small":"https:\/\/www.navigay.me\/images\/events\/2024\/05\/28\/410\/1716877337315_631.jpg","is_free":false,"city_id":17,"updated_at":"2024-05-28
+06: 22: 17","tags":[5,29,23,10,11,18]}],"cities":[{"id":28,"region_id":31,"name":"Linz","small_photo":"https:\/\/www.navigay.me\/images\/cities\/28\/1711710478517_428.jpg","latitude":48.30077246825159,"longitude":14.290616549267513,"is_capital":false,"is_gay_paradise":false,"updated_at":"2024-04-25
+10: 50: 27"},{"id":17,"region_id":15,"name":"Vienna","small_photo":"https:\/\/www.navigay.me\/images\/cities\/17\/1711643403237_755.jpg","latitude":48.20845030570009,"longitude":16.372194034308997,"is_capital":true,"is_gay_paradise":false,"updated_at":"2024-04-25
+11: 03: 51"},{"id":36,"region_id":35,"name":"Novalja","small_photo":null,"latitude":44.55617510486166,"longitude":14.885182386165821,"is_capital":false,"is_gay_paradise":false,"updated_at":"2024-04-25
+12: 57: 17"},{"id":37,"region_id":36,"name":"San Bartolomé de
+Tirajana","small_photo":"https:\/\/www.navigay.me\/images\/cities\/37\/1713805267824_979.jpg","latitude":27.7596061132053,"longitude":-15.578717778009617,"is_capital":false,"is_gay_paradise":true,"updated_at":"2024-04-25
+12: 43: 08"},{"id":41,"region_id":39,"name":"Cologne","small_photo":"https:\/\/www.navigay.me\/images\/cities\/41\/1713804195383_830.jpg","latitude":50.9375229,"longitude":6.95948,"is_capital":false,"is_gay_paradise":false,"updated_at":"2024-04-25
+11: 46: 44"}],"regions":[{"id":31,"country_id":8,"name":"Upper Austria","updated_at":"2024-04-17
+10: 25: 46"},{"id":15,"country_id":8,"name":"Vienna","updated_at":"2024-04-17
+10: 26: 26"},{"id":35,"country_id":14,"name":"Lika-Senj County","updated_at":"2024-03-28
+15: 16: 27"},{"id":36,"country_id":15,"name":"Palmas","updated_at":"2024-04-17
+10: 25: 23"},{"id":39,"country_id":9,"name":"North Rhine-Westphalia","updated_at":"2024-04-23
+08: 25: 34"}],"countries":[{"id":8,"isoCountryCode":"AT","name":"Austria","flag_emoji":"🇦🇹","show_regions":true,"updated_at":"2024-04-17
+10: 17: 40"},{"id":14,"isoCountryCode":"HR","name":"Croatia","flag_emoji":"🇭🇷","show_regions":false,"updated_at":"2024-02-08
+09: 24: 06"},{"id":15,"isoCountryCode":"ES","name":"Spain","flag_emoji":"🇪🇸","show_regions":true,"updated_at":"2024-02-08
+09: 37: 54"},{"id":9,"isoCountryCode":"DE","name":"Germany","flag_emoji":"🇩🇪","show_regions":false,"updated_at":"2024-04-17
+10: 17: 43"}]}}

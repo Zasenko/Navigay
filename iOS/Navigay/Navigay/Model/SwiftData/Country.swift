@@ -22,10 +22,11 @@ final class Country {
     var lastUpdateIncomplete: Date? = nil
     var lastUpdateComplite: Date? = nil
     
+    var eventsCount: Int? = nil
+    var placesCount: Int? = nil
+    
     @Relationship(deleteRule: .cascade, inverse: \Region.country) var regions: [Region] = []
-    
-    @Transient var locatinsCountString: String? = nil
-    
+        
     init(decodedCountry: DecodedCountry) {
         self.id = decodedCountry.id
         self.isoCountryCode = decodedCountry.isoCountryCode
@@ -33,6 +34,12 @@ final class Country {
     }
     
     func updateCountryIncomplete(decodedCountry: DecodedCountry) {
+        if let eventsCount = decodedCountry.eventsCount {
+            self.eventsCount = eventsCount
+        }
+        if let placesCount = decodedCountry.placesCount {
+            self.placesCount = placesCount
+        }
         let lastUpdate = decodedCountry.lastUpdate.dateFromString(format: "yyyy-MM-dd HH:mm:ss")
         guard lastUpdateIncomplete != lastUpdate else { return }
         flagEmoji = decodedCountry.flagEmoji
@@ -51,29 +58,5 @@ final class Country {
         about = decodedCountry.about
         lastUpdateComplite = lastUpdate
         
-    }
-    
-    func getLocationsCountText(eventsCount: Int?, placesCount: Int?) {
-        var text = ""
-        if let eventsCount {
-            if eventsCount > 0 {
-                text.append(contentsOf: "\(eventsCount) events")
-            }
-        }
-        if let placesCount {
-            
-            if placesCount > 0 {
-                if let eventsCount,
-                   eventsCount > 0 {
-                    text.append(contentsOf: "  •  \(placesCount) places")
-                } else {
-                    text.append(contentsOf: "\(placesCount) places")
-
-                }
-            }
-        }
-        if !text.isEmpty {
-            self.locatinsCountString = text
-        }
     }
 }

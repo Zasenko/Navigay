@@ -68,6 +68,7 @@ struct EventCell: View {
         }
         .onAppear() {
             Task {
+                print("loading smallPoster event id: ", event.id)
                 guard let url = event.smallPoster else { return }
                 if let image = await ImageLoader.shared.loadImage(urlString: url) {
                     await MainActor.run {

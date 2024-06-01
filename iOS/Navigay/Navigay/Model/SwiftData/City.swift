@@ -24,8 +24,9 @@ final class City {
     
     var region: Region? = nil
     
-    @Transient var locatinsCountString: String? = nil
-    
+    var eventsCount: Int? = nil
+    var placesCount: Int? = nil
+        
     @Relationship(deleteRule: .cascade, inverse: \Place.city) var places: [Place] = []
     @Relationship(deleteRule: .cascade, inverse: \Event.city) var events: [Event] = []
     
@@ -38,6 +39,12 @@ final class City {
     }
     
     func updateCityIncomplete(decodedCity: DecodedCity) {
+        if let eventsCount = decodedCity.eventsCount {
+            self.eventsCount = eventsCount
+        }
+        if let placesCount = decodedCity.placesCount {
+            self.placesCount = placesCount
+        }
         let lastUpdate = decodedCity.lastUpdate.dateFromString(format: "yyyy-MM-dd HH:mm:ss")
         guard lastUpdateIncomplete != lastUpdate else { return }
         name = decodedCity.name
@@ -52,7 +59,6 @@ final class City {
     func updateCityComplite(decodedCity: DecodedCity) {
         let lastUpdate = decodedCity.lastUpdate.dateFromString(format: "yyyy-MM-dd HH:mm:ss")
         guard lastUpdateComplite != lastUpdate else { return }
-        
         name = decodedCity.name
         smallPhoto = decodedCity.smallPhoto
         photo = decodedCity.photo
@@ -72,29 +78,5 @@ final class City {
         }
         photos.forEach( { allPhotos.append($0) } )
         return allPhotos
-    }
-    
-    func getLocationsCountText(eventsCount: Int?, placesCount: Int?) {
-        var text = ""
-        if let eventsCount {
-            if eventsCount > 0 {
-                text.append(contentsOf: "\(eventsCount) events")
-            }
-        }
-        if let placesCount {
-            
-            if placesCount > 0 {
-                if let eventsCount,
-                   eventsCount > 0 {
-                    text.append(contentsOf: "  •  \(placesCount) places")
-                } else {
-                    text.append(contentsOf: "\(placesCount) places")
-
-                }
-            }
-        }
-        if !text.isEmpty {
-            self.locatinsCountString = text
-        }
     }
 }

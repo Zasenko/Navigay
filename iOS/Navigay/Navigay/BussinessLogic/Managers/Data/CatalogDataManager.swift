@@ -145,11 +145,9 @@ final class CatalogDataManager: CatalogDataManagerProtocol {
             for decodedCountry in decodedCountries {
                 if let country = allCountries.first(where: { $0.id == decodedCountry.id} ) {
                     country.updateCountryIncomplete(decodedCountry: decodedCountry)
-                    country.getLocationsCountText(eventsCount: decodedCountry.eventsCount, placesCount: decodedCountry.placesCount)
                     countries.append(country)
                 } else {
                     let country = Country(decodedCountry: decodedCountry)
-                    country.getLocationsCountText(eventsCount: decodedCountry.eventsCount, placesCount: decodedCountry.placesCount)
                     modelContext.insert(country)
                     countries.append(country)
                 }
@@ -219,7 +217,6 @@ final class CatalogDataManager: CatalogDataManagerProtocol {
             for decodedCity in decodedCities {
                 if let city = allCities.first(where: { $0.id == decodedCity.id} ) {
                     city.updateCityIncomplete(decodedCity: decodedCity)
-                    city.getLocationsCountText(eventsCount: decodedCity.eventsCount, placesCount: decodedCity.placesCount)
                     if let region = regions.first(where: { $0.id == decodedCity.regionId}) {
                         city.region = region
                         if !region.cities.contains(where: { $0.id == city.id} ) {
@@ -229,7 +226,6 @@ final class CatalogDataManager: CatalogDataManagerProtocol {
                     cities.append(city)
                 } else {
                     let city = City(decodedCity: decodedCity)
-                    city.getLocationsCountText(eventsCount: decodedCity.eventsCount, placesCount: decodedCity.placesCount)
                     modelContext.insert(city)
                     if let region = regions.first(where: { $0.id == decodedCity.regionId}) {
                         city.region = region

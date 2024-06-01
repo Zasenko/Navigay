@@ -70,6 +70,7 @@ extension CountryView {
             country.updateCountryComplite(decodedCountry: decodedCountry)
             let regions = updateRegions(decodedRegions: decodedCountry.regions)
             country.regions = regions
+            try? modelContext.save()
         }
         
         func updateRegions(decodedRegions: [DecodedRegion]?) -> [Region] {

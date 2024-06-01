@@ -48,12 +48,22 @@ struct CityCell: View {
                             .multilineTextAlignment(.leading)
                         }
                         if showLocationsCount {
-                            if city.locatinsCountString != nil {
-                                Text(city.locatinsCountString ?? "")
-                                .font(.footnote)
-                                .foregroundColor(.secondary)
-                                .multilineTextAlignment(.leading)
+                            HStack {
+                                if city.eventsCount ?? 0 > 0 {
+                                    Text(String(city.eventsCount ?? 0))
+                                    + Text(city.eventsCount ?? 0 > 1 ? " events" : " event")
+                                }
+                                if ((city.eventsCount ?? 0 > 0) && (city.placesCount ?? 0 > 0)) {
+                                    Text("•")
+                                }
+                                if city.placesCount ?? 0 > 0 {
+                                    Text(String(city.placesCount ?? 0))
+                                    + Text(city.placesCount ?? 0 > 1 ? " places" : " place")
+                                }
                             }
+                            .font(.footnote)
+                            .foregroundColor(.secondary)
+                            .multilineTextAlignment(.leading)
                         }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -81,8 +91,8 @@ struct CityCell: View {
     }
 }
 
-//
-//#Preview {
-//    let city: City = City(decodedCity: DecodedCity(id: 0, name: "Vienna", photo: nil, photos: nil, isActive: true, lastUpdate: "2023-12-02 12:00:00", about: nil, places: [], events: [], region: nil))
-//    return CityCell(city: city, showCountryRegion: false)
-//}
+
+#Preview {
+    let city: City = City(decodedCity: DecodedCity(id: 1, name: "Vienna", smallPhoto: nil, photo: nil, photos: nil, latitude: 46.08, longitude: 16.2, isCapital: true, isGayParadise: true, lastUpdate: "2023-12-02 12:00:00", about: nil, places: nil, events: nil, regionId: nil, region: nil, placesCount: 2, eventsCount: 3))
+    return CityCell(city: city, showCountryRegion: false, showLocationsCount: true)
+}

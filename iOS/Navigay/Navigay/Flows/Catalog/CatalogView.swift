@@ -73,16 +73,26 @@ struct CatalogView: View {
                     .font(.title)
                     .frame(width: 50, height: 50)
                     .clipShape(Circle())
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: 0) {
                     Text(country.name)
                         .font(.title2)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                    if country.locatinsCountString != nil {
-                        Text(country.locatinsCountString ?? "")
-                            .font(.footnote)
-                            .foregroundColor(.secondary)
-                            .multilineTextAlignment(.leading)
+                    HStack {
+                        if country.eventsCount ?? 0 > 0 {
+                            Text(String(country.eventsCount ?? 0))
+                            + Text(country.eventsCount ?? 0 > 1 ? " events" : " event")
+                        }
+                        if ((country.eventsCount ?? 0 > 0) && (country.placesCount ?? 0 > 0)) {
+                            Text("•")
+                        }
+                        if country.placesCount ?? 0 > 0 {
+                            Text(String(country.placesCount ?? 0))
+                            + Text(country.placesCount ?? 0 > 1 ? " places" : " place")
+                        }
                     }
+                    .font(.footnote)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.leading)
                 }
             }
             .padding(.vertical, 10)
