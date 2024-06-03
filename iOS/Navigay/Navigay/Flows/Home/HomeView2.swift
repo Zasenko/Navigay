@@ -165,7 +165,7 @@ struct HomeView2: View {
                             .id(category)
                         }
                     }
-                    .padding(.horizontal)
+                    .padding(.trailing)
                 }
                 .frame(height: 40)
                 .onChange(of: viewModel.selectedHomeSortingCategory, initial: true) { oldValue, newValue in

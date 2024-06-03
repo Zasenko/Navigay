@@ -204,28 +204,38 @@ struct SearchView: View {
     
     private var menuView: some View {
         VStack(spacing: 0) {
-            ScrollView(.horizontal, showsIndicators: false) {
-                LazyHGrid(rows: [GridItem(.flexible(minimum: 100, maximum: 150))], alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/, spacing: /*@START_MENU_TOKEN@*/nil/*@END_MENU_TOKEN@*/, pinnedViews: []) {
-                    ForEach(viewModel.categories, id: \.self) { category in
-                        Button {
-                            withAnimation(.easeIn) {
-                                viewModel.selectedCategory = category
+            ScrollViewReader { scrollProxy in
+                ScrollView(.horizontal, showsIndicators: false) {
+                    LazyHGrid(rows: [GridItem(.flexible(minimum: 100, maximum: 150))], alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/, spacing: /*@START_MENU_TOKEN@*/nil/*@END_MENU_TOKEN@*/, pinnedViews: []) {
+                        ForEach(viewModel.categories, id: \.self) { category in
+                            Button {
+                                withAnimation(.easeIn) {
+                                    viewModel.selectedCategory = category
+                                }
+                            } label: {
+                                Text(category.getName())
+                                    .font(.caption)
+                                    .bold()
+                                    .foregroundStyle(.primary)
+                                    .padding(5)
+                                    .padding(.horizontal, 5)
+                                    .background(viewModel.selectedCategory == category ? AppColors.lightGray6 : .clear)
+                                    .clipShape(.capsule)
                             }
-                        } label: {
-                            Text(category.getName())
-                                .font(.caption)
-                                .bold()
-                                .foregroundStyle(.primary)
-                                .padding(5)
-                                .padding(.horizontal, 5)
-                                .background(viewModel.selectedCategory == category ? AppColors.lightGray6 : .clear)
-                                .clipShape(.capsule)
+                            .padding(.leading)
+
+                            .id(category)
                         }
                     }
+                    .padding(.trailing)
                 }
-                .padding(.horizontal)
+                .frame(height: 40)
+                .onChange(of: viewModel.selectedCategory, initial: true) { oldValue, newValue in
+                    withAnimation {
+                        scrollProxy.scrollTo(newValue, anchor: .leading)
+                    }
+                }
             }
-            .frame(height: 40)
         }
     }
     
