@@ -143,28 +143,37 @@ struct HomeView2: View {
     
     private var menuView: some View {
         VStack(spacing: 0) {
-            ScrollView(.horizontal, showsIndicators: false) {
-                LazyHGrid(rows: [GridItem(.flexible(minimum: 100, maximum: 150))], alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/, spacing: /*@START_MENU_TOKEN@*/nil/*@END_MENU_TOKEN@*/, pinnedViews: []) {
-                    ForEach(viewModel.sortingHomeCategories, id: \.self) { category in
-                        Button {
-                            withAnimation(.easeIn) {
-                                viewModel.selectedHomeSortingCategory = category
+            ScrollViewReader { scrollProxy in
+                ScrollView(.horizontal, showsIndicators: false) {
+                    LazyHGrid(rows: [GridItem()], alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/, spacing: 0) {
+                        ForEach(viewModel.sortingHomeCategories, id: \.self) { category in
+                            Button {
+                                withAnimation(.easeIn) {
+                                    viewModel.selectedHomeSortingCategory = category
+                                }
+                            } label: {
+                                Text(category.getName())
+                                    .font(.caption)
+                                    .bold()
+                                    .foregroundStyle(.primary)
+                                    .padding(5)
+                                    .padding(.horizontal, 5)
+                                    .background(viewModel.selectedHomeSortingCategory == category ? AppColors.lightGray6 : .clear)
+                                    .clipShape(.capsule)
                             }
-                        } label: {
-                            Text(category.getName())
-                                .font(.caption)
-                                .bold()
-                                .foregroundStyle(.primary)
-                                .padding(5)
-                                .padding(.horizontal, 5)
-                                .background(viewModel.selectedHomeSortingCategory == category ? AppColors.lightGray6 : .clear)
-                                .clipShape(.capsule)
+                            .padding(.leading)
+                            .id(category)
                         }
                     }
+                    .padding(.horizontal)
                 }
-                .padding(.horizontal)
+                .frame(height: 40)
+                .onChange(of: viewModel.selectedHomeSortingCategory, initial: true) { oldValue, newValue in
+                    withAnimation {
+                        scrollProxy.scrollTo(newValue, anchor: .leading)
+                    }
+                }
             }
-            .frame(height: 40)
         }
     }
 
