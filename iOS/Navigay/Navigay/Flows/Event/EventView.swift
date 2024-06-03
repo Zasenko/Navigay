@@ -24,7 +24,6 @@ struct EventView: View {
     
     init(viewModel: EventViewModel) {
         _viewModel = State(wrappedValue: viewModel)
-        viewModel.loadEvent()
     }
     
     // MARK: - Body

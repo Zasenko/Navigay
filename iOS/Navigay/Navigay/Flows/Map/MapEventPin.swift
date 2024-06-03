@@ -17,7 +17,7 @@ struct MapEventPin: View {
     //MARK: - Private Properties
     
     @State private var image: Image? = nil
-    private var image2 = Image("eventPinImage")
+    private let placeholder = Image("eventPinImage")
     private let url: String
     
     private let with: CGFloat
@@ -28,15 +28,17 @@ struct MapEventPin: View {
         self.url = url
         self.with = with
         _selectedTag = selectedTag
-        if let image = event.image {
+        if let image = event.smallPosterImg {
             self.image = image
+        } else {
+            getImage()
         }
     }
     
     //MARK: - Body
     
     var body: some View {
-        if let image = event.image {
+        if let image {
             image
                 .resizable()
                 .aspectRatio(contentMode: event.tag == selectedTag ? .fit : .fill)
@@ -57,7 +59,7 @@ struct MapEventPin: View {
                 }
                 .animation(.spring(), value: event.tag == selectedTag)
         } else {
-            image2
+            placeholder
                 .resizable()
                 .scaledToFill()
                 .frame(width: event.tag == selectedTag ? 100 : 40, height: event.tag == selectedTag ? 100 : 40)
@@ -91,7 +93,7 @@ struct MapEventPin: View {
             if let image = await ImageLoader.shared.loadImage(urlString: url) {
                 await MainActor.run {
                     self.image = image
-                    self.event.image = image
+                    self.event.smallPosterImg = image
                 }
             }
         }

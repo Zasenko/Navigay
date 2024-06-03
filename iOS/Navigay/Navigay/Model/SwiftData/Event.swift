@@ -52,7 +52,9 @@ final class Event {
     var tag: UUID = UUID()
     
     @Transient
-    var image: Image?
+    var posterImg: Image?
+    @Transient
+    var smallPosterImg: Image?
     
     init(decodedEvent: DecodedEvent) {
         self.id = decodedEvent.id
@@ -80,13 +82,13 @@ final class Event {
             }
         }
         location = decodedEvent.location
+        
         lastUpdateIncomplete = lastUpdate
     }
     
     func updateEventComplete(decodedEvent: DecodedEvent) {
         let lastUpdate = decodedEvent.lastUpdate.dateFromString(format: "yyyy-MM-dd HH:mm:ss")
         guard lastUpdateComplite != lastUpdate else { return }
-        
         name = decodedEvent.name
         type = decodedEvent.type
         startDate = decodedEvent.startDate.dateFromString(format: "yyyy-MM-dd") ?? .now
@@ -116,6 +118,5 @@ final class Event {
         fee = decodedEvent.fee
         
         lastUpdateComplite = lastUpdate
-        
     }
 }

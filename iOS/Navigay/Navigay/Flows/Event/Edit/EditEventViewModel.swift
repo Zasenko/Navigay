@@ -289,7 +289,8 @@ extension EditEventViewModel {
                     if let event {
                         event.poster = urls.posterUrl
                         event.smallPoster = urls.smallPosterUrl
-                        event.image = image
+                        event.smallPosterImg = image
+                        event.posterImg = image
                     }
                 }
             } catch NetworkErrors.noConnection {
@@ -316,7 +317,8 @@ extension EditEventViewModel {
                     if let event {
                         event.poster = nil
                         event.smallPoster = nil
-                        event.image = nil
+                        event.smallPosterImg = nil
+                        event.posterImg = nil
                     }
                 }
             } catch NetworkErrors.noConnection {
