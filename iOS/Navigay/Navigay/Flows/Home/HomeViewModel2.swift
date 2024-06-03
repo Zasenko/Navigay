@@ -53,7 +53,7 @@ extension HomeView2 {
         let catalogDataManager: CatalogDataManagerProtocol
         
     let catalogNetworkManager: CatalogNetworkManagerProtocol
-
+    let commentsNetworkManager: CommentsNetworkManagerProtocol
         let aroundNetworkManager: AroundNetworkManagerProtocol
         let eventNetworkManager: EventNetworkManagerProtocol
         let placeNetworkManager: PlaceNetworkManagerProtocol
@@ -69,7 +69,8 @@ extension HomeView2 {
              errorManager: ErrorManagerProtocol,
              placeDataManager: PlaceDataManagerProtocol,
              eventDataManager: EventDataManagerProtocol,
-             catalogDataManager: CatalogDataManagerProtocol) {
+             catalogDataManager: CatalogDataManagerProtocol,
+             commentsNetworkManager: CommentsNetworkManagerProtocol) {
             self.modelContext = modelContext
             self.aroundNetworkManager = aroundNetworkManager
             self.eventNetworkManager = eventNetworkManager
@@ -79,6 +80,7 @@ extension HomeView2 {
             self.eventDataManager = eventDataManager
             self.catalogDataManager = catalogDataManager
             self.catalogNetworkManager = catalogNetworkManager
+            self.commentsNetworkManager = commentsNetworkManager
         }
         
         //MARK: - Functions

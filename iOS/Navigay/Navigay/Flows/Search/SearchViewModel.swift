@@ -51,6 +51,7 @@ extension SearchView {
         let catalogNetworkManager: CatalogNetworkManagerProtocol
         let placeNetworkManager: PlaceNetworkManagerProtocol
         let eventNetworkManager: EventNetworkManagerProtocol
+    let commentsNetworkManager: CommentsNetworkManagerProtocol
         let errorManager: ErrorManagerProtocol
         let placeDataManager: PlaceDataManagerProtocol
         let eventDataManager: EventDataManagerProtocol
@@ -67,7 +68,8 @@ extension SearchView {
              errorManager: ErrorManagerProtocol,
              placeDataManager: PlaceDataManagerProtocol,
              eventDataManager: EventDataManagerProtocol,
-             catalogDataManager: CatalogDataManagerProtocol) {
+             catalogDataManager: CatalogDataManagerProtocol,
+             commentsNetworkManager: CommentsNetworkManagerProtocol) {
             self.modelContext = modelContext
             self.catalogNetworkManager = catalogNetworkManager
             self.eventNetworkManager = eventNetworkManager
@@ -76,7 +78,8 @@ extension SearchView {
             self.placeDataManager = placeDataManager
             self.eventDataManager = eventDataManager
             self.catalogDataManager = catalogDataManager
-            
+            self.commentsNetworkManager = commentsNetworkManager
+
             cancellable = textSubject
                 .debounce(for: .seconds(1.5), scheduler: DispatchQueue.main)
                 .sink { [weak self] searchText in

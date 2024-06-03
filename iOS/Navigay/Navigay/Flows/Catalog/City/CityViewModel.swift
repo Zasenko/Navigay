@@ -46,12 +46,13 @@ extension CityView {
         let catalogNetworkManager: CatalogNetworkManagerProtocol
         let placeNetworkManager: PlaceNetworkManagerProtocol
         let eventNetworkManager: EventNetworkManagerProtocol
+        let commentsNetworkManager: CommentsNetworkManagerProtocol
+
         let errorManager: ErrorManagerProtocol
         
         let placeDataManager: PlaceDataManagerProtocol
         let eventDataManager: EventDataManagerProtocol
         let catalogDataManager: CatalogDataManagerProtocol
-        
        // var adminCity: AdminCity? = nil
         
         init(modelContext: ModelContext,
@@ -62,7 +63,8 @@ extension CityView {
              errorManager: ErrorManagerProtocol,
              placeDataManager: PlaceDataManagerProtocol,
              eventDataManager: EventDataManagerProtocol,
-             catalogDataManager: CatalogDataManagerProtocol) {
+             catalogDataManager: CatalogDataManagerProtocol,
+             commentsNetworkManager: CommentsNetworkManagerProtocol) {
             self.modelContext = modelContext
             self.city = city
             self.catalogNetworkManager = catalogNetworkManager
@@ -72,7 +74,8 @@ extension CityView {
             self.placeDataManager = placeDataManager
             self.eventDataManager = eventDataManager
             self.catalogDataManager = catalogDataManager
-            
+            self.commentsNetworkManager = commentsNetworkManager
+
             let newPhotosLinks = city.getAllPhotos()
             allPhotos = newPhotosLinks
         }

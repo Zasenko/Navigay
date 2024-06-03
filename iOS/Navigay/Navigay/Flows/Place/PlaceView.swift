@@ -113,7 +113,7 @@ struct PlaceView: View {
                     .presentationCornerRadius(25)
             }
             .fullScreenCover(item: $viewModel.selectedEvent) { event in
-                EventView(viewModel: EventView.EventViewModel.init(event: event, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager))
+                EventView(viewModel: EventView.EventViewModel.init(event: event, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, commentsNetworkManager: viewModel.commentsNetworkManager))
             }
         }
     }
@@ -179,12 +179,12 @@ struct PlaceView: View {
                         .listRowSeparator(.hidden)
                         .listRowInsets(EdgeInsets(top: 50, leading: 0, bottom: 50, trailing: 0))
                     }
-                    CommentsView(placeNetworkManager: viewModel.placeNetworkManager, errorManager: viewModel.errorManager, size: proxy.size, place: viewModel.place, comments: $viewModel.comments)
+                    CommentsView(viewModel: CommentsViewModel(commentsNetworkManager: viewModel.commentsNetworkManager, errorManager: viewModel.errorManager, size: proxy.size, place: viewModel.place))
                         .listRowSeparator(.hidden)
                         .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                        .onAppear {
-                            viewModel.fetchComments()
-                        }
+//                        .onAppear {
+//                            viewModel.fetchComments()
+//                        }
                     Color.clear
                         .frame(height: 50)
                         .listRowSeparator(.hidden)
@@ -300,42 +300,43 @@ struct PlaceView: View {
     }
 }
 
-#Preview {
-    let decodedPlace = DecodedPlace(id: 0, name: "HardOn", type: .bar, address: "bla bla", latitude: 48.19611791448819, longitude: 16.357055501725107, lastUpdate: "2023-11-19 08:00:45", avatar: nil, mainPhoto: nil, photos: nil, tags: nil, timetable: nil, otherInfo: nil, about: nil, www: nil, facebook: nil, instagram: nil, phone: nil, city: nil, cityId: nil, events: nil)
-    let appSettingsManager = AppSettingsManager()
-    let errorManager = ErrorManager()
-    let networkMonitorManager = NetworkMonitorManager(errorManager: errorManager)
-    let placeNetworkManager = PlaceNetworkManager(networkMonitorManager: networkMonitorManager, appSettingsManager: appSettingsManager)
-    let eventNetworkManager = EventNetworkManager(networkMonitorManager: networkMonitorManager, appSettingsManager: appSettingsManager)
-    
-    let placeDataManager = PlaceDataManager()
-    let eventDataManager = EventDataManager()
-    let place = Place(decodedPlace: decodedPlace)
-    var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            AppUser.self, Country.self, Region.self, City.self, Event.self, Place.self, User.self
-        ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
-
-        do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
-        } catch {
-            fatalError("Could not create ModelContainer: \(error)")
-        }
-    }()
-    let authNetworkManager = AuthNetworkManager(networkMonitorManager: networkMonitorManager, appSettingsManager: appSettingsManager)
-    let keychainManager = KeychainManager()
-    let authenticationManager = AuthenticationManager(keychainManager: keychainManager, networkMonitorManager: networkMonitorManager, networkManager: authNetworkManager, errorManager: errorManager)
-    return PlaceView(viewModel: PlaceView.PlaceViewModel(place: place,
-                                                         modelContext: ModelContext(sharedModelContainer),
-                                                         placeNetworkManager: placeNetworkManager,
-                                                         eventNetworkManager: eventNetworkManager,
-                                                         errorManager: errorManager,
-                                                         placeDataManager: placeDataManager,
-                                                         eventDataManager: eventDataManager,
-                                                         showOpenInfo: false))
-    .environmentObject(authenticationManager)
-}
+//#Preview {
+//    let decodedPlace = DecodedPlace(id: 0, name: "HardOn", type: .bar, address: "bla bla", latitude: 48.19611791448819, longitude: 16.357055501725107, lastUpdate: "2023-11-19 08:00:45", avatar: nil, mainPhoto: nil, photos: nil, tags: nil, timetable: nil, otherInfo: nil, about: nil, www: nil, facebook: nil, instagram: nil, phone: nil, city: nil, cityId: nil, events: nil)
+//    let appSettingsManager = AppSettingsManager()
+//    let errorManager = ErrorManager()
+//    let networkMonitorManager = NetworkMonitorManager(errorManager: errorManager)
+//    let placeNetworkManager = PlaceNetworkManager(networkMonitorManager: networkMonitorManager, appSettingsManager: appSettingsManager)
+//    let eventNetworkManager = EventNetworkManager(networkMonitorManager: networkMonitorManager, appSettingsManager: appSettingsManager)
+//    let commentsNetworkManager = CommentsNetworkManager(networkMonitorManager: networkMonitorManager, appSettingsManager: appSettingsManager)
+//    
+//    let placeDataManager = PlaceDataManager()
+//    let eventDataManager = EventDataManager()
+//    let place = Place(decodedPlace: decodedPlace)
+//    var sharedModelContainer: ModelContainer = {
+//        let schema = Schema([
+//            AppUser.self, Country.self, Region.self, City.self, Event.self, Place.self, User.self
+//        ])
+//        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+//
+//        do {
+//            return try ModelContainer(for: schema, configurations: [modelConfiguration])
+//        } catch {
+//            fatalError("Could not create ModelContainer: \(error)")
+//        }
+//    }()
+//    let authNetworkManager = AuthNetworkManager(networkMonitorManager: networkMonitorManager, appSettingsManager: appSettingsManager)
+//    let keychainManager = KeychainManager()
+//    let authenticationManager = AuthenticationManager(keychainManager: keychainManager, networkMonitorManager: networkMonitorManager, networkManager: authNetworkManager, errorManager: errorManager)
+//    return PlaceView(viewModel: PlaceView.PlaceViewModel(place: place,
+//                                                         modelContext: ModelContext(sharedModelContainer),
+//                                                         placeNetworkManager: placeNetworkManager,
+//                                                         eventNetworkManager: eventNetworkManager,
+//                                                         errorManager: errorManager,
+//                                                         placeDataManager: placeDataManager,
+//                                                         eventDataManager: eventDataManager, commentsNetworkManager: commentsNetworkManager,
+//                                                         showOpenInfo: false))
+//    .environmentObject(authenticationManager)
+//}
 
 struct TagsView: View {
     

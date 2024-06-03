@@ -29,8 +29,9 @@ struct HomeView2: View {
          errorManager: ErrorManagerProtocol,
          placeDataManager: PlaceDataManagerProtocol,
          eventDataManager: EventDataManagerProtocol,
-         catalogDataManager: CatalogDataManagerProtocol) {
-        let viewModel = HomeViewModel2(modelContext: modelContext, aroundNetworkManager: aroundNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, catalogNetworkManager: catalogNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, catalogDataManager: catalogDataManager)
+         catalogDataManager: CatalogDataManagerProtocol,
+         commentsNetworkManager: CommentsNetworkManagerProtocol) {
+        let viewModel = HomeViewModel2(modelContext: modelContext, aroundNetworkManager: aroundNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, catalogNetworkManager: catalogNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, catalogDataManager: catalogDataManager, commentsNetworkManager: commentsNetworkManager)
         _viewModel = State(initialValue: viewModel)
         
         //todo delete:
@@ -54,7 +55,7 @@ struct HomeView2: View {
                 } else {
                     mainView
                         .fullScreenCover(isPresented: $viewModel.showMap) {
-                            MapView(viewModel: MapViewModel(events: viewModel.todayEvents, places: viewModel.aroundPlaces, categories: viewModel.sortingMapCategories, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager))
+                            MapView(viewModel: MapViewModel(events: viewModel.todayEvents, places: viewModel.aroundPlaces, categories: viewModel.sortingMapCategories, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, commentsNetworkManager: viewModel.commentsNetworkManager))
                         }
                 }
             }
@@ -113,7 +114,7 @@ struct HomeView2: View {
                     .presentationCornerRadius(25)
             }
             .fullScreenCover(item: $viewModel.selectedEvent) { event in
-                EventView(viewModel: EventView.EventViewModel.init(event: event, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager))
+                EventView(viewModel: EventView.EventViewModel.init(event: event, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, commentsNetworkManager: viewModel.commentsNetworkManager))
             }
         }
     }
@@ -249,7 +250,7 @@ struct HomeView2: View {
                 .padding(.vertical)
             ForEach(viewModel.groupedPlaces[category] ?? []) { place in
                 NavigationLink {
-                    PlaceView(viewModel: PlaceView.PlaceViewModel(place: place, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, showOpenInfo: true))
+                    PlaceView(viewModel: PlaceView.PlaceViewModel(place: place, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, commentsNetworkManager: viewModel.commentsNetworkManager, showOpenInfo: true))
                 } label: {
                     PlaceCell(place: place, showOpenInfo: viewModel.isLocationsAround20Found ? true : false, showDistance: true, showCountryCity: viewModel.isLocationsAround20Found ? false : true, showLike: true)
                 }
@@ -277,7 +278,7 @@ struct HomeView2: View {
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical)
-                CitiesView(modelContext: viewModel.modelContext, cities: viewModel.citiesAround, showCountryRegion: true, catalogNetworkManager: viewModel.catalogNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, errorManager: viewModel.errorManager, authenticationManager: authenticationManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, catalogDataManager: viewModel.catalogDataManager)
+                CitiesView(modelContext: viewModel.modelContext, cities: viewModel.citiesAround, showCountryRegion: true, catalogNetworkManager: viewModel.catalogNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, errorManager: viewModel.errorManager, authenticationManager: authenticationManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, catalogDataManager: viewModel.catalogDataManager, commentsNetworkManager: viewModel.commentsNetworkManager)
                 
             }
             .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))

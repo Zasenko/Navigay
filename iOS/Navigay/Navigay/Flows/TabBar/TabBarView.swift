@@ -36,6 +36,7 @@ struct TabBarView: View {
     private let catalogNetworkManager: CatalogNetworkManagerProtocol
     private let placeNetworkManager: PlaceNetworkManagerProtocol
     private let eventNetworkManager: EventNetworkManagerProtocol
+    private let commentsNetworkManager: CommentsNetworkManagerProtocol
 
     private let placeDataManager: PlaceDataManagerProtocol
     private let eventDataManager: EventDataManagerProtocol
@@ -52,6 +53,7 @@ struct TabBarView: View {
         self.catalogNetworkManager = CatalogNetworkManager(networkMonitorManager: networkMonitor, appSettingsManager: appSettingsManager)
         self.eventNetworkManager = EventNetworkManager(networkMonitorManager: networkMonitor, appSettingsManager: appSettingsManager)
         self.placeNetworkManager = PlaceNetworkManager(networkMonitorManager: networkMonitor, appSettingsManager: appSettingsManager)
+        self.commentsNetworkManager = CommentsNetworkManager(networkMonitorManager: networkMonitor, appSettingsManager: appSettingsManager)
         self.placeDataManager = PlaceDataManager()
         self.eventDataManager = EventDataManager()
         self.catalogDataManager = CatalogDataManager()
@@ -61,14 +63,14 @@ struct TabBarView: View {
         VStack(spacing: 0) {
             switch selectedPage {
             case .home:
-                HomeView2(modelContext: modelContext, aroundNetworkManager: aroundNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, catalogNetworkManager: catalogNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, catalogDataManager: catalogDataManager)
+                HomeView2(modelContext: modelContext, aroundNetworkManager: aroundNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, catalogNetworkManager: catalogNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, catalogDataManager: catalogDataManager, commentsNetworkManager: commentsNetworkManager)
                     .environmentObject(locationManager)
             case .catalog:
-                CatalogView(viewModel: CatalogView.CatalogViewModel(modelContext: modelContext, catalogNetworkManager: catalogNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, catalogDataManager: catalogDataManager))
+                CatalogView(viewModel: CatalogView.CatalogViewModel(modelContext: modelContext, catalogNetworkManager: catalogNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, catalogDataManager: catalogDataManager, commentsNetworkManager: commentsNetworkManager))
             case .search:
-                SearchView(viewModel: SearchView.SearchViewModel(modelContext: modelContext, catalogNetworkManager: catalogNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, catalogDataManager: catalogDataManager))
+                SearchView(viewModel: SearchView.SearchViewModel(modelContext: modelContext, catalogNetworkManager: catalogNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, catalogDataManager: catalogDataManager, commentsNetworkManager: commentsNetworkManager))
             case .user:
-                AppUserView(modelContext: modelContext, userNetworkManager: UserNetworkManager(networkMonitorManager: networkMonitor, appSettingsManager: appSettingsManager), placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager)
+                AppUserView(modelContext: modelContext, userNetworkManager: UserNetworkManager(networkMonitorManager: networkMonitor, appSettingsManager: appSettingsManager), placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, commentsNetworkManager: commentsNetworkManager)
             case .admin:
                 if let user = authenticationManager.appUser, (user.status == .admin || user.status == .moderator) {
                     AdminView(viewModel: AdminViewModel(user: user, errorManager: errorManager, networkManager: AdminNetworkManager(networkMonitorManager: networkMonitor, appSettingsManager: appSettingsManager)))

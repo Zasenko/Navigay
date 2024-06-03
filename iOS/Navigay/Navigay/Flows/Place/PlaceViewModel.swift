@@ -46,6 +46,7 @@ extension PlaceView {
         var position: MapCameraPosition = .automatic
                 
         let placeNetworkManager: PlaceNetworkManagerProtocol
+        let commentsNetworkManager: CommentsNetworkManagerProtocol
         let eventNetworkManager: EventNetworkManagerProtocol
         let errorManager: ErrorManagerProtocol
         
@@ -66,6 +67,7 @@ extension PlaceView {
              errorManager: ErrorManagerProtocol,
              placeDataManager: PlaceDataManagerProtocol,
              eventDataManager: EventDataManagerProtocol,
+             commentsNetworkManager: CommentsNetworkManagerProtocol,
              showOpenInfo: Bool) {
             self.place = place
             self.showOpenInfo = showOpenInfo
@@ -76,6 +78,7 @@ extension PlaceView {
             self.errorManager = errorManager
             self.placeDataManager = placeDataManager
             self.eventDataManager = eventDataManager
+            self.commentsNetworkManager = commentsNetworkManager
         }
         
         //MARK: - Functions
@@ -171,24 +174,7 @@ extension PlaceView {
                 }
             }
         }
-        
-        func fetchComments() {
-            Task {
-                let message = "Oops! Looks like the comments failed to load. Don't worry, we're actively working to resolve the issue."
-                do {
-                    let decodedComments = try await placeNetworkManager.fetchComments(placeID: place.id)
-                    await MainActor.run {
-                        comments = decodedComments.filter( { $0.isActive } )
-                    }
-                } catch NetworkErrors.noConnection {
-                } catch NetworkErrors.apiError(let apiError) {
-                    errorManager.showApiError(apiError: apiError, or: message, img: nil, color: nil)
-                } catch {
-                    errorManager.showError(model: ErrorModel(error: error, message: message))
-                }
-            }
-        }
-        
+
         func goToMaps() {
             let coordinate = place.coordinate
             let stringUrl = "maps://?saddr=&daddr=\(coordinate.latitude),\(coordinate.longitude)"

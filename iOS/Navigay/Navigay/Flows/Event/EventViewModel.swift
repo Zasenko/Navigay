@@ -26,10 +26,10 @@ extension EventView {
         let placeDataManager: PlaceDataManagerProtocol
         let eventDataManager: EventDataManagerProtocol
         let errorManager: ErrorManagerProtocol
-
+        let commentsNetworkManager: CommentsNetworkManagerProtocol
         //MARK: - Inits
         
-        init(event: Event, modelContext: ModelContext, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol, placeDataManager: PlaceDataManagerProtocol, eventDataManager: EventDataManagerProtocol) {
+        init(event: Event, modelContext: ModelContext, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol, placeDataManager: PlaceDataManagerProtocol, eventDataManager: EventDataManagerProtocol, commentsNetworkManager: CommentsNetworkManagerProtocol) {
             self.event = event
             self.modelContext = modelContext
             self.eventNetworkManager = eventNetworkManager
@@ -37,6 +37,7 @@ extension EventView {
             self.errorManager = errorManager
             self.placeDataManager = placeDataManager
             self.eventDataManager = eventDataManager
+            self.commentsNetworkManager = commentsNetworkManager
             position = .camera(MapCamera(centerCoordinate: event.coordinate, distance: 2000))
             loadEvent()
         }

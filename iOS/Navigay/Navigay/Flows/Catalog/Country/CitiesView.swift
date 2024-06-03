@@ -21,6 +21,7 @@ struct CitiesView: View {
     private let placeDataManager: PlaceDataManagerProtocol
     private let eventDataManager: EventDataManagerProtocol
     private let catalogDataManager: CatalogDataManagerProtocol
+    private let commentsNetworkManager: CommentsNetworkManagerProtocol
 
     @ObservedObject var authenticationManager: AuthenticationManager
     
@@ -34,7 +35,8 @@ struct CitiesView: View {
          authenticationManager: AuthenticationManager,
          placeDataManager: PlaceDataManagerProtocol,
          eventDataManager: EventDataManagerProtocol,
-         catalogDataManager: CatalogDataManagerProtocol) {
+         catalogDataManager: CatalogDataManagerProtocol,
+         commentsNetworkManager: CommentsNetworkManagerProtocol) {
         self.modelContext = modelContext
         self.cities = cities
         self.showCountryRegion = showCountryRegion
@@ -46,6 +48,8 @@ struct CitiesView: View {
         self.placeDataManager = placeDataManager
         self.eventDataManager = eventDataManager
         self.catalogDataManager = catalogDataManager
+        self.commentsNetworkManager = commentsNetworkManager
+
         _authenticationManager = ObservedObject(wrappedValue: authenticationManager)
     }
     
@@ -54,7 +58,7 @@ struct CitiesView: View {
             Section {
                 ForEach(cities) { city in
                     NavigationLink {
-                        CityView(viewModel: CityView.CityViewModel(modelContext: modelContext, city: city, catalogNetworkManager: catalogNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, catalogDataManager: catalogDataManager))
+                        CityView(viewModel: CityView.CityViewModel(modelContext: modelContext, city: city, catalogNetworkManager: catalogNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, catalogDataManager: catalogDataManager, commentsNetworkManager: commentsNetworkManager))
                     } label: {
                         CityCell(city: city, showCountryRegion: showCountryRegion, showLocationsCount: true)
                     }

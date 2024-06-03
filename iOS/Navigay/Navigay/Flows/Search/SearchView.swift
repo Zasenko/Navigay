@@ -60,7 +60,7 @@ struct SearchView: View {
                 viewModel.textSubject.send(newValue.lowercased())
             }
             .fullScreenCover(item: $viewModel.selectedEvent) { event in
-                EventView(viewModel: EventView.EventViewModel.init(event: event, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager))
+                EventView(viewModel: EventView.EventViewModel.init(event: event, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, commentsNetworkManager: viewModel.commentsNetworkManager))
             }
             .animation(.easeInOut, value: focused)
         }
@@ -334,7 +334,8 @@ struct SearchView: View {
             eventNetworkManager: viewModel.eventNetworkManager,
             errorManager: viewModel.errorManager,
             placeDataManager: viewModel.placeDataManager,
-            eventDataManager: viewModel.eventDataManager,
+            eventDataManager: viewModel.eventDataManager, 
+            commentsNetworkManager: viewModel.commentsNetworkManager,
             showOpenInfo: false
         ))) {
             PlaceCell(
