@@ -33,25 +33,23 @@ struct SearchView: View {
                     Divider()
                 }
                 mainView
-                    //.background(AppColors.background)
             }
             .background {
                 ZStack(alignment: .center) {
                     Image("bg2")
                         .resizable()
                         .scaledToFill()
-                        .ignoresSafeArea()
                         .scaleEffect(CGSize(width: 2, height: 2))
                         .blur(radius: 100)
                         .saturation(3)
                     Rectangle()
                         .fill(.ultraThinMaterial)
-                        .ignoresSafeArea()
                 }
+                .ignoresSafeArea()
                 .opacity(focused ? 1 : 0)
-                .animation(.easeInOut, value: focused)
+                
             }
-            .toolbar(.hidden, for: .navigationBar)
+        //    .toolbar(.hidden, for: .navigationBar)
             .onChange(of: viewModel.isSearching) { _, newValue in
                 if newValue {
                     hideKeyboard()
@@ -64,6 +62,7 @@ struct SearchView: View {
             .fullScreenCover(item: $viewModel.selectedEvent) { event in
                 EventView(viewModel: EventView.EventViewModel.init(event: event, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager))
             }
+            .animation(.easeInOut, value: focused)
         }
     }
     

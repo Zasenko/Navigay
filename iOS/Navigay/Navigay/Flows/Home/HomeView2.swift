@@ -62,23 +62,8 @@ struct HomeView2: View {
             .toolbarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    //  HStack(alignment: .lastTextBaseline) {
                     Text("Around you")
                         .font(.title).bold()
-                    //                        if viewModel.sortingHomeCategories.count > 1 {
-                    //                            Button {
-                    //                                withAnimation {
-                    //                                    showSorting.toggle()
-                    //                                }
-                    //                            } label: {
-                    //                                AppImages.iconDown
-                    //                                    .font(.caption)
-                    //                                    .fontWeight(.black)
-                    //                                    .foregroundStyle(showSorting ? Color.secondary : .blue)
-                    //                                    .rotationEffect(.degrees(showSorting ? -180 : 0))
-                    //                            }
-                    //                        }
-                    //  }
                         .foregroundColor(.primary)
                 }
                 
@@ -99,11 +84,13 @@ struct HomeView2: View {
                 }
             }
             .task(priority: .high) {
-                if let userLocation = locationManager.userLocation {
-                    viewModel.updateAtInit(userLocation: userLocation)
+                await MainActor.run {
                     let category = viewModel.selectedHomeSortingCategory
                     viewModel.selectedHomeSortingCategory = .all
                     viewModel.selectedHomeSortingCategory = category
+                }
+                if let userLocation = locationManager.userLocation {
+                    viewModel.updateAtInit(userLocation: userLocation)
                 }
             }
             .onChange(of: locationManager.userLocation, initial: false) { _, newValue in
@@ -114,7 +101,7 @@ struct HomeView2: View {
                 viewModel.showCalendar = false
                 if let date = newValue {
                     guard let userLocation = locationManager.userLocation else { return }
-                    viewModel.updateEvents(for: date, userLocation: userLocation)
+                    viewModel.getEvents(for: date, userLocation: userLocation)
                 } else {
                     viewModel.displayedEvents = viewModel.upcomingEvents
                 }

@@ -280,9 +280,6 @@ final class EventDataManager: EventDataManagerProtocol {
             var events: [Event] = []
             
             for decodeEvent in decodedEvents {
-                if decodeEvent.id == 1 {
-                    print(true)
-                }
                 if let event = allEvents.first(where: { $0.id == decodeEvent.id} ) {
                     event.updateEventIncomplete(decodedEvent: decodeEvent)
                     events.append(event)

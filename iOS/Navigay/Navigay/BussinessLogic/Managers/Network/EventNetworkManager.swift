@@ -11,7 +11,7 @@ protocol EventNetworkManagerProtocol {
     var loadedEvents: [Int] { get }
     var loadedCalendarEventsId: [Int] { get }
     func fetchEvent(id: Int) async throws -> DecodedEvent
-    func fetchEvents(ids: [Int]) async throws -> ([DecodedEvent], [DecodedCity])
+    func fetchEvents(ids: [Int]) async throws -> DecodedSearchItems
     func sendComplaint(eventId: Int, user: AppUser, reason: String) async throws
 }
 
@@ -82,7 +82,7 @@ extension EventNetworkManager: EventNetworkManagerProtocol {
         return decodedEvent
     }
     
-    func fetchEvents(ids: [Int]) async throws -> ([DecodedEvent], [DecodedCity]) {
+    func fetchEvents(ids: [Int]) async throws -> DecodedSearchItems {
         debugPrint("--- fetchEvents(ids: \(ids))")
         guard networkMonitorManager.isConnected else {
             throw NetworkErrors.noConnection
@@ -102,20 +102,19 @@ extension EventNetworkManager: EventNetworkManagerProtocol {
         guard let url = urlComponents.url else {
             throw NetworkErrors.badUrl
         }
-        print(url)
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         let (data, response) = try await URLSession.shared.data(for: request)
         guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
             throw NetworkErrors.invalidData
         }
-        guard let decodedResult = try? JSONDecoder().decode(EventsResult.self, from: data) else {
+        guard let decodedResult = try? JSONDecoder().decode(SearchResult.self, from: data) else {
             throw NetworkErrors.decoderError
         }
-        guard decodedResult.result, let decodedEvents = decodedResult.events, let decodedCities = decodedResult.cities else {
+        guard decodedResult.result, let decodedItems = decodedResult.items else {
             throw NetworkErrors.apiError(decodedResult.error)
         }
-        decodedEvents.forEach( { loadedCalendarEventsId.append($0.id) } )
-        return (decodedEvents, decodedCities)
+        decodedItems.events?.forEach( { loadedCalendarEventsId.append($0.id) } )
+        return decodedItems
     }
 }

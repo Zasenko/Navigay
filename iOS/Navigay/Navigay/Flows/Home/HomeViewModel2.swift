@@ -82,71 +82,14 @@ extension HomeView2 {
         }
         
         //MARK: - Functions
-        
-//        func updateAroundPlacesAndEvents(userLocation: CLLocation) {
-//            Task {
-//                let radius: Double = 20000
-//
-//                let allPlaces = placeDataManager.getAllPlaces(modelContext: modelContext)
-//                let allEvents = eventDataManager.getAllEvents(modelContext: modelContext)
-//
-//                let aroundPlaces = await placeDataManager.getAroundPlaces(radius: radius, allPlaces: allPlaces, userLocation: userLocation)
-//                let aroundEvents = await eventDataManager.getAroundEvents(radius: radius, allEvents: allEvents, userLocation: userLocation)
-//
-//                let groupedPlaces = await placeDataManager.createHomeGroupedPlaces(places: aroundPlaces)
-//                let actualEvents = await eventDataManager.getActualEvents(for: aroundEvents)
-//                let todayEvents = await eventDataManager.getTodayEvents(from: actualEvents)
-//                let upcomingEvents = await eventDataManager.getUpcomingEvents(from: actualEvents)
-//                let eventsDatesWithoutToday = await eventDataManager.getActiveDates(for: actualEvents)
-//
-//                await MainActor.run {
-//                    self.actualEvents = actualEvents
-//                    self.upcomingEvents = upcomingEvents
-//                    self.aroundPlaces = aroundPlaces
-//                    self.eventsDates = eventsDatesWithoutToday
-//                    aroundPlaces.forEach { place in
-//                        let distance = userLocation.distance(from: CLLocation(latitude: place.latitude, longitude: place.longitude))
-//                        place.getDistanceText(distance: distance, inKm: true)
-//                    }
-//                    self.todayEvents = todayEvents
-//                    self.displayedEvents = upcomingEvents
-//                    self.eventsCount = actualEvents.count
-//                    self.groupedPlaces = groupedPlaces
-//
-//                   // self.dateEvents =
-//                    if !aroundPlaces.isEmpty && !aroundEvents.isEmpty {
-//                        isLoading = false
-//                    }
-//                }
-//
-//                if !aroundNetworkManager.userLocations.contains(where: { $0 == userLocation }) {
-//                    await fetch(location: userLocation)
-//                } else {
-//                    if isLoading {
-//                        let closestPlaces = await placeDataManager.getClosestPlaces(from: allPlaces, userLocation: userLocation, count: 5)
-//                     //   let groupedClosestPlaces = await placeDataManager.createGroupedPlaces(places: closestPlaces)
-//                        await MainActor.run {
-//                            closestPlaces.forEach { place in
-//                                let distance = userLocation.distance(from: CLLocation(latitude: place.latitude, longitude: place.longitude))
-//                                place.getDistanceText(distance: distance, inKm: true)
-//                            }
-//                     //       self.groupedPlaces = groupedClosestPlaces
-//                            self.isLocationsAround20Found = false
-//                            self.isLoading = false
-//                        }
-//                    }
-//                }
-//                await updateSortingMapCategories()
-//            }
-//        }
-        
+                
         func updateAtInit(userLocation: CLLocation) {
             if !locationUpdatedAtInit {
                 update(userLocation: userLocation)
                 locationUpdatedAtInit = true
             }
         }
-//
+
         func update(userLocation: CLLocation) {
             Task {
                 let radius: Double = 20000
@@ -262,7 +205,6 @@ extension HomeView2 {
                         self.isLoading = false
                     } else {
                         isLocationsAround20Found = false
-                        
                         let countries = catalogDataManager.updateCountries(decodedCountries: decodedResult.countries, modelContext: modelContext)
                         let regions = catalogDataManager.updateRegions(decodedRegions: decodedResult.regions, countries: countries, modelContext: modelContext)
                         let cities = catalogDataManager.updateCities(decodedCities: decodedResult.cities, regions: regions, modelContext: modelContext)
@@ -283,11 +225,6 @@ extension HomeView2 {
             if isLoading {
                 let cities = await catalogDataManager.getCitiesAround(count: 3, userLocation: userLocation, modelContext: modelContext)
                 await MainActor.run {
-//                            closestPlaces.forEach { place in
-//                                let distance = userLocation.distance(from: CLLocation(latitude: place.latitude, longitude: place.longitude))
-//                                place.getDistanceText(distance: distance, inKm: true)
-//                            }
-             //       self.groupedPlaces = groupedClosestPlaces
                     self.citiesAround = cities
                     self.isLocationsAround20Found = false
                     self.isLoading = false
@@ -295,7 +232,7 @@ extension HomeView2 {
             }
         }
         
-        func updateEvents(for date: Date, userLocation: CLLocation) {
+        func getEvents(for date: Date, userLocation: CLLocation) {
             Task {
                 let events = await eventDataManager.getEvents(for: date, userLocation: userLocation, modelContext: modelContext)
                 await MainActor.run {
@@ -307,10 +244,8 @@ extension HomeView2 {
         
         private func fetchEvents(for date: Date) async {
             let ids = dateEvents.filter { $0.key == date }.flatMap { $0.value.map { $0 } }
-           
             var savedEvents: [Event] = []
             var newIds: [Int] = []
-            
             ids.forEach { id in
                 if eventNetworkManager.loadedCalendarEventsId.contains(where: { $0 == id }) {
                     if let event = eventDataManager.getEvent(id: id, modelContext: modelContext) {
@@ -326,10 +261,12 @@ extension HomeView2 {
             
             let message = "Something went wrong. The information didn't update. Please try again later."
             do {
-                let (decodedEvents, decodedCities) = try await eventNetworkManager.fetchEvents(ids: newIds)
+                let items = try await eventNetworkManager.fetchEvents(ids: newIds)
                 await MainActor.run { [savedEvents] in
-                    let cities = catalogDataManager.updateCities(decodedCities: decodedCities, modelContext: modelContext)
-                    var events = eventDataManager.updateEvents(decodedEvents: decodedEvents, for: cities, modelContext: modelContext)
+                    let countries = catalogDataManager.updateCountries(decodedCountries: items.countries, modelContext: modelContext)
+                    let regions = catalogDataManager.updateRegions(decodedRegions: items.regions, countries: countries, modelContext: modelContext)
+                    let cities = catalogDataManager.updateCities(decodedCities: items.cities, regions: regions, modelContext: modelContext)
+                    var events = eventDataManager.updateEvents(decodedEvents: items.events, for: cities, modelContext: modelContext)
                     events.append(contentsOf: savedEvents)
                     self.displayedEvents = events
                 }
