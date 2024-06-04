@@ -37,9 +37,7 @@ require_once('../dbconfig.php');
 $placeholders = implode(',', array_fill(0, count($event_ids_array), '?'));
 
 // Формируем SQL-запрос
-$sql = "SELECT id, name, type_id, country_id, region_id, city_id, latitude, longitude, start_date, start_time, finish_date, finish_time, address, location, poster, poster_small, is_free, tags, updated_at 
-        FROM Event 
-        WHERE id IN ($placeholders) AND is_active = true";
+$sql = "SELECT id, name, type_id, country_id, region_id, city_id, latitude, longitude, start_date, start_time, finish_date, finish_time, address, location, poster, poster_small, is_free, tags, updated_at FROM Event WHERE id IN ($placeholders) AND is_active = true";
 
 $stmt = $conn->prepare($sql);
 if ($stmt === false) {
@@ -58,6 +56,11 @@ $result = $stmt->get_result();
 $stmt->close();
 
 $events = array();
+
+    $cities = array();
+    $regions = array();
+    $countries = array();
+    
 $country_ids = array();
 $region_ids = array();
 $city_ids = array();
@@ -186,7 +189,7 @@ foreach ($city_ids as $city_id) {
 }
 
 $items = array(
-        'events' => $sortedEvents,
+        'events' => $events,
         'cities' => $cities,
         'regions' => $regions,
         'countries' => $countries,

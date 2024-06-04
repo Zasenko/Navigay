@@ -26,7 +26,7 @@ enum SortingCategory {
     case medicine
     case rights
     case other
-    
+    case like
     case all
     
     init(placeType: PlaceType) {
@@ -108,11 +108,15 @@ enum SortingCategory {
             return "All locations"
         case .rights:
             return "Rights"
+        case .like:
+            return "Liked"
         }
     }
     
     func getSortPreority() -> Int {
         switch self {
+        case .like:
+            0
         case .events:
             1
         case .bar:
@@ -194,6 +198,8 @@ enum SortingCategory {
             return "🎉"
         case .all:
             return ""
+        case .like:
+            return "❤️"
         }
     }
     
@@ -237,6 +243,8 @@ enum SortingCategory {
             return "Events"
         case .all:
             return "All"
+        case .like:
+            return "Liked"
         }
     }
 }

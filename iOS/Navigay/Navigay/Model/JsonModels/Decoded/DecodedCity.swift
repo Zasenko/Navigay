@@ -42,7 +42,7 @@ struct DecodedCity: Identifiable, Codable {
     
     let about: String?
     let places: [DecodedPlace]?
-    let events: [DecodedEvent]?
+    let events: EventsItemsResult?
     let regionId: Int?
     let region: DecodedRegion?
     let placesCount: Int?

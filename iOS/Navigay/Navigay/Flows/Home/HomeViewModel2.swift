@@ -126,7 +126,7 @@ extension HomeView2 {
                             isLoading = false
                         }
                     }
-                    await updateSortingMapCategories()
+                    await updateCategories()
                 }
                 
                 if !aroundNetworkManager.userLocations.contains(where: { $0 == userLocation }) {
@@ -286,8 +286,8 @@ extension HomeView2 {
         private func updateFetchedResult(places: [Place], events: EventsItems, userLocation: CLLocation) {
             Task {
                 let groupedPlaces = await placeDataManager.createHomeGroupedPlaces(places: places)
-                let tEvents = events.today.sorted(by: { $0.id < $1.id })
-                let uEvents = events.upcoming.sorted(by: { $0.id < $1.id }).sorted(by: { $0.startDate < $1.startDate })
+                let todayEvents = events.today.sorted(by: { $0.id < $1.id })
+                let upcomingEvents = events.upcoming.sorted(by: { $0.id < $1.id }).sorted(by: { $0.startDate < $1.startDate })
                let activeDates = events.allDates.keys.sorted().filter( { $0.isToday || $0.isFutureDay } )
                // let activeDates = await eventDataManager.getActiveDates(for: actualEvents)
 //
@@ -310,23 +310,23 @@ extension HomeView2 {
                     // eventsToDelete.forEach( { modelContext.delete($0) } )
                     //  placesToDelete.forEach( { modelContext.delete($0) } )
                     //  self.actualEvents = actualEvents
-                    self.upcomingEvents = uEvents
+                    self.upcomingEvents = upcomingEvents
                     self.aroundPlaces = places
                     self.eventsDates = activeDates
-                    self.todayEvents = tEvents
-                    self.displayedEvents = uEvents
+                    self.todayEvents = todayEvents
+                    self.displayedEvents = upcomingEvents
                     self.groupedPlaces = groupedPlaces
                     self.eventsCount = events.count
                     self.dateEvents = events.allDates
                 }
-                await updateSortingMapCategories()
+                await updateCategories()
             }
         }
   
-        private func updateSortingMapCategories() async {
+        private func updateCategories() async {
             var mapCategories: [SortingCategory] = []
             var homeCategories: [SortingCategory] = []
-            var selectedCategory: SortingCategory?
+            var selectedCategory: SortingCategory = .all
             if eventsCount > 0 {
                 homeCategories.append(.events)
                 selectedCategory = .events
@@ -355,7 +355,7 @@ extension HomeView2 {
                 withAnimation {
                     sortingMapCategories = sortedMapCategories
                     sortingHomeCategories = sortedHomeCategories
-                    selectedHomeSortingCategory = selectedCategory ?? .all
+                    selectedHomeSortingCategory = selectedCategory
                 }
             }
         }

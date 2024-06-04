@@ -1117,8 +1117,8 @@
 				0FA8FFB62B15EDCC001886D0 /* HomeViewModel.swift */,
 				0F7E57E72AE129A40091A0F8 /* HomeView.swift */,
 				0AB7FBCA2C066C0000EF8DBF /* aroundjson.json */,
-				0AB7FBC72C063F4A00EF8DBF /* HomeView2.swift */,
 				0AEB53CF2C08B7DD009A94B1 /* HomeViewModel2.swift */,
+				0AB7FBC72C063F4A00EF8DBF /* HomeView2.swift */,
 				0F7F25B32B333701004F6C75 /* Calendar */,
 			);
 			path = Home;

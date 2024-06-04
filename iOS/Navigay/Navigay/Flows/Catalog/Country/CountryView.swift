@@ -27,62 +27,65 @@ struct CountryView: View {
     var body: some View {
         NavigationStack {
             GeometryReader { geometry in
-                List {
-                    if let url = viewModel.country.photo {
-                        ImageLoadingView(url: url, width: geometry.size.width, height: (geometry.size.width / 4) * 5, contentMode: .fill) {
-                            AppColors.lightGray6
-                        }
-                        .clipped()
-                        .listRowSeparator(.hidden)
-                        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                        .padding(.bottom, 20)
-                    }
-                    HStack {
-                        Text("Cities")
-                            .font(.title)
-                            .foregroundStyle(.secondary)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                        Button {
-                            viewModel.showMap.toggle()
-                            
-                        } label: {
-                            HStack(spacing: 4) {
-//                                AppImages.iconLocation
-//                                    .font(.headline)
-                                Text("Show on map")
-                                    .font(.caption)
-                                    .bold()
+                VStack(spacing: 0) {
+                    Divider()
+                    List {
+                        if let url = viewModel.country.photo {
+                            ImageLoadingView(url: url, width: geometry.size.width, height: (geometry.size.width / 4) * 5, contentMode: .fill) {
+                                AppColors.lightGray6
                             }
-                            .foregroundStyle(.blue)
-                            .padding()
-                            .background(AppColors.lightGray6)
-                            .clipShape(Capsule(style: .continuous))
+                            .clipped()
+                            .listRowSeparator(.hidden)
+                            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                            .padding(.bottom, 20)
                         }
-                        .offset(x: -70)
-                    }
+                        HStack {
+                            Text("Cities")
+                                .font(.title)
+                                .foregroundStyle(.secondary)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            Button {
+                                viewModel.showMap.toggle()
+                                
+                            } label: {
+                                HStack(spacing: 4) {
+                                    //                                AppImages.iconLocation
+                                    //                                    .font(.headline)
+                                    Text("Show on map")
+                                        .font(.caption)
+                                        .bold()
+                                }
+                                .foregroundStyle(.blue)
+                                .padding()
+                                .background(AppColors.lightGray6)
+                                .clipShape(Capsule(style: .continuous))
+                            }
+                            .offset(x: -70)
+                        }
                         .padding(.top, 20)
                         .padding(.bottom, 10)
                         .offset(x: 70)
                         .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
                         .listRowSeparator(.hidden)
-                    if viewModel.country.showRegions {
-                        ForEach(viewModel.country.regions.sorted(by: { $0.id < $1.id } )) { region in
-                            RegionView(modelContext: viewModel.modelContext, region: region, catalogNetworkManager: viewModel.catalogNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, errorManager: viewModel.errorManager, authenticationManager: authenticationManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, catalogDataManager: viewModel.catalogDataManager, commentsNetworkManager: viewModel.commentsNetworkManager)
+                        if viewModel.country.showRegions {
+                            ForEach(viewModel.country.regions.sorted(by: { $0.id < $1.id } )) { region in
+                                RegionView(modelContext: viewModel.modelContext, region: region, catalogNetworkManager: viewModel.catalogNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, errorManager: viewModel.errorManager, authenticationManager: authenticationManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, catalogDataManager: viewModel.catalogDataManager, commentsNetworkManager: viewModel.commentsNetworkManager)
+                            }
+                        } else {
+                            CitiesView(modelContext: viewModel.modelContext, cities: viewModel.country.regions.flatMap( { $0.cities } ).sorted(by: { $0.id < $1.id } ), showCountryRegion: false, catalogNetworkManager: viewModel.catalogNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, errorManager: viewModel.errorManager, authenticationManager: authenticationManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, catalogDataManager: viewModel.catalogDataManager, commentsNetworkManager: viewModel.commentsNetworkManager)
                         }
-                    } else {
-                        CitiesView(modelContext: viewModel.modelContext, cities: viewModel.country.regions.flatMap( { $0.cities } ).sorted(by: { $0.id < $1.id } ), showCountryRegion: false, catalogNetworkManager: viewModel.catalogNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, errorManager: viewModel.errorManager, authenticationManager: authenticationManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, catalogDataManager: viewModel.catalogDataManager, commentsNetworkManager: viewModel.commentsNetworkManager)
+                        Section {
+                            Text(viewModel.country.about ?? "")
+                                .font(.callout)
+                                .foregroundStyle(.secondary)
+                                .padding(.vertical, 50)
+                                .listRowSeparator(.hidden)
+                        }
                     }
-                    Section {
-                        Text(viewModel.country.about ?? "")
-                            .font(.callout)
-                            .foregroundStyle(.secondary)
-                            .padding(.vertical, 50)
-                            .listRowSeparator(.hidden)
-                    }
+                    .listStyle(.plain)
+                    .buttonStyle(PlainButtonStyle())
+                    .scrollIndicators(.hidden)
                 }
-                .listStyle(.plain)
-                .buttonStyle(PlainButtonStyle())
-                .scrollIndicators(.hidden)
                 .navigationBarBackButtonHidden()
                 .toolbarBackground(AppColors.background)
                 .toolbarTitleDisplayMode(.inline)

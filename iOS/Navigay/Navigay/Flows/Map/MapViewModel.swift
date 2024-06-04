@@ -96,6 +96,9 @@ extension MapViewModel {
             filteredEvents = events
         case .rights:
             getPlaces(type: .rights)
+        case .like:
+            filteredPlaces = places.filter( { $0.isLiked } )
+            filteredEvents = events.filter( { $0.isLiked } )
         }
         withAnimation {
             position  = .automatic

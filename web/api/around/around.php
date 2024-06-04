@@ -85,6 +85,7 @@ $longitude = floatval($_GET['longitude']);
 if (!isset($_GET['user_date'])) {
     sendError('Date is required.');
 }
+
 $user_date = $_GET['user_date'];
 try {
     $dateTime = DateTimeImmutable::createFromFormat('Y-m-d\TH:i:s', $user_date);
@@ -305,7 +306,7 @@ if (empty($places) && empty($events)) {
     $eventsCount = count($events);
     
     foreach ($events as $event) {
-        if ($event['start_date'] > $user_date) {
+        if ($event['start_date'] > $date) {
             $upcomingEvents[] = $event;
         } else {
             $todayEvents[] = $event;
@@ -405,7 +406,7 @@ if (empty($places) && empty($events)) {
 
     $sortedEvents = array(
         "today" => $todayEvents,
-        "upcoming" => getUpcomingEvents($upcomingEvents, $user_date),
+        "upcoming" => getUpcomingEvents($upcomingEvents, $date),
         "eventsCount" => $eventsCount,
     );
 

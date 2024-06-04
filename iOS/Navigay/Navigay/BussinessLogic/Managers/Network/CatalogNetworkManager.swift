@@ -146,13 +146,14 @@ extension CatalogNetworkManager: CatalogNetworkManagerProtocol {
             components.queryItems = [
                 URLQueryItem(name: "id", value: String(id)),
                 URLQueryItem(name: "language", value: self.appSettingsManager.language),
-                URLQueryItem(name: "user_date", value: Date().format("yyyy-MM-dd"))
+                URLQueryItem(name: "user_date", value: Date().format("yyyy-MM-dd'T'HH:mm:ss"))
             ]
             return components
         }
         guard let url = urlComponents.url else {
             throw NetworkErrors.badUrl
         }
+        print(url)
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         let (data, response) = try await URLSession.shared.data(for: request)

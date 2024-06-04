@@ -30,13 +30,18 @@ protocol EventDataManagerProtocol {
     func getEvents(for date: Date, userLocation: CLLocation, modelContext: ModelContext) async -> [Event]
     
     func updateEvents(decodedEvents: [DecodedEvent]?, for cities: [City], modelContext: ModelContext) -> [Event]
+    
     func updateEvents(decodedEvents: EventsItemsResult?, for cities: [City], modelContext: ModelContext) -> EventsItems
-    func updateEvents(decodedEvents: [DecodedEvent]?, for city: City, modelContext: ModelContext) -> [Event]
+    func updateCityEvents(decodedEvents: EventsItemsResult?, for city: City, modelContext: ModelContext) -> EventsItems
+
+    
     func updateEvents(decodedEvents: [DecodedEvent]?, for place: Place, modelContext: ModelContext) -> [Event]
 }
 
-final class EventDataManager: EventDataManagerProtocol {
-    
+final class EventDataManager {
+}
+extension EventDataManager: EventDataManagerProtocol {
+
     func getAllEvents(modelContext: ModelContext) -> [Event] {
         do {
             let descriptor = FetchDescriptor<Event>(sortBy: [SortDescriptor(\.id)])
@@ -258,18 +263,16 @@ final class EventDataManager: EventDataManagerProtocol {
         return EventsItems(today: todayEvents, upcoming: upcomingEvents, allDates: updateAllDates(decodedAllDates: decodedEvents.allDates), count: decodedEvents.eventsCount ?? 0)
     }
     
-    func updateAllDates(decodedAllDates: [String: [Int]]?) -> [Date: [Int]] {
-        guard let decodedAllDates = decodedAllDates else { return [:] }
-        var allDates: [Date: [Int]] = [:]
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd"
-        
-        for (dateString, eventIds) in decodedAllDates {
-            if let date = dateFormatter.date(from: dateString) {
-                allDates[date] = eventIds
-            }
+
+    
+    func updateCityEvents(decodedEvents: EventsItemsResult?, for city: City, modelContext: ModelContext) -> EventsItems {
+        guard let decodedEvents else {
+            city.events.forEach( { modelContext.delete($0) } )
+            return EventsItems(today: [], upcoming: [], allDates: [:], count: 0)
         }
-        return allDates
+        let todayEvents = updateCityEvents(decodedEvents: decodedEvents.today, for: city, modelContext: modelContext)
+        let upcomingEvents = updateCityEvents(decodedEvents: decodedEvents.upcoming, for: city, modelContext: modelContext)
+        return EventsItems(today: todayEvents, upcoming: upcomingEvents, allDates: updateAllDates(decodedAllDates: decodedEvents.allDates), count: decodedEvents.eventsCount ?? 0)
     }
     
     func updateEvents(decodedEvents: [DecodedEvent]?, for cities: [City], modelContext: ModelContext) -> [Event] {
@@ -311,22 +314,16 @@ final class EventDataManager: EventDataManagerProtocol {
             return []
         }
     }
+}
+extension EventDataManager {
+
+    // MARK: - Private functions
     
-    func updateEvents(decodedEvents: [DecodedEvent]?, for city: City, modelContext: ModelContext) -> [Event] {
+    private func updateCityEvents(decodedEvents: [DecodedEvent]?, for city: City, modelContext: ModelContext) -> [Event] {
         guard let decodedEvents, !decodedEvents.isEmpty else {
             city.events.forEach( { modelContext.delete($0) } )
             return []
         }
-        
-        let ids = decodedEvents.map( { $0.id } )
-        var eventsToDelete: [Event] = []
-        city.events.forEach { event in
-            if !ids.contains(event.id) {
-                eventsToDelete.append(event)
-            }
-        }
-        eventsToDelete.forEach( { modelContext.delete($0) } )
-     
         do {
             let descriptor = FetchDescriptor<Event>()
             var allEvents = try modelContext.fetch(descriptor)
@@ -354,5 +351,19 @@ final class EventDataManager: EventDataManagerProtocol {
             debugPrint(error)
             return []
         }
+    }
+    
+    private func updateAllDates(decodedAllDates: [String: [Int]]?) -> [Date: [Int]] {
+        guard let decodedAllDates = decodedAllDates else { return [:] }
+        var allDates: [Date: [Int]] = [:]
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        
+        for (dateString, eventIds) in decodedAllDates {
+            if let date = dateFormatter.date(from: dateString) {
+                allDates[date] = eventIds
+            }
+        }
+        return allDates
     }
 }
