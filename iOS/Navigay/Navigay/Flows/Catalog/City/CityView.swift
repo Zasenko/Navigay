@@ -130,8 +130,6 @@ struct CityView: View {
                         placesSection()
                     } header: {
                         menuView
-                            .frame(maxWidth: .infinity)
-                            .background(AppColors.background)
                     }
                     .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                     .listRowSeparator(.hidden)
@@ -225,10 +223,9 @@ struct CityView: View {
     }
     
     private var menuView: some View {
-        VStack(spacing: 0) {
             ScrollViewReader { scrollProxy2 in
                 ScrollView(.horizontal, showsIndicators: false) {
-                    LazyHGrid(rows: [GridItem()], alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/, spacing: 0) {
+                    LazyHGrid(rows: [GridItem()], alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/, spacing: 10) {
                         ForEach(viewModel.sortingHomeCategories, id: \.self) { category in
                             Button {
                                 withAnimation(.easeIn) {
@@ -246,20 +243,18 @@ struct CityView: View {
                                     .background(viewModel.selectedMenuCategory == category ? AppColors.lightGray6 : .clear)
                                     .clipShape(.capsule)
                             }
-                            .padding(.leading)
                             .id(category)
                         }
                     }
-                    .padding(.trailing)
+                    .padding(.horizontal)
                 }
-                .frame(height: 40)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .padding(.vertical, 10)
                 .onChange(of: viewModel.selectedMenuCategory, initial: true) { oldValue, newValue in
                     withAnimation {
                         scrollProxy2.scrollTo(newValue, anchor: .top)
                     }
                 }
-                Divider()
-            }
         }
     }
 
