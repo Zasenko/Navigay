@@ -68,7 +68,6 @@ struct EventCell: View {
         }
         .onAppear() {
             Task(priority: .high) {
-                print("loading smallPoster event id: ", event.id)
                 if let img = event.smallPosterImg {
                     await MainActor.run {
                         self.image = img

@@ -85,11 +85,9 @@ $longitude = floatval($_GET['longitude']);
 if (!isset($_GET['user_date'])) {
     sendError('Date is required.');
 }
-
 $user_date = $_GET['user_date'];
-
 try {
-    $dateTime = DateTimeImmutable::createFromFormat('Y-m-d\TH:i:s.u\Z', $user_date);
+    $dateTime = DateTimeImmutable::createFromFormat('Y-m-d\TH:i:s', $user_date);
     if ($dateTime === false) {
         throw new Exception('Failed to parse date string.');
     }

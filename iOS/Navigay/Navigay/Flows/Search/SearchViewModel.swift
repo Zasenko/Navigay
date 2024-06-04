@@ -51,7 +51,7 @@ extension SearchView {
         let catalogNetworkManager: CatalogNetworkManagerProtocol
         let placeNetworkManager: PlaceNetworkManagerProtocol
         let eventNetworkManager: EventNetworkManagerProtocol
-    let commentsNetworkManager: CommentsNetworkManagerProtocol
+        let commentsNetworkManager: CommentsNetworkManagerProtocol
         let errorManager: ErrorManagerProtocol
         let placeDataManager: PlaceDataManagerProtocol
         let eventDataManager: EventDataManagerProtocol
@@ -94,33 +94,40 @@ extension SearchView {
                         }
                         return
                     }
-                    self?.fetchSearchResults(text: searchText)
+                    self?.search(text: searchText)
                 }
         }
         
-        private func fetchSearchResults(text: String) {
-            isSearching = true
-            Task {
-                do {
-                    let result = try await catalogNetworkManager.search(text: text)
-                    await MainActor.run {
-                        updateSearchResult(result: result, for: text)
-                    }
-                } catch NetworkErrors.noConnection {
-                    errorManager.showNetworkNoConnected()
-                } catch NetworkErrors.apiError(let apiError) {
-                    errorManager.showApiError(apiError: apiError, or: errorManager.updateMessage, img: nil, color: nil)
-                } catch {
-                    errorManager.showUpdateError(error: error)
+        func search(text: String) {
+            
+            if let result = catalogNetworkManager.loadedSearchText[text] {
+                searchEvents = getEvents(events: result.events)
+                searchPlaces = getPlaces(places: result.places)
+                Task {
+                    await updateSortingMapCategories(events: result.events, places: result.places)
                 }
-                await MainActor.run {
-                    isSearching = false
+            } else {
+                isSearching = true
+                Task {
+                    do {
+                        let result = try await catalogNetworkManager.search(text: text)
+                        await MainActor.run {
+                            updateSearchResult(result: result, for: text)
+                        }
+                    } catch NetworkErrors.noConnection {
+                        errorManager.showNetworkNoConnected()
+                    } catch NetworkErrors.apiError(let apiError) {
+                        errorManager.showApiError(apiError: apiError, or: errorManager.updateMessage, img: nil, color: nil)
+                    } catch {
+                        errorManager.showUpdateError(error: error)
+                    }
+                    await MainActor.run {
+                        isSearching = false
+                    }
                 }
             }
         }
-        
-        //        var searchPlaces: [[SortingCategory: [Country: [Place]]]] = [:]
-        //        var searchEvents: [Country: [Event]] = [:]
+
         func getPlaces(places: [Place]) -> [SearchPlacesTest] {
             var searchPlaces: [SortingCategory: [Country: [Place]]] = [:]
             for place in places {
@@ -161,7 +168,6 @@ extension SearchView {
                     }
                 }
             }
-            
             return searchEvents.map({ SearchEvents(id: UUID(), country: $0, events: $1) })
         }
         private func updateSearchResult(result: DecodedSearchItems, for text: String) {
@@ -175,8 +181,8 @@ extension SearchView {
             Task {
                 await updateSortingMapCategories(events: events, places: places)
             }
-            //            let items = SearchItems(cities: cities, regions: regions, places: groupedPlaces, events: events)
-            //            catalogNetworkManager.addToLoadedSearchItems(result: items, for: text)
+            let items = SearchItems(places: places, events: events)
+            catalogNetworkManager.addToLoadedSearchItems(result: items, for: text)
         }
         
         private func updateSortingMapCategories(events: [Event], places: [Place]) async {

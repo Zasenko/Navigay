@@ -29,9 +29,6 @@ struct SearchView: View {
         NavigationStack {
             VStack(spacing: 0) {
                 header
-                if focused {
-                    Divider()
-                }
                 mainView
             }
             .background {
@@ -117,7 +114,7 @@ struct SearchView: View {
     private var mainView: some View {
         GeometryReader { proxy in
             ZStack {
-                if focused {
+                if focused || viewModel.searchText.isEmpty {
                     List {
                         lastSearchResultsView
                             .listRowBackground(Color.clear)
@@ -155,8 +152,8 @@ struct SearchView: View {
             ForEach(viewModel.catalogNetworkManager.loadedSearchText.keys.uniqued(), id: \.self) { key in
                 Button {
                     hideKeyboard()
-                    viewModel.searchInDB(text: key)
                     viewModel.searchText = key
+                    viewModel.search(text: key)
                 } label: {
                     HStack(alignment: .firstTextBaseline) {
                         AppImages.iconArrowUpRight

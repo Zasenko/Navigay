@@ -64,6 +64,7 @@ extension ImageLoader {
             throw ImageLoaderError.invalidUrl
         }
         let (data, _) = try await URLSession.shared.data(from: url)
+        debugPrint("fetch img stringUrl: ", stringUrl)
         return data
     }
     

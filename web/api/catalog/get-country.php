@@ -14,6 +14,17 @@ $country_id = (int)$_GET["id"];
 
 $language = isset($_GET['language']) && in_array($_GET['language'], $languages) ? $_GET['language'] : 'en';
 
+$user_date = $_GET['user_date'];
+try {
+    $dateTime = DateTimeImmutable::createFromFormat('Y-m-d\TH:i:s', $user_date);
+    if ($dateTime === false) {
+        throw new Exception('Failed to parse date string.');
+    }
+    $date = $dateTime->format('Y-m-d');
+    $time = $dateTime->format('H:i:s');
+} catch (Exception $e) {
+    sendError('Invalid date format.');
+}
 require_once('../dbconfig.php');
 
 $sql = "SELECT id, isoCountryCode, name_en, about, flag_emoji, photo, show_regions, updated_at FROM Country WHERE id = ?";
@@ -57,30 +68,51 @@ $regions = array();
 while ($row = $regions_result->fetch_assoc()) {
 
     $region_id = $row['id'];
-    $photo = $row['photo'];
-    $photo_url = isset($photo) ? "https://www.navigay.me/" . $photo : null;
-
     $region = array(
         'id' => $region_id,
         'name' => $row["name_en"],
-        'photo' => $photo_url,
         'updated_at' => $row['updated_at']
     );
 
-    $sql = "SELECT id, name_en, small_photo, photo, latitude, longitude, is_capital, is_gay_paradise, updated_at FROM City WHERE region_id = ? AND is_active = true";
-    $params = [$region_id];
-    $types = "i";
-    $stmt = executeQuery($conn, $sql, $params, $types);
-    $cities_result = $stmt->get_result();
-    $stmt->close();
+    $sql = "SELECT 
+    c.id, 
+    c.name_en, 
+    c.small_photo, 
+    c.latitude, 
+    c.longitude, 
+    c.is_capital, 
+    c.is_gay_paradise, 
+    c.updated_at,
+    COUNT(DISTINCT p.id) AS place_count,
+    COUNT(DISTINCT e.id) AS event_count
+FROM 
+City c
+LEFT JOIN 
+    Place p ON c.id = p.city_id AND p.is_active = true
+LEFT JOIN 
+    Event e ON c.id = e.country_id 
+        AND e.is_active = true 
+        AND (
+            (e.finish_date IS NULL AND e.start_date >= ?) 
+            OR (e.finish_date IS NOT NULL AND e.finish_date > ?) 
+            OR (e.finish_date IS NOT NULL AND e.finish_time IS NOT NULL AND e.finish_date = ? AND e.finish_time > ?)
+        ) 
+WHERE 
+c.region_id = ? AND c.is_active = true
+GROUP BY 
+    c.id 
+HAVING 
+    place_count > 0 OR event_count > 0";
+
+$params = [$date, $date, $date, $time, $region_id];
+$types = "ssssi";
+$stmt = executeQuery($conn, $sql, $params, $types);
+$result = $stmt->get_result();
+$stmt->close();
 
     $cities = array();
     while ($row = $cities_result->fetch_assoc()) {
-
-        $photo = $row['photo'];
-        $photo_url = isset($photo) ? "https://www.navigay.me/" . $photo : null;
-        $small_photo = $row['small_photo'];
-        $small_photo_url = isset($small_photo) ? "https://www.navigay.me/" . $small_photo : null;
+        $small_photo_url = isset($row['small_photo']) ? "https://www.navigay.me/" . $row['small_photo'] : null;
 
         $is_capital = (bool)$row['is_capital'];
         $is_gay_paradise = (bool)$row['is_gay_paradise'];
@@ -89,7 +121,6 @@ while ($row = $regions_result->fetch_assoc()) {
             'id' => $row['id'],
             'name' => $row["name_en"],
             'small_photo' => $small_photo_url,
-            'photo' => $photo_url,
             'latitude' => $row['latitude'],
             'longitude' => $row['longitude'],
             'is_capital' => $is_capital,
@@ -109,5 +140,5 @@ $country += ['regions' => $regions];
 
 $conn->close();
 $json = array('result' => true, 'country' => $country);
-echo json_encode($json, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
+echo json_encode($json, JSON_UNESCAPED_UNICODE);
 exit;
