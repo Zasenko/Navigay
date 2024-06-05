@@ -12,7 +12,7 @@ $userDate = isset($_GET['user_date']) ? $_GET['user_date'] : date('Y-m-d');
 
 require_once('api/dbconfig.php');
 
-$sql = "SELECT id, isoCountryCode, name_en, flag_emoji, photo, show_regions, updated_at FROM Country WHERE is_active = true";
+//$sql = "SELECT id, isoCountryCode, name_en, flag_emoji, photo, show_regions, updated_at FROM Country WHERE is_active = true";
 
 $sql = "SELECT 
     c.id, 

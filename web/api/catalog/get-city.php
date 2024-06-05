@@ -50,22 +50,22 @@ function getActiveDates($events)
 
     foreach ($events as $event) {
         if ($event['finish_date'] === null) {
-            $activeDates[$event['start_date']][] = $event['id'];
+            $activeDates[] = $event['start_date'];
         } elseif ($event['finish_date'] !== null && $event['finish_date'] == $event['start_date']) {
-            $activeDates[$event['start_date']][] = $event['id'];
+            $activeDates[] = $event['start_date'];
         } elseif ($event['finish_date'] !== null) {
             $eventDates = getAllDatesBetween($event['start_date'], $event['finish_date']);
-            if ($event['finish_time'] === null) {
-                array_pop($eventDates);
-            } elseif ($event['finish_time'] !== null && $event['finish_time'] < '11:00') {
+            if ($event['finish_time'] === null || ($event['finish_time'] !== null && $event['finish_time'] < '11:00')) {
                 array_pop($eventDates);
             }
             foreach ($eventDates as $date) {
-                $activeDates[$date][] = $event['id'];
+                $activeDates[] = $date;
             }
         }
     }
-
+    // Remove duplicates and sort the dates
+    $activeDates = array_unique($activeDates);
+    sort($activeDates);
     return $activeDates;
 }
 
@@ -248,7 +248,7 @@ $eventsCount = count($events);
 
     $activeDates = getActiveDates($events);
     if (!empty($activeDates)) {
-        $sortedEvents['allDates'] = $activeDates;
+        $sortedEvents['calendarDates'] = $activeDates;
     }
 
 

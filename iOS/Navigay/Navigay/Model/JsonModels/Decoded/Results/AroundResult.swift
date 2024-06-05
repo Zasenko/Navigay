@@ -41,6 +41,7 @@ struct EventsItemsResult: Codable {
     let today: [DecodedEvent]?
     let upcoming: [DecodedEvent]?
     let allDates: [String: [Int]]?
+    let calendarDates: [String]?
     let eventsCount: Int?
 }
 
@@ -56,5 +57,6 @@ struct EventsItems {
     let today: [Event]
     let upcoming: [Event]
     let allDates: [Date: [Int]]
+ //   let calendarDates: [Date]
     let count: Int
 }

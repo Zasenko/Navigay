@@ -77,9 +77,9 @@ struct CityView: View {
             .onChange(of: viewModel.selectedDate, initial: false) { oldValue, newValue in
                 viewModel.showCalendar = false
                 if let date = newValue {
-                   // getEvents(for: date)
+                    viewModel.getEvents(for: date)
                 } else {
-                    showUpcomingEvents()
+                    viewModel.showUpcomingEvents()
                 }
             }
             .sheet(isPresented:  $viewModel.showCalendar) {} content: {
@@ -172,7 +172,7 @@ struct CityView: View {
     
     
     private func eventsSection(size: CGSize) -> some View {
-        EventsView(modelContext: viewModel.modelContext, selectedDate: $viewModel.selectedDate, displayedEvents: $viewModel.displayedEvents, actualEvents: $viewModel.actualEvents, eventsCount: $viewModel.eventsCount, todayEvents: $viewModel.todayEvents, upcomingEvents: $viewModel.upcomingEvents, eventsDates: $viewModel.eventsDates, selectedEvent: $viewModel.selectedEvent, showCalendar: $viewModel.showCalendar, size: size)
+        EventsView(modelContext: viewModel.modelContext, selectedDate: $viewModel.selectedDate, displayedEvents: $viewModel.displayedEvents, eventsCount: $viewModel.eventsCount, todayEvents: $viewModel.todayEvents, upcomingEvents: $viewModel.upcomingEvents, eventsDates: $viewModel.eventsDates, selectedEvent: $viewModel.selectedEvent, showCalendar: $viewModel.showCalendar, size: size)
             .listRowSeparator(.hidden)
             .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
             .id(SortingCategory.events)
@@ -257,20 +257,6 @@ struct CityView: View {
                 }
         }
     }
-
-//    private func getEvents(for date: Date) {
-//        Task {
-//            let events = await viewModel.eventDataManager.getEvents(for: date, events: viewModel.actualEvents )
-//            await MainActor.run {
-//                viewModel.displayedEvents = events
-//            }
-//        }
-//    }
-    
-    private func showUpcomingEvents() {
-        viewModel.displayedEvents = viewModel.upcomingEvents
-    }
-    
 }
 
 

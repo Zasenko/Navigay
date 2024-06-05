@@ -28,12 +28,16 @@ protocol EventDataManagerProtocol {
     func getActiveDates(for events: [Event]) async -> [Date]
     
     func getEvents(for date: Date, userLocation: CLLocation, modelContext: ModelContext) async -> [Event]
+    func getEvents(for date: Date, events: [Event]) async -> [Event]
     
     func updateEvents(decodedEvents: [DecodedEvent]?, for cities: [City], modelContext: ModelContext) -> [Event]
     
+    //todo избавиться от этих двух метобов
     func updateEvents(decodedEvents: EventsItemsResult?, for cities: [City], modelContext: ModelContext) -> EventsItems
     func updateCityEvents(decodedEvents: EventsItemsResult?, for city: City, modelContext: ModelContext) -> EventsItems
-
+    
+    
+    func updateCityEvents(decodedEvents: [DecodedEvent]?, for city: City, modelContext: ModelContext) -> [Event]
     
     func updateEvents(decodedEvents: [DecodedEvent]?, for place: Place, modelContext: ModelContext) -> [Event]
 }
@@ -319,7 +323,7 @@ extension EventDataManager {
 
     // MARK: - Private functions
     
-    private func updateCityEvents(decodedEvents: [DecodedEvent]?, for city: City, modelContext: ModelContext) -> [Event] {
+    func updateCityEvents(decodedEvents: [DecodedEvent]?, for city: City, modelContext: ModelContext) -> [Event] {
         guard let decodedEvents, !decodedEvents.isEmpty else {
             city.events.forEach( { modelContext.delete($0) } )
             return []

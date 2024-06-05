@@ -18,7 +18,7 @@ extension HomeView2 {
         
         var modelContext: ModelContext
         
-        var actualEvents: [Event] = []  // delete
+     //   var actualEvents: [Event] = []  // delete
         var todayEvents: [Event] = []
         var upcomingEvents: [Event] = []
         var displayedEvents: [Event] = []
@@ -110,7 +110,6 @@ extension HomeView2 {
                     let eventsDatesWithoutToday = await eventDataManager.getActiveDates(for: actualEvents)
                     
                     await MainActor.run {
-                        self.actualEvents = actualEvents
                         self.upcomingEvents = upcomingEvents
                         self.aroundPlaces = aroundPlaces
                         self.eventsDates = eventsDatesWithoutToday

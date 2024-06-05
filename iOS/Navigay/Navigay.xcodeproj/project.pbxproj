@@ -15,6 +15,7 @@
 		0A5022AF2C0DF34200F937C8 /* Report.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A5022AE2C0DF34200F937C8 /* Report.swift */; };
 		0A5022B12C0DF41E00F937C8 /* CommentsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A5022B02C0DF41E00F937C8 /* CommentsViewModel.swift */; };
 		0A5022B32C0DF74A00F937C8 /* CommentsNetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A5022B22C0DF74A00F937C8 /* CommentsNetworkManager.swift */; };
+		0AAC572B2C106CB300CD4A4A /* EventsResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AAC572A2C106CB300CD4A4A /* EventsResult.swift */; };
 		0AB7FBC82C063F4A00EF8DBF /* HomeView2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB7FBC72C063F4A00EF8DBF /* HomeView2.swift */; };
 		0AB7FBCB2C066C0000EF8DBF /* aroundjson.json in Resources */ = {isa = PBXBuildFile; fileRef = 0AB7FBCA2C066C0000EF8DBF /* aroundjson.json */; };
 		0AC12DA72BB581F100343DE3 /* EditRegionNetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AC12DA62BB581F100343DE3 /* EditRegionNetworkManager.swift */; };
@@ -243,6 +244,7 @@
 		0A5022AE2C0DF34200F937C8 /* Report.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Report.swift; sourceTree = "<group>"; };
 		0A5022B02C0DF41E00F937C8 /* CommentsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentsViewModel.swift; sourceTree = "<group>"; };
 		0A5022B22C0DF74A00F937C8 /* CommentsNetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentsNetworkManager.swift; sourceTree = "<group>"; };
+		0AAC572A2C106CB300CD4A4A /* EventsResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventsResult.swift; sourceTree = "<group>"; };
 		0AB7FBC72C063F4A00EF8DBF /* HomeView2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView2.swift; sourceTree = "<group>"; };
 		0AB7FBCA2C066C0000EF8DBF /* aroundjson.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = aroundjson.json; path = ../../../../../web/api/around/aroundjson.json; sourceTree = "<group>"; };
 		0AC12DA62BB581F100343DE3 /* EditRegionNetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditRegionNetworkManager.swift; sourceTree = "<group>"; };
@@ -609,6 +611,7 @@
 				0F2765642B03780C0084B5DD /* PosterResult.swift */,
 				0F80E9E02B0696DC006ABBF0 /* AroundResult.swift */,
 				0FBABB892B2B590900A2B4FE /* ItemsResult.swift */,
+				0AAC572A2C106CB300CD4A4A /* EventsResult.swift */,
 				0F7981802B443CBF00BFEAE5 /* SearchResult.swift */,
 			);
 			path = Results;
@@ -1355,6 +1358,7 @@
 				0F7E98012BA59227001A1550 /* AdminPhoto.swift in Sources */,
 				0FD22FE62BC6E13D0057CC75 /* EditEventAdminView.swift in Sources */,
 				0F354CCE2AFF713800594AE0 /* ActivationModel.swift in Sources */,
+				0AAC572B2C106CB300CD4A4A /* EventsResult.swift in Sources */,
 				0F79B2582AF265A800FCAED2 /* ActivationFieldsView.swift in Sources */,
 				0F34DF832AE692BB005D29D0 /* SearchLocationView.swift in Sources */,
 				0FD6178E2ACC398200877C70 /* NavigayApp.swift in Sources */,

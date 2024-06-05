@@ -12,6 +12,7 @@ protocol EventNetworkManagerProtocol {
     var loadedCalendarEventsId: [Int] { get }
     func fetchEvent(id: Int) async throws -> DecodedEvent
     func fetchEvents(ids: [Int]) async throws -> DecodedSearchItems
+    func fetchEvents(cityId: Int, date: Date) async throws -> [DecodedEvent]
     func sendComplaint(eventId: Int, user: AppUser, reason: String) async throws
 }
 
@@ -116,5 +117,41 @@ extension EventNetworkManager: EventNetworkManagerProtocol {
         }
         decodedItems.events?.forEach( { loadedCalendarEventsId.append($0.id) } )
         return decodedItems
+    }
+    
+    func fetchEvents(cityId: Int, date: Date) async throws -> [DecodedEvent] {
+        guard networkMonitorManager.isConnected else {
+            throw NetworkErrors.noConnection
+        }
+        let path = "/api/event/get-events-for-city-by-date.php"
+        var urlComponents: URLComponents {
+            var components = URLComponents()
+            components.scheme = scheme
+            components.host = host
+            components.path = path
+            components.queryItems = [
+                URLQueryItem(name: "city_id", value: String(cityId)),
+                //URLQueryItem(name: "language", value: self.appSettingsManager.language)
+                URLQueryItem(name: "date", value: date.format("yyyy-MM-dd")),
+            ]
+            return components
+        }
+        guard let url = urlComponents.url else {
+            throw NetworkErrors.badUrl
+        }
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
+            throw NetworkErrors.invalidData
+        }
+        guard let decodedResult = try? JSONDecoder().decode(EventsResult.self, from: data) else {
+            throw NetworkErrors.decoderError
+        }
+        guard decodedResult.result, let decodedEvents = decodedResult.events else {
+            throw NetworkErrors.apiError(decodedResult.error)
+        }
+        decodedEvents.forEach( { loadedCalendarEventsId.append($0.id) } )
+        return decodedEvents
     }
 }

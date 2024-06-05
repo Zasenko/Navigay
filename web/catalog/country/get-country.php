@@ -8,9 +8,11 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 }
 
 if (!isset($_GET["id"]) || !is_numeric($_GET["id"])) {
-    sendError('Invalid or missing "id" parameter.');
+    sendError('Invalid or missing ID parameter.');
 }
 $country_id = (int)$_GET["id"];
+
+$userDate = date('Y-m-d');
 
 $language = isset($_GET['language']) && in_array($_GET['language'], $languages) ? $_GET['language'] : 'en';
 
@@ -89,8 +91,7 @@ LEFT JOIN
         AND ((e.finish_date IS NULL AND e.start_date >= ?) 
             OR (e.finish_date IS NOT NULL AND e.finish_date >= ?))
 WHERE 
-c.region_id = ? AND is_active = true
-    c.is_active = true
+c.region_id = ? AND c.is_active = true
 GROUP BY 
     c.id
 ORDER BY 

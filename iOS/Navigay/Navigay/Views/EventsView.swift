@@ -15,7 +15,7 @@ struct EventsView: View {
     @EnvironmentObject private var authenticationManager: AuthenticationManager
     @Binding var selectedDate: Date?
     @Binding var displayedEvents: [Event]
-    @Binding var actualEvents: [Event]
+  //  @Binding var actualEvents: [Event]
     @Binding var eventsCount: Int
     @Binding var todayEvents: [Event]
     @Binding var upcomingEvents: [Event]

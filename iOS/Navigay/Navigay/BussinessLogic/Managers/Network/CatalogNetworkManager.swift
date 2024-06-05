@@ -153,7 +153,6 @@ extension CatalogNetworkManager: CatalogNetworkManagerProtocol {
         guard let url = urlComponents.url else {
             throw NetworkErrors.badUrl
         }
-        print(url)
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         let (data, response) = try await URLSession.shared.data(for: request)

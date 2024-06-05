@@ -12,9 +12,3 @@ struct EventResult: Codable {
     let error: ApiError?
     let event: DecodedEvent?
 }
-struct EventsResult: Codable {
-    let result: Bool
-    let error: ApiError?
-    let events: [DecodedEvent]?
-    let cities: [DecodedCity]?
-}

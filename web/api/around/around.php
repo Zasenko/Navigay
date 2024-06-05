@@ -143,7 +143,7 @@ while ($row = $result->fetch_assoc()) {
     $country_ids[] = intval($row['country_id']);
 }
 
-$sql = "SELECT id, name, type_id, country_id, region_id, city_id, latitude, longitude, start_date, start_time, finish_date, finish_time, address, location, poster_small, is_free, tags, place_id, is_active, updated_at 
+$sql = "SELECT id, name, type_id, country_id, region_id, city_id, latitude, longitude, start_date, start_time, finish_date, finish_time, address, location, poster_small, is_free, tags, place_id, updated_at 
         FROM Event 
         WHERE is_active = true 
         AND SQRT(POW(latitude - ?, 2) + POW(longitude - ?, 2)) * 111.32 <= 20 
