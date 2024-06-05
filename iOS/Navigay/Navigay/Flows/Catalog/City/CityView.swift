@@ -13,7 +13,7 @@ struct CityView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel: CityViewModel
     @EnvironmentObject private var authenticationManager: AuthenticationManager
-    
+    @Environment(\.colorScheme) private var deviceColorScheme
     @State private var isScrolled: Bool = false
     @State private var scrollUp: Bool? = nil
     init(viewModel: CityViewModel) {
@@ -105,31 +105,37 @@ struct CityView: View {
                             .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                             .padding(.bottom)
                     }
-                    HStack {
-                        if viewModel.city.isCapital {
-                            VStack(spacing: 0) {
-                                Text("⭐️")
-                                Text("capital")
-                            }
-                            .frame(maxWidth: .infinity)
-                        }
-                        if viewModel.city.isParadise {
-                            VStack(spacing: 0) {
-                                Text("🏳️‍🌈")
-                                Text("heaven")
-                            }
-                            .frame(maxWidth: .infinity)
-                        }
-                    }
-                    .listRowSeparator(.hidden)
-                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                    .padding(.bottom)
-                    
+//                    if viewModel.city.isCapital || viewModel.city.isParadise {
+//                        HStack {
+//                            if viewModel.city.isCapital {
+//                                VStack(spacing: 0) {
+//                                    Text("⭐️")
+//                                    Text("capital")
+//                                }
+//                                .frame(maxWidth: .infinity)
+//                            }
+//                            if viewModel.city.isParadise {
+//                                VStack(spacing: 0) {
+//                                    Text("🏳️‍🌈")
+//                                    Text("heaven")
+//                                }
+//                                .frame(maxWidth: .infinity)
+//                            }
+//                        }
+//                        .listRowSeparator(.hidden)
+//                        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+//                        .padding(.bottom)
+//                    }
+                    EmptyView()
+                        .listRowSeparator(.hidden)
+                        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                     Section {
                         eventsSection(size: geometry.size)
                         placesSection()
                     } header: {
-                        menuView
+                        if viewModel.sortingHomeCategories.count > 1 {
+                            menuView
+                        }
                     }
                     .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                     .listRowSeparator(.hidden)
@@ -152,7 +158,9 @@ struct CityView: View {
                 .scrollIndicators(.hidden)
                 .buttonStyle(PlainButtonStyle())
                 .onAppear() {
-                    viewModel.getPlacesAndEventsFromDB()
+                    if !viewModel.isPresented {
+                        viewModel.getPlacesAndEventsFromDB()
+                    }
                 }
                 .onChange(of: viewModel.selectedDate, initial: false) { oldValue, newValue in
                     withAnimation {
@@ -237,10 +245,10 @@ struct CityView: View {
                                 Text(category.getName())
                                     .font(.caption)
                                     .bold()
-                                    .foregroundStyle(.primary)
+                                    .foregroundStyle(viewModel.selectedMenuCategory == category ? .white : .secondary)
                                     .padding(5)
                                     .padding(.horizontal, 5)
-                                    .background(viewModel.selectedMenuCategory == category ? AppColors.lightGray6 : .clear)
+                                    .background(viewModel.selectedMenuCategory == category ? Color.primary : .clear)
                                     .clipShape(.capsule)
                             }
                             .id(category)

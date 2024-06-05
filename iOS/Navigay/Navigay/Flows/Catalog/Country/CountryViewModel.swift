@@ -22,7 +22,7 @@ extension CountryView {
         let placeDataManager: PlaceDataManagerProtocol
         let eventDataManager: EventDataManagerProtocol
         let catalogDataManager: CatalogDataManagerProtocol
-    let commentsNetworkManager: CommentsNetworkManagerProtocol
+        let commentsNetworkManager: CommentsNetworkManagerProtocol
         var showMap: Bool = false
                 
         // MARK: - Init

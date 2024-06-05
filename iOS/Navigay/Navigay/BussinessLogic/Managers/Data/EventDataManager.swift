@@ -10,7 +10,10 @@ import SwiftData
 import CoreLocation
 
 protocol EventDataManagerProtocol {
-        
+    
+    var aroundEventsCount: Int? { get set }
+    var dateEvents: [Date: [Int]]? { get set }
+    
     ///Sorted by id
     func getAllEvents(modelContext: ModelContext) -> [Event]
     func getEvent(id: Int, modelContext: ModelContext) -> Event?
@@ -42,9 +45,13 @@ protocol EventDataManagerProtocol {
     func updateEvents(decodedEvents: [DecodedEvent]?, for place: Place, modelContext: ModelContext) -> [Event]
 }
 
-final class EventDataManager {
+final class EventDataManager: EventDataManagerProtocol {
+    var aroundEventsCount: Int? = nil
+    var dateEvents: [Date: [Int]]? = nil
 }
-extension EventDataManager: EventDataManagerProtocol {
+
+extension EventDataManager {
+
 
     func getAllEvents(modelContext: ModelContext) -> [Event] {
         do {

@@ -24,9 +24,10 @@ final class City {
     
     var region: Region? = nil
     
-    var eventsCount: Int? = nil
-    var placesCount: Int? = nil
-        
+    var eventsCount: Int = 0
+    var placesCount: Int = 0
+    var eventsDates: [Date] = []
+    
     @Relationship(deleteRule: .cascade, inverse: \Place.city) var places: [Place] = []
     @Relationship(deleteRule: .cascade, inverse: \Event.city) var events: [Event] = []
     
@@ -57,6 +58,12 @@ final class City {
     }
     
     func updateCityComplite(decodedCity: DecodedCity) {
+        if let eventsCount = decodedCity.eventsCount {
+            self.eventsCount = eventsCount
+        }
+        if let placesCount = decodedCity.placesCount {
+            self.placesCount = placesCount
+        }
         let lastUpdate = decodedCity.lastUpdate.dateFromString(format: "yyyy-MM-dd HH:mm:ss")
         guard lastUpdateComplite != lastUpdate else { return }
         name = decodedCity.name

@@ -49,7 +49,7 @@ extension HomeView2 {
         var sortingMapCategories: [SortingCategory] = []
         
         let placeDataManager: PlaceDataManagerProtocol
-        let eventDataManager: EventDataManagerProtocol
+        var eventDataManager: EventDataManagerProtocol
         let catalogDataManager: CatalogDataManagerProtocol
         
     let catalogNetworkManager: CatalogNetworkManagerProtocol
@@ -109,17 +109,19 @@ extension HomeView2 {
                     let upcomingEvents = await eventDataManager.getUpcomingEvents(from: actualEvents)
                     let eventsDatesWithoutToday = await eventDataManager.getActiveDates(for: actualEvents)
                     
+                    let activeDates = eventDataManager.dateEvents?.keys.sorted().filter( { $0.isToday || $0.isFutureDay } )
+                    
                     await MainActor.run {
                         self.upcomingEvents = upcomingEvents
                         self.aroundPlaces = aroundPlaces
-                        self.eventsDates = eventsDatesWithoutToday
+                        self.eventsDates = activeDates ?? eventsDatesWithoutToday
                         aroundPlaces.forEach { place in
                             let distance = userLocation.distance(from: CLLocation(latitude: place.latitude, longitude: place.longitude))
                             place.getDistanceText(distance: distance, inKm: true)
                         }
                         self.todayEvents = todayEvents
                         self.displayedEvents = upcomingEvents
-                        self.eventsCount = actualEvents.count
+                        self.eventsCount = eventDataManager.aroundEventsCount ?? actualEvents.count
                         self.groupedPlaces = groupedPlaces
                         if !aroundPlaces.isEmpty || !aroundEvents.isEmpty {
                             isLoading = false
@@ -198,6 +200,9 @@ extension HomeView2 {
                         let cities = catalogDataManager.updateCities(decodedCities: decodedResult.cities, regions: regions, modelContext: modelContext)
                         let places = placeDataManager.updatePlaces(decodedPlaces: decodedResult.places, for: cities, modelContext: modelContext)
                         let eventsItems = eventDataManager.updateEvents(decodedEvents: decodedResult.events, for: cities, modelContext: modelContext)
+                        
+                        eventDataManager.aroundEventsCount = eventsItems.count
+                        
                         places.forEach { place in
                             let distance = userLocation.distance(from: CLLocation(latitude: place.latitude, longitude: place.longitude))
                             place.getDistanceText(distance: distance, inKm: true)
@@ -317,6 +322,8 @@ extension HomeView2 {
                     self.groupedPlaces = groupedPlaces
                     self.eventsCount = events.count
                     self.dateEvents = events.allDates
+                    self.eventDataManager.aroundEventsCount = events.count
+                    self.eventDataManager.dateEvents = events.allDates
                 }
                 await updateCategories()
             }

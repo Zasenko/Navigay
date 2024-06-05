@@ -19,8 +19,9 @@ extension CityView {
     class CityViewModel {
         
         var modelContext: ModelContext
-        
         let city: City
+        
+        var isPresented: Bool = false
         var isLoading: Bool = false
         
         var allPhotos: [String] = []
@@ -88,6 +89,7 @@ extension CityView {
         }
         
         func getPlacesAndEventsFromDB() {
+            isPresented = true
             debugPrint("-CityViewModel- getPlacesAndEventsFromDB()")
             Task {
                 let places = city.places.sorted(by: { $0.name < $1.name })
@@ -98,7 +100,7 @@ extension CityView {
                 let actualEvents = await eventDataManager.getActualEvents(for: events)
                 let todayEvents = await eventDataManager.getTodayEvents(from: actualEvents)
                 let upcomingEvents = await eventDataManager.getUpcomingEvents(from: actualEvents)
-                let eventsDatesWithoutToday = await eventDataManager.getActiveDates(for: actualEvents)
+              //  let eventsDatesWithoutToday = await eventDataManager.getActiveDates(for: actualEvents)
                 
                 await MainActor.run {
                     self.allPlaces = places
@@ -106,8 +108,8 @@ extension CityView {
                     self.upcomingEvents = upcomingEvents
                     self.todayEvents = todayEvents
                     self.displayedEvents = upcomingEvents
-                    self.eventsDates = eventsDatesWithoutToday
-                    self.eventsCount = actualEvents.count
+                    self.eventsDates = city.eventsDates
+                    self.eventsCount = city.eventsCount
                 }
                 await updateCategories()
 //
@@ -174,7 +176,7 @@ extension CityView {
             do {
                 let events = try await eventNetworkManager.fetchEvents(cityId: city.id, date: date)
                 await MainActor.run {
-                    var events = eventDataManager.updateCityEvents(decodedEvents: events, for: city, modelContext: modelContext)
+                    let events = eventDataManager.updateCityEvents(decodedEvents: events, for: city, modelContext: modelContext)
                     self.displayedEvents = events
                 }
             } catch NetworkErrors.apiError(let error) {
@@ -243,6 +245,8 @@ extension CityView {
                     self.displayedEvents = upcomingEvents
                     self.groupedPlaces = cityPlacesItem
                     self.eventsCount = events.count
+                    self.city.eventsCount = events.count
+                    self.city.eventsDates = activeDates
                 }
                 await updateCategories()
 //                await MainActor.run { [eventsToDelete, placesToDelete] in
