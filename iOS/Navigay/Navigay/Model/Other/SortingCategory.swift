@@ -26,7 +26,7 @@ enum SortingCategory {
     case medicine
     case rights
     case other
-    
+    case like
     case all
     
     init(placeType: PlaceType) {
@@ -108,11 +108,15 @@ enum SortingCategory {
             return "All locations"
         case .rights:
             return "Rights"
+        case .like:
+            return "Liked"
         }
     }
     
     func getSortPreority() -> Int {
         switch self {
+        case .like:
+            0
         case .events:
             1
         case .bar:
@@ -194,6 +198,53 @@ enum SortingCategory {
             return "🎉"
         case .all:
             return ""
+        case .like:
+            return "❤️"
+        }
+    }
+    
+    func getPluralName() -> String {
+        switch self {
+        case .bar:
+            return "Bars"
+        case .cafe:
+            return "Cafes"
+        case .restaurant:
+            return "Restaurants"
+        case .club:
+            return "Clubs"
+        case .hotel:
+            return "Hotels"
+        case .sauna:
+            return "Saunas"
+        case .cruiseBar:
+            return "Cruise bars"
+        case .beach:
+            return "Beaches"
+        case .shop:
+            return "Shops"
+        case .gym:
+            return "Sport"
+        case .culture:
+            return "Cultur"
+        case .community:
+            return "Communities"
+        case .other:
+            return "Other"
+        case .hostel:
+            return "Hostels"
+        case .medicine:
+            return "Medicine"
+        case .cruiseClub:
+            return "Cruise clubs"
+        case .rights:
+            return "Rights"
+        case .events:
+            return "Events"
+        case .all:
+            return "All"
+        case .like:
+            return "Liked"
         }
     }
 }

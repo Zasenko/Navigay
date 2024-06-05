@@ -13,7 +13,9 @@ struct CityView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel: CityViewModel
     @EnvironmentObject private var authenticationManager: AuthenticationManager
-    
+    @Environment(\.colorScheme) private var deviceColorScheme
+    @State private var isScrolled: Bool = false
+    @State private var scrollUp: Bool? = nil
     init(viewModel: CityViewModel) {
         _viewModel = State(initialValue: viewModel)
     }
@@ -23,6 +25,16 @@ struct CityView: View {
             VStack(spacing: 0) {
                 Divider()
                 listView
+                    .gesture(
+                       DragGesture().onChanged { value in
+                           isScrolled = true
+                          if value.translation.height > 0 {
+                              scrollUp = false
+                          } else {
+                              scrollUp = true
+                          }
+                       }
+                    )
             }
             .toolbarTitleDisplayMode(.inline)
             .toolbarBackground(AppColors.background)
@@ -65,9 +77,9 @@ struct CityView: View {
             .onChange(of: viewModel.selectedDate, initial: false) { oldValue, newValue in
                 viewModel.showCalendar = false
                 if let date = newValue {
-                    getEvents(for: date)
+                    viewModel.getEvents(for: date)
                 } else {
-                    showUpcomingEvents()
+                    viewModel.showUpcomingEvents()
                 }
             }
             .sheet(isPresented:  $viewModel.showCalendar) {} content: {
@@ -77,7 +89,7 @@ struct CityView: View {
                     .presentationCornerRadius(25)
             }
             .fullScreenCover(item: $viewModel.selectedEvent) { event in
-                EventView(viewModel: EventView.EventViewModel.init(event: event, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager))
+                EventView(viewModel: EventView.EventViewModel.init(event: event, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, commentsNetworkManager: viewModel.commentsNetworkManager))
             }
         }
     }
@@ -93,30 +105,40 @@ struct CityView: View {
                             .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                             .padding(.bottom)
                     }
-                    HStack {
-                        if viewModel.city.isCapital {
-                            VStack(spacing: 0) {
-                                Text("⭐️")
-                                Text("capital")
-                            }
-                            .frame(maxWidth: .infinity)
-                        }
-                        if viewModel.city.isParadise {
-                            VStack(spacing: 0) {
-                                Text("🏳️‍🌈")
-                                Text("heaven")
-                            }
-                            .frame(maxWidth: .infinity)
+//                    if viewModel.city.isCapital || viewModel.city.isParadise {
+//                        HStack {
+//                            if viewModel.city.isCapital {
+//                                VStack(spacing: 0) {
+//                                    Text("⭐️")
+//                                    Text("capital")
+//                                }
+//                                .frame(maxWidth: .infinity)
+//                            }
+//                            if viewModel.city.isParadise {
+//                                VStack(spacing: 0) {
+//                                    Text("🏳️‍🌈")
+//                                    Text("heaven")
+//                                }
+//                                .frame(maxWidth: .infinity)
+//                            }
+//                        }
+//                        .listRowSeparator(.hidden)
+//                        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+//                        .padding(.bottom)
+//                    }
+                    EmptyView()
+                        .listRowSeparator(.hidden)
+                        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                    Section {
+                        eventsSection(size: geometry.size)
+                        placesSection()
+                    } header: {
+                        if viewModel.sortingHomeCategories.count > 1 {
+                            menuView
                         }
                     }
-                    
-                    if viewModel.actualEvents.count > 0 {
-                        EventsView(modelContext: viewModel.modelContext, selectedDate: $viewModel.selectedDate, displayedEvents: $viewModel.displayedEvents, actualEvents: $viewModel.actualEvents, todayEvents: $viewModel.todayEvents, upcomingEvents: $viewModel.upcomingEvents, eventsDates: $viewModel.eventsDates, selectedEvent: $viewModel.selectedEvent, showCalendar: $viewModel.showCalendar, size: geometry.size)
-                            .listRowSeparator(.hidden)
-                            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                    }
-                    
-                    placesView
+                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                    .listRowSeparator(.hidden)
                     
                     Section {
                         if let about = viewModel.city.about {
@@ -136,29 +158,57 @@ struct CityView: View {
                 .scrollIndicators(.hidden)
                 .buttonStyle(PlainButtonStyle())
                 .onAppear() {
-                    viewModel.getPlacesAndEventsFromDB()
+                    if !viewModel.isPresented {
+                        viewModel.getPlacesAndEventsFromDB()
+                    }
                 }
                 .onChange(of: viewModel.selectedDate, initial: false) { oldValue, newValue in
                     withAnimation {
                         scrollProxy.scrollTo("UpcomingEvents", anchor: .top)
                     }
                 }
+                .onChange(of: viewModel.selectedHomeSortingCategory, initial: false) { oldValue, newValue in
+                    if isScrolled {
+                        withAnimation {
+                            scrollProxy.scrollTo(newValue, anchor: .top)
+                        }
+                    }
+                }
             }
         }
     }
     
-    private var placesView: some View {
-        ForEach(viewModel.groupedPlaces.keys.sorted(), id: \.self) { key in
+    
+    private func eventsSection(size: CGSize) -> some View {
+        EventsView(modelContext: viewModel.modelContext, selectedDate: $viewModel.selectedDate, displayedEvents: $viewModel.displayedEvents, eventsCount: $viewModel.eventsCount, todayEvents: $viewModel.todayEvents, upcomingEvents: $viewModel.upcomingEvents, eventsDates: $viewModel.eventsDates, selectedEvent: $viewModel.selectedEvent, showCalendar: $viewModel.showCalendar, size: size)
+            .listRowSeparator(.hidden)
+            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+            .id(SortingCategory.events)
+            .onAppear() {
+                if let scrollUp, !scrollUp {
+                    viewModel.selectedMenuCategory = .events
+                }
+            }
+            .onDisappear {
+                if let scrollUp, scrollUp, let category = viewModel.sortingHomeCategories.first(where:  { $0.getSortPreority() > SortingCategory.events.getSortPreority()} )  {
+                    viewModel.selectedMenuCategory = category
+                }
+            }
+    }
+    
+    private func placesSection() -> some View {
+        ForEach(viewModel.groupedPlaces.sorted(by: {$0.category.getSortPreority() < $1.category.getSortPreority()})) { groupedPlace in
             Section {
-                Text(key.getPluralName())
-                    .font(.title)
-                    .foregroundStyle(.secondary)
+                Text(groupedPlace.category.getPluralName())
+                    .font(.title2)
+                    .bold()
+                    .foregroundStyle(.primary)
+                    .offset(x: 70)
                     .padding(.top, 50)
                     .padding(.bottom, 10)
-                    .offset(x: 70)
-                ForEach(viewModel.groupedPlaces[key] ?? []) { place in
+                ForEach(groupedPlace.places) { place in
                     NavigationLink {
-                        PlaceView(viewModel: PlaceView.PlaceViewModel(place: place, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, showOpenInfo: false))
+                        PlaceView(viewModel: PlaceView.PlaceViewModel(place: place, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, commentsNetworkManager: viewModel.commentsNetworkManager, showOpenInfo: false))
                     } label: {
                         PlaceCell(place: place, showOpenInfo: false, showDistance: false, showCountryCity: false, showLike: true)
                     }
@@ -166,30 +216,93 @@ struct CityView: View {
             }
             .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
             .listRowSeparator(.hidden)
-        }
-    }
-
-    private func getEvents(for date: Date) {
-        Task {
-            let events = await viewModel.eventDataManager.getEvents(for: date, events: viewModel.actualEvents )
-            await MainActor.run {
-                viewModel.displayedEvents = events
+            .id(groupedPlace.category)
+            .onAppear {
+                if let scrollUp, !scrollUp {
+                    viewModel.selectedMenuCategory = groupedPlace.category
+                }
+            }
+            .onDisappear {
+                if let scrollUp, scrollUp, let category = viewModel.sortingHomeCategories.first(where:  { $0.getSortPreority() > groupedPlace.category.getSortPreority()} )  {
+                    viewModel.selectedMenuCategory = category
+                }
             }
         }
     }
     
-    private func showUpcomingEvents() {
-        viewModel.displayedEvents = viewModel.upcomingEvents
+    private var menuView: some View {
+            ScrollViewReader { scrollProxy2 in
+                ScrollView(.horizontal, showsIndicators: false) {
+                    LazyHGrid(rows: [GridItem()], alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/, spacing: 10) {
+                        ForEach(viewModel.sortingHomeCategories, id: \.self) { category in
+                            Button {
+                                withAnimation(.easeIn) {
+                                    scrollUp = nil
+                                    viewModel.selectedMenuCategory = category
+                                    viewModel.selectedHomeSortingCategory = category
+                                }
+                            } label: {
+                                Text(category.getName())
+                                    .font(.caption)
+                                    .bold()
+                                    .foregroundStyle(viewModel.selectedMenuCategory == category ? .white : .secondary)
+                                    .padding(5)
+                                    .padding(.horizontal, 5)
+                                    .background(viewModel.selectedMenuCategory == category ? Color.primary : .clear)
+                                    .clipShape(.capsule)
+                            }
+                            .id(category)
+                        }
+                    }
+                    .padding(.horizontal)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .padding(.vertical, 10)
+                .onChange(of: viewModel.selectedMenuCategory, initial: true) { oldValue, newValue in
+                    withAnimation {
+                        scrollProxy2.scrollTo(newValue, anchor: .top)
+                    }
+                }
+        }
     }
-    
 }
 
-//
-//#Preview {
-//    CityView(city: City(id: 4, name: ""))
-//        .modelContainer(for: [City.self], inMemory: true)
-//}
 
+//#Preview {
+//    let errorManager: ErrorManagerProtocol = ErrorManager()
+//    let keychainManager: KeychainManagerProtocol = KeychainManager()
+//    let appSettingsManager: AppSettingsManagerProtocol = AppSettingsManager()
+//    let networkMonitorManager: NetworkMonitorManagerProtocol = NetworkMonitorManager(errorManager: errorManager)
+//    
+//    var sharedModelContainer: ModelContainer = {
+//        let schema = Schema([
+//            AppUser.self, Country.self, Region.self, City.self, Event.self, Place.self, User.self
+//        ])
+//        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+//        
+//        do {
+//            return try ModelContainer(for: schema, configurations: [modelConfiguration])
+//        } catch {
+//            fatalError("Could not create ModelContainer: \(error)")
+//        }
+//    }()
+//        let catalogNetworkManager = CatalogNetworkManager(networkMonitorManager: networkMonitorManager, appSettingsManager: appSettingsManager)
+//        let placeNetworkManager = PlaceNetworkManager(networkMonitorManager: networkMonitorManager, appSettingsManager: appSettingsManager)
+//        let eventNetworkManager = EventNetworkManager(networkMonitorManager: networkMonitorManager, appSettingsManager: appSettingsManager)
+//    let commentsNetworkManager = CommentsNetworkManager(networkMonitorManager: networkMonitorManager, appSettingsManager: appSettingsManager)
+//    let authNetworkManager = AuthNetworkManager(networkMonitorManager: networkMonitorManager, appSettingsManager: appSettingsManager)
+//
+//        let placeDataManager = PlaceDataManager()
+//        let eventDataManager = EventDataManager()
+//        let catalogDataManager = CatalogDataManager()
+//    
+//    let auth = AuthenticationManager(keychainManager: keychainManager, networkMonitorManager: networkMonitorManager, networkManager: authNetworkManager, errorManager: errorManager)
+//    let decodedCity = DecodedCity(id: 0, name: "Vienna", smallPhoto: "", photo: "", photos: nil, latitude: 48.16, longitude: 16.2, isCapital: true, isGayParadise: true, lastUpdate: "", about: "about", places: nil, events: nil, regionId: nil, region: nil, placesCount: nil, eventsCount: nil)
+//    let city = City(decodedCity: decodedCity)
+//    let vm = CityView.CityViewModel(modelContext: sharedModelContainer.mainContext, city: city, catalogNetworkManager: catalogNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, catalogDataManager: catalogDataManager, commentsNetworkManager: commentsNetworkManager)
+//    return CityView(viewModel: vm)
+//        .environmentObject(auth)
+//}
 
 
 struct CapsuleSmall: ViewModifier {

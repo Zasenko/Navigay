@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <meta name="description" content="Get information about cities including events, places, and dates.">
+    <meta name="keywords" content="city information, events, places, dates, tourism">
+    <link rel="stylesheet" type="text/css" href="../../style.css" />
+    <style>
+        main {
+            width: 100%;
+            justify-content: center;
+        }
+
+        h1 {
+            padding-block: 0.5em;
+        }
+
+        .city-imgs-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* border-bottom: 1px solid rgb(242, 242, 242); */
+        }
+
+        .city-img {
+            overflow: hidden;
+        }
+
+        @media screen and (max-width: 500px) {
+            .city-img {
+                width: 100%;
+            }
+        }
+
+        @media screen and (min-width: 501px) {
+            .city-img {
+                max-width: 500px;
+                /* margin: 20px; */
+                border-radius: 20px;
+            }
+        }
+
+        .places-main-container {
+            gap: 1em;
+            display: grid;
+            align-items: center;
+            /* Центрируем содержимое по горизонтали */
+            justify-items: center;
+            padding: 1em;
+        }
+
+        .sorted-places-container {
+            gap: 3em;
+            display: grid;
+            align-items: flex-start;
+            /* Центрируем содержимое по горизонтали */
+            justify-items: auto;
+            /* Добавляем выравнивание по центру */
+            margin: auto;
+        }
+
+        .places-type-and-places-container {
+            flex-direction: column;
+            gap: 1em;
+            display: grid;
+            align-items: center;
+            /* Центрируем содержимое по горизонтали */
+            justify-items: auto;
+            /* Добавляем выравнивание по центру */
+        }
+
+        h3 {
+            padding-left: 60px;
+        }
+
+        .places-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1em;
+            padding-bottom: 2em;
+        }
+
+        .place {
+            align-items: center;
+
+        }
+
+        .place-div {
+            margin-left: 60px;
+            border-bottom: 1px solid rgb(242, 242, 242);
+        }
+
+
+        .place-container {
+            display: flex;
+            padding-bottom: 0.5em;
+        }
+
+        .place-info {
+            display: flex;
+            flex-direction: column;
+            align-items: left;
+        }
+
+        .place-img {
+            width: 50px;
+            height: 50px;
+            border: 1px solid #ccc;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .all-events-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 100%;
+        }
+
+        .events-main-container {
+            text-align: center;
+        }
+
+        .events-h2 {
+            padding: 1em;
+        }
+
+        .events-container {
+            gap: 2em;
+            display: grid;
+            /* justify-content: space-between;
+            align-content: space-between; */
+        }
+
+        @media only screen and (max-width: 600px) {
+            .events-container {
+                grid-template-columns: repeat(2, 1fr);
+                padding: 1em;
+                gap: 1em;
+            }
+
+            .sorted-places-container {
+                grid-template-columns: repeat(1, 1fr);
+            }
+        }
+
+        @media only screen and (min-width: 601px) and (max-width: 1024px) {
+            .events-container {
+                grid-template-columns: repeat(2, 1fr);
+                padding: 2em;
+                gap: 2em;
+            }
+
+            .sorted-places-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media only screen and (min-width: 1025px) {
+            .events-container {
+                grid-template-columns: repeat(3, 1fr);
+                padding: 2em;
+                gap: 2em;
+            }
+
+            .sorted-places-container {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .event-img {
+            width: 100%;
+        }
+
+        .event-info {
+            padding: 1em;
+        }
+
+        .card {
+            margin: auto;
+            /* Центрируем карточку по горизонтали и вертикали */
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            max-width: 300px;
+            box-sizing: border-box;
+            border: 1px solid white;
+            box-shadow: 4px 4px 50px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(6px);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.5s;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+        }
+
+        .card:hover {
+            border: 1px solid black;
+            transform: scale(1.05);
+        }
+
+        .card:active {
+            transform: scale(0.95) rotateZ(1.7deg);
+        }
+    </style>
+    <style>
+        .loader {
+            width: 60px;
+            display: flex;
+            justify-content: space-evenly;
+        }
+
+        .ball {
+            list-style: none;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: black;
+        }
+
+        .ball:nth-child(1) {
+            animation: bounce-1 2.1s ease-in-out infinite;
+        }
+
+        @keyframes bounce-1 {
+            50% {
+                transform: translateY(-90px);
+                scale: 0.3;
+            }
+        }
+
+        .ball:nth-child(2) {
+            animation: bounce-3 2.1s ease-in-out 0.3s infinite;
+        }
+
+        @keyframes bounce-2 {
+            50% {
+                transform: translateY(-90px);
+                scale: 0.3;
+            }
+        }
+
+        .ball:nth-child(3) {
+            animation: bounce-3 2.1s ease-in-out 0.6s infinite;
+        }
+
+        @keyframes bounce-3 {
+            50% {
+                transform: translateY(-90px);
+                scale: 0.3;
+            }
+        }
+    </style>
+    <link href='https://fonts.googleapis.com/css?family=Montserrat:400,500,600,700,800,900' rel='stylesheet'>
+    <link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css'>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 500;
+        }
+
+        body {
+            padding: 0;
+            margin: 0;
+        }
+
+        .cal-modal-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cal-modal {
+            color: black;
+            text-align: center;
+        }
+
+        #calendar {
+            display: inline-block;
+        }
+
+        #calendar .placeholder {
+            display: none;
+            width: 300px;
+
+        }
+
+        #calendar .flatpickr-calendar {
+            background: none;
+            border: 0;
+            border-radius: 0;
+            box-shadow: none;
+            color: black;
+            top: 0;
+        }
+
+        #calendar .flatpickr-calendar .flatpickr-innerContainer {
+            overflow: visible;
+        }
+
+        #calendar .flatpickr-calendar .flatpickr-innerContainer .flatpickr-weekdays {
+            overflow: visible;
+        }
+
+        #calendar .flatpickr-calendar .flatpickr-months .flatpickr-month {
+            color: inherit;
+            margin-bottom: 10px;
+        }
+
+        #calendar .flatpickr-calendar .flatpickr-months .flatpickr-month .flatpickr-current-month {
+            font-size: 16px;
+        }
+
+        #calendar .flatpickr-calendar .flatpickr-months .flatpickr-month .flatpickr-current-month .numInputWrapper {
+            display: none;
+        }
+
+        #calendar .flatpickr-calendar .flatpickr-months .flatpickr-prev-month,
+        #calendar .flatpickr-calendar .flatpickr-months .flatpickr-next-month {
+            top: calc(50% - 23px);
+        }
+
+        #calendar .flatpickr-calendar .flatpickr-months .flatpickr-prev-month svg,
+        #calendar .flatpickr-calendar .flatpickr-months .flatpickr-next-month svg {
+            height: 46px;
+            width: 46px;
+        }
+
+        #calendar .flatpickr-calendar .flatpickr-months .flatpickr-prev-month svg path,
+        #calendar .flatpickr-calendar .flatpickr-months .flatpickr-next-month svg path {}
+
+        #calendar .flatpickr-calendar .flatpickr-months .flatpickr-prev-month {
+            left: -60px;
+        }
+
+        #calendar .flatpickr-calendar .flatpickr-months .flatpickr-next-month {
+            right: -60px;
+        }
+
+        #calendar .flatpickr-calendar .flatpickr-weekdays .flatpickr-weekdaycontainer {
+            max-width: 307.875px;
+            padding: 0 10px;
+            position: relative;
+        }
+
+        #calendar .flatpickr-calendar .flatpickr-weekdays .flatpickr-weekdaycontainer::after {
+            content: '';
+            position: absolute;
+            top: -32px;
+            bottom: -230px;
+            right: 0;
+            width: 1px;
+        }
+
+        #calendar .flatpickr-calendar .flatpickr-weekdays .flatpickr-weekdaycontainer:last-child::after {
+            content: none;
+        }
+
+        #calendar .flatpickr-calendar .flatpickr-weekdays .flatpickr-weekdaycontainer .flatpickr-weekday {
+            color: black;
+            font-weight: 700;
+        }
+
+        #calendar .flatpickr-calendar .dayContainer {
+            box-shadow: none;
+            padding: 0 10px;
+            position: static;
+        }
+
+        #calendar .flatpickr-calendar .dayContainer:last-child::after {
+            content: none;
+        }
+
+        #calendar .flatpickr-calendar .flatpickr-day {
+            background: black;
+            border: 0;
+            color: white;
+            font-weight: 500;
+            transition: color 0.1s, background 0.1s;
+        }
+
+        #calendar .flatpickr-calendar .flatpickr-day:hover {
+            background: orange;
+            color: black;
+        }
+
+        #calendar .flatpickr-calendar .flatpickr-day.flatpickr-disabled,
+        #calendar .flatpickr-calendar .flatpickr-day.flatpickr-disabled:hover {
+            background: none;
+            color: black;
+            cursor: default;
+        }
+
+        #calendar .flatpickr-calendar .flatpickr-day.selected:not(.hidden),
+        #calendar .flatpickr-calendar .flatpickr-day.selected:not(.hidden):hover,
+        #calendar .flatpickr-calendar .flatpickr-day.selected:not(.hidden):focus {
+            background: red;
+            color: black;
+        }
+
+        #calendar .flatpickr-calendar .flatpickr-day.nextMonthDay,
+        #calendar .flatpickr-calendar .flatpickr-day.prevMonthDay {
+            background: none;
+            color: rgba(207, 210, 211, 0.1) !important;
+            cursor: default;
+            visibility: visible;
+        }
+    </style>
+</head>
+
+<body>
+    <header id="header"></header>
+    <script>
+        fetch('../../header.php')
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('header').innerHTML = html;
+                var currentPage = window.location.pathname.split('/').pop().split('.')[0];
+                var currentPageLink = document.getElementById(currentPage);
+                if (currentPageLink) {
+                    currentPageLink.classList.add('active');
+                }
+            })
+            .catch(error => console.error('Ошибка загрузки header.html:', error));
+    </script>
+    <main>
+        <button id="showCalendarBtn">Show Calendar</button>
+        <div id="events">
+        </div>
+        <div id="cityInfo">
+        </div>
+        <div id="places"></div>
+    </main>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js'></script>
+    <script src='https://cdn.jsdelivr.net/npm/flatpickr'></script>
+    <script>
+
+        var datat = {};
+        function formatDate(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0'); // добавляем ведущий ноль, если месяц состоит из одной цифры
+            const day = String(date.getDate()).padStart(2, '0'); // добавляем ведущий ноль, если день состоит из одной цифры
+            return `${year}-${month}-${day}`;
+        }
+
+        async function fetchCityInfo(id) {
+            try {
+                // const currentDate = new Date();
+                // const formattedDate = formatDate(currentDate);
+                // const url = `get-city.php?id=${id}&user_date=${formattedDate}&language=en`;
+                // const response = await fetch(url);
+                // const data = await response.json();
+
+                const data = {
+                    "result": true,
+                    "city": {
+                        "id": 1,
+                        "name": "Moscow",
+                        "photo": "https://i.pinimg.com/736x/fb/68/b8/fb68b89dbeb88b56ea321117be0477fb--moscow-russia-cathedrals.jpg",
+                        "photos": ["https://i.pinimg.com/736x/fb/68/b8/fb68b89dbeb88b56ea321117be0477fb--moscow-russia-cathedrals.jpg",
+                            "https://i.pinimg.com/736x/fb/68/b8/fb68b89dbeb88b56ea321117be0477fb--moscow-russia-cathedrals.jpg"],
+                        "about": "Los Angeles is a sprawling Southern California city known as the center of the nation’s film and television
+industry. ",
+"latitude": 34.0522,
+                        "longitude": -118.2437,
+                        "is_capital": false,
+                        "is_gay_paradise": true,
+                        "updated_at": "2024-04-30 12:00:00",
+                        "places": {
+                            "1": [{
+                                "id": 1,
+                                "name": "Place 1",
+                                "type_id": 1,
+                                "avatar": "https://www.navigay.me/photos/place1_avatar.jpg",
+                                "main_photo": "https://www.navigay.me/photos/place1_main.jpg",
+                                "address": "Address 1",
+                                "latitude": 34.0522,
+                                "longitude": -118.2437,
+                                "tags": ["tag1", "tag2"],
+                                "timetable": {
+                                    "Monday": "09:00 - 18:00",
+                                    "Tuesday": "09:00 - 18:00",
+                                    "Wednesday": "09:00 - 18:00",
+                                    "Thursday": "09:00 - 18:00",
+                                    "Friday": "09:00 - 18:00"
+                                },
+                                "updated_at": "2024-04-30 12:00:00"
+                            }], "2": [{
+                                "id": 1,
+                                "name": "Das Gugg – Café und Vereinszentrum der HOSI Wien",
+                                "type_id": 1,
+                                "avatar": "https://www.navigay.me/photos/place1_avatar.jpg",
+                                "main_photo": "https://www.navigay.me/photos/place1_main.jpg",
+                                "address": "Address 1",
+                                "latitude": 34.0522,
+                                "longitude": -118.2437,
+                                "tags": ["tag1", "tag2"],
+                                "timetable": {
+                                    "Monday": "09:00 - 18:00",
+                                    "Tuesday": "09:00 - 18:00",
+                                    "Wednesday": "09:00 - 18:00",
+                                    "Thursday": "09:00 - 18:00",
+                                    "Friday": "09:00 - 18:00"
+                                },
+                                "updated_at": "2024-04-30 12:00:00"
+                            },
+                            {
+                                "id": 2,
+                                "name": "Place 2",
+                                "type_id": 2,
+                                "avatar": "https://www.navigay.me/photos/place2_avatar.jpg",
+                                "main_photo": "https://www.navigay.me/photos/place2_main.jpg",
+                                "address": "Address 2",
+                                "latitude": 34.0522,
+                                "longitude": -118.2437,
+                                "tags": ["tag3", "tag4"],
+                                "timetable": {
+                                    "Monday": "10:00 - 20:00",
+                                    "Tuesday": "10:00 - 20:00",
+                                    "Wednesday": "10:00 - 20:00",
+                                    "Thursday": "10:00 - 20:00",
+                                    "Friday": "10:00 - 20:00"
+                                },
+                                "updated_at": "2024-04-30 12:00:00"
+                            }
+                                ,
+                            {
+                                "id": 2,
+                                "name": "Place 2",
+                                "type_id": 2,
+                                "avatar": "https://www.navigay.me/photos/place2_avatar.jpg",
+                                "main_photo": "https://www.navigay.me/photos/place2_main.jpg",
+                                "address": "Address 2",
+                                "latitude": 34.0522,
+                                "longitude": -118.2437,
+                                "tags": ["tag3", "tag4"],
+                                "timetable": {
+                                    "Monday": "10:00 - 20:00",
+                                    "Tuesday": "10:00 - 20:00",
+                                    "Wednesday": "10:00 - 20:00",
+                                    "Thursday": "10:00 - 20:00",
+                                    "Friday": "10:00 - 20:00"
+                                },
+                                "updated_at": "2024-04-30 12:00:00"
+                            }
+                            ],
+                            "3": [{
+                                "id": 2,
+                                "name": "Place 2",
+                                "type_id": 2,
+                                "avatar": "https://www.navigay.me/photos/place2_avatar.jpg",
+                                "main_photo": "https://www.navigay.me/photos/place2_main.jpg",
+                                "address": "Address 2",
+                                "latitude": 34.0522,
+                                "longitude": -118.2437,
+                                "tags": ["tag3", "tag4"],
+                                "timetable": {
+                                    "Monday": "10:00 - 20:00",
+                                    "Tuesday": "10:00 - 20:00",
+                                    "Wednesday": "10:00 - 20:00",
+                                    "Thursday": "10:00 - 20:00",
+                                    "Friday": "10:00 - 20:00"
+                                },
+                                "updated_at": "2024-04-30 12:00:00"
+                            }
+                                ,
+                            {
+                                "id": 2,
+                                "name": "Place 2",
+                                "type_id": 2,
+                                "avatar": "https://www.navigay.me/photos/place2_avatar.jpg",
+                                "main_photo": "https://www.navigay.me/photos/place2_main.jpg",
+                                "address": "Address 2",
+                                "latitude": 34.0522,
+                                "longitude": -118.2437,
+                                "tags": ["tag3", "tag4"],
+                                "timetable": {
+                                    "Monday": "10:00 - 20:00",
+                                    "Tuesday": "10:00 - 20:00",
+                                    "Wednesday": "10:00 - 20:00",
+                                    "Thursday": "10:00 - 20:00",
+                                    "Friday": "10:00 - 20:00"
+                                },
+                                "updated_at": "2024-04-30 12:00:00"
+                            }
+                            ],
+                        },
+                        "events": {
+                            "today": [{
+                                "id": 10,
+                                "name": "Event today new",
+                                "type_id": 1,
+                                "address": "Address 1",
+                                "latitude": 34.0522,
+                                "longitude": -118.2437,
+                                "start_date": "2024-05-10",
+                                "start_time": "19:00",
+                                "finish_date": "2024-05-12",
+                                "finish_time": "22:00",
+                                "tags": ["tag1", "tag2"],
+                                "location": "Location 1",
+                                "poster_small": "https://www.navigay.me/images/events/AT/191/1708342175862_231.jpg",
+                                "is_free": true,
+                                "updated_at": "2024-04-30 12:00:00"
+                            }],
+                            "upcoming": [{
+                                "id": 1,
+                                "name": "Event 1",
+                                "type_id": 1,
+                                "address": "Address 1",
+                                "latitude": 34.0522,
+                                "longitude": -118.2437,
+                                "start_date": "2024-08-10",
+                                "start_time": "19:00",
+                                "finish_date": "2024-08-12",
+                                "finish_time": "22:00",
+                                "tags": ["tag1", "tag2"],
+                                "location": "Location 1",
+
+                                "poster_small": "https://www.navigay.me/images/events/2024/04/24/380/1713950793172_714.jpg",
+                                "is_free": true,
+                                "updated_at": "2024-04-30 12:00:00"
+                            },
+                            {
+                                "id": 2,
+                                "name": "Event 2",
+                                "type_id": 2,
+                                "address": "Address 2",
+                                "latitude": 34.0522,
+                                "longitude": -118.2437,
+                                "start_date": "2024-05-15",
+                                "start_time": "20:00",
+                                "finish_date": null,
+                                "finish_time": null,
+                                "tags": ["tag3", "tag4"],
+                                "location": "Location 2",
+                                "poster_small": "https://www.navigay.me/images/events/2024/02/29/256/1709187050377_538.jpg",
+                                "is_free": false,
+                                "updated_at": "2024-04-30 12:00:00"
+                            },
+                            {
+                                "id": 3,
+                                "name": "Event 3",
+                                "type_id": 2,
+                                "address": "Address 2",
+                                "latitude": 34.0522,
+                                "longitude": -118.2437,
+                                "start_date": "2024-05-15",
+                                "start_time": "20:00",
+                                "finish_date": null,
+                                "finish_time": null,
+                                "tags": ["tag3", "tag4"],
+                                "location": "Location 3",
+                                "poster_small": "https://www.navigay.me/images/events/2024/04/23/377/1713883881053_143.jpg",
+                                "is_free": false,
+                                "updated_at": "2024-04-30 12:00:00"
+                            }
+                            ],
+                            "allDates": ["2024-05-10", "2024-05-15", "2024-05-18", "2024-07-17", "2024-07-11", "2024-08-21", "2024-08-20",
+                                "2024-10-10"]
+                        }
+                    }
+                };
+
+                if (data.result && data.city) {
+                    datat = data.city.events.allDates;
+                    document.title = data.city.name;
+                    renderCityInfo(data.city);
+                    renderEvents(data.city.events);
+                    renderPlaces(data.city.places);
+
+                } else {
+                    console.error('Error fetching city information');
+                }
+            } catch (error) {
+                console.error('Error fetching city information:', error);
+            }
+        }
+
+        async function fetchEvents(selectedDate) {
+            const urlParams = new URLSearchParams(window.location.search);
+            const cityId = urlParams.get('id');
+            if (!cityId) {
+                console.error('City ID is missing from URL parameters.');
+                return;
+            }
+            const url = `get-events.php?city_id=${cityId}&date=${selectedDate}`;
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                if (data.result && data.events) {
+                    renderNewEvents(data.events);
+                } else {
+                    console.error('Error fetching events:', data);
+                }
+            } catch (error) {
+                console.error('Error fetching events:', error);
+            }
+        }
+
+
+        function renderCityInfo(city) {
+            const cityInfoDiv = document.getElementById('cityInfo');
+            cityInfoDiv.innerHTML = `
+                <h1>${city.name}</h1>
+                <div class="city-imgs-container">
+                <img src="${city.photo}" alt="${city.name} Photo" class="city-img">
+                </div>
+                <p>${city.about}</p>
+            `;
+        }
+
+        function renderPlaces(groupedPlaces) {
+            const placesDiv = document.getElementById('places');
+            placesDiv.classList.add('places-main-container');
+
+            if (Object.keys(groupedPlaces).length > 0) {
+                const placesTitlerDiv = document.createElement('h2');
+                placesTitlerDiv.textContent = 'Places';
+                placesDiv.appendChild(placesTitlerDiv);
+            }
+
+            const sortedPlacesDiv = document.createElement('div');
+            sortedPlacesDiv.classList.add('sorted-places-container');
+            placesDiv.appendChild(sortedPlacesDiv);
+
+            for (const type in groupedPlaces) {
+                if (groupedPlaces.hasOwnProperty(type)) {
+
+                    const mainDiv = document.createElement('div');
+                    mainDiv.classList.add('places-type-and-places-container');
+
+
+                    const placesOfType = groupedPlaces[type];
+                    const typeHeader = document.createElement('h3');
+                    const typeName = convertPlaceTypeToString(type);
+                    typeHeader.textContent = `${typeName}`;
+                    mainDiv.appendChild(typeHeader);
+
+                    //места
+                    const placesContainer = document.createElement('div');
+                    placesContainer.classList.add('places-container');
+                    placesOfType.forEach(place => {
+                        const placeDiv = document.createElement('div');
+                        placeDiv.classList.add('place');
+
+                        const placeContaineDiv = document.createElement('div');
+                        placeContaineDiv.classList.add('place-container');
+
+
+                        const placeHTML = `
+
+                        <img src="${place.avatar}" alt="${place.name} Avatar" class="place-img">
+
+                        <div class="place-info">
+                            <p><a href="place.html?id=${place.id}">${place.name}</a></p>
+                            <p>${place.address}</p>
+                            </div>
+                        `;
+
+                        placeContaineDiv.innerHTML = placeHTML;
+
+                        placeDiv.appendChild(placeContaineDiv);
+
+                        const placeLineDiv = document.createElement('div');
+                        placeLineDiv.classList.add('place-div');
+
+
+                        placeDiv.appendChild(placeLineDiv);
+                        placesContainer.appendChild(placeDiv);
+                    });
+
+                    mainDiv.appendChild(placesContainer);
+                    sortedPlacesDiv.appendChild(mainDiv);
+                }
+            }
+        }
+
+        function convertPlaceTypeToString(type) {
+            switch (parseInt(type)) {
+                case 1: return "Bars";
+                case 2: return "Cafes";
+                case 3: return "Restaurants";
+                case 4: return "Clubs";
+                case 5: return "Hotels";
+                case 6: return "Saunas";
+                case 7: return "Cruise bars";
+                case 8: return "Beaches";
+                case 9: return "Shops";
+                case 10: return "Sport";
+                case 11: return "Cultur";
+                case 12: return "Communities";
+                case 0: return "Other";
+                case 13: return "Hostels";
+                case 14: return "Medicine";
+                case 15: return "Cruise Clubs";
+                case 16: return "Rights";
+                default: return "Other";
+            }
+        }
+
+        function renderEvents(events) {
+
+            const allEventsDiv = document.getElementById('events');
+            allEventsDiv.classList.add('all-events-container');
+
+            if (events.today.length > 0 || events.upcoming.length > 0) {
+                const eventsTitlerDiv = document.createElement('h2');
+                eventsTitlerDiv.textContent = 'Events';
+                allEventsDiv.appendChild(eventsTitlerDiv);
+            }
+
+            if (events.today.length > 0) {
+                //events main
+                const eventsMainDiv = document.createElement('div');
+                eventsMainDiv.classList.add('events-main-container');
+
+                //header
+                const eventHeaderDiv = document.createElement('h3');
+                eventHeaderDiv.textContent = 'Today';
+                eventHeaderDiv.classList.add('events-h2');
+                eventsMainDiv.appendChild(eventHeaderDiv);
+
+                // events
+                const eventsDiv = document.createElement('div');
+                eventsDiv.classList.add('events-container');
+
+                if (events.today.length === 1) {
+                    eventsDiv.style.gridTemplateColumns = 'repeat(1, 1fr)';
+                }
+
+                events.today.forEach(event => {
+                    //info
+                    const eventDiv = document.createElement('div');
+                    eventDiv.classList.add('card');
+                    eventDiv.innerHTML = `
+                <img src="${event.poster_small}" alt="Poster of ${event.name}" class="event-img">
+                <div class="event-info">
+                <p><strong>Name:</strong> ${event.name}</p>
+                <p><strong>Start Date:</strong> ${event.start_date}</p>
+                </div>
+                `;
+                    eventsDiv.appendChild(eventDiv);
+                });
+
+                eventsMainDiv.appendChild(eventsDiv);
+                allEventsDiv.appendChild(eventsMainDiv);
+            }
+
+            if (events.upcoming.length > 0) {
+                //events main
+                const eventsMainDiv = document.createElement('div');
+                eventsMainDiv.classList.add('events-main-container');
+
+                //header
+                const eventHeaderDiv = document.createElement('h3');
+                eventHeaderDiv.textContent = 'Upcoming Events';
+                eventHeaderDiv.classList.add('events-h2');
+                eventsMainDiv.appendChild(eventHeaderDiv);
+
+                // calendar
+                const calDiv = document.createElement('div');
+                calDiv.id = 'cal-test';
+                eventsMainDiv.appendChild(calDiv);
+
+
+                // events
+                const eventsDiv = document.createElement('div');
+                eventsDiv.classList.add('events-container');
+                eventsDiv.id = 'test';
+
+                if (events.upcoming.length === 1) {
+                    eventsDiv.style.gridTemplateColumns = 'repeat(1, 1fr)';
+                }
+                events.upcoming.forEach(event => {
+                    //info
+                    const eventDiv = document.createElement('div');
+                    eventDiv.classList.add('card');
+                    eventDiv.innerHTML = `
+                    <img src="${event.poster_small}" alt="Poster of ${event.name}" class="event-img">
+                <div class="event-info">
+                <p><strong>${event.name}</strong></p>
+                <p>Start Date: ${event.start_date}</p>
+                </div>
+                `;
+                    eventsDiv.appendChild(eventDiv);
+                });
+                eventsMainDiv.appendChild(eventsDiv);
+                allEventsDiv.appendChild(eventsMainDiv);
+            }
+
+        }
+
+
+        function renderNewEvents(events) {
+
+
+            const eventsDiv = document.getElementById('test');
+            eventsDiv.innerHTML = '';
+            if (events.length === 1) {
+                eventsDiv.style.gridTemplateColumns = 'repeat(1, 1fr)';
+            } else {
+                eventsDiv.style.gridTemplateColumns = 'auto';
+            }
+            events.forEach(event => {
+                const eventDiv = document.createElement('div');
+                eventDiv.classList.add('event-container');
+                eventDiv.innerHTML = `
+            <img src="${event.poster_small}" alt="Poster of ${event.name}" class="event-img">
+            <div class="event-info">
+                <p><strong>${event.name}</strong></p>
+                <p>Start Date: ${event.start_date}</p>
+            </div>
+        `;
+                eventsDiv.appendChild(eventDiv);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const id = urlParams.get('id');
+            if (id) { // Check if city ID exists
+                fetchCityInfo(id);
+            } else {
+                console.error('City ID is missing from URL parameters.');
+            }
+        });
+
+        var flatpickr;
+
+        function showCalendar(eventDates) {
+
+            console.error('---eventDates-----', eventDates);
+
+            const tD = document.getElementById('cal-test');
+
+            const ttD = document.createElement('div');
+            ttD.innerHTML = `
+        <div class='cal-modal-container'>
+            <div class='cal-modal'>
+                <div id='calendar'>
+                    <div class='placeholder'></div>
+                    <div class='calendar-events'></div>
+                </div>
+            </div>
+        </div>
+    `;
+            tD.appendChild(ttD);
+
+            if (typeof eventDates !== 'object' || Object.keys(eventDates).length === 0) {
+                console.error('Invalid or empty event dates.');
+                return;
+            }
+
+            const eventDateStrings = Object.values(eventDates);
+
+            // Преобразование строковых дат в объекты Date
+            var dateObjects = eventDateStrings.map(function (dateString) {
+                return new Date(dateString);
+            });
+            // Поиск максимальной даты среди объектов Date
+            var maxDate = new Date(Math.max.apply(null, dateObjects));
+
+
+            flatpickr = $('#calendar .placeholder').flatpickr({
+                inline: true,
+                minDate: 'today',
+                maxDate: maxDate,
+
+                showMonths: 1,
+                enable: eventDateStrings,
+                disableMobile: 'true',
+                onChange: function (date, str, inst) {
+                    fetchEvents(str);
+                    const allEventsDiv = document.getElementById('test');
+                    allEventsDiv.innerHTML = `<div class="loader">
+  <li class="ball"></li>
+  <li class="ball"></li>
+  <li class="ball"></li>
+</div>`;
+
+                },
+                locale: {
+                    weekdays: {
+                        shorthand: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
+                        longhand: [
+                            'Sunday',
+                            'Monday',
+                            'Tuesday',
+                            'Wednesday',
+                            'Thursday',
+                            'Friday',
+                            'Saturday'
+                        ]
+                    }
+                }
+            });
+
+
+            eventCaledarResize($(window));
+            $(window).on('resize', function () {
+                eventCaledarResize($(this));
+            });
+
+        }
+
+
+        function eventCaledarResize($el) {
+            var width = $el.width();
+            if (flatpickr) {
+                if (flatpickr.selectedDates.length) {
+                    flatpickr.clear();
+                }
+                if (width >= 992 && flatpickr.config.showMonths !== 3) {
+                    flatpickr.set('showMonths', 3);
+                    flatpickr.set('maxDate', maxDate[3]);
+                }
+                if (width < 992 && width >= 768 && flatpickr.config.showMonths !== 2) {
+                    flatpickr.set('showMonths', 2);
+                    flatpickr.set('maxDate', maxDate[2]);
+                }
+                if (width < 768 && flatpickr.config.showMonths !== 1) {
+                    flatpickr.set('showMonths', 1);
+                    flatpickr.set('maxDate', maxDate[1]);
+                    $('.flatpickr-calendar').css('width', ''); // Изменение ширины на пустую строку
+                }
+            }
+        }
+
+        // Остальной JavaScript код
+        // ...
+
+
+        document.getElementById('showCalendarBtn').addEventListener('click', function () {
+            showCalendar(datat);
+        });
+
+
+    </script>
+</body>
+
+</html>

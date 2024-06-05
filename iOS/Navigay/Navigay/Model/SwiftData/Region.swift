@@ -25,10 +25,8 @@ final class Region {
     
     func updateIncomplete(decodedRegion: DecodedRegion) {
         let lastUpdate = decodedRegion.lastUpdate.dateFromString(format: "yyyy-MM-dd HH:mm:ss")
-        if lastUpdateIncomplete != lastUpdate {
-            name = decodedRegion.name
-            photo = decodedRegion.photo
-            lastUpdateIncomplete = lastUpdate
-        }
+        guard lastUpdateIncomplete != lastUpdate else { return }
+        name = decodedRegion.name
+        lastUpdateIncomplete = lastUpdate
     }
 }

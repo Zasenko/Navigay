@@ -9,7 +9,10 @@ import SwiftUI
 
 protocol EventNetworkManagerProtocol {
     var loadedEvents: [Int] { get }
+    var loadedCalendarEventsId: [Int] { get }
     func fetchEvent(id: Int) async throws -> DecodedEvent
+    func fetchEvents(ids: [Int]) async throws -> DecodedSearchItems
+    func fetchEvents(cityId: Int, date: Date) async throws -> [DecodedEvent]
     func sendComplaint(eventId: Int, user: AppUser, reason: String) async throws
 }
 
@@ -18,7 +21,8 @@ final class EventNetworkManager {
     // MARK: - Propertie
     
     var loadedEvents: [Int] = []
-    
+    var loadedCalendarEventsId: [Int] = []
+
     // MARK: - Private Properties
     
     private let scheme = "https"
@@ -75,16 +79,79 @@ extension EventNetworkManager: EventNetworkManagerProtocol {
         guard decodedResult.result, let decodedEvent = decodedResult.event else {
             throw NetworkErrors.apiError(decodedResult.error)
         }
-        addToLoadedEvents(id: decodedEvent.id)
+        loadedEvents.append(decodedEvent.id)
         return decodedEvent
     }
-}
-
-extension EventNetworkManager {
     
-    // MARK: - Private Functions
+    func fetchEvents(ids: [Int]) async throws -> DecodedSearchItems {
+        debugPrint("--- fetchEvents(ids: \(ids))")
+        guard networkMonitorManager.isConnected else {
+            throw NetworkErrors.noConnection
+        }
+        let path = "/api/event/get-events.php"
+        var urlComponents: URLComponents {
+            var components = URLComponents()
+            components.scheme = scheme
+            components.host = host
+            components.path = path
+            components.queryItems = [
+                URLQueryItem(name: "event_ids", value: ids.map(String.init).joined(separator: ",")),
+                URLQueryItem(name: "language", value: self.appSettingsManager.language)
+            ]
+            return components
+        }
+        guard let url = urlComponents.url else {
+            throw NetworkErrors.badUrl
+        }
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
+            throw NetworkErrors.invalidData
+        }
+        guard let decodedResult = try? JSONDecoder().decode(SearchResult.self, from: data) else {
+            throw NetworkErrors.decoderError
+        }
+        guard decodedResult.result, let decodedItems = decodedResult.items else {
+            throw NetworkErrors.apiError(decodedResult.error)
+        }
+        decodedItems.events?.forEach( { loadedCalendarEventsId.append($0.id) } )
+        return decodedItems
+    }
     
-    private func addToLoadedEvents(id: Int) {
-        loadedEvents.append(id)
+    func fetchEvents(cityId: Int, date: Date) async throws -> [DecodedEvent] {
+        guard networkMonitorManager.isConnected else {
+            throw NetworkErrors.noConnection
+        }
+        let path = "/api/event/get-events-for-city-by-date.php"
+        var urlComponents: URLComponents {
+            var components = URLComponents()
+            components.scheme = scheme
+            components.host = host
+            components.path = path
+            components.queryItems = [
+                URLQueryItem(name: "city_id", value: String(cityId)),
+                //URLQueryItem(name: "language", value: self.appSettingsManager.language)
+                URLQueryItem(name: "date", value: date.format("yyyy-MM-dd")),
+            ]
+            return components
+        }
+        guard let url = urlComponents.url else {
+            throw NetworkErrors.badUrl
+        }
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
+            throw NetworkErrors.invalidData
+        }
+        guard let decodedResult = try? JSONDecoder().decode(EventsResult.self, from: data) else {
+            throw NetworkErrors.decoderError
+        }
+        guard decodedResult.result, let decodedEvents = decodedResult.events else {
+            throw NetworkErrors.apiError(decodedResult.error)
+        }
+        decodedEvents.forEach( { loadedCalendarEventsId.append($0.id) } )
+        return decodedEvents
     }
 }

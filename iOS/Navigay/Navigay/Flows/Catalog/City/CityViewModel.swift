@@ -8,25 +8,33 @@
 import SwiftUI
 import SwiftData
 
+struct CityPlacesItem: Identifiable {
+    let id: UUID
+    let category: SortingCategory
+    var places: [Place]
+}
+
 extension CityView {
     @Observable
     class CityViewModel {
         
         var modelContext: ModelContext
-        
         let city: City
+        
+        var isPresented: Bool = false
         var isLoading: Bool = false
         
         var allPhotos: [String] = []
         
-        var aroundPlaces: [Place] = [] /// for Map
-        var groupedPlaces: [PlaceType: [Place]] = [:]
+        var groupedItems: [PlaceType: [Place]] = [:]
         
-        var actualEvents: [Event] = []
+        var allPlaces: [Place] = [] /// for Map
+        var groupedPlaces: [CityPlacesItem] = []
+        
         var todayEvents: [Event] = []
         var upcomingEvents: [Event] = []
         var displayedEvents: [Event] = []
-        
+        var eventsCount: Int = 0
         var showCalendar: Bool = false
         var eventsDates: [Date] = []
         var selectedDate: Date? = nil
@@ -36,7 +44,8 @@ extension CityView {
         
         
         var sortingHomeCategories: [SortingCategory] = []
-        var selectedHomeSortingCategory: SortingCategory = .all
+        var selectedMenuCategory: SortingCategory = .all
+        var selectedHomeSortingCategory: SortingCategory? = nil
         
         var showMap: Bool = false
         var sortingMapCategories: [SortingCategory] = []
@@ -45,12 +54,13 @@ extension CityView {
         let catalogNetworkManager: CatalogNetworkManagerProtocol
         let placeNetworkManager: PlaceNetworkManagerProtocol
         let eventNetworkManager: EventNetworkManagerProtocol
+        let commentsNetworkManager: CommentsNetworkManagerProtocol
+
         let errorManager: ErrorManagerProtocol
         
         let placeDataManager: PlaceDataManagerProtocol
         let eventDataManager: EventDataManagerProtocol
         let catalogDataManager: CatalogDataManagerProtocol
-        
        // var adminCity: AdminCity? = nil
         
         init(modelContext: ModelContext,
@@ -61,7 +71,8 @@ extension CityView {
              errorManager: ErrorManagerProtocol,
              placeDataManager: PlaceDataManagerProtocol,
              eventDataManager: EventDataManagerProtocol,
-             catalogDataManager: CatalogDataManagerProtocol) {
+             catalogDataManager: CatalogDataManagerProtocol,
+             commentsNetworkManager: CommentsNetworkManagerProtocol) {
             self.modelContext = modelContext
             self.city = city
             self.catalogNetworkManager = catalogNetworkManager
@@ -71,47 +82,72 @@ extension CityView {
             self.placeDataManager = placeDataManager
             self.eventDataManager = eventDataManager
             self.catalogDataManager = catalogDataManager
-            
+            self.commentsNetworkManager = commentsNetworkManager
+
             let newPhotosLinks = city.getAllPhotos()
             allPhotos = newPhotosLinks
         }
         
         func getPlacesAndEventsFromDB() {
-            if city.lastUpdateComplite == nil {
-                isLoading = true
-                Task {
-                    await fetch()
+            isPresented = true
+            debugPrint("-CityViewModel- getPlacesAndEventsFromDB()")
+            Task {
+                let places = city.places.sorted(by: { $0.name < $1.name })
+                let events = city.events.sorted(by: { $0.id < $1.id })
+                
+                let groupedPlaces = await self.placeDataManager.createHomeGroupedPlaces(places: places.sorted(by: { $0.name < $1.name}))
+                let cityPlacesItem = groupedPlaces.map( { CityPlacesItem(id: UUID(), category: $0.key, places: $0.value) } )
+                let actualEvents = await eventDataManager.getActualEvents(for: events)
+                let todayEvents = await eventDataManager.getTodayEvents(from: actualEvents)
+                let upcomingEvents = await eventDataManager.getUpcomingEvents(from: actualEvents)
+              //  let eventsDatesWithoutToday = await eventDataManager.getActiveDates(for: actualEvents)
+                
+                await MainActor.run {
+                    self.allPlaces = places
+                    self.groupedPlaces = cityPlacesItem
+                    self.upcomingEvents = upcomingEvents
+                    self.todayEvents = todayEvents
+                    self.displayedEvents = upcomingEvents
+                    self.eventsDates = city.eventsDates
+                    self.eventsCount = city.eventsCount
                 }
-            } else {
-                Task {
-                    let places = city.places.sorted(by: { $0.name < $1.name })
-                    let events = city.events.sorted(by: { $0.id < $1.id })
-                    
-                    let groupedPlaces = await placeDataManager.createGroupedPlaces(places: places)
-                    
-                    let actualEvents = await self.eventDataManager.getActualEvents(for: events)
-                    let todayEvents = await eventDataManager.getTodayEvents(from: actualEvents)
-                    let upcomingEvents = await eventDataManager.getUpcomingEvents(from: actualEvents)
-                    let eventsDatesWithoutToday = await eventDataManager.getActiveDates(for: actualEvents)
-                    
-                    await MainActor.run {
-                        self.actualEvents = actualEvents
-                        self.upcomingEvents = upcomingEvents
-                        self.aroundPlaces = aroundPlaces
-                        self.eventsDates = eventsDatesWithoutToday
-                        self.todayEvents = todayEvents
-                        self.displayedEvents = upcomingEvents
-                        self.groupedPlaces = groupedPlaces
-                    }
-                    await fetch()
-                }
+                await updateCategories()
+//
+//                let groupedPlaces = await placeDataManager.createGroupedPlaces(places: places)
+//                
+//                let actualEvents = await self.eventDataManager.getActualEvents(for: events)
+//                let todayEvents = await eventDataManager.getTodayEvents(from: actualEvents)
+//                let upcomingEvents = await eventDataManager.getUpcomingEvents(from: actualEvents)
+//                let eventsDatesWithoutToday = await eventDataManager.getActiveDates(for: actualEvents)
+//                
+//                await MainActor.run {
+//                    self.actualEvents = actualEvents
+//                    self.upcomingEvents = upcomingEvents
+//                    self.aroundPlaces = aroundPlaces
+//                    self.eventsDates = eventsDatesWithoutToday
+//                    self.todayEvents = todayEvents
+//                    self.displayedEvents = upcomingEvents
+//                    self.groupedPlaces = groupedPlaces
+//                    self.eventsCount = actualEvents.count
+//                }
+                await fetch()
             }
         }
         
         func showUpcomingEvents() {
-            self.displayedEvents = upcomingEvents
+            displayedEvents = upcomingEvents
         }
         
+        func getEvents(for date: Date) {
+            Task {
+                let events = await eventDataManager.getEvents(for: date, events: city.events )
+                await MainActor.run {
+                    displayedEvents = events
+                }
+                await fetchEvents(for: date)
+            }
+        }
+
         private func fetch() async {
             guard !catalogNetworkManager.loadedCities.contains(where: { $0 == city.id}) else {
                 return
@@ -134,62 +170,138 @@ extension CityView {
                 isLoading = false
             }
         }
+                
+        private func fetchEvents(for date: Date) async {
+            let message = "Something went wrong. The information didn't update. Please try again later."
+            do {
+                let events = try await eventNetworkManager.fetchEvents(cityId: city.id, date: date)
+                await MainActor.run {
+                    let events = eventDataManager.updateCityEvents(decodedEvents: events, for: city, modelContext: modelContext)
+                    self.displayedEvents = events
+                }
+            } catch NetworkErrors.apiError(let error) {
+                if let error, error.show {
+                    errorManager.showError(model: ErrorModel(error: NetworkErrors.api, message: error.message))
+                } else {
+                    errorManager.showError(model: ErrorModel(error: NetworkErrors.api, message: message))
+                }
+            } catch {
+                errorManager.showError(model: ErrorModel(error: error, message: message))
+            }
+        }
+        
         private func updateFetchedResult(decodedCity: DecodedCity) {
-            
             city.updateCityComplite(decodedCity: decodedCity)
+            
+            //TODO!
             let newPhotosLinks = city.getAllPhotos()
             for link in newPhotosLinks {
                 if !allPhotos.contains(where:  { $0 == link } ) {
                     allPhotos.append(link)
                 }
             }
+            
             let places = placeDataManager.updatePlaces(decodedPlaces: decodedCity.places, for: city, modelContext: modelContext)
-            let events = eventDataManager.updateEvents(decodedEvents: decodedCity.events, for: city, modelContext: modelContext)
+            let events = eventDataManager.updateCityEvents(decodedEvents: decodedCity.events, for: city, modelContext: modelContext)
+            
             Task {
-                let groupedPlaces = await placeDataManager.createGroupedPlaces(places: places.sorted(by: { $0.name < $1.name}))
-                let actualEvents = await eventDataManager.getActualEvents(for: events.sorted(by: { $0.id < $1.id}))
-                let todayEvents = await eventDataManager.getTodayEvents(from: actualEvents)
-                let upcomingEvents = await eventDataManager.getUpcomingEvents(from: actualEvents)
-                let eventsDatesWithoutToday = await eventDataManager.getActiveDates(for: actualEvents)
+                let groupedPlaces = await self.placeDataManager.createHomeGroupedPlaces(places: places.sorted(by: { $0.name < $1.name}))
                 
-                let eventsIDs = actualEvents.map( { $0.id } )
-                var eventsToDelete: [Event] = []
-                self.actualEvents.forEach { event in
-                    if !eventsIDs.contains(event.id) {
-                        eventsToDelete.append(event)
-                    }
-                }
+                let cityPlacesItem = groupedPlaces.map( { CityPlacesItem(id: UUID(), category: $0.key, places: $0.value) } )
                 
-                let placesIDs = aroundPlaces.map( { $0.id } )
-                var placesToDelete: [Place] = []
-                self.aroundPlaces.forEach { place in
-                    if !placesIDs.contains(place.id) {
-                        placesToDelete.append(place)
-                    }
-                }
+                let todayEvents = events.today.sorted(by: { $0.id < $1.id })
+                let upcomingEvents = events.upcoming.sorted(by: { $0.id < $1.id }).sorted(by: { $0.startDate < $1.startDate })
+                let activeDates = decodedCity.events?.calendarDates?.compactMap( { $0.dateFromString(format: "yyyy-MM-dd") }) ?? []
                 
-                await MainActor.run { [eventsToDelete, placesToDelete] in
-                    eventsToDelete.forEach( { modelContext.delete($0) } )
-                    placesToDelete.forEach( { modelContext.delete($0) } )
-                    self.actualEvents = actualEvents
+                
+//                let actualEvents = await eventDataManager.getActualEvents(for: events.sorted(by: { $0.id < $1.id}))
+//                let todayEvents = await eventDataManager.getTodayEvents(from: actualEvents)
+//                let upcomingEvents = await eventDataManager.getUpcomingEvents(from: actualEvents)
+//                let eventsDatesWithoutToday = await eventDataManager.getActiveDates(for: actualEvents)
+//
+//                let eventsIDs = actualEvents.map( { $0.id } )
+//                var eventsToDelete: [Event] = []
+//                self.actualEvents.forEach { event in
+//                    if !eventsIDs.contains(event.id) {
+//                        eventsToDelete.append(event)
+//                    }
+//                }
+//
+//                let placesIDs = aroundPlaces.map( { $0.id } )
+//                var placesToDelete: [Place] = []
+//                self.aroundPlaces.forEach { place in
+//                    if !placesIDs.contains(place.id) {
+//                        placesToDelete.append(place)
+//                    }
+//                }
+//
+                await MainActor.run { //[eventsToDelete, placesToDelete] in
+                    // eventsToDelete.forEach( { modelContext.delete($0) } )
+                    //  placesToDelete.forEach( { modelContext.delete($0) } )
                     self.upcomingEvents = upcomingEvents
-                    self.aroundPlaces = places
-                    self.eventsDates = eventsDatesWithoutToday
+                    self.allPlaces = places
+                    self.eventsDates = activeDates
                     self.todayEvents = todayEvents
                     self.displayedEvents = upcomingEvents
-                    self.groupedPlaces = groupedPlaces
-                    isLoading = false
+                    self.groupedPlaces = cityPlacesItem
+                    self.eventsCount = events.count
+                    self.city.eventsCount = events.count
+                    self.city.eventsDates = activeDates
+                }
+                await updateCategories()
+//                await MainActor.run { [eventsToDelete, placesToDelete] in
+//                    eventsToDelete.forEach( { modelContext.delete($0) } )
+//                    placesToDelete.forEach( { modelContext.delete($0) } )
+//                    self.actualEvents = actualEvents
+//                    self.upcomingEvents = upcomingEvents
+//                    self.aroundPlaces = places
+//                    self.eventsDates = eventsDatesWithoutToday
+//                    self.todayEvents = todayEvents
+//                    self.displayedEvents = upcomingEvents
+//                    self.groupedPlaces = groupedPlaces
+//                    self.eventsCount = actualEvents.count
+//                    isLoading = false
+//
+//                    let newPhotosLinks = city.getAllPhotos()
+//                    allPhotos = newPhotosLinks
+//                }
+            }
+        }
+
+        private func updateCategories() async {
+            var mapCategories: [SortingCategory] = []
+            var homeCategories: [SortingCategory] = []
+            var selectedCategory: SortingCategory = .all
+
+            if eventsCount > 0 {
+                homeCategories.append(.events)
+            }
+            let placesTypes = groupedPlaces.map({ $0.category })
+            placesTypes.forEach { mapCategories.append($0) }
+            placesTypes.forEach { homeCategories.append($0) }
+            if !todayEvents.isEmpty {
+                mapCategories.append(.events)
+            }
+            if mapCategories.count > 1 {
+                mapCategories.append(.all)
+            }
+            
+            
+            let sortedMapCategories = mapCategories.sorted(by: {$0.getSortPreority() < $1.getSortPreority()})
+            let sortedHomeCategories = homeCategories.sorted(by: {$0.getSortPreority() < $1.getSortPreority()})
+            
+            if selectedCategory != .events, let firstPlacesCategory = sortedHomeCategories.first {
+                selectedCategory = firstPlacesCategory
+            }
+            
+            await MainActor.run { [selectedCategory] in
+                withAnimation {
+                    sortingMapCategories = sortedMapCategories
+                    sortingHomeCategories = sortedHomeCategories
+                    selectedMenuCategory = selectedCategory
+                    selectedHomeSortingCategory = selectedCategory
                 }
             }
         }
-        
-//        func getEvents(for date: Date) {
-//            Task {
-//                let events = await eventDataManager.getEvents(for: date, events: actualEvents )
-//                await MainActor.run {
-//                    displayedEvents = events
-//                }
-//            }
-//        }
     }
 }

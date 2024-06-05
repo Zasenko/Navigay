@@ -8,7 +8,7 @@
 import SwiftUI
 
 enum TabBarRouter {
-    case home, search, user, admin
+    case home, catalog, search, user, admin
 }
 
 struct TabBarView: View {
@@ -18,7 +18,8 @@ struct TabBarView: View {
     @State private var selectedPage: TabBarRouter = TabBarRouter.home
     
     private let homeButton = TabBarButton(title: "Around Me", img: AppImages.iconHome, page: .home)
-    private let searchButton = TabBarButton(title: "Catalog", img: AppImages.iconSearch, page: .search)
+    private let catalogButton = TabBarButton(title: "Catalog", img: AppImages.iconCatalog, page: .catalog)
+    private let searchButton = TabBarButton(title: "Search", img: AppImages.iconSearch, page: .search)
     private let userButton = TabBarButton(title: "Around Me", img: AppImages.iconPerson, page: .user)
     private let adminButton = TabBarButton(title: "Admin Panel", img: AppImages.iconAdmin, page: .admin)
     
@@ -35,6 +36,7 @@ struct TabBarView: View {
     private let catalogNetworkManager: CatalogNetworkManagerProtocol
     private let placeNetworkManager: PlaceNetworkManagerProtocol
     private let eventNetworkManager: EventNetworkManagerProtocol
+    private let commentsNetworkManager: CommentsNetworkManagerProtocol
 
     private let placeDataManager: PlaceDataManagerProtocol
     private let eventDataManager: EventDataManagerProtocol
@@ -51,6 +53,7 @@ struct TabBarView: View {
         self.catalogNetworkManager = CatalogNetworkManager(networkMonitorManager: networkMonitor, appSettingsManager: appSettingsManager)
         self.eventNetworkManager = EventNetworkManager(networkMonitorManager: networkMonitor, appSettingsManager: appSettingsManager)
         self.placeNetworkManager = PlaceNetworkManager(networkMonitorManager: networkMonitor, appSettingsManager: appSettingsManager)
+        self.commentsNetworkManager = CommentsNetworkManager(networkMonitorManager: networkMonitor, appSettingsManager: appSettingsManager)
         self.placeDataManager = PlaceDataManager()
         self.eventDataManager = EventDataManager()
         self.catalogDataManager = CatalogDataManager()
@@ -60,12 +63,14 @@ struct TabBarView: View {
         VStack(spacing: 0) {
             switch selectedPage {
             case .home:
-                HomeView(modelContext: modelContext, aroundNetworkManager: aroundNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, catalogDataManager: catalogDataManager)
+                HomeView2(modelContext: modelContext, aroundNetworkManager: aroundNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, catalogNetworkManager: catalogNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, catalogDataManager: catalogDataManager, commentsNetworkManager: commentsNetworkManager)
                     .environmentObject(locationManager)
+            case .catalog:
+                CatalogView(viewModel: CatalogView.CatalogViewModel(modelContext: modelContext, catalogNetworkManager: catalogNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, catalogDataManager: catalogDataManager, commentsNetworkManager: commentsNetworkManager))
             case .search:
-                CatalogView(viewModel: CatalogView.CatalogViewModel(modelContext: modelContext, catalogNetworkManager: catalogNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, catalogDataManager: catalogDataManager))
+                SearchView(viewModel: SearchView.SearchViewModel(modelContext: modelContext, catalogNetworkManager: catalogNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, catalogDataManager: catalogDataManager, commentsNetworkManager: commentsNetworkManager))
             case .user:
-                AppUserView(modelContext: modelContext, userNetworkManager: UserNetworkManager(networkMonitorManager: networkMonitor, appSettingsManager: appSettingsManager), placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager)
+                AppUserView(modelContext: modelContext, userNetworkManager: UserNetworkManager(networkMonitorManager: networkMonitor, appSettingsManager: appSettingsManager), placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, commentsNetworkManager: commentsNetworkManager)
             case .admin:
                 if let user = authenticationManager.appUser, (user.status == .admin || user.status == .moderator) {
                     AdminView(viewModel: AdminViewModel(user: user, errorManager: errorManager, networkManager: AdminNetworkManager(networkMonitorManager: networkMonitor, appSettingsManager: appSettingsManager)))
@@ -76,28 +81,28 @@ struct TabBarView: View {
             tabBar
         }
         .ignoresSafeArea(.keyboard, edges: .bottom)
-        .alert(isPresented: $locationManager.isAlertIfLocationDeniedDisplayed) {
-            Alert(title: Text("Location Access"),
-                  message: Text("To provide accurate search results, this app needs access to your location. Would you like to go to Settings to enable location access?"),
-                  primaryButton: .default(Text("Settings"), action: {
-                selectedPage = .search
-                guard let url = URL(string: UIApplication.openSettingsURLString) else {
-                    return
-                }
-                UIApplication.shared.open(url)
-            }),
-                  secondaryButton: .default(Text("Cancel"), action: {
-                selectedPage = .search
-            }))
-        }
-        .onChange(of: locationManager.authorizationStatus) { oldValue, newValue in
-            switch newValue {
-            case .loading, .authorized:
-                selectedPage = .home
-            case .denied:
-                selectedPage = .search
-            }
-        }
+//        .alert(isPresented: $locationManager.isAlertIfLocationDeniedDisplayed) {
+//            Alert(title: Text("Location Access"),
+//                  message: Text("To provide accurate search results, this app needs access to your location. Would you like to go to Settings to enable location access?"),
+//                  primaryButton: .default(Text("Settings"), action: {
+//                selectedPage = .search
+//                guard let url = URL(string: UIApplication.openSettingsURLString) else {
+//                    return
+//                }
+//                UIApplication.shared.open(url)
+//            }),
+//                  secondaryButton: .default(Text("Cancel"), action: {
+//                selectedPage = .search
+//            }))
+//        }
+//        .onChange(of: locationManager.authorizationStatus) { oldValue, newValue in
+//            switch newValue {
+//            case .loading, .authorized:
+//                selectedPage = .home
+//            case .denied:
+//                selectedPage = .search
+//            }
+//        }
         .onChange(of: authenticationManager.appUser?.photo, initial: true) { oldValue, newValue in
             guard let url = newValue else {
                 self.userImage = nil
@@ -117,9 +122,8 @@ struct TabBarView: View {
         VStack(spacing: 0) {
             Divider()
             HStack(spacing: 40) {
-                if locationManager.authorizationStatus != .denied {
-                    TabBarButtonView(selectedPage: $selectedPage, button: homeButton)
-                }
+                TabBarButtonView(selectedPage: $selectedPage, button: homeButton)
+                TabBarButtonView(selectedPage: $selectedPage, button: catalogButton)
                 TabBarButtonView(selectedPage: $selectedPage, button: searchButton)
                 if let img = userImage {
                     Button {
@@ -155,8 +159,7 @@ struct TabBarView: View {
                     }
                 }
                 if let user = authenticationManager.appUser, (user.status == .admin || user.status == .moderator) {
-                    TabBarButtonView(selectedPage: $selectedPage,
-                                     button: adminButton)
+                    TabBarButtonView(selectedPage: $selectedPage, button: adminButton)
                 }
             }
             .padding(.top, 10)

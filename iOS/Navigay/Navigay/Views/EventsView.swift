@@ -15,7 +15,8 @@ struct EventsView: View {
     @EnvironmentObject private var authenticationManager: AuthenticationManager
     @Binding var selectedDate: Date?
     @Binding var displayedEvents: [Event]
-    @Binding var actualEvents: [Event]
+  //  @Binding var actualEvents: [Event]
+    @Binding var eventsCount: Int
     @Binding var todayEvents: [Event]
     @Binding var upcomingEvents: [Event]
     @Binding var eventsDates: [Date]
@@ -103,9 +104,9 @@ struct EventsView: View {
                     .padding(.bottom)
                 }
                 
-                if (actualEvents.count - todayEvents.count - displayedEvents.count) > 0 {
+                if (eventsCount - todayEvents.count - displayedEvents.count) > 0 {
                     VStack(spacing: 4) {
-                        Text("\(actualEvents.count - todayEvents.count - displayedEvents.count) more events")
+                        Text("\(eventsCount - todayEvents.count - displayedEvents.count) more events")
                             .font(.headline)
                             .bold()
                         Button {

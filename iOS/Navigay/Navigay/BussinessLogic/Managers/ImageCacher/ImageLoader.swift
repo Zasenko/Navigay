@@ -35,13 +35,13 @@ extension ImageLoader {
     func loadImage(urlString: String) async -> Image? {
         do {
             if let imageData = cache.object(forKey: urlString) {
-                debugPrint("image from cache \(urlString)")
+              //  debugPrint("image from cache \(urlString)")
                 let image = try await makeImageFromData(data: imageData)
                 return image
             }
             let data = try await fetch(stringUrl: urlString)
             cache.set(object: data, forKey: urlString)
-            debugPrint("loaded image \(urlString)")
+           // debugPrint("loaded image \(urlString)")
             return try await makeImageFromData(data: data)
         } catch {
             // TODO
@@ -64,6 +64,7 @@ extension ImageLoader {
             throw ImageLoaderError.invalidUrl
         }
         let (data, _) = try await URLSession.shared.data(from: url)
+        debugPrint("fetch img stringUrl: ", stringUrl)
         return data
     }
     

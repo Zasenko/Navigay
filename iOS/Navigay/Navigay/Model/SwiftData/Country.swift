@@ -22,6 +22,9 @@ final class Country {
     var lastUpdateIncomplete: Date? = nil
     var lastUpdateComplite: Date? = nil
     
+    var eventsCount: Int? = nil
+    var placesCount: Int? = nil
+    
     @Relationship(deleteRule: .cascade, inverse: \Region.country) var regions: [Region] = []
         
     init(decodedCountry: DecodedCountry) {
@@ -31,20 +34,27 @@ final class Country {
     }
     
     func updateCountryIncomplete(decodedCountry: DecodedCountry) {
+        if let eventsCount = decodedCountry.eventsCount {
+            self.eventsCount = eventsCount
+        }
+        if let placesCount = decodedCountry.placesCount {
+            self.placesCount = placesCount
+        }
         let lastUpdate = decodedCountry.lastUpdate.dateFromString(format: "yyyy-MM-dd HH:mm:ss")
         guard lastUpdateIncomplete != lastUpdate else { return }
         flagEmoji = decodedCountry.flagEmoji
         name = decodedCountry.name
-        photo = decodedCountry.photo
         showRegions = decodedCountry.showRegions
         lastUpdateIncomplete = lastUpdate
-        
     }
     
     func updateCountryComplite(decodedCountry: DecodedCountry) {
         let lastUpdate = decodedCountry.lastUpdate.dateFromString(format: "yyyy-MM-dd HH:mm:ss")
         guard lastUpdateComplite != lastUpdate else { return }
-        updateCountryIncomplete(decodedCountry: decodedCountry)
+        flagEmoji = decodedCountry.flagEmoji
+        name = decodedCountry.name
+        photo = decodedCountry.photo
+        showRegions = decodedCountry.showRegions
         about = decodedCountry.about
         lastUpdateComplite = lastUpdate
         

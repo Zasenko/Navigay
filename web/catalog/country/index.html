@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="../../style.css" />
+    <style>
+        main {
+            width: 100%;
+            justify-content: center;
+            max-width: 1300px;
+            margin: auto;
+            /* Добавляем свойство для центрирования */
+        }
+
+        .country-container {}
+
+        h1 {
+            padding-block: 0.5em;
+        }
+
+        .country-imgs-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* border-bottom: 1px solid rgb(242, 242, 242); */
+        }
+
+        .country-img {
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        @media screen and (max-width: 600px) {
+            .country-img {
+                width: 100%;
+            }
+        }
+
+        @media screen and (min-width: 601px) {
+            .country-img {
+                max-width: 500px;
+                margin: 20px;
+            }
+        }
+
+        .regions-container {
+            gap: 2em;
+            padding: 2em;
+            display: grid;
+        }
+
+
+        @media only screen and (max-width: 600px) {
+            .regions-container {
+                grid-template-columns: repeat(1, 1fr);
+            }
+        }
+
+        @media only screen and (min-width: 601px) and (max-width: 1024px) {
+            .regions-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media only screen and (min-width: 1025px) {
+            .regions-container {
+                grid-template-columns: repeat(3, 1fr);
+                max-width: 1300px;
+            }
+        }
+
+        .region-container {
+            gap: 1em;
+            padding-bottom: 2em;
+            grid-column-gap: 1em;
+        }
+
+        .region-name {
+            margin-left: 120px;
+            font-size: 1.2em;
+            font-weight: 600;
+
+        }
+
+        .cities-container {
+            gap: 1em;
+            padding-bottom: 2em;
+            grid-column-gap: 1em;
+        }
+
+        .city-container {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            padding-block: 0.5em;
+        }
+
+        .city-img {
+            border-radius: 16px;
+            overflow: hidden;
+            width: 100px;
+            margin-right: 20px;
+        }
+
+        .city-info {
+            padding-bottom: 1em;
+            border-bottom: 1px solid rgb(242, 242, 242);
+        }
+
+        .city-info a {
+            color: #2897ff;
+            text-decoration: underline;
+            font-family: 'Roboto', sans-serif;
+            font-size: 1.7em;
+            font-weight: 400;
+        }
+
+        .city-info a:hover {
+            color: black;
+            text-decoration-line: underline;
+        }
+
+        h2 {
+            font-weight: 600;
+            font-size: 1.5em;
+        }
+    </style>
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.5.1/leaflet.css">
+    <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js'></script>
+    <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.5.1/leaflet.js'></script>
+</head>
+
+<body>
+    <header id="header"></header>
+    <main>
+        <div id="country">
+        </div>
+    </main>
+    <script>
+        fetch('../../header/')
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('header').innerHTML = html;
+                var currentPage = window.location.pathname.split('/').pop().split('.')[0];
+                var currentPageLink = document.getElementById(currentPage);
+                if (currentPageLink) {
+                    currentPageLink.classList.add('active');
+                }
+            })
+            .catch(error => console.error('Ошибка загрузки header.html:', error));
+    </script>
+
+    <script>
+        async function fetchCountry(id) {
+            try {
+                // const url = `get-country.php?id=${id}`;
+
+                // const response = await fetch(url);
+                // if (!response.ok) {
+                //     throw new Error('Failed to fetch countries: ' + response.status);
+                // }
+                // const data = await response.json();
+                const data = {
+                    "result": true,
+                    "country": {
+                        "id": 1,
+                        "isoCountryCode": "US",
+                        "name": "United States",
+                        "flag_emoji": "🇺🇸",
+                        "photo": "https://i.pinimg.com/736x/55/fa/cc/55facc8dd89ecaf102905f8657212071.jpg",
+                        "about": "The United States of America (USA), commonly known as the United States (U.S. or US) or America, is a country primarily located in North America.",
+                        "show_regions": true,
+                        "updated_at": "2024-04-30 12:00:00",
+                        "regions": [
+                            {
+                                "id": 1,
+                                "name": "West Coast",
+                                "photo": null,
+                                "updated_at": "2024-04-30 12:00:00",
+                                "cities": [
+                                    {
+                                        "id": 1,
+                                        "name": "Los Angeles",
+                                        "latitude": 34.0522,
+                                        "longitude": -118.2437,
+                                        "is_capital": false,
+                                        "is_gay_paradise": true,
+                                        "small_photo": "https://i.7fon.org/150/z1038637.jpg",
+                                        "place_count": 25,
+                                        "event_count": 10,
+                                        "updated_at": "2024-04-30 12:00:00"
+                                    },
+                                    {
+                                        "id": 2,
+                                        "name": "San Francisco",
+                                        "latitude": 37.7749,
+                                        "longitude": -122.4194,
+                                        "is_capital": false,
+                                        "is_gay_paradise": true,
+                                        "small_photo": "https://i.7fon.org/150/z1038637.jpg",
+                                        "place_count": 30,
+                                        "event_count": 15,
+                                        "updated_at": "2024-04-30 12:00:00"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": 2,
+                                "name": "East Coast",
+                                "photo": "https://www.navigay.me/photos/east_coast.jpg",
+                                "updated_at": "2024-04-30 12:00:00",
+                                "cities": [
+                                    {
+                                        "id": 3,
+                                        "name": "New York City",
+                                        "small_photo": "https://i.7fon.org/150/b1294730.jpg",
+                                        "latitude": 40.7128,
+                                        "longitude": -74.0060,
+                                        "is_capital": false,
+                                        "is_gay_paradise": true,
+                                        "place_count": 40,
+                                        "event_count": 20,
+                                        "updated_at": "2024-04-30 12:00:00"
+                                    },
+                                    {
+                                        "id": 4,
+                                        "name": "Miami",
+                                        "small_photo": "https://i.7fon.org/150/z1038637.jpg",
+                                        "latitude": 25.7617,
+                                        "longitude": -80.1918,
+                                        "is_capital": false,
+                                        "is_gay_paradise": true,
+                                        "place_count": 20,
+                                        "event_count": 5,
+                                        "updated_at": "2024-04-30 12:00:00"
+                                    }
+                                ]
+                            }, {
+                                "id": 3,
+                                "name": "Midwest",
+                                "photo": "https://www.navigay.me/photos/midwest.jpg",
+                                "updated_at": "2024-04-30 12:00:00",
+                                "cities": [
+                                    {
+                                        "id": 48,
+                                        "name": "London",
+                                        "small_photo": "https://i.7fon.org/150/b1294730.jpg",
+                                        "latitude": 41.8781,
+                                        "longitude": -87.6298,
+                                        "is_capital": false,
+                                        "is_gay_paradise": true,
+                                        "place_count": 30,
+                                        "event_count": 10,
+                                        "updated_at": "2024-04-30 12:00:00"
+                                    },
+                                    {
+                                        "id": 5,
+                                        "name": "Chicago",
+
+                                        "latitude": 41.8781,
+                                        "longitude": -87.6298,
+                                        "is_capital": false,
+                                        "is_gay_paradise": true,
+                                        "place_count": 30,
+                                        "event_count": 10,
+                                        "updated_at": "2024-04-30 12:00:00"
+                                    },
+                                    {
+                                        "id": 6,
+                                        "name": "Minneapolis",
+                                        "small_photo": "https://i.7fon.org/150/b1294730.jpg",
+                                        "latitude": 44.9778,
+                                        "longitude": -93.2650,
+                                        "is_capital": false,
+                                        "is_gay_paradise": true,
+                                        "place_count": 20,
+                                        "event_count": 8,
+                                        "updated_at": "2024-04-30 12:00:00"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": 4,
+                                "name": "South",
+                                "photo": "https://www.navigay.me/photos/south.jpg",
+                                "updated_at": "2024-04-30 12:00:00",
+                                "cities": [
+                                    {
+                                        "id": 7,
+                                        "name": "Atlanta",
+                                        "small_photo": "https://i.7fon.org/150/b1294730.jpg",
+                                        "latitude": 33.7490,
+                                        "longitude": -84.3880,
+                                        "is_capital": false,
+                                        "is_gay_paradise": true,
+                                        "place_count": 25,
+                                        "event_count": 12,
+                                        "updated_at": "2024-04-30 12:00:00"
+                                    },
+                                    {
+                                        "id": 8,
+                                        "name": "New Orleans",
+                                        "small_photo": "https://i.7fon.org/150/b1294730.jpg",
+                                        "latitude": 29.9511,
+                                        "longitude": -90.0715,
+                                        "is_capital": false,
+                                        "is_gay_paradise": true,
+                                        "place_count": 35,
+                                        "event_count": 18,
+                                        "updated_at": "2024-04-30 12:00:00"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                };
+
+
+
+                if (data.result && data.country) {
+                    document.title = data.country.name;
+                    renderCountriesInfo(data.country);
+                } else {
+                    throw new Error('Unexpected response format');
+                }
+            } catch (error) {
+                console.error('Error fetching countries information:', error);
+            }
+        }
+
+        function getPins(cities) {
+
+            const latitudes = cities.map(city => city.latitude);
+            const longitudes = cities.map(city => city.longitude);
+
+            // Находим среднее значение широты и долготы
+            const avgLat = latitudes.reduce((sum, lat) => sum + lat, 0) / latitudes.length;
+            const avgLng = longitudes.reduce((sum, lng) => sum + lng, 0) / longitudes.length;
+
+            var map = L.map('map', {
+                center: [avgLat, avgLng],
+                zoom: 4,
+            });
+
+            L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+                subdomains: ['a', 'b', 'c']
+            }).addTo(map);
+
+            cities.forEach(city => {
+                L.marker([city.latitude, city.longitude])
+                    // .bindTooltip(city.name, {
+                    //     direction: 'top',
+                    //     sticky: false,
+                    //     offset: [0, -15],
+                    // })
+                    .addTo(map)
+                    .bindPopup(city.name)
+                    .openPopup();
+
+            });
+        }
+
+        function renderCountriesInfo(country) {
+            const countryDiv = document.getElementById('country');
+            countryDiv.classList.add('country-container');
+            let content = `
+            <p><h1>${country.flag_emoji} ${country.name}</h1></p>
+            `;
+
+            if (country.photo && country.photo.length > 0) {
+                content += `
+                <div class="country-imgs-container">
+            <img src="${country.photo}" alt="Photo of ${country.name}" class="country-img"></div>
+                `;
+            }
+
+            if (country.about && country.about.length > 0) {
+                content += `
+                <p>${country.about}</p>
+                `;
+            }
+
+            if (country.show_regions) {
+                content += `<div class="regions-container">`
+                country.regions.forEach(region => {
+                    content += `
+                    <div class="region-container">
+                        <h2 class="region-name">${region.name}</h2>`;
+
+                    content += `<div class="cities-container">`;
+
+                    region.cities.forEach(city => {
+                        content += renderCity(city);
+                    });
+                    content += `</div>`;
+                    content += `</div>`;
+
+                });
+                content += `</div>`;
+            } else {
+                const allCities = country.regions.flatMap(region => region.cities);
+                content += `
+                    <h2>All Cities</h2>
+                    <ul>
+                `;
+                allCities.forEach(city => {
+                    content += renderCity(city);
+                });
+                content += `</ul>`;
+            }
+
+            content += `<div id="map" style="height: 700px; border: 1px solid #AAA;"></div>`;
+            countryDiv.innerHTML = content;
+
+            const citiesWithCoords = country.regions.flatMap(region => region.cities.filter(city => city.latitude && city.longitude));
+            getPins(citiesWithCoords);
+        }
+
+        function renderCity(city) {
+            let cityDiv = `<div class="city-container">`;
+
+            if (city.small_photo && city.small_photo.length > 0) {
+                cityDiv += `
+            <img src="${city.small_photo}" alt="${city.name} Photo" class="city-img">`;
+            } else {
+                cityDiv += `<div class="city-img"></div>`;
+            }
+
+            cityDiv += `
+            <div class="city-info"><p>
+            <a href="../city/?id=${city.id}">${city.name}</a></p><p>
+            (Places: ${city.place_count}, Events: ${city.event_count})</p>
+            </div>
+            </div>
+            `;
+
+
+
+            return cityDiv;
+        }
+
+
+        // Fetch city information when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const id = urlParams.get('id');
+            fetchCountry(id);
+        });
+    </script>
+
+
+
+</body>
+
+</html>

@@ -12,6 +12,7 @@ struct WelcomeView: View {
     // MARK: - Properties
     
     @EnvironmentObject private var authenticationManager: AuthenticationManager
+    @Environment(\.colorScheme) private var deviceColorScheme
     let onFinish: () -> Void
     
     // MARK: - Private Properties
@@ -31,9 +32,8 @@ struct WelcomeView: View {
         VStack {
             VStack(alignment: .center, spacing: 0) {
                 Text("Welcome to")
-                    .font(.title2)
+                    .font(.title2).bold()
                     .fontWeight(.light)
-                
                 AppImages.logoFull
                     .resizable()
                     .scaledToFit()
@@ -52,11 +52,25 @@ struct WelcomeView: View {
                     AppImages.iconX
                         .bold()
                         .frame(width: 30, height: 30)
-                        .foregroundStyle(.primary)
                     Text("skip")
-                    
-                        .font(.subheadline)
+                       
                 }
+            }
+            .foregroundStyle(deviceColorScheme == .light ? .primary : .primary)
+            .font(.subheadline)
+        }
+        .background {
+            ZStack(alignment: .center) {
+                Image("bg2")
+                    .resizable()
+                    .scaledToFill()
+                    .ignoresSafeArea()
+                    .scaleEffect(CGSize(width: 2, height: 2))
+                    .blur(radius: 100)
+                    .saturation(3)
+                Rectangle()
+                    .fill(.ultraThinMaterial)
+                    .ignoresSafeArea()
             }
         }
     }
@@ -73,9 +87,11 @@ struct WelcomeView: View {
                     .bold()
                     .padding(12)
                     .padding(.horizontal)
-                    .background(AppColors.lightGray6)
+                    .background(.ultraThinMaterial)
                     .clipShape(Capsule())
+                    .foregroundStyle(deviceColorScheme == .light ? .blue : .white)
             }
+            
             .fullScreenCover(isPresented: $showLoginView) {
                 LoginView(viewModel: LoginViewModel()) {
                     onFinish()
@@ -90,15 +106,36 @@ struct WelcomeView: View {
                     .bold()
                     .padding(12)
                     .padding(.horizontal)
-                    .background(AppColors.lightGray6)
+                    .background(.ultraThinMaterial)
                     .clipShape(Capsule())
+                    .foregroundStyle(deviceColorScheme == .light ? .blue : .white)
             }
             .fullScreenCover(isPresented: $showRegistrationView) {
                 RegistrationView(viewModel: RegistrationViewModel(), authenticationManager: authenticationManager, errorManager: authenticationManager.errorManager) {
                     onFinish()
                 }
             }
-            
+        }
+    }
+}
+
+#Preview {
+    let errorManager: ErrorManagerProtocol = ErrorManager()
+    let appSettingsManager: AppSettingsManagerProtocol = AppSettingsManager()
+    let networkMonitorManager: NetworkMonitorManagerProtocol = NetworkMonitorManager(errorManager: errorManager)
+    
+    let keychainManager: KeychainManagerProtocol = KeychainManager()
+    
+    let authNetworkManager = AuthNetworkManager(networkMonitorManager: networkMonitorManager, appSettingsManager: appSettingsManager)
+    
+    let authenticationManager = AuthenticationManager(keychainManager: keychainManager, networkMonitorManager: networkMonitorManager, networkManager: authNetworkManager, errorManager: errorManager)
+   return WelcomeView(onFinish: {
+       print("on Finish")
+    })
+   .environmentObject(authenticationManager)
+}
+
+/// Google button
 //            Button {
 //            } label: {
 //                HStack(spacing: 10) {
@@ -115,10 +152,3 @@ struct WelcomeView: View {
 //                .background(AppColors.lightGray6)
 //                .clipShape(Capsule())
 //            }
-        }
-    }
-}
-
-//#Preview {
-//    WelcomeView()
-//}

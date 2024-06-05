@@ -14,7 +14,6 @@ struct CatalogView: View {
     
     @State private var viewModel: CatalogViewModel
     @EnvironmentObject private var authenticationManager: AuthenticationManager
-    @FocusState private var focused: Bool
     
     // MARK: - Init
     
@@ -36,27 +35,10 @@ struct CatalogView: View {
                     Text("Catalog")
                         .font(.title).bold()
                 }
-                ToolbarItem(placement: .topBarTrailing) {
-                    searchButton
-                }
             }
             .toolbarBackground(AppColors.background)
             .animation(.default, value: viewModel.isLoading)
             .animation(.default, value: viewModel.countries.count)
-            .navigationDestination(isPresented: $viewModel.showSearchView) {
-                SearchView(viewModel: SearchView.SearchViewModel(modelContext: viewModel.modelContext, catalogNetworkManager: viewModel.catalogNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, catalogDataManager: viewModel.catalogDataManager))
-            }
-        }
-    }
-    
-    private var searchButton: some View {
-        Button {
-            viewModel.showSearchView = true
-            focused = true
-        } label: {
-            AppImages.iconSearch
-                .bold()
-                .tint(.blue)
         }
     }
     
@@ -77,7 +59,7 @@ struct CatalogView: View {
     private var allCountriesView: some View {
         ForEach(viewModel.countries) { country in
             NavigationLink {
-                CountryView(viewModel: CountryView.CountryViewModel(modelContext: viewModel.modelContext, country: country, catalogNetworkManager: viewModel.catalogNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, catalogDataManager: viewModel.catalogDataManager))
+                CountryView(viewModel: CountryView.CountryViewModel(modelContext: viewModel.modelContext, country: country, catalogNetworkManager: viewModel.catalogNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, catalogDataManager: viewModel.catalogDataManager, commentsNetworkManager: viewModel.commentsNetworkManager))
             } label: {
                 countryCell(country: country)
             }
@@ -91,17 +73,27 @@ struct CatalogView: View {
                     .font(.title)
                     .frame(width: 50, height: 50)
                     .clipShape(Circle())
-                Text(country.name)
-                    .font(.title2)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                // TODO:
-                //                                    HStack {
-                //                                        Text("25 мест")
-                //                                        Text("| ")
-                //                                        Text("17 мероприятий")
-                //                                    }
-                //                                    .foregroundStyle(.secondary)
-                //                                    .font(.caption2)
+                VStack(alignment: .leading, spacing: 0) {
+                    Text(country.name)
+                        .font(.title2)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    HStack {
+                        if country.eventsCount ?? 0 > 0 {
+                            Text(String(country.eventsCount ?? 0))
+                            + Text(country.eventsCount ?? 0 > 1 ? " events" : " event")
+                        }
+                        if ((country.eventsCount ?? 0 > 0) && (country.placesCount ?? 0 > 0)) {
+                            Text("•")
+                        }
+                        if country.placesCount ?? 0 > 0 {
+                            Text(String(country.placesCount ?? 0))
+                            + Text(country.placesCount ?? 0 > 1 ? " places" : " place")
+                        }
+                    }
+                    .font(.footnote)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.leading)
+                }
             }
             .padding(.vertical, 10)
             Divider()

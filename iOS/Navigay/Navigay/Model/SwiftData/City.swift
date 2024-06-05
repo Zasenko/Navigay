@@ -24,6 +24,10 @@ final class City {
     
     var region: Region? = nil
     
+    var eventsCount: Int = 0
+    var placesCount: Int = 0
+    var eventsDates: [Date] = []
+    
     @Relationship(deleteRule: .cascade, inverse: \Place.city) var places: [Place] = []
     @Relationship(deleteRule: .cascade, inverse: \Event.city) var events: [Event] = []
     
@@ -36,27 +40,42 @@ final class City {
     }
     
     func updateCityIncomplete(decodedCity: DecodedCity) {
-        let lastUpdate = decodedCity.lastUpdate.dateFromString(format: "yyyy-MM-dd HH:mm:ss")
-        if lastUpdateIncomplete != lastUpdate {
-            name = decodedCity.name
-            smallPhoto = decodedCity.smallPhoto
-            photo = decodedCity.photo
-            latitude = decodedCity.latitude
-            longitude = decodedCity.longitude
-            isCapital = decodedCity.isCapital
-            isParadise = decodedCity.isGayParadise
-            lastUpdateIncomplete = lastUpdate
+        if let eventsCount = decodedCity.eventsCount {
+            self.eventsCount = eventsCount
         }
+        if let placesCount = decodedCity.placesCount {
+            self.placesCount = placesCount
+        }
+        let lastUpdate = decodedCity.lastUpdate.dateFromString(format: "yyyy-MM-dd HH:mm:ss")
+        guard lastUpdateIncomplete != lastUpdate else { return }
+        name = decodedCity.name
+        smallPhoto = decodedCity.smallPhoto
+        latitude = decodedCity.latitude
+        longitude = decodedCity.longitude
+        isCapital = decodedCity.isCapital
+        isParadise = decodedCity.isGayParadise
+        lastUpdateIncomplete = lastUpdate
     }
     
     func updateCityComplite(decodedCity: DecodedCity) {
-        let lastUpdate = decodedCity.lastUpdate.dateFromString(format: "yyyy-MM-dd HH:mm:ss")
-        if lastUpdateComplite != lastUpdate {
-            updateCityIncomplete(decodedCity: decodedCity)
-            about = decodedCity.about
-            photos = decodedCity.photos ?? []
-            lastUpdateComplite = lastUpdate
+        if let eventsCount = decodedCity.eventsCount {
+            self.eventsCount = eventsCount
         }
+        if let placesCount = decodedCity.placesCount {
+            self.placesCount = placesCount
+        }
+        let lastUpdate = decodedCity.lastUpdate.dateFromString(format: "yyyy-MM-dd HH:mm:ss")
+        guard lastUpdateComplite != lastUpdate else { return }
+        name = decodedCity.name
+        smallPhoto = decodedCity.smallPhoto
+        photo = decodedCity.photo
+        latitude = decodedCity.latitude
+        longitude = decodedCity.longitude
+        isCapital = decodedCity.isCapital
+        isParadise = decodedCity.isGayParadise
+        about = decodedCity.about
+        photos = decodedCity.photos ?? []
+        lastUpdateComplite = lastUpdate
     }
     
     func getAllPhotos() -> [String] {

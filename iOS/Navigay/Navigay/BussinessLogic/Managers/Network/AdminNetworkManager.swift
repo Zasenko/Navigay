@@ -10,6 +10,8 @@ import SwiftUI
 protocol AdminNetworkManagerProtocol {
     func getCountries(for user: AppUser) async throws -> [AdminCountry]
     func getRegions(countryID: Int, user: AppUser) async throws  -> [AdminRegion]
+    func getCities(regionID: Int, user: AppUser) async throws  -> [AdminCity]
+        
     func getAdminInfo(for user: AppUser) async throws -> AdminInfo
 }
 
@@ -34,6 +36,48 @@ final class AdminNetworkManager {
 // MARK: - AuthNetworkManagerProtocol
 
 extension AdminNetworkManager: AdminNetworkManagerProtocol {
+    func getCities(regionID: Int, user: AppUser) async throws -> [AdminCity] {
+        debugPrint("--- AdminNetworkManager getCities()")
+        guard networkMonitorManager.isConnected else {
+            throw NetworkErrors.noConnection
+        }
+        guard let sessionKey = user.sessionKey else {
+            throw NetworkErrors.noSessionKey
+        }
+        let path = "/api/admin/get-cities-for-region.php"
+        var urlComponents: URLComponents {
+            var components = URLComponents()
+            components.scheme = scheme
+            components.host = host
+            components.path = path
+            return components
+        }
+        guard let url = urlComponents.url else {
+            throw NetworkErrors.badUrl
+        }
+        let parameters = [
+            "region_id": String(regionID),
+            "user_id": String(user.id),
+            "session_key": sessionKey,
+        ]
+        let requestData = try JSONSerialization.data(withJSONObject: parameters)
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = requestData
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
+            throw NetworkErrors.invalidData
+        }
+        guard let decodedResult = try? JSONDecoder().decode(AdminCitiesResult.self, from: data) else {
+            throw NetworkErrors.decoderError
+        }
+        guard decodedResult.result, let decodedCities = decodedResult.cities else {
+            throw NetworkErrors.apiError(decodedResult.error)
+        }
+        return decodedCities
+    }
+    
         
     func getCountries(for user: AppUser) async throws  -> [AdminCountry] {
         debugPrint("--- AdminNetworkManager getCountries()")

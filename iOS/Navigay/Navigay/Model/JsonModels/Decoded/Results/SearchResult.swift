@@ -14,8 +14,9 @@ struct SearchResult: Codable {
 }
 
 struct DecodedSearchItems: Codable {
-    let cities: [DecodedCity]
-    let regions: [DecodedRegion]
-    let places: [DecodedPlace]
-    let events: [DecodedEvent]
+    let places: [DecodedPlace]?
+    let events: [DecodedEvent]?
+    let cities: [DecodedCity]?
+    let regions: [DecodedRegion]?
+    let countries: [DecodedCountry]?
 }

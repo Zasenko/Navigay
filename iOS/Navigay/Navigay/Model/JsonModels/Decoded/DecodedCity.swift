@@ -24,6 +24,9 @@ struct DecodedCity: Identifiable, Codable {
         case places
         case events
         case region
+        case regionId = "region_id"
+        case placesCount = "place_count"
+        case eventsCount = "event_count"
     }
 
     let id: Int
@@ -39,6 +42,9 @@ struct DecodedCity: Identifiable, Codable {
     
     let about: String?
     let places: [DecodedPlace]?
-    let events: [DecodedEvent]?
+    let events: EventsItemsResult?
+    let regionId: Int?
     let region: DecodedRegion?
+    let placesCount: Int?
+    let eventsCount: Int?
 }

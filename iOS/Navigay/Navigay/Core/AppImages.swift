@@ -16,6 +16,8 @@ struct AppImages {
     static let iconHome = Image(systemName: "house.fill")
     static let iconMap = Image(systemName: "map.fill")
     static let iconSearch = Image(systemName: "magnifyingglass")
+    static let iconCatalog = Image(systemName: "list.bullet")
+
     static let iconSearchLocation = Image(systemName: "location.magnifyingglass")
     static let iconPerson = Image(systemName: "person.fill")
     static let iconPersonError = Image(systemName: "person.fill.xmark")

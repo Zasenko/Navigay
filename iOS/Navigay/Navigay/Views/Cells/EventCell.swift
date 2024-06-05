@@ -67,28 +67,34 @@ struct EventCell: View {
             }
         }
         .onAppear() {
-            Task {
-                guard let url = event.smallPoster else { return }
-                if let image = await ImageLoader.shared.loadImage(urlString: url) {
+            Task(priority: .high) {
+                if let img = event.smallPosterImg {
                     await MainActor.run {
-                        self.image = image
-                        self.event.image = image
+                        self.image = img
+                    }
+                } else {
+                    guard let url = event.smallPoster else { return }
+                    if let image = await ImageLoader.shared.loadImage(urlString: url) {
+                        await MainActor.run {
+                            self.image = image
+                            self.event.smallPosterImg = image
+                        }
                     }
                 }
             }
         }
-        .onChange(of: event.smallPoster) { oldValue, newValue in
-            Task {
-                guard let url = newValue else {
-                    return
-                }
-                if let image = await ImageLoader.shared.loadImage(urlString: url) {
-                    await MainActor.run {
-                        self.image = image
-                    }
-                }
-            }
-        }
+//        .onChange(of: event.smallPoster) { oldValue, newValue in
+//            Task {
+//                guard let url = newValue else {
+//                    return
+//                }
+//                if let image = await ImageLoader.shared.loadImage(urlString: url) {
+//                    await MainActor.run {
+//                        self.image = image
+//                    }
+//                }
+//            }
+//        }
     }
     
     private var infoView: some View {

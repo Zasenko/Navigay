@@ -10,9 +10,13 @@ import SwiftData
 import CoreLocation
 
 protocol EventDataManagerProtocol {
+    
+    var aroundEventsCount: Int? { get set }
+    var dateEvents: [Date: [Int]]? { get set }
+    
     ///Sorted by id
     func getAllEvents(modelContext: ModelContext) -> [Event]
-    
+    func getEvent(id: Int, modelContext: ModelContext) -> Event?
     ///Filtered by distance
     func getAroundEvents(radius: Double, allEvents: [Event], userLocation: CLLocation) async -> [Event]
     
@@ -26,15 +30,28 @@ protocol EventDataManagerProtocol {
     
     func getActiveDates(for events: [Event]) async -> [Date]
     
+    func getEvents(for date: Date, userLocation: CLLocation, modelContext: ModelContext) async -> [Event]
     func getEvents(for date: Date, events: [Event]) async -> [Event]
-     
+    
     func updateEvents(decodedEvents: [DecodedEvent]?, for cities: [City], modelContext: ModelContext) -> [Event]
     
-    func updateEvents(decodedEvents: [DecodedEvent]?, for city: City, modelContext: ModelContext) -> [Event]
+    //todo избавиться от этих двух метобов
+    func updateEvents(decodedEvents: EventsItemsResult?, for cities: [City], modelContext: ModelContext) -> EventsItems
+    func updateCityEvents(decodedEvents: EventsItemsResult?, for city: City, modelContext: ModelContext) -> EventsItems
+    
+    
+    func updateCityEvents(decodedEvents: [DecodedEvent]?, for city: City, modelContext: ModelContext) -> [Event]
+    
     func updateEvents(decodedEvents: [DecodedEvent]?, for place: Place, modelContext: ModelContext) -> [Event]
 }
 
 final class EventDataManager: EventDataManagerProtocol {
+    var aroundEventsCount: Int? = nil
+    var dateEvents: [Date: [Int]]? = nil
+}
+
+extension EventDataManager {
+
 
     func getAllEvents(modelContext: ModelContext) -> [Event] {
         do {
@@ -44,6 +61,11 @@ final class EventDataManager: EventDataManagerProtocol {
             debugPrint(error)
             return []
         }
+    }
+    
+    func getEvent(id: Int, modelContext: ModelContext) -> Event? {
+        let events = getAllEvents(modelContext: modelContext)
+        return events.first(where: { $0.id == id })
     }
 
     func getAroundEvents(radius: Double, allEvents: [Event], userLocation: CLLocation) async -> [Event] {
@@ -190,6 +212,15 @@ final class EventDataManager: EventDataManagerProtocol {
             }
     }
     
+    func getEvents(for date: Date, userLocation: CLLocation, modelContext: ModelContext) async -> [Event] {
+        let radius: Double = 20000
+        let allEvents = getAllEvents(modelContext: modelContext)
+        let aroundEvents = await getAroundEvents(radius: radius, allEvents: allEvents, userLocation: userLocation)
+        let actualEvents = await getActualEvents(for: aroundEvents)
+        let events = await getEvents(for: date, events: actualEvents)
+        return events
+    }
+    
     func updateEvents(decodedEvents: [DecodedEvent]?, for place: Place, modelContext: ModelContext) -> [Event] {
         guard let decodedEvents, !decodedEvents.isEmpty else {
             place.events.forEach( { modelContext.delete($0) } )
@@ -234,6 +265,27 @@ final class EventDataManager: EventDataManagerProtocol {
         }
     }
     
+    func updateEvents(decodedEvents: EventsItemsResult?, for cities: [City], modelContext: ModelContext) -> EventsItems {
+        guard let decodedEvents else {
+            return EventsItems(today: [], upcoming: [], allDates: [:], count: 0)
+        }
+        let todayEvents = updateEvents(decodedEvents: decodedEvents.today, for: cities, modelContext: modelContext)
+        let upcomingEvents = updateEvents(decodedEvents: decodedEvents.upcoming, for: cities, modelContext: modelContext)
+        return EventsItems(today: todayEvents, upcoming: upcomingEvents, allDates: updateAllDates(decodedAllDates: decodedEvents.allDates), count: decodedEvents.eventsCount ?? 0)
+    }
+    
+
+    
+    func updateCityEvents(decodedEvents: EventsItemsResult?, for city: City, modelContext: ModelContext) -> EventsItems {
+        guard let decodedEvents else {
+            city.events.forEach( { modelContext.delete($0) } )
+            return EventsItems(today: [], upcoming: [], allDates: [:], count: 0)
+        }
+        let todayEvents = updateCityEvents(decodedEvents: decodedEvents.today, for: city, modelContext: modelContext)
+        let upcomingEvents = updateCityEvents(decodedEvents: decodedEvents.upcoming, for: city, modelContext: modelContext)
+        return EventsItems(today: todayEvents, upcoming: upcomingEvents, allDates: updateAllDates(decodedAllDates: decodedEvents.allDates), count: decodedEvents.eventsCount ?? 0)
+    }
+    
     func updateEvents(decodedEvents: [DecodedEvent]?, for cities: [City], modelContext: ModelContext) -> [Event] {
         guard let decodedEvents else { return [] }
         do {
@@ -242,9 +294,6 @@ final class EventDataManager: EventDataManagerProtocol {
             var events: [Event] = []
             
             for decodeEvent in decodedEvents {
-                if decodeEvent.id == 1 {
-                    print(true)
-                }
                 if let event = allEvents.first(where: { $0.id == decodeEvent.id} ) {
                     event.updateEventIncomplete(decodedEvent: decodeEvent)
                     events.append(event)
@@ -269,28 +318,23 @@ final class EventDataManager: EventDataManagerProtocol {
                     }
                 }
             }
+            try modelContext.save()
             return events
         } catch {
             debugPrint(error)
             return []
         }
     }
+}
+extension EventDataManager {
+
+    // MARK: - Private functions
     
-    func updateEvents(decodedEvents: [DecodedEvent]?, for city: City, modelContext: ModelContext) -> [Event] {
+    func updateCityEvents(decodedEvents: [DecodedEvent]?, for city: City, modelContext: ModelContext) -> [Event] {
         guard let decodedEvents, !decodedEvents.isEmpty else {
             city.events.forEach( { modelContext.delete($0) } )
             return []
         }
-        
-        let ids = decodedEvents.map( { $0.id } )
-        var eventsToDelete: [Event] = []
-        city.events.forEach { event in
-            if !ids.contains(event.id) {
-                eventsToDelete.append(event)
-            }
-        }
-        eventsToDelete.forEach( { modelContext.delete($0) } )
-     
         do {
             let descriptor = FetchDescriptor<Event>()
             var allEvents = try modelContext.fetch(descriptor)
@@ -318,5 +362,19 @@ final class EventDataManager: EventDataManagerProtocol {
             debugPrint(error)
             return []
         }
+    }
+    
+    private func updateAllDates(decodedAllDates: [String: [Int]]?) -> [Date: [Int]] {
+        guard let decodedAllDates = decodedAllDates else { return [:] }
+        var allDates: [Date: [Int]] = [:]
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        
+        for (dateString, eventIds) in decodedAllDates {
+            if let date = dateFormatter.date(from: dateString) {
+                allDates[date] = eventIds
+            }
+        }
+        return allDates
     }
 }

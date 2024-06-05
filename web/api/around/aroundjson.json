@@ -1,0 +1,2445 @@
+{
+    "result": true,
+    "items": {
+        "found_around": true,
+        "places": [
+            {
+                "id": 65,
+                "name": "Café Savoy",
+                "type_id": 2,
+                "avatar": "https:\/\/www.navigay.me\/images\/places\/AT\/65\/1714123266231_442.jpg",
+                "main_photo": "https:\/\/www.navigay.me\/images\/places\/AT\/65\/1700145344884_206.jpg",
+                "address": "Linke Wienzeile, 36",
+                "latitude": 48.19762186077136,
+                "longitude": 16.360169843894518,
+                "tags": [
+                    5,
+                    29,
+                    23,
+                    10,
+                    11,
+                    4
+                ],
+                "timetable": [
+                    {
+                        "opening": "10:00",
+                        "day": 1,
+                        "closing": "01:00"
+                    },
+                    {
+                        "day": 2,
+                        "closing": "01:00",
+                        "opening": "10:00"
+                    },
+                    {
+                        "day": 3,
+                        "opening": "10:00",
+                        "closing": "01:00"
+                    },
+                    {
+                        "closing": "01:00",
+                        "day": 4,
+                        "opening": "10:00"
+                    },
+                    {
+                        "opening": "10:00",
+                        "closing": "02:00",
+                        "day": 5
+                    },
+                    {
+                        "closing": "02:00",
+                        "opening": "09:00",
+                        "day": 6
+                    },
+                    {
+                        "opening": "10:00",
+                        "day": 7,
+                        "closing": "01:00"
+                    }
+                ],
+                "city_id": 17,
+                "updated_at": "2024-04-26 09:21:06"
+            },
+            {
+                "id": 66,
+                "name": "LMC Vienna - HARD ON",
+                "type_id": 7,
+                "avatar": "https:\/\/www.navigay.me\/images\/places\/AT\/66\/1700146840486_227.jpg",
+                "main_photo": "https:\/\/www.navigay.me\/images\/places\/AT\/66\/1700147052114_412.jpg",
+                "address": "Hamburgerstraße, 4",
+                "latitude": 48.19611791448819,
+                "longitude": 16.357055501725107,
+                "tags": [
+                    28,
+                    5,
+                    7,
+                    14,
+                    2,
+                    16,
+                    15,
+                    8,
+                    27,
+                    18,
+                    10
+                ],
+                "timetable": [
+                    {
+                        "opening": "23:00",
+                        "day": 5,
+                        "closing": "04:00"
+                    },
+                    {
+                        "day": 6,
+                        "closing": "04:00",
+                        "opening": "23:00"
+                    },
+                    {
+                        "closing": "22:00",
+                        "day": 7,
+                        "opening": "18:00"
+                    }
+                ],
+                "city_id": 17,
+                "updated_at": "2024-01-17 09:29:10"
+            },
+            {
+                "id": 67,
+                "name": "Why Not Vienna",
+                "type_id": 4,
+                "avatar": "https:\/\/www.navigay.me\/images\/places\/AT\/67\/1713179660666_687.jpg",
+                "main_photo": "https:\/\/www.navigay.me\/images\/places\/AT\/67\/1700150462691_895.jpg",
+                "address": "Tiefer Graben, 22",
+                "latitude": 48.21254544606042,
+                "longitude": 16.36852039240208,
+                "tags": [
+                    5,
+                    29,
+                    14,
+                    12,
+                    18,
+                    3,
+                    10,
+                    28
+                ],
+                "timetable": [
+                    {
+                        "opening": "22:00",
+                        "day": 5,
+                        "closing": "06:00"
+                    },
+                    {
+                        "day": 6,
+                        "opening": "22:00",
+                        "closing": "06:00"
+                    }
+                ],
+                "city_id": 17,
+                "updated_at": "2024-04-17 15:35:09"
+            },
+            {
+                "id": 68,
+                "name": "Village",
+                "type_id": 1,
+                "avatar": "https:\/\/www.navigay.me\/images\/places\/AT\/68\/1700151902590_836.jpg",
+                "main_photo": "https:\/\/www.navigay.me\/images\/places\/AT\/68\/1700151944766_369.jpg",
+                "address": "Stiegengasse, 8",
+                "latitude": 48.19793471430139,
+                "longitude": 16.35803783765831,
+                "tags": [
+                    5,
+                    14,
+                    18,
+                    10
+                ],
+                "timetable": [
+                    {
+                        "closing": "02:00",
+                        "opening": "20:00",
+                        "day": 1
+                    },
+                    {
+                        "day": 2,
+                        "closing": "02:00",
+                        "opening": "20:00"
+                    },
+                    {
+                        "opening": "20:00",
+                        "day": 3,
+                        "closing": "02:00"
+                    },
+                    {
+                        "day": 4,
+                        "opening": "20:00",
+                        "closing": "02:00"
+                    },
+                    {
+                        "day": 5,
+                        "closing": "03:00",
+                        "opening": "20:00"
+                    },
+                    {
+                        "opening": "20:00",
+                        "closing": "03:00",
+                        "day": 6
+                    },
+                    {
+                        "day": 7,
+                        "opening": "20:00",
+                        "closing": "02:00"
+                    }
+                ],
+                "city_id": 17,
+                "updated_at": "2024-03-20 15:22:57"
+            },
+            {
+                "id": 69,
+                "name": "Sling",
+                "type_id": 7,
+                "avatar": "https:\/\/www.navigay.me\/images\/places\/AT\/69\/1700208442407_537.jpg",
+                "main_photo": "https:\/\/www.navigay.me\/images\/places\/AT\/69\/1700208335236_545.jpg",
+                "address": "Kettenbrückengasse, 4",
+                "latitude": 48.194479153020026,
+                "longitude": 16.361670746439888,
+                "tags": [
+                    7,
+                    14,
+                    2,
+                    16,
+                    15,
+                    8,
+                    27,
+                    18,
+                    10,
+                    28,
+                    13
+                ],
+                "timetable": [
+                    {
+                        "opening": "15:00",
+                        "day": 1,
+                        "closing": "04:00"
+                    },
+                    {
+                        "opening": "15:00",
+                        "closing": "04:00",
+                        "day": 2
+                    },
+                    {
+                        "opening": "15:00",
+                        "closing": "04:00",
+                        "day": 3
+                    },
+                    {
+                        "closing": "04:00",
+                        "day": 4,
+                        "opening": "15:00"
+                    },
+                    {
+                        "day": 5,
+                        "opening": "15:00",
+                        "closing": "04:00"
+                    },
+                    {
+                        "day": 6,
+                        "opening": "15:00",
+                        "closing": "04:00"
+                    },
+                    {
+                        "opening": "15:00",
+                        "day": 7,
+                        "closing": "04:00"
+                    }
+                ],
+                "city_id": 17,
+                "updated_at": "2024-04-17 15:34:06"
+            },
+            {
+                "id": 70,
+                "name": "R.O.P.P. - Republic of Patta Patta",
+                "type_id": 3,
+                "avatar": "https:\/\/www.navigay.me\/images\/places\/AT\/70\/1700209082716_717.jpg",
+                "main_photo": "https:\/\/www.navigay.me\/images\/places\/AT\/70\/1700209172643_429.jpg",
+                "address": "Margaretenstraße, 60",
+                "latitude": 48.193579530604005,
+                "longitude": 16.36128609441275,
+                "tags": [
+                    5,
+                    29,
+                    23,
+                    10,
+                    11
+                ],
+                "timetable": [
+                    {
+                        "opening": "17:00",
+                        "day": 3,
+                        "closing": "00:00"
+                    },
+                    {
+                        "day": 4,
+                        "opening": "17:00",
+                        "closing": "00:00"
+                    },
+                    {
+                        "opening": "17:00",
+                        "closing": "00:00",
+                        "day": 5
+                    },
+                    {
+                        "day": 6,
+                        "opening": "17:00",
+                        "closing": "00:00"
+                    },
+                    {
+                        "day": 7,
+                        "closing": "23:00",
+                        "opening": "17:00"
+                    }
+                ],
+                "city_id": 17,
+                "updated_at": "2023-11-17 08:21:14"
+            },
+            {
+                "id": 71,
+                "name": "Eagle-Vienna",
+                "type_id": 7,
+                "avatar": "https:\/\/www.navigay.me\/images\/places\/AT\/71\/1700561412299_394.jpg",
+                "main_photo": "https:\/\/www.navigay.me\/images\/places\/AT\/71\/1700561540335_297.jpg",
+                "address": "Amerlingstraße, 4",
+                "latitude": 48.19698350140017,
+                "longitude": 16.35166777218611,
+                "tags": [
+                    28,
+                    7,
+                    2,
+                    16,
+                    15,
+                    27,
+                    14,
+                    18,
+                    10,
+                    13
+                ],
+                "timetable": [
+                    {
+                        "day": 2,
+                        "closing": "02:00",
+                        "opening": "21:00"
+                    },
+                    {
+                        "opening": "21:00",
+                        "day": 3,
+                        "closing": "02:00"
+                    },
+                    {
+                        "closing": "02:00",
+                        "day": 4,
+                        "opening": "21:00"
+                    },
+                    {
+                        "day": 5,
+                        "opening": "21:00",
+                        "closing": "04:00"
+                    },
+                    {
+                        "opening": "21:00",
+                        "closing": "04:00",
+                        "day": 6
+                    }
+                ],
+                "city_id": 17,
+                "updated_at": "2023-11-21 10:14:32"
+            },
+            {
+                "id": 72,
+                "name": "Felixx",
+                "type_id": 1,
+                "avatar": "https:\/\/www.navigay.me\/images\/places\/AT\/72\/1700562328451_476.jpg",
+                "main_photo": "https:\/\/www.navigay.me\/images\/places\/AT\/72\/1700562318590_946.jpg",
+                "address": "Gumpendorfer Straße, 5",
+                "latitude": 48.20082593170344,
+                "longitude": 16.36205426049513,
+                "tags": [
+                    23,
+                    10,
+                    5,
+                    18
+                ],
+                "timetable": [
+                    {
+                        "closing": "02:00",
+                        "day": 1,
+                        "opening": "18:00"
+                    },
+                    {
+                        "closing": "02:00",
+                        "opening": "18:00",
+                        "day": 2
+                    },
+                    {
+                        "opening": "18:00",
+                        "day": 3,
+                        "closing": "02:00"
+                    },
+                    {
+                        "opening": "18:00",
+                        "closing": "02:00",
+                        "day": 4
+                    },
+                    {
+                        "closing": "02:00",
+                        "day": 5,
+                        "opening": "18:00"
+                    },
+                    {
+                        "closing": "02:00",
+                        "opening": "18:00",
+                        "day": 6
+                    },
+                    {
+                        "day": 7,
+                        "opening": "18:00",
+                        "closing": "02:00"
+                    }
+                ],
+                "city_id": 17,
+                "updated_at": "2024-01-16 09:49:49"
+            },
+            {
+                "id": 73,
+                "name": "Gayt",
+                "type_id": 9,
+                "avatar": "https:\/\/www.navigay.me\/images\/places\/AT\/73\/1700562928105_576.jpg",
+                "main_photo": "https:\/\/www.navigay.me\/images\/places\/AT\/73\/1700562956352_743.jpg",
+                "address": "Schönbrunner Straße, 68",
+                "latitude": 48.18976990671689,
+                "longitude": 16.35259050374649,
+                "tags": [
+                    5,
+                    15,
+                    13
+                ],
+                "timetable": [
+                    {
+                        "day": 1,
+                        "closing": "19:00",
+                        "opening": "11:00"
+                    },
+                    {
+                        "day": 2,
+                        "opening": "11:00",
+                        "closing": "19:00"
+                    },
+                    {
+                        "opening": "11:00",
+                        "day": 3,
+                        "closing": "19:00"
+                    },
+                    {
+                        "closing": "19:00",
+                        "opening": "11:00",
+                        "day": 4
+                    },
+                    {
+                        "day": 5,
+                        "opening": "11:00",
+                        "closing": "20:00"
+                    },
+                    {
+                        "day": 6,
+                        "opening": "11:00",
+                        "closing": "18:00"
+                    }
+                ],
+                "city_id": 17,
+                "updated_at": "2024-01-16 09:49:49"
+            },
+            {
+                "id": 74,
+                "name": "Römersauna",
+                "type_id": 6,
+                "avatar": "https:\/\/www.navigay.me\/images\/places\/AT\/74\/1700563857874_138.jpg",
+                "main_photo": "https:\/\/www.navigay.me\/images\/places\/AT\/74\/1700564065387_896.jpg",
+                "address": "Rüdigergasse, 2",
+                "latitude": 48.19322171445741,
+                "longitude": 16.357684930882517,
+                "tags": [
+                    5,
+                    7,
+                    14,
+                    2,
+                    16,
+                    27,
+                    18,
+                    10,
+                    30,
+                    19
+                ],
+                "timetable": [
+                    {
+                        "day": 1,
+                        "closing": "23:00",
+                        "opening": "11:00"
+                    },
+                    {
+                        "day": 2,
+                        "opening": "11:00",
+                        "closing": "23:00"
+                    },
+                    {
+                        "day": 3,
+                        "closing": "23:00",
+                        "opening": "11:00"
+                    },
+                    {
+                        "opening": "11:00",
+                        "day": 4,
+                        "closing": "23:00"
+                    },
+                    {
+                        "day": 5,
+                        "closing": "00:00",
+                        "opening": "11:00"
+                    },
+                    {
+                        "day": 6,
+                        "opening": "00:00",
+                        "closing": "00:00"
+                    },
+                    {
+                        "day": 7,
+                        "opening": "00:00",
+                        "closing": "00:00"
+                    }
+                ],
+                "city_id": 17,
+                "updated_at": "2024-01-17 15:01:07"
+            },
+            {
+                "id": 75,
+                "name": "Kaiserbruendl Herrensauna",
+                "type_id": 6,
+                "avatar": "https:\/\/www.navigay.me\/images\/places\/AT\/75\/1700569749082_602.jpg",
+                "main_photo": "https:\/\/www.navigay.me\/images\/places\/AT\/75\/1700569453226_641.jpg",
+                "address": "Weihburggasse, 18-20",
+                "latitude": 48.20601265029943,
+                "longitude": 16.37442129868543,
+                "tags": [
+                    1,
+                    19,
+                    11,
+                    10,
+                    8,
+                    16,
+                    2,
+                    27,
+                    14,
+                    7,
+                    18,
+                    20,
+                    28
+                ],
+                "timetable": [
+                    {
+                        "day": 1,
+                        "closing": "00:00",
+                        "opening": "14:00"
+                    },
+                    {
+                        "day": 2,
+                        "opening": "14:00",
+                        "closing": "00:00"
+                    },
+                    {
+                        "closing": "00:00",
+                        "opening": "14:00",
+                        "day": 3
+                    },
+                    {
+                        "opening": "14:00",
+                        "day": 4,
+                        "closing": "00:00"
+                    },
+                    {
+                        "opening": "14:00",
+                        "day": 5,
+                        "closing": "00:00"
+                    },
+                    {
+                        "closing": "02:00",
+                        "opening": "14:00",
+                        "day": 6
+                    },
+                    {
+                        "closing": "00:00",
+                        "opening": "14:00",
+                        "day": 7
+                    }
+                ],
+                "city_id": 17,
+                "updated_at": "2024-01-26 08:18:51"
+            },
+            {
+                "id": 76,
+                "name": "Mango",
+                "type_id": 1,
+                "avatar": "https:\/\/www.navigay.me\/images\/places\/AT\/76\/1700813161661_955.jpg",
+                "main_photo": "https:\/\/www.navigay.me\/images\/places\/AT\/76\/1700813363179_959.jpg",
+                "address": "Laimgrubengasse, 3",
+                "latitude": 48.1978542616192,
+                "longitude": 16.3605839497849,
+                "tags": [
+                    5,
+                    14,
+                    18,
+                    10,
+                    4,
+                    23
+                ],
+                "timetable": [
+                    {
+                        "day": 1,
+                        "opening": "20:00",
+                        "closing": "04:00"
+                    },
+                    {
+                        "closing": "04:00",
+                        "day": 2,
+                        "opening": "20:00"
+                    },
+                    {
+                        "day": 3,
+                        "closing": "04:00",
+                        "opening": "20:00"
+                    },
+                    {
+                        "opening": "20:00",
+                        "closing": "04:00",
+                        "day": 4
+                    },
+                    {
+                        "closing": "04:00",
+                        "day": 5,
+                        "opening": "20:00"
+                    },
+                    {
+                        "closing": "04:00",
+                        "day": 6,
+                        "opening": "20:00"
+                    },
+                    {
+                        "opening": "20:00",
+                        "day": 7,
+                        "closing": "04:00"
+                    }
+                ],
+                "city_id": 17,
+                "updated_at": "2024-01-16 09:49:49"
+            },
+            {
+                "id": 77,
+                "name": "S.O.U.L. SPA (Sport Sauna)",
+                "type_id": 6,
+                "avatar": "https:\/\/www.navigay.me\/images\/places\/AT\/77\/1701072643983_252.jpg",
+                "main_photo": "https:\/\/www.navigay.me\/images\/places\/AT\/77\/1701072648331_474.jpg",
+                "address": "Lange Gasse, 8",
+                "latitude": 48.20731478963674,
+                "longitude": 16.35291035591145,
+                "tags": [
+                    23,
+                    10,
+                    14,
+                    16,
+                    2,
+                    8,
+                    27,
+                    19,
+                    5,
+                    7,
+                    18
+                ],
+                "timetable": [
+                    {
+                        "day": 4,
+                        "opening": "16:00",
+                        "closing": "00:00"
+                    },
+                    {
+                        "opening": "20:00",
+                        "closing": "11:00",
+                        "day": 5
+                    },
+                    {
+                        "day": 6,
+                        "opening": "20:00",
+                        "closing": "11:00"
+                    }
+                ],
+                "city_id": 17,
+                "updated_at": "2024-01-17 07:39:02"
+            },
+            {
+                "id": 82,
+                "name": "Marea Alta",
+                "type_id": 1,
+                "avatar": "https:\/\/www.navigay.me\/images\/places\/AT\/82\/1701105870646_251.jpg",
+                "main_photo": "https:\/\/www.navigay.me\/images\/places\/AT\/82\/1701105752588_213.jpg",
+                "address": "Gumpendorfer Straße, 28",
+                "latitude": 48.1990678,
+                "longitude": 16.3585393,
+                "tags": [
+                    9,
+                    29,
+                    5,
+                    14,
+                    12,
+                    18,
+                    10,
+                    28
+                ],
+                "timetable": [
+                    {
+                        "day": 1,
+                        "opening": "19:00",
+                        "closing": "02:00"
+                    },
+                    {
+                        "opening": "19:00",
+                        "closing": "02:00",
+                        "day": 2
+                    },
+                    {
+                        "day": 3,
+                        "opening": "19:00",
+                        "closing": "02:00"
+                    },
+                    {
+                        "closing": "02:00",
+                        "opening": "19:00",
+                        "day": 4
+                    },
+                    {
+                        "opening": "19:00",
+                        "closing": "04:00",
+                        "day": 5
+                    },
+                    {
+                        "closing": "04:00",
+                        "opening": "19:00",
+                        "day": 6
+                    }
+                ],
+                "city_id": 17,
+                "updated_at": "2024-01-17 14:58:31"
+            },
+            {
+                "id": 83,
+                "name": "Türkis Rosa Lila Villa ",
+                "type_id": 12,
+                "avatar": "https:\/\/www.navigay.me\/images\/places\/AT\/83\/1702374422294_729.jpg",
+                "main_photo": "https:\/\/www.navigay.me\/images\/places\/AT\/83\/1702374384699_194.jpg",
+                "address": "Linke Wienzeile, 102",
+                "latitude": 48.19353483947027,
+                "longitude": 16.353905155676905,
+                "tags": [
+                    28,
+                    9,
+                    29
+                ],
+                "timetable": null,
+                "city_id": 17,
+                "updated_at": "2024-01-17 07:38:51"
+            },
+            {
+                "id": 84,
+                "name": "Man for man",
+                "type_id": 9,
+                "avatar": "https:\/\/www.navigay.me\/images\/places\/AT\/84\/1702509931987_523.jpg",
+                "main_photo": "https:\/\/www.navigay.me\/images\/places\/AT\/84\/1702510239248_383.jpg",
+                "address": "Hamburgerstraße, 8",
+                "latitude": 48.19596621801953,
+                "longitude": 16.35673439743715,
+                "tags": [
+                    16,
+                    27,
+                    30,
+                    13,
+                    7,
+                    14,
+                    15,
+                    28,
+                    8
+                ],
+                "timetable": [
+                    {
+                        "day": 1,
+                        "closing": "21:00",
+                        "opening": "11:00"
+                    },
+                    {
+                        "opening": "11:00",
+                        "day": 2,
+                        "closing": "21:00"
+                    },
+                    {
+                        "closing": "22:00",
+                        "day": 3,
+                        "opening": "11:00"
+                    },
+                    {
+                        "opening": "11:00",
+                        "closing": "22:00",
+                        "day": 4
+                    },
+                    {
+                        "day": 5,
+                        "opening": "11:00",
+                        "closing": "23:00"
+                    },
+                    {
+                        "opening": "11:00",
+                        "day": 6,
+                        "closing": "23:00"
+                    },
+                    {
+                        "day": 7,
+                        "opening": "14:00",
+                        "closing": "23:00"
+                    }
+                ],
+                "city_id": 17,
+                "updated_at": "2024-01-17 15:03:17"
+            },
+            {
+                "id": 85,
+                "name": "Rifugio",
+                "type_id": 1,
+                "avatar": "https:\/\/www.navigay.me\/images\/places\/AT\/85\/1702657514454_894.jpg",
+                "main_photo": "https:\/\/www.navigay.me\/images\/places\/AT\/85\/1702657538543_351.jpg",
+                "address": "Schönbrunner Straße, 10",
+                "latitude": 48.19470215506769,
+                "longitude": 16.36040771160255,
+                "tags": [
+                    28,
+                    10
+                ],
+                "timetable": [
+                    {
+                        "day": 1,
+                        "opening": "10:00",
+                        "closing": "22:00"
+                    },
+                    {
+                        "day": 2,
+                        "opening": "10:00",
+                        "closing": "22:00"
+                    },
+                    {
+                        "opening": "10:00",
+                        "closing": "22:00",
+                        "day": 3
+                    },
+                    {
+                        "closing": "22:00",
+                        "day": 4,
+                        "opening": "10:00"
+                    },
+                    {
+                        "opening": "10:00",
+                        "closing": "22:00",
+                        "day": 5
+                    },
+                    {
+                        "closing": "22:00",
+                        "day": 6,
+                        "opening": "10:00"
+                    },
+                    {
+                        "opening": "10:00",
+                        "closing": "22:00",
+                        "day": 7
+                    }
+                ],
+                "city_id": 17,
+                "updated_at": "2024-03-20 14:34:17"
+            },
+            {
+                "id": 86,
+                "name": "Wiscot",
+                "type_id": 9,
+                "avatar": "https:\/\/www.navigay.me\/images\/places\/AT\/86\/1702929214055_371.jpg",
+                "main_photo": "https:\/\/www.navigay.me\/images\/places\/AT\/86\/1702928936347_130.jpg",
+                "address": "Lerchenfelder Gürtel, 45",
+                "latitude": 48.20999148371898,
+                "longitude": 16.3385035406675,
+                "tags": [
+                    14,
+                    7,
+                    2,
+                    16,
+                    27,
+                    30,
+                    13,
+                    15,
+                    28
+                ],
+                "timetable": [
+                    {
+                        "opening": "12:00",
+                        "day": 1,
+                        "closing": "00:00"
+                    },
+                    {
+                        "day": 2,
+                        "opening": "12:00",
+                        "closing": "00:00"
+                    },
+                    {
+                        "closing": "00:00",
+                        "day": 3,
+                        "opening": "12:00"
+                    },
+                    {
+                        "day": 4,
+                        "opening": "12:00",
+                        "closing": "00:00"
+                    },
+                    {
+                        "opening": "12:00",
+                        "closing": "00:00",
+                        "day": 5
+                    },
+                    {
+                        "day": 6,
+                        "closing": "00:00",
+                        "opening": "12:00"
+                    },
+                    {
+                        "closing": "00:00",
+                        "opening": "12:00",
+                        "day": 7
+                    }
+                ],
+                "city_id": 17,
+                "updated_at": "2024-01-17 15:02:53"
+            },
+            {
+                "id": 90,
+                "name": "Das Gugg – Café und Vereinszentrum der HOSI Wien",
+                "type_id": 2,
+                "avatar": "https:\/\/www.navigay.me\/images\/places\/AT\/90\/1704012382872_354.jpg",
+                "main_photo": "https:\/\/www.navigay.me\/images\/places\/AT\/90\/1704012467966_486.jpg",
+                "address": "Heumühlgasse, 14",
+                "latitude": 48.19614050313229,
+                "longitude": 16.361789954960987,
+                "tags": [
+                    23,
+                    29,
+                    28,
+                    9,
+                    10
+                ],
+                "timetable": null,
+                "city_id": 17,
+                "updated_at": "2024-01-17 09:31:45"
+            },
+            {
+                "id": 91,
+                "name": "Apollo",
+                "type_id": 6,
+                "avatar": "https:\/\/www.navigay.me\/images\/places\/AT\/91\/1704023175444_216.jpg",
+                "main_photo": "https:\/\/www.navigay.me\/images\/places\/AT\/91\/1704023074943_592.jpg",
+                "address": "Wimbergergasse, 34",
+                "latitude": 48.20580297155599,
+                "longitude": 16.338466975580108,
+                "tags": [
+                    28,
+                    14,
+                    2,
+                    16,
+                    8,
+                    27,
+                    10,
+                    23
+                ],
+                "timetable": [
+                    {
+                        "opening": "14:00",
+                        "closing": "02:00",
+                        "day": 1
+                    },
+                    {
+                        "day": 2,
+                        "closing": "02:00",
+                        "opening": "14:00"
+                    },
+                    {
+                        "day": 3,
+                        "opening": "14:00",
+                        "closing": "02:00"
+                    },
+                    {
+                        "day": 4,
+                        "opening": "14:00",
+                        "closing": "02:00"
+                    },
+                    {
+                        "day": 5,
+                        "closing": "02:00",
+                        "opening": "14:00"
+                    },
+                    {
+                        "day": 6,
+                        "opening": "14:00",
+                        "closing": "02:00"
+                    },
+                    {
+                        "opening": "14:00",
+                        "day": 7,
+                        "closing": "02:00"
+                    }
+                ],
+                "city_id": 17,
+                "updated_at": "2024-01-17 15:01:41"
+            },
+            {
+                "id": 92,
+                "name": "AFC Vienna Vikings Ladies",
+                "type_id": 10,
+                "avatar": "https:\/\/www.navigay.me\/images\/places\/AT\/92\/1704705146207_918.jpg",
+                "main_photo": "https:\/\/www.navigay.me\/images\/places\/AT\/92\/1704705176329_798.jpg",
+                "address": "Ravelinstraße, 8",
+                "latitude": 48.172936542735876,
+                "longitude": 16.424906481606257,
+                "tags": [
+                    9
+                ],
+                "timetable": null,
+                "city_id": 17,
+                "updated_at": "2024-01-16 09:49:49"
+            },
+            {
+                "id": 93,
+                "name": "S-World XXL Store",
+                "type_id": 9,
+                "avatar": null,
+                "main_photo": "https:\/\/www.navigay.me\/images\/places\/AT\/93\/1705400759621_804.jpg",
+                "address": "Mariahilfer Straße, 49",
+                "latitude": 48.199672500592214,
+                "longitude": 16.35423523844789,
+                "tags": [
+                    27,
+                    13,
+                    15
+                ],
+                "timetable": [
+                    {
+                        "day": 1,
+                        "closing": "19:00",
+                        "opening": "10:00"
+                    },
+                    {
+                        "day": 2,
+                        "closing": "19:00",
+                        "opening": "10:00"
+                    },
+                    {
+                        "day": 3,
+                        "opening": "10:00",
+                        "closing": "19:00"
+                    },
+                    {
+                        "closing": "20:00",
+                        "opening": "10:00",
+                        "day": 4
+                    },
+                    {
+                        "closing": "20:00",
+                        "day": 5,
+                        "opening": "10:00"
+                    },
+                    {
+                        "closing": "18:00",
+                        "day": 6,
+                        "opening": "10:00"
+                    }
+                ],
+                "city_id": 17,
+                "updated_at": "2024-01-17 15:02:36"
+            },
+            {
+                "id": 94,
+                "name": "Sixta",
+                "type_id": 3,
+                "avatar": "https:\/\/www.navigay.me\/images\/places\/AT\/94\/1705405060134_362.jpg",
+                "main_photo": "https:\/\/www.navigay.me\/images\/places\/AT\/94\/1705405101581_860.jpg",
+                "address": "Schönbrunner Straße, 21",
+                "latitude": 48.19398228016483,
+                "longitude": 16.359530683346012,
+                "tags": [
+                    10,
+                    11,
+                    23,
+                    4,
+                    5,
+                    21
+                ],
+                "timetable": null,
+                "city_id": 17,
+                "updated_at": "2024-01-17 15:00:18"
+            },
+            {
+                "id": 102,
+                "name": "Atelier Galerie Roland Puschitz",
+                "type_id": 11,
+                "avatar": null,
+                "main_photo": "https:\/\/www.navigay.me\/images\/places\/AT\/102\/1705499455236_370.jpg",
+                "address": "Sechshauser Straße, 116",
+                "latitude": 48.18626290836884,
+                "longitude": 16.322557964029087,
+                "tags": null,
+                "timetable": [
+                    {
+                        "opening": "14:00",
+                        "day": 4,
+                        "closing": "19:00"
+                    },
+                    {
+                        "closing": "19:00",
+                        "day": 5,
+                        "opening": "14:00"
+                    },
+                    {
+                        "closing": "17:00",
+                        "day": 6,
+                        "opening": "14:00"
+                    }
+                ],
+                "city_id": 17,
+                "updated_at": "2024-01-17 13:52:15"
+            },
+            {
+                "id": 104,
+                "name": "Homosexuelle Initiative (HOSI) Wien",
+                "type_id": 12,
+                "avatar": "https:\/\/www.navigay.me\/images\/places\/AT\/104\/1705595320531_268.jpg",
+                "main_photo": "https:\/\/www.navigay.me\/images\/places\/AT\/104\/1705595433743_431.jpg",
+                "address": "Heumühlgasse, 14",
+                "latitude": 48.19621645130997,
+                "longitude": 16.361889483543557,
+                "tags": [
+                    29,
+                    5
+                ],
+                "timetable": [
+                    {
+                        "opening": "09:00",
+                        "closing": "16:00",
+                        "day": 1
+                    },
+                    {
+                        "opening": "09:00",
+                        "closing": "17:00",
+                        "day": 5
+                    }
+                ],
+                "city_id": 17,
+                "updated_at": "2024-01-18 16:30:33"
+            },
+            {
+                "id": 115,
+                "name": "Aids Hilfe Wien",
+                "type_id": 14,
+                "avatar": "https:\/\/www.navigay.me\/images\/places\/AT\/115\/1706086502497_516.jpg",
+                "main_photo": null,
+                "address": "Mariahilfergürtel, 4",
+                "latitude": 48.19111438137111,
+                "longitude": 16.338215707758188,
+                "tags": [
+                    29,
+                    6
+                ],
+                "timetable": [
+                    {
+                        "opening": "09:00",
+                        "closing": "19:00",
+                        "day": 1
+                    },
+                    {
+                        "day": 2,
+                        "opening": "09:00",
+                        "closing": "17:00"
+                    },
+                    {
+                        "day": 3,
+                        "opening": "09:00",
+                        "closing": "19:00"
+                    },
+                    {
+                        "closing": "19:00",
+                        "day": 4,
+                        "opening": "09:00"
+                    },
+                    {
+                        "day": 5,
+                        "closing": "18:00",
+                        "opening": "09:00"
+                    }
+                ],
+                "city_id": 17,
+                "updated_at": "2024-01-24 08:55:02"
+            },
+            {
+                "id": 117,
+                "name": "Aufschlag Sportverein",
+                "type_id": 10,
+                "avatar": "https:\/\/www.navigay.me\/images\/places\/AT\/117\/1706089126792_401.jpg",
+                "main_photo": "https:\/\/www.navigay.me\/images\/places\/AT\/117\/1706089255623_690.jpg",
+                "address": "Linke Wienzeile, 102",
+                "latitude": 48.1934743,
+                "longitude": 16.3538948,
+                "tags": [
+                    28,
+                    29,
+                    9
+                ],
+                "timetable": null,
+                "city_id": 17,
+                "updated_at": "2024-01-24 09:41:24"
+            },
+            {
+                "id": 118,
+                "name": "Villa Vida Café",
+                "type_id": 2,
+                "avatar": "https:\/\/www.navigay.me\/images\/places\/AT\/118\/1706091056321_508.jpg",
+                "main_photo": "https:\/\/www.navigay.me\/images\/places\/AT\/118\/1706091139635_670.jpg",
+                "address": "Linke Wienzeile, 102",
+                "latitude": 48.19354596917369,
+                "longitude": 16.353942073910304,
+                "tags": [
+                    5,
+                    29,
+                    18,
+                    10,
+                    23
+                ],
+                "timetable": [
+                    {
+                        "closing": "23:00",
+                        "day": 2,
+                        "opening": "11:00"
+                    },
+                    {
+                        "day": 3,
+                        "opening": "11:00",
+                        "closing": "23:00"
+                    },
+                    {
+                        "closing": "23:00",
+                        "opening": "11:00",
+                        "day": 4
+                    },
+                    {
+                        "closing": "00:00",
+                        "day": 5,
+                        "opening": "11:00"
+                    },
+                    {
+                        "closing": "00:00",
+                        "day": 6,
+                        "opening": "11:00"
+                    }
+                ],
+                "city_id": 17,
+                "updated_at": "2024-01-24 10:12:44"
+            },
+            {
+                "id": 119,
+                "name": "Kraulquappen Wien",
+                "type_id": 10,
+                "avatar": "https:\/\/www.navigay.me\/images\/places\/AT\/119\/1706093516123_195.jpg",
+                "main_photo": "https:\/\/www.navigay.me\/images\/places\/AT\/119\/1706093564509_553.jpg",
+                "address": "Sunken City, 6",
+                "latitude": 48.230082435449965,
+                "longitude": 16.410118367549536,
+                "tags": [
+                    28,
+                    9,
+                    29,
+                    1
+                ],
+                "timetable": null,
+                "city_id": 17,
+                "updated_at": "2024-01-24 10:52:44"
+            },
+            {
+                "id": 120,
+                "name": "QWIEN - Zentrum für queere Geschichte",
+                "type_id": 11,
+                "avatar": "https:\/\/www.navigay.me\/images\/places\/AT\/120\/1706095189822_141.jpg",
+                "main_photo": "https:\/\/www.navigay.me\/images\/places\/AT\/120\/1706095086782_266.jpg",
+                "address": "Große Neugasse, 29",
+                "latitude": 48.1937225,
+                "longitude": 16.3633224,
+                "tags": [
+                    5
+                ],
+                "timetable": [
+                    {
+                        "day": 1,
+                        "closing": "16:00",
+                        "opening": "10:00"
+                    },
+                    {
+                        "day": 2,
+                        "closing": "16:00",
+                        "opening": "10:00"
+                    },
+                    {
+                        "opening": "10:00",
+                        "closing": "16:00",
+                        "day": 3
+                    },
+                    {
+                        "closing": "16:00",
+                        "day": 4,
+                        "opening": "10:00"
+                    }
+                ],
+                "city_id": 17,
+                "updated_at": "2024-01-24 11:19:49"
+            },
+            {
+                "id": 121,
+                "name": "flinte",
+                "type_id": 12,
+                "avatar": "https:\/\/www.navigay.me\/images\/places\/AT\/121\/1706096538716_251.jpg",
+                "main_photo": "https:\/\/www.navigay.me\/images\/places\/AT\/121\/1706096616466_917.jpg",
+                "address": "Lange Gasse, 11",
+                "latitude": 48.207351388345664,
+                "longitude": 16.35269110374504,
+                "tags": [
+                    9,
+                    10
+                ],
+                "timetable": [
+                    {
+                        "day": 5,
+                        "closing": "00:00",
+                        "opening": "19:00"
+                    }
+                ],
+                "city_id": 17,
+                "updated_at": "2024-01-24 11:43:53"
+            },
+            {
+                "id": 123,
+                "name": "FKK Toter Grund",
+                "type_id": 8,
+                "avatar": null,
+                "main_photo": "https:\/\/www.navigay.me\/images\/places\/AT\/123\/1706131802801_496.jpg",
+                "address": "Donauinsel",
+                "latitude": 48.18518003277745,
+                "longitude": 16.474399965339725,
+                "tags": [
+                    5,
+                    7,
+                    16,
+                    8
+                ],
+                "timetable": null,
+                "city_id": 17,
+                "updated_at": "2024-04-17 15:43:07"
+            },
+            {
+                "id": 124,
+                "name": "FKK Gelände Nord",
+                "type_id": 8,
+                "avatar": null,
+                "main_photo": "https:\/\/www.navigay.me\/images\/places\/AT\/124\/1706132497559_783.jpg",
+                "address": "Donauinsel \/ Jedleseer Brücke",
+                "latitude": 48.27286008439608,
+                "longitude": 16.365939184298128,
+                "tags": [
+                    5,
+                    7,
+                    14,
+                    16,
+                    8
+                ],
+                "timetable": null,
+                "city_id": 17,
+                "updated_at": "2024-01-24 21:41:37"
+            },
+            {
+                "id": 125,
+                "name": "Löwenherz Bookstore",
+                "type_id": 9,
+                "avatar": "https:\/\/www.navigay.me\/images\/places\/AT\/125\/1706133178418_534.jpg",
+                "main_photo": "https:\/\/www.navigay.me\/images\/places\/AT\/125\/1706133211678_332.jpg",
+                "address": "Berggasse, 8",
+                "latitude": 48.21760171895851,
+                "longitude": 16.36086672368002,
+                "tags": [
+                    5,
+                    13
+                ],
+                "timetable": [
+                    {
+                        "opening": "10:00",
+                        "closing": "19:00",
+                        "day": 1
+                    },
+                    {
+                        "day": 2,
+                        "closing": "19:00",
+                        "opening": "10:00"
+                    },
+                    {
+                        "closing": "19:00",
+                        "day": 3,
+                        "opening": "10:00"
+                    },
+                    {
+                        "day": 4,
+                        "closing": "19:00",
+                        "opening": "10:00"
+                    },
+                    {
+                        "day": 5,
+                        "opening": "10:00",
+                        "closing": "19:00"
+                    },
+                    {
+                        "day": 6,
+                        "opening": "10:00",
+                        "closing": "18:00"
+                    }
+                ],
+                "city_id": 17,
+                "updated_at": "2024-01-24 21:56:20"
+            },
+            {
+                "id": 128,
+                "name": "Alte Lampe",
+                "type_id": 2,
+                "avatar": null,
+                "main_photo": "https:\/\/www.navigay.me\/images\/places\/AT\/128\/1706437300745_505.jpg",
+                "address": "Zentagasse, 30",
+                "latitude": 48.1887364,
+                "longitude": 16.3583868,
+                "tags": [
+                    5,
+                    10
+                ],
+                "timetable": [
+                    {
+                        "closing": "01:00",
+                        "day": 2,
+                        "opening": "20:00"
+                    },
+                    {
+                        "closing": "01:00",
+                        "opening": "20:00",
+                        "day": 3
+                    },
+                    {
+                        "opening": "20:00",
+                        "closing": "01:00",
+                        "day": 4
+                    },
+                    {
+                        "day": 5,
+                        "opening": "20:00",
+                        "closing": "02:00"
+                    },
+                    {
+                        "closing": "02:00",
+                        "day": 6,
+                        "opening": "20:00"
+                    }
+                ],
+                "city_id": 17,
+                "updated_at": "2024-01-28 10:23:24"
+            },
+            {
+                "id": 129,
+                "name": "Rechtskomitee Lambda",
+                "type_id": 16,
+                "avatar": "https:\/\/www.navigay.me\/images\/places\/AT\/129\/1706514292313_801.jpg",
+                "main_photo": null,
+                "address": "Linke Wienzeile, 102",
+                "latitude": 48.193459250927994,
+                "longitude": 16.353846631993154,
+                "tags": null,
+                "timetable": null,
+                "city_id": 17,
+                "updated_at": "2024-01-29 07:44:52"
+            },
+            {
+                "id": 131,
+                "name": "City Bar",
+                "type_id": 1,
+                "avatar": "https:\/\/www.navigay.me\/images\/places\/AT\/131\/1707386813183_744.jpg",
+                "main_photo": "https:\/\/www.navigay.me\/images\/places\/AT\/131\/1707386831518_267.jpg",
+                "address": "Tiefer Graben, 19",
+                "latitude": 48.21240192472684,
+                "longitude": 16.367958182467724,
+                "tags": [
+                    28,
+                    14,
+                    18,
+                    10,
+                    5,
+                    23
+                ],
+                "timetable": [
+                    {
+                        "opening": "20:00",
+                        "day": 5,
+                        "closing": "03:00"
+                    },
+                    {
+                        "closing": "03:00",
+                        "opening": "20:00",
+                        "day": 6
+                    }
+                ],
+                "city_id": 17,
+                "updated_at": "2024-03-21 09:50:39"
+            },
+            {
+                "id": 132,
+                "name": "Queer Base",
+                "type_id": 12,
+                "avatar": "https:\/\/www.navigay.me\/images\/places\/AT\/132\/1707387792633_286.jpg",
+                "main_photo": "https:\/\/www.navigay.me\/images\/places\/AT\/132\/1707387801186_185.jpg",
+                "address": "Linke Wienzeile, 102",
+                "latitude": 48.19342676878746,
+                "longitude": 16.353943303262575,
+                "tags": null,
+                "timetable": [
+                    {
+                        "day": 1,
+                        "opening": "11:00",
+                        "closing": "17:00"
+                    },
+                    {
+                        "day": 2,
+                        "opening": "11:00",
+                        "closing": "14:00"
+                    },
+                    {
+                        "day": 3,
+                        "opening": "11:00",
+                        "closing": "14:00"
+                    },
+                    {
+                        "closing": "20:00",
+                        "opening": "16:00",
+                        "day": 4
+                    }
+                ],
+                "city_id": 17,
+                "updated_at": "2024-02-08 10:23:21"
+            },
+            {
+                "id": 135,
+                "name": "Kisss Bar Vienna",
+                "type_id": 1,
+                "avatar": "https:\/\/www.navigay.me\/images\/places\/AT\/135\/1707840355590_999.jpg",
+                "main_photo": "https:\/\/www.navigay.me\/images\/places\/AT\/135\/1707840386686_572.jpg",
+                "address": "Luftbadgasse, 19",
+                "latitude": 48.1972542,
+                "longitude": 16.3546088,
+                "tags": [
+                    5,
+                    10,
+                    11,
+                    4
+                ],
+                "timetable": [
+                    {
+                        "day": 1,
+                        "opening": "16:00",
+                        "closing": "02:00"
+                    },
+                    {
+                        "opening": "16:00",
+                        "closing": "02:00",
+                        "day": 2
+                    },
+                    {
+                        "day": 3,
+                        "opening": "16:00",
+                        "closing": "02:00"
+                    },
+                    {
+                        "day": 4,
+                        "opening": "16:00",
+                        "closing": "02:00"
+                    },
+                    {
+                        "day": 5,
+                        "opening": "16:00",
+                        "closing": "02:00"
+                    },
+                    {
+                        "closing": "02:00",
+                        "day": 6,
+                        "opening": "16:00"
+                    },
+                    {
+                        "day": 7,
+                        "closing": "02:00",
+                        "opening": "16:00"
+                    }
+                ],
+                "city_id": 17,
+                "updated_at": "2024-02-13 16:07:16"
+            },
+            {
+                "id": 150,
+                "name": "J. Hornig",
+                "type_id": 2,
+                "avatar": "https:\/\/www.navigay.me\/images\/places\/AT\/150\/1713368318727_582.jpg",
+                "main_photo": "https:\/\/www.navigay.me\/images\/places\/AT\/150\/1711811318084_482.jpg",
+                "address": "Siebensterngasse, 29",
+                "latitude": 48.20206671812378,
+                "longitude": 16.35217308998108,
+                "tags": [
+                    23,
+                    4,
+                    5
+                ],
+                "timetable": [
+                    {
+                        "closing": "19:00",
+                        "day": 1,
+                        "opening": "08:00"
+                    },
+                    {
+                        "opening": "08:00",
+                        "closing": "19:00",
+                        "day": 2
+                    },
+                    {
+                        "closing": "19:00",
+                        "day": 3,
+                        "opening": "08:00"
+                    },
+                    {
+                        "day": 4,
+                        "opening": "08:00",
+                        "closing": "19:00"
+                    },
+                    {
+                        "opening": "08:00",
+                        "closing": "19:00",
+                        "day": 5
+                    },
+                    {
+                        "closing": "19:00",
+                        "day": 6,
+                        "opening": "09:00"
+                    },
+                    {
+                        "closing": "18:00",
+                        "opening": "10:00",
+                        "day": 7
+                    }
+                ],
+                "city_id": 17,
+                "updated_at": "2024-04-17 15:41:16"
+            }
+        ],
+        "events": {
+            "today": [],
+            "upcoming": [
+                {
+                    "id": 336,
+                    "name": "Queer Karaoke Wednesdays",
+                    "type_id": 0,
+                    "address": "Linke Wienzeile, 102",
+                    "latitude": 48.19354596917369,
+                    "longitude": 16.353942073910304,
+                    "start_date": "2024-05-29",
+                    "start_time": "19:00:00",
+                    "finish_date": "2024-05-29",
+                    "finish_time": "22:00:00",
+                    "tags": [
+                        28,
+                        9,
+                        24,
+                        29,
+                        18,
+                        21,
+                        10,
+                        23
+                    ],
+                    "location": "Villa Vida Café",
+                    "poster": "https:\/\/www.navigay.me\/images\/events\/2024\/04\/12\/336\/1712937696137_885.jpg",
+                    "poster_small": "https:\/\/www.navigay.me\/images\/events\/2024\/04\/12\/336\/1712937696137_576.jpg",
+                    "is_free": true,
+                    "city_id": 17,
+                    "updated_at": "2024-04-12 16:01:36"
+                },
+                {
+                    "id": 363,
+                    "name": "Pride Tischtennis Evening",
+                    "type_id": 0,
+                    "address": "Nottendorfer Gasse, 32",
+                    "latitude": 48.1903544,
+                    "longitude": 16.4099601,
+                    "start_date": "2024-05-29",
+                    "start_time": "18:00:00",
+                    "finish_date": "2024-05-29",
+                    "finish_time": "22:00:00",
+                    "tags": null,
+                    "location": "Tennis Point Wien 3",
+                    "poster": "https:\/\/www.navigay.me\/images\/events\/2024\/04\/17\/363\/1713334633390_146.jpg",
+                    "poster_small": "https:\/\/www.navigay.me\/images\/events\/2024\/04\/17\/363\/1713334633390_281.jpg",
+                    "is_free": true,
+                    "city_id": 17,
+                    "updated_at": "2024-04-17 06:17:13"
+                },
+                {
+                    "id": 259,
+                    "name": "Queer Salsa Lessons",
+                    "type_id": 0,
+                    "address": "Linke Wienzeile, 102",
+                    "latitude": 48.19354596917369,
+                    "longitude": 16.353942073910304,
+                    "start_date": "2024-05-30",
+                    "start_time": "20:00:00",
+                    "finish_date": "2024-05-30",
+                    "finish_time": "21:00:00",
+                    "tags": [
+                        18,
+                        10,
+                        29,
+                        5
+                    ],
+                    "location": "Villa Vida Café",
+                    "poster": "https:\/\/www.navigay.me\/images\/events\/2024\/02\/29\/259\/1709187050377_161.jpg",
+                    "poster_small": "https:\/\/www.navigay.me\/images\/events\/2024\/02\/29\/259\/1709187050377_538.jpg",
+                    "is_free": false,
+                    "city_id": 17,
+                    "updated_at": "2024-02-29 06:10:50"
+                },
+                {
+                    "id": 297,
+                    "name": "Vienna Pride Beach Day",
+                    "type_id": 1,
+                    "address": "Am Kaisermühlendamm, 106",
+                    "latitude": 48.217639526470556,
+                    "longitude": 16.429040925577283,
+                    "start_date": "2024-05-30",
+                    "start_time": "11:00:00",
+                    "finish_date": "2024-05-30",
+                    "finish_time": "23:00:00",
+                    "tags": [
+                        6,
+                        12,
+                        18,
+                        10,
+                        11,
+                        26
+                    ],
+                    "location": "Vienna City Beach Club",
+                    "poster": "https:\/\/www.navigay.me\/images\/events\/2024\/03\/14\/297\/1710454524778_291.jpg",
+                    "poster_small": "https:\/\/www.navigay.me\/images\/events\/2024\/03\/14\/297\/1710454524778_728.jpg",
+                    "is_free": true,
+                    "city_id": 17,
+                    "updated_at": "2024-03-14 22:15:24"
+                },
+                {
+                    "id": 382,
+                    "name": "Queer Porn Shorts",
+                    "type_id": 0,
+                    "address": "Margaretenstraße, 22\/24",
+                    "latitude": 48.1968006,
+                    "longitude": 16.3650174,
+                    "start_date": "2024-05-30",
+                    "start_time": "20:15:00",
+                    "finish_date": null,
+                    "finish_time": null,
+                    "tags": [
+                        5,
+                        14,
+                        30
+                    ],
+                    "location": "Schikaneder Kultkino & Bar",
+                    "poster": "https:\/\/www.navigay.me\/images\/events\/2024\/05\/16\/382\/1715852337856_182.jpg",
+                    "poster_small": "https:\/\/www.navigay.me\/images\/events\/2024\/05\/16\/382\/1715852337857_378.jpg",
+                    "is_free": false,
+                    "city_id": 17,
+                    "updated_at": "2024-05-16 09:38:57"
+                },
+                {
+                    "id": 327,
+                    "name": "Cruisin' Danube",
+                    "type_id": 1,
+                    "address": "Reichsbrücke, Handelskai 265, Plattform 7",
+                    "latitude": 48.225440065357354,
+                    "longitude": 16.406993223261036,
+                    "start_date": "2024-05-31",
+                    "start_time": "18:00:00",
+                    "finish_date": "2024-05-31",
+                    "finish_time": "23:00:00",
+                    "tags": [
+                        28,
+                        12,
+                        18,
+                        10,
+                        14
+                    ],
+                    "location": "Reichsbrücke, Plattform 7",
+                    "poster": "https:\/\/www.navigay.me\/images\/events\/2024\/04\/11\/327\/1712863414585_583.jpg",
+                    "poster_small": "https:\/\/www.navigay.me\/images\/events\/2024\/04\/11\/327\/1712863414585_649.jpg",
+                    "is_free": false,
+                    "city_id": 17,
+                    "updated_at": "2024-04-13 06:20:07"
+                },
+                {
+                    "id": 328,
+                    "name": "Kaiserbründl Beach Party",
+                    "type_id": 1,
+                    "address": "Weihburggasse, 18-20",
+                    "latitude": 48.20601265029943,
+                    "longitude": 16.37442129868543,
+                    "start_date": "2024-05-31",
+                    "start_time": "23:59:00",
+                    "finish_date": "2024-06-01",
+                    "finish_time": "08:00:00",
+                    "tags": [
+                        14,
+                        12,
+                        18,
+                        10,
+                        1,
+                        16,
+                        2,
+                        8,
+                        27,
+                        7,
+                        28
+                    ],
+                    "location": "Kaiserbruendl Herrensauna",
+                    "poster": "https:\/\/www.navigay.me\/images\/events\/2024\/04\/11\/328\/1712863642190_503.jpg",
+                    "poster_small": "https:\/\/www.navigay.me\/images\/events\/2024\/04\/11\/328\/1712863642190_438.jpg",
+                    "is_free": false,
+                    "city_id": 17,
+                    "updated_at": "2024-04-11 19:27:22"
+                },
+                {
+                    "id": 362,
+                    "name": "HAUS OF LIPSTICK",
+                    "type_id": 1,
+                    "address": "Goldschlagstraße, 169",
+                    "latitude": 48.1952549,
+                    "longitude": 16.3046581,
+                    "start_date": "2024-05-31",
+                    "start_time": "18:30:00",
+                    "finish_date": null,
+                    "finish_time": null,
+                    "tags": [
+                        28,
+                        29,
+                        24,
+                        14,
+                        12,
+                        18,
+                        3,
+                        10
+                    ],
+                    "location": "Sargfabrik",
+                    "poster": "https:\/\/www.navigay.me\/images\/events\/2024\/04\/16\/362\/1713250448940_188.jpg",
+                    "poster_small": "https:\/\/www.navigay.me\/images\/events\/2024\/04\/16\/362\/1713250448940_251.jpg",
+                    "is_free": false,
+                    "city_id": 17,
+                    "updated_at": "2024-04-16 06:54:08"
+                },
+                {
+                    "id": 383,
+                    "name": "Vienna Pride Pool Day",
+                    "type_id": 0,
+                    "address": "Wolfgang-Schmitz-Promenade",
+                    "latitude": 48.2116856,
+                    "longitude": 16.381754,
+                    "start_date": "2024-05-31",
+                    "start_time": "12:00:00",
+                    "finish_date": "2024-06-01",
+                    "finish_time": "04:00:00",
+                    "tags": [
+                        28,
+                        5,
+                        29,
+                        18,
+                        10,
+                        1
+                    ],
+                    "location": "Badeschiff Wien",
+                    "poster": "https:\/\/www.navigay.me\/images\/events\/2024\/05\/16\/383\/1715852583075_805.jpg",
+                    "poster_small": "https:\/\/www.navigay.me\/images\/events\/2024\/05\/16\/383\/1715852583075_851.jpg",
+                    "is_free": false,
+                    "city_id": 17,
+                    "updated_at": "2024-05-16 09:43:03"
+                },
+                {
+                    "id": 384,
+                    "name": "Que(e)r durch das Literaturmuseum der Österreichischen Nationalbibliothek",
+                    "type_id": 0,
+                    "address": "Johannesgasse, 6",
+                    "latitude": 48.2047436,
+                    "longitude": 16.3725853,
+                    "start_date": "2024-05-31",
+                    "start_time": "16:00:00",
+                    "finish_date": "2024-05-31",
+                    "finish_time": "16:50:00",
+                    "tags": null,
+                    "location": "Literaturmuseum",
+                    "poster": "https:\/\/www.navigay.me\/images\/events\/2024\/05\/16\/384\/1715852798636_822.jpg",
+                    "poster_small": "https:\/\/www.navigay.me\/images\/events\/2024\/05\/16\/384\/1715852798636_502.jpg",
+                    "is_free": false,
+                    "city_id": 17,
+                    "updated_at": "2024-05-16 09:46:38"
+                },
+                {
+                    "id": 403,
+                    "name": "KEN Club! - Pride Pump 🏳️‍🌈💪",
+                    "type_id": 1,
+                    "address": "Praterstern, 5",
+                    "latitude": 48.2176862,
+                    "longitude": 16.3932858,
+                    "start_date": "2024-05-31",
+                    "start_time": "23:00:00",
+                    "finish_date": "2024-06-01",
+                    "finish_time": "06:00:00",
+                    "tags": [
+                        28,
+                        5,
+                        29,
+                        12,
+                        18,
+                        10,
+                        4,
+                        14,
+                        2
+                    ],
+                    "location": "Fluc + Fluc Wanne",
+                    "poster": "https:\/\/www.navigay.me\/images\/events\/2024\/05\/22\/403\/1716354701294_434.jpg",
+                    "poster_small": "https:\/\/www.navigay.me\/images\/events\/2024\/05\/22\/403\/1716354701294_273.jpg",
+                    "is_free": false,
+                    "city_id": 17,
+                    "updated_at": "2024-05-22 05:11:41"
+                },
+                {
+                    "id": 311,
+                    "name": "Miss*ter Vienna Pride",
+                    "type_id": 0,
+                    "address": "Arthur-Schnitzler-Platz, 1",
+                    "latitude": 48.2052266,
+                    "longitude": 16.357045,
+                    "start_date": "2024-06-01",
+                    "start_time": "22:00:00",
+                    "finish_date": "2024-06-02",
+                    "finish_time": "03:30:00",
+                    "tags": [
+                        5,
+                        14,
+                        12,
+                        18,
+                        10
+                    ],
+                    "location": "Rote Bar",
+                    "poster": "https:\/\/www.navigay.me\/images\/events\/2024\/03\/26\/311\/1711472786025_500.jpg",
+                    "poster_small": "https:\/\/www.navigay.me\/images\/events\/2024\/03\/26\/311\/1711472786025_593.jpg",
+                    "is_free": false,
+                    "city_id": 17,
+                    "updated_at": "2024-03-26 17:06:26"
+                },
+                {
+                    "id": 370,
+                    "name": "🍎 EDEN - PRIDE MONTH OPENING 🍎",
+                    "type_id": 1,
+                    "address": "Tiefer Graben, 22",
+                    "latitude": 48.21254544606042,
+                    "longitude": 16.36852039240208,
+                    "start_date": "2024-06-01",
+                    "start_time": "22:00:00",
+                    "finish_date": "2024-06-02",
+                    "finish_time": "06:00:00",
+                    "tags": [
+                        5,
+                        29,
+                        14,
+                        12,
+                        18,
+                        3,
+                        10,
+                        28
+                    ],
+                    "location": "Why Not Vienna",
+                    "poster": "https:\/\/www.navigay.me\/images\/events\/2024\/04\/22\/370\/1713776274485_434.jpg",
+                    "poster_small": "https:\/\/www.navigay.me\/images\/events\/2024\/04\/22\/370\/1713776274485_246.jpg",
+                    "is_free": false,
+                    "city_id": 17,
+                    "updated_at": "2024-04-22 08:57:54"
+                },
+                {
+                    "id": 394,
+                    "name": "Pigalle – Die ultimative Schlagerparty",
+                    "type_id": 1,
+                    "address": "Gumpendorfer Straße, 5",
+                    "latitude": 48.20082593170344,
+                    "longitude": 16.36205426049513,
+                    "start_date": "2024-06-01",
+                    "start_time": "20:00:00",
+                    "finish_date": null,
+                    "finish_time": null,
+                    "tags": [
+                        23,
+                        10,
+                        5,
+                        18,
+                        3
+                    ],
+                    "location": "Felixx",
+                    "poster": "https:\/\/www.navigay.me\/images\/events\/2024\/05\/21\/394\/1716277463037_735.jpg",
+                    "poster_small": "https:\/\/www.navigay.me\/images\/events\/2024\/05\/21\/394\/1716277463037_904.jpg",
+                    "is_free": true,
+                    "city_id": 17,
+                    "updated_at": "2024-05-21 07:44:23"
+                },
+                {
+                    "id": 405,
+                    "name": "GAYT Gallery's 5th Annual PRIDE 'A COLLECTION'",
+                    "type_id": 0,
+                    "address": "Schönbrunner Straße, 68",
+                    "latitude": 48.18976990671689,
+                    "longitude": 16.35259050374649,
+                    "start_date": "2024-06-01",
+                    "start_time": "18:00:00",
+                    "finish_date": "2024-06-01",
+                    "finish_time": "22:00:00",
+                    "tags": [
+                        5,
+                        15,
+                        13
+                    ],
+                    "location": "Gayt",
+                    "poster": "https:\/\/www.navigay.me\/images\/events\/2024\/05\/22\/405\/1716380219495_778.jpg",
+                    "poster_small": "https:\/\/www.navigay.me\/images\/events\/2024\/05\/22\/405\/1716380219495_445.jpg",
+                    "is_free": true,
+                    "city_id": 17,
+                    "updated_at": "2024-05-22 12:16:59"
+                },
+                {
+                    "id": 406,
+                    "name": "Andersrum ist nicht verkehrt in Mariahilf 2024",
+                    "type_id": 3,
+                    "address": "Esterházygasse, 18A",
+                    "latitude": 48.1959813,
+                    "longitude": 16.3507693,
+                    "start_date": "2024-06-01",
+                    "start_time": "14:00:00",
+                    "finish_date": "2024-06-01",
+                    "finish_time": "20:00:00",
+                    "tags": [
+                        28,
+                        9,
+                        24,
+                        29,
+                        5,
+                        6,
+                        18,
+                        10,
+                        11,
+                        3
+                    ],
+                    "location": null,
+                    "poster": "https:\/\/www.navigay.me\/images\/events\/2024\/05\/22\/406\/1716388556772_624.jpg",
+                    "poster_small": "https:\/\/www.navigay.me\/images\/events\/2024\/05\/22\/406\/1716388556772_235.jpg",
+                    "is_free": true,
+                    "city_id": 17,
+                    "updated_at": "2024-05-22 14:35:56"
+                },
+                {
+                    "id": 408,
+                    "name": "CoNNect Pride Edition feat. Hot Hunks Show",
+                    "type_id": 1,
+                    "address": "Mahlerstraße, 11",
+                    "latitude": 48.2025545,
+                    "longitude": 16.3726864,
+                    "start_date": "2024-06-01",
+                    "start_time": "23:00:00",
+                    "finish_date": "2024-06-02",
+                    "finish_time": "06:00:00",
+                    "tags": [
+                        28,
+                        14,
+                        2,
+                        12,
+                        18,
+                        10,
+                        23,
+                        17
+                    ],
+                    "location": "Opera Club",
+                    "poster": "https:\/\/www.navigay.me\/images\/events\/2024\/05\/23\/408\/1716446035468_299.jpg",
+                    "poster_small": "https:\/\/www.navigay.me\/images\/events\/2024\/05\/23\/408\/1716446035468_418.jpg",
+                    "is_free": false,
+                    "city_id": 17,
+                    "updated_at": "2024-05-23 06:33:55"
+                },
+                {
+                    "id": 299,
+                    "name": "VIENNA PRIDE DRAG BEACH",
+                    "type_id": 0,
+                    "address": "Dampfschiffstraße",
+                    "latitude": 48.21204105500458,
+                    "longitude": 16.386130536685783,
+                    "start_date": "2024-06-02",
+                    "start_time": "10:00:00",
+                    "finish_date": "2024-06-02",
+                    "finish_time": "23:00:00",
+                    "tags": null,
+                    "location": "Strandbar Herrmann",
+                    "poster": "https:\/\/www.navigay.me\/images\/events\/2024\/03\/15\/299\/1710510856802_101.jpg",
+                    "poster_small": "https:\/\/www.navigay.me\/images\/events\/2024\/03\/15\/299\/1710510856802_779.jpg",
+                    "is_free": true,
+                    "city_id": 17,
+                    "updated_at": "2024-03-15 13:54:16"
+                },
+                {
+                    "id": 314,
+                    "name": "VIENNA PRIDE VOGA",
+                    "type_id": 0,
+                    "address": "Ostösterreichischer Grenzlandweg",
+                    "latitude": 48.22430106083425,
+                    "longitude": 16.4146835717953,
+                    "start_date": "2024-06-02",
+                    "start_time": "18:00:00",
+                    "finish_date": "2024-06-02",
+                    "finish_time": "19:30:00",
+                    "tags": null,
+                    "location": "Donauinsel (Nähe Wasserspielplatz)",
+                    "poster": "https:\/\/www.navigay.me\/images\/events\/2024\/03\/30\/314\/1711830171553_895.jpg",
+                    "poster_small": "https:\/\/www.navigay.me\/images\/events\/2024\/03\/30\/314\/1711830171553_654.jpg",
+                    "is_free": false,
+                    "city_id": 17,
+                    "updated_at": "2024-03-30 20:22:51"
+                },
+                {
+                    "id": 386,
+                    "name": "Pride Brunch im JO&JOE",
+                    "type_id": 0,
+                    "address": "Europaplatz, 1",
+                    "latitude": 48.1959138,
+                    "longitude": 16.3379402,
+                    "start_date": "2024-06-02",
+                    "start_time": "10:30:00",
+                    "finish_date": "2024-06-02",
+                    "finish_time": "14:00:00",
+                    "tags": [
+                        14,
+                        18,
+                        10,
+                        11,
+                        5
+                    ],
+                    "location": "JO&JOE Vienna",
+                    "poster": "https:\/\/www.navigay.me\/images\/events\/2024\/05\/16\/386\/1715853021172_375.jpg",
+                    "poster_small": "https:\/\/www.navigay.me\/images\/events\/2024\/05\/16\/386\/1715853021172_398.jpg",
+                    "is_free": false,
+                    "city_id": 17,
+                    "updated_at": "2024-05-16 09:50:21"
+                },
+                {
+                    "id": 388,
+                    "name": "Vienna Pride Sonntagsbrunch im Café Savoy",
+                    "type_id": 0,
+                    "address": "Linke Wienzeile, 36",
+                    "latitude": 48.19762186077136,
+                    "longitude": 16.360169843894518,
+                    "start_date": "2024-06-02",
+                    "start_time": "10:00:00",
+                    "finish_date": "2024-06-02",
+                    "finish_time": "14:00:00",
+                    "tags": [
+                        5,
+                        29,
+                        23,
+                        10,
+                        11,
+                        4
+                    ],
+                    "location": "Café Savoy",
+                    "poster": "https:\/\/www.navigay.me\/images\/events\/2024\/05\/16\/388\/1715853214030_480.jpg",
+                    "poster_small": "https:\/\/www.navigay.me\/images\/events\/2024\/05\/16\/388\/1715853214030_899.jpg",
+                    "is_free": false,
+                    "city_id": 17,
+                    "updated_at": "2024-05-16 09:53:34"
+                },
+                {
+                    "id": 402,
+                    "name": "Candy‘s „Pride-Flohmarkt“",
+                    "type_id": 0,
+                    "address": "Margaretenstraße, 60",
+                    "latitude": 48.193579530604005,
+                    "longitude": 16.36128609441275,
+                    "start_date": "2024-06-02",
+                    "start_time": "17:00:00",
+                    "finish_date": null,
+                    "finish_time": null,
+                    "tags": [
+                        5,
+                        29,
+                        23,
+                        10,
+                        11,
+                        13,
+                        3
+                    ],
+                    "location": "R.O.P.P. - Republic of Patta Patta",
+                    "poster": "https:\/\/www.navigay.me\/images\/events\/2024\/05\/22\/402\/1716354336080_101.jpg",
+                    "poster_small": "https:\/\/www.navigay.me\/images\/events\/2024\/05\/22\/402\/1716354336080_792.jpg",
+                    "is_free": true,
+                    "city_id": 17,
+                    "updated_at": "2024-05-22 05:06:05"
+                },
+                {
+                    "id": 410,
+                    "name": "Pride Brunch",
+                    "type_id": 0,
+                    "address": "Margaretenstraße, 60",
+                    "latitude": 48.193579530604005,
+                    "longitude": 16.36128609441275,
+                    "start_date": "2024-06-02",
+                    "start_time": "11:00:00",
+                    "finish_date": null,
+                    "finish_time": null,
+                    "tags": [
+                        5,
+                        29,
+                        23,
+                        10,
+                        11,
+                        18
+                    ],
+                    "location": "R.O.P.P. - Republic of Patta Patta",
+                    "poster": "https:\/\/www.navigay.me\/images\/events\/2024\/05\/28\/410\/1716877337315_971.jpg",
+                    "poster_small": "https:\/\/www.navigay.me\/images\/events\/2024\/05\/28\/410\/1716877337315_631.jpg",
+                    "is_free": false,
+                    "city_id": 17,
+                    "updated_at": "2024-05-28 06:22:17"
+                }
+            ],
+            "eventsCount": 80,
+            "allDates": {
+                "2024-09-07": [
+                    118
+                ],
+                "2024-06-08": [
+                    129,
+                    366,
+                    372,
+                    373,
+                    392,
+                    393,
+                    398,
+                    401,
+                    404
+                ],
+                "2024-06-05": [
+                    137,
+                    337,
+                    391
+                ],
+                "2024-07-03": [
+                    138,
+                    341
+                ],
+                "2024-06-06": [
+                    140,
+                    275,
+                    396
+                ],
+                "2024-06-07": [
+                    140,
+                    178,
+                    192,
+                    385,
+                    397,
+                    409
+                ],
+                "2024-07-05": [
+                    193
+                ],
+                "2024-08-02": [
+                    194
+                ],
+                "2024-09-06": [
+                    195
+                ],
+                "2024-10-04": [
+                    196
+                ],
+                "2024-11-01": [
+                    197
+                ],
+                "2024-12-06": [
+                    198
+                ],
+                "2024-07-17": [
+                    202,
+                    343
+                ],
+                "2024-07-18": [
+                    202
+                ],
+                "2024-07-19": [
+                    202
+                ],
+                "2024-07-20": [
+                    202
+                ],
+                "2024-05-30": [
+                    259,
+                    297,
+                    382
+                ],
+                "2024-07-04": [
+                    276
+                ],
+                "2024-09-05": [
+                    277
+                ],
+                "2024-10-03": [
+                    278
+                ],
+                "2024-11-07": [
+                    279
+                ],
+                "2024-12-05": [
+                    280
+                ],
+                "2024-06-02": [
+                    299,
+                    314,
+                    386,
+                    388,
+                    402,
+                    410
+                ],
+                "2024-06-01": [
+                    311,
+                    370,
+                    394,
+                    405,
+                    406,
+                    408
+                ],
+                "2024-06-09": [
+                    315,
+                    389,
+                    401
+                ],
+                "2024-05-31": [
+                    327,
+                    328,
+                    362,
+                    383,
+                    384,
+                    403
+                ],
+                "2024-05-29": [
+                    336,
+                    363
+                ],
+                "2024-06-12": [
+                    338
+                ],
+                "2024-06-19": [
+                    339
+                ],
+                "2024-06-26": [
+                    340
+                ],
+                "2024-07-10": [
+                    342
+                ],
+                "2024-07-24": [
+                    344
+                ],
+                "2024-07-31": [
+                    345
+                ],
+                "2024-08-07": [
+                    346
+                ],
+                "2024-08-14": [
+                    347
+                ],
+                "2024-08-21": [
+                    348
+                ],
+                "2024-08-28": [
+                    349
+                ],
+                "2024-09-04": [
+                    350
+                ],
+                "2024-09-25": [
+                    351
+                ],
+                "2024-09-18": [
+                    352
+                ],
+                "2024-09-11": [
+                    353
+                ],
+                "2024-10-05": [
+                    367
+                ],
+                "2024-06-04": [
+                    390,
+                    395
+                ],
+                "2024-06-22": [
+                    399,
+                    407
+                ]
+            }
+        },
+        "cities": [
+            {
+                "id": 17,
+                "name": "Vienna",
+                "small_photo": "https:\/\/www.navigay.me\/images\/cities\/17\/1711643403237_755.jpg",
+                "photo": "https:\/\/www.navigay.me\/images\/cities\/17\/1711643403237_742.jpg",
+                "latitude": 48.20845030570009,
+                "longitude": 16.372194034308997,
+                "is_capital": true,
+                "is_gay_paradise": false,
+                "updated_at": "2024-04-25 11:03:51",
+                "region": {
+                    "id": 15,
+                    "name": "Vienna",
+                    "photo": "https:\/\/www.navigay.me\/images\/regions\/15\/1700149776939_289.jpg",
+                    "country": {
+                        "id": 8,
+                        "name": "Austria",
+                        "isoCountryCode": "AT",
+                        "flag_emoji": "🇦🇹",
+                        "photo": "https:\/\/www.navigay.me\/images\/countries\/8\/1700147406614_799.jpg",
+                        "show_regions": true,
+                        "updated_at": "2024-04-17 10:17:40"
+                    },
+                    "updated_at": "2024-04-17 10:26:26"
+                }
+            }
+        ]
+    }
+}

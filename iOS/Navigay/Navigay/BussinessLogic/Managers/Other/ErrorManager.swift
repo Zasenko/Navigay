@@ -49,7 +49,6 @@ final class ErrorManager: ErrorManagerProtocol {
                 showError(model: ErrorModel(error: NetworkErrors.api, message: apiError.message, img: img, color: color))
                 debugPrint(apiError.message)
             } else {
-                showError(model: ErrorModel(error: NetworkErrors.api, message: message, img: img, color: color))
                 debugPrint(apiError.message)
             }
         } else {

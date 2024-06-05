@@ -1,0 +1,217 @@
+<link rel="stylesheet" type="text/css" href="../css/style.css">
+<style>
+    header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        border-bottom: 1px solid rgb(242, 242, 242);
+    }
+
+    .nav-overlay {
+        height: 0;
+        width: 100%;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        background-color: white;
+        overflow-x: hidden;
+        transition: 0.3s;
+    }
+
+    .nav-overlay-content {
+        position: relative;
+        width: 100%;
+        text-align: center;
+    }
+
+    .nav-overlay a {
+        padding: 8px;
+        text-decoration: none;
+        color: #818181;
+        display: block;
+        transition: 0.3s;
+
+        font-family: 'Roboto', sans-serif;
+        font-size: 2em;
+        font-weight: 400;
+    }
+
+    .nav-overlay a:hover,
+    .nav-overlay a:focus {
+        color: #f1f1f1;
+    }
+
+
+    .nav-menu-btn {
+        display: none;
+        background: none;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+        outline: none;
+
+        padding-right: 24px;
+    }
+
+    .nav-menu-close-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        outline: none;
+    }
+
+    .nav-menu-close-btn-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding-top: 1em;
+        padding-bottom: 2em;
+    }
+
+    .nav-logo {
+        height: 2em;
+        padding-top: 8px;
+        padding-bottom: 8px;
+        padding-left: 16px;
+    }
+
+    .nav-links-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 1em;
+        padding-right: 24px;
+
+    }
+
+    a.nav-link {
+        color: yellow;
+        text-decoration: none;
+        font-family: 'Roboto', sans-serif;
+        font-size: 1em;
+        font-weight: 400;
+    }
+
+    a.nav-link:hover {
+        color: black !important;
+        text-decoration-line: underline;
+    }
+
+    .active-nav-link a.nav-link {
+        color: red;
+        font-weight: 900;
+        pointer-events: none;
+    }
+
+    .nav-icon-search {
+        width: 1em;
+    }
+
+    .nav-icon-search.active-nav-link {
+        filter: invert(34%) sepia(98%) saturate(7410%) hue-rotate(354deg) brightness(104%) contrast(101%);
+    }
+
+    .nav-menu-img {
+        width: 1em;
+    }
+
+    .nav-close-img {
+        width: 1.5em;
+    }
+
+    @media screen and (max-width: 450px) {
+        .nav-overlay a {
+            font-size: 20px;
+        }
+
+        .nav-menu-btn {
+            display: block;
+        }
+
+        .nav-links-container {
+            display: none;
+        }
+    }
+
+    @media screen and (min-width: 451px) {
+        .nav-overlay a {
+            font-size: 40px;
+        }
+
+        .nav-menu-btn {
+            display: none;
+        }
+
+        .nav-links-container {
+            display: flex;
+        }
+    }
+</style>
+
+<div id="header-menu-overlay" class="nav-overlay">
+    <div class="nav-overlay-content">
+        <div class="nav-menu-close-btn-container">
+            <button onclick="closeNav()" class="nav-menu-close-btn">
+                <img src="https://navigay.me/images/other/icons/icon_x_bold.svg" alt="Close menu" class="nav-close-img">
+            </button>
+        </div>
+        <a href="https://navigay.me/" id="home">Home</a>
+        <a href="https://navigay.me/catalog/" id="catalog">Catalog</a>
+        <a href="https://navigay.me/search/" id="search">Search</a>
+        <a href="https://navigay.me/auth/" id="login">Login</a>
+    </div>
+</div>
+<header>
+    <picture>
+        <source media="(max-width: 699px)" srcset="https://navigay.me/images/other/icons/icon_g.svg">
+        <source media="(min-width: 700px)" srcset="https://navigay.me/images/other/icons/full-logo-full-black.svg">
+        <img src="https://navigay.me/images/other/icons/full-logo-full-black.svg" alt="Navigay" class="nav-logo">
+    </picture>
+    <div class="nav-links-container">
+        <a href="http://127.0.0.1:3000/tests/t.html" id="ttttt" class="nav-link">Tett</a>
+        <span class="separator">•</span>
+        <a href="https://navigay.me/" id="home" class="nav-link">Home</a>
+        <span class="separator">•</span>
+        <a href="https://navigay.me/catalog/" id="catalog" class="nav-link">Catalog</a>
+
+
+        <span class="separator">•</span>
+        <a href="https://navigay.me/auth/" id="login" class="nav-link">Login</a>
+        <span class="separator">•</span>
+
+        <a href="https://navigay.me/search/" id="search" class="nav-link">
+            <img src="https://navigay.me/images/other/icons/icon_search.svg" alt="Search" class="nav-icon-search">
+
+        </a>
+    </div>
+    <button onclick="openNav()" class="nav-menu-btn">
+        <img src="https://navigay.me/images/other/icons/icon_menu_bold.svg" alt="Menu" class="nav-menu-img">
+    </button>
+</header>
+<script>
+    function openNav() {
+        document.getElementById("header-menu-overlay").style.height = "100%";
+    }
+    function closeNav() {
+        document.getElementById("header-menu-overlay").style.height = "0";
+    }
+</script>
+<main>
+</main>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var currentPage = window.location.pathname; // Получаем путь к текущей странице
+        var link;
+        if (currentPage === 'search') {
+            link = document.getElementById('search-nav-link');
+        } else if (currentPage === 'catalog') {
+            link = document.getElementById('catalog-nav-link');
+        }
+
+        if (link) {
+            link.classList.add('active-nav-link');
+        }
+    });
+</script>

@@ -17,9 +17,9 @@ extension CatalogView {
         var isLoading: Bool = false
         var countries: [Country] = []
         
-        var showSearchView: Bool = false
-        var isSearching: Bool = false
-        var searchText: String = ""
+     //   var showSearchView: Bool = false
+       // var isSearching: Bool = false
+       // var searchText: String = ""
 
         let catalogNetworkManager: CatalogNetworkManagerProtocol
         let placeNetworkManager: PlaceNetworkManagerProtocol
@@ -28,6 +28,7 @@ extension CatalogView {
         let placeDataManager: PlaceDataManagerProtocol
         let eventDataManager: EventDataManagerProtocol
         let catalogDataManager: CatalogDataManagerProtocol
+        let commentsNetworkManager: CommentsNetworkManagerProtocol
         
         init(modelContext: ModelContext,
              catalogNetworkManager: CatalogNetworkManagerProtocol,
@@ -36,7 +37,8 @@ extension CatalogView {
              errorManager: ErrorManagerProtocol,
              placeDataManager: PlaceDataManagerProtocol,
              eventDataManager: EventDataManagerProtocol,
-             catalogDataManager: CatalogDataManagerProtocol) {
+             catalogDataManager: CatalogDataManagerProtocol,
+             commentsNetworkManager: CommentsNetworkManagerProtocol) {
             self.modelContext = modelContext
             self.catalogNetworkManager = catalogNetworkManager
             self.eventNetworkManager = eventNetworkManager
@@ -45,18 +47,14 @@ extension CatalogView {
             self.placeDataManager = placeDataManager
             self.eventDataManager = eventDataManager
             self.catalogDataManager = catalogDataManager
+            self.commentsNetworkManager = commentsNetworkManager
         }
         
         func getCountriesFromDB() {
-            print("--- SearchViewModel getCountriesFromDB()")
-            do {
-                let descriptor = FetchDescriptor<Country>(sortBy: [SortDescriptor(\.name)])
-                countries = try modelContext.fetch(descriptor)
-                if countries.isEmpty {
-                    isLoading = true
-                }
-            } catch {
-                debugPrint(error)
+            print("--- catalog  getCountriesFromDB()")
+            countries = catalogDataManager.getAllCountries(modelContext: modelContext)
+            if countries.isEmpty {
+                isLoading = true
             }
         }
         
@@ -90,17 +88,7 @@ extension CatalogView {
             }
             await MainActor.run { [countriesToDelete] in
                 countriesToDelete.forEach( { modelContext.delete($0) } )
-                var newCountries: [Country] = []
-                for decodedCountry in decodedCountries {
-                    if let country = countries.first(where: { $0.id == decodedCountry.id} ) {
-                        country.updateCountryIncomplete(decodedCountry: decodedCountry)
-                        newCountries.append(country)
-                    } else {
-                        let country = Country(decodedCountry: decodedCountry)
-                        modelContext.insert(country)
-                        newCountries.append(country)
-                    }
-                }
+                let newCountries = catalogDataManager.updateCountries(decodedCountries: decodedCountries, modelContext: modelContext)
                 self.countries = newCountries.sorted(by: { $0.name < $1.name})
             }
         }

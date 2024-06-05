@@ -24,7 +24,6 @@ struct EventView: View {
     
     init(viewModel: EventViewModel) {
         _viewModel = State(wrappedValue: viewModel)
-        viewModel.loadEvent()
     }
     
     // MARK: - Body
@@ -131,8 +130,7 @@ struct EventView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                     .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous).stroke(.ultraThinMaterial, lineWidth: 1))
                     .shadow(color: .black.opacity(0.2), radius: 16, x: 0, y: 10)
-                    .padding(.horizontal)
-                    .padding(.horizontal)
+                    .padding(.horizontal, 20)
                     .padding(.bottom)
                     .padding(.bottom)
                     .padding(.bottom)
@@ -448,7 +446,7 @@ struct EventView: View {
                         }
                         if let place = viewModel.event.place {
                             NavigationLink {
-                                PlaceView(viewModel: PlaceView.PlaceViewModel(place: place, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, showOpenInfo: false))
+                                PlaceView(viewModel: PlaceView.PlaceViewModel(place: place, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, commentsNetworkManager: viewModel.commentsNetworkManager, showOpenInfo: false))
                             } label: {
                                 HStack(spacing: 20) {
                                     if let url = place.avatar {

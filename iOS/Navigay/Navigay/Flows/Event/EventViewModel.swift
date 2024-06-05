@@ -26,19 +26,20 @@ extension EventView {
         let placeDataManager: PlaceDataManagerProtocol
         let eventDataManager: EventDataManagerProtocol
         let errorManager: ErrorManagerProtocol
-
+        let commentsNetworkManager: CommentsNetworkManagerProtocol
         //MARK: - Inits
         
-        init(event: Event, modelContext: ModelContext, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol, placeDataManager: PlaceDataManagerProtocol, eventDataManager: EventDataManagerProtocol) {
+        init(event: Event, modelContext: ModelContext, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol, placeDataManager: PlaceDataManagerProtocol, eventDataManager: EventDataManagerProtocol, commentsNetworkManager: CommentsNetworkManagerProtocol) {
             self.event = event
-            self.image = event.image
             self.modelContext = modelContext
             self.eventNetworkManager = eventNetworkManager
             self.placeNetworkManager = placeNetworkManager
             self.errorManager = errorManager
             self.placeDataManager = placeDataManager
             self.eventDataManager = eventDataManager
+            self.commentsNetworkManager = commentsNetworkManager
             position = .camera(MapCamera(centerCoordinate: event.coordinate, distance: 2000))
+            loadEvent()
         }
         
         //MARK: - Functions
@@ -86,12 +87,17 @@ extension EventView {
         //MARK: - Private Functions
         
         private func loadPoster() {
-            Task {
-                if let url = event.poster {
-                    if let image = await ImageLoader.shared.loadImage(urlString: url) {
-                        await MainActor.run {
-                            self.image = image
-                            event.image = image
+            if let img = event.posterImg {
+                self.image = img
+            } else {
+                self.image = event.smallPosterImg
+                Task(priority: .high) {
+                    if let url = event.poster {
+                        if let image = await ImageLoader.shared.loadImage(urlString: url) {
+                            await MainActor.run {
+                                self.image = image
+                                event.posterImg = image
+                            }
                         }
                     }
                 }
@@ -100,6 +106,16 @@ extension EventView {
 
         private func updateEvent(decodedEvent: DecodedEvent) {
             event.updateEventComplete(decodedEvent: decodedEvent)
+            Task(priority: .high) {
+                if let url = event.poster {
+                    if let image = await ImageLoader.shared.loadImage(urlString: url) {
+                        await MainActor.run {
+                            self.image = image
+                            event.posterImg = image
+                        }
+                    }
+                }
+            }
             if let decodedPlace = decodedEvent.place {
                 updatePlace(decodedPlace: decodedPlace)
             }

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Определение местоположения пользователя</title>
+</head>
+
+<body>
+    <h1>Определение местоположения пользователя</h1>
+    <p>Нажмите кнопку ниже, чтобы определить ваше текущее местоположение:</p>
+    <button onclick="getLocation()">Определить местоположение</button>
+    <p id="demo"></p>
+
+    <script>
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(showPosition);
+            } else {
+                alert("Геолокация не поддерживается вашим браузером.");
+            }
+        }
+
+        function showPosition(position) {
+            var latitude = position.coords.latitude;
+            var longitude = position.coords.longitude;
+            document.getElementById("demo").innerHTML = "Широта: " + latitude + "<br>Долгота: " + longitude;
+        }
+    </script>
+</body>
+
+</html>
