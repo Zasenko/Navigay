@@ -152,7 +152,7 @@ struct PlaceView: View {
                         .listRowInsets(EdgeInsets(top: 50, leading: 20, bottom: 50, trailing: 20))
                         .listSectionSeparator(.hidden)
                     
-                    if viewModel.actualEvents.count > 0 {
+                    if viewModel.eventsCount > 0 {
                         EventsView(modelContext: viewModel.modelContext, selectedDate: $viewModel.selectedDate, displayedEvents: $viewModel.displayedEvents, eventsCount: $viewModel.eventsCount, todayEvents: $viewModel.todayEvents, upcomingEvents: $viewModel.upcomingEvents, eventsDates: $viewModel.eventsDates, selectedEvent: $viewModel.selectedEvent, showCalendar: $viewModel.showCalendar, size: proxy.size)
                             .listRowSeparator(.hidden)
                             .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))

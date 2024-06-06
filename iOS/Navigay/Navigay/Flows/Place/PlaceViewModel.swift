@@ -30,7 +30,6 @@ extension PlaceView {
         var comments: [DecodedComment] = []
         var selectedTag: UUID? = nil /// for Map (big Pin) 
 
-        var actualEvents: [Event] = []
         var todayEvents: [Event] = []
         var upcomingEvents: [Event] = []
         var displayedEvents: [Event] = []
@@ -96,18 +95,24 @@ extension PlaceView {
                     let actualEvents = await self.eventDataManager.getActualEvents(for: events)
                     let todayEvents = await eventDataManager.getTodayEvents(from: actualEvents)
                     let upcomingEvents = await eventDataManager.getUpcomingEvents(from: actualEvents)
-                    let eventsDatesWithoutToday = await eventDataManager.getActiveDates(for: actualEvents)
-                    
+                   // let eventsDatesWithoutToday = await eventDataManager.getActiveDates(for: actualEvents)
                     await MainActor.run {
-                        self.actualEvents = actualEvents
                         self.upcomingEvents = upcomingEvents
-                        self.eventsDates = eventsDatesWithoutToday
+                        self.eventsDates = place.eventsDates
+                        self.eventsCount = place.eventsCount
                         self.todayEvents = todayEvents
                         self.displayedEvents = upcomingEvents
                     }
                     await fetchPlace()
                 }
             }
+        }
+        
+        func goToMaps() {
+            let coordinate = place.coordinate
+            let stringUrl = "maps://?saddr=&daddr=\(coordinate.latitude),\(coordinate.longitude)"
+            guard let url = URL(string: stringUrl) else { return }
+            UIApplication.shared.open(url)
         }
         
         private func fetchPlace() async {
@@ -143,43 +148,50 @@ extension PlaceView {
                     allPhotos.append(links)
                 }
             }
-            let events = eventDataManager.updateEvents(decodedEvents: decodedPlace.events, for: place, modelContext: modelContext)
-            updateEvents(events: events)
+            
+            let todayEvents = eventDataManager.updateEvents(decodedEvents: decodedPlace.events?.today, for: place, modelContext: modelContext)
+            let upcomingEvents = eventDataManager.updateEvents(decodedEvents: decodedPlace.events?.upcoming, for: place, modelContext: modelContext)
+            
+            let todayEventsSorted = todayEvents.sorted(by: { $0.id < $1.id })
+            let upcomingEventsSorted = upcomingEvents.sorted(by: { $0.id < $1.id }).sorted(by: { $0.startDate < $1.startDate })
+            let activeDates = decodedPlace.events?.calendarDates?.compactMap( { $0.dateFromString(format: "yyyy-MM-dd") }) ?? []
+            
+            self.upcomingEvents = upcomingEventsSorted
+            self.eventsDates = activeDates
+            self.todayEvents = todayEventsSorted
+            self.displayedEvents = upcomingEventsSorted
+            self.eventsCount = decodedPlace.events?.eventsCount ?? 0
+            self.place.eventsCount = decodedPlace.events?.eventsCount ?? 0
+            self.place.eventsDates = activeDates
         }
         
-        private func updateEvents(events: [Event]) {
-            Task {
-                let actualEvents = await eventDataManager.getActualEvents(for: events.sorted(by: { $0.id < $1.id}))
-                let todayEvents = await eventDataManager.getTodayEvents(from: actualEvents)
-                let upcomingEvents = await eventDataManager.getUpcomingEvents(from: actualEvents)
+//        private func updateEvents(events: [Event]) {
+//            Task {
+//                let actualEvents = await eventDataManager.getActualEvents(for: events.sorted(by: { $0.id < $1.id}))
+//                let todayEvents = await eventDataManager.getTodayEvents(from: actualEvents)
+//                let upcomingEvents = await eventDataManager.getUpcomingEvents(from: actualEvents)
+//
+//                let eventsDatesWithoutToday = await eventDataManager.getActiveDates(for: actualEvents)
+//                
+//                let eventsIDs = actualEvents.map( { $0.id } )
+//                var eventsToDelete: [Event] = []
+//                self.actualEvents.forEach { event in
+//                    if !eventsIDs.contains(event.id) {
+//                        eventsToDelete.append(event)
+//                    }
+//                }
+//                
+//                await MainActor.run { [eventsToDelete] in
+//                    eventsToDelete.forEach( { modelContext.delete($0) } )
+//                    self.actualEvents = actualEvents
+//                    self.upcomingEvents = upcomingEvents
+//                    self.eventsDates = eventsDatesWithoutToday
+//                    self.todayEvents = todayEvents
+//                    self.displayedEvents = upcomingEvents
+//                    self.eventsCount = actualEvents.count
+//                }
+//            }
+//        }
 
-                let eventsDatesWithoutToday = await eventDataManager.getActiveDates(for: actualEvents)
-                
-                let eventsIDs = actualEvents.map( { $0.id } )
-                var eventsToDelete: [Event] = []
-                self.actualEvents.forEach { event in
-                    if !eventsIDs.contains(event.id) {
-                        eventsToDelete.append(event)
-                    }
-                }
-                
-                await MainActor.run { [eventsToDelete] in
-                    eventsToDelete.forEach( { modelContext.delete($0) } )
-                    self.actualEvents = actualEvents
-                    self.upcomingEvents = upcomingEvents
-                    self.eventsDates = eventsDatesWithoutToday
-                    self.todayEvents = todayEvents
-                    self.displayedEvents = upcomingEvents
-                    self.eventsCount = actualEvents.count
-                }
-            }
-        }
-
-        func goToMaps() {
-            let coordinate = place.coordinate
-            let stringUrl = "maps://?saddr=&daddr=\(coordinate.latitude),\(coordinate.longitude)"
-            guard let url = URL(string: stringUrl) else { return }
-            UIApplication.shared.open(url)
-        }
     }
 }

@@ -48,7 +48,7 @@ struct DecodedPlace: Identifiable, Codable {
     let phone: String?
     let city: DecodedCity?
     let cityId: Int?
-    let events: [DecodedEvent]?
+    let events: EventsItemsResult?
 }
 
 struct PlaceWorkDay: Codable {

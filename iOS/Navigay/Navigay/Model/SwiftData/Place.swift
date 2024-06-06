@@ -33,6 +33,9 @@ final class Place {
     var lastUpdateIncomplete: Date? = nil
     var lastUpdateComplite: Date? = nil
     var isLiked: Bool = false
+    
+    var eventsCount: Int = 0
+    var eventsDates: [Date] = []
 
     @Transient lazy var coordinate: CLLocationCoordinate2D = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
     @Transient var tag: UUID = UUID()

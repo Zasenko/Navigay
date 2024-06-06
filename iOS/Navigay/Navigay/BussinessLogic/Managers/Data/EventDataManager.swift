@@ -223,18 +223,18 @@ extension EventDataManager {
     
     func updateEvents(decodedEvents: [DecodedEvent]?, for place: Place, modelContext: ModelContext) -> [Event] {
         guard let decodedEvents, !decodedEvents.isEmpty else {
-            place.events.forEach( { modelContext.delete($0) } )
+         //   place.events.forEach( { modelContext.delete($0) } )
             return []
         }
         
-        let ids = decodedEvents.map( { $0.id } )
-        var eventsToDelete: [Event] = []
-        place.events.forEach { event in
-            if !ids.contains(event.id) {
-                eventsToDelete.append(event)
-            }
-        }
-        eventsToDelete.forEach( { modelContext.delete($0) } )
+//        let ids = decodedEvents.map( { $0.id } )
+//        var eventsToDelete: [Event] = []
+//        place.events.forEach { event in
+//            if !ids.contains(event.id) {
+//                eventsToDelete.append(event)
+//            }
+//        }
+//        eventsToDelete.forEach( { modelContext.delete($0) } )
         
         do {
             let descriptor = FetchDescriptor<Event>()
@@ -252,6 +252,8 @@ extension EventDataManager {
                 } else {
                     let event = Event(decodedEvent: decodeEvent)
                     modelContext.insert(event)
+                    
+                    //todo проверить у всех добавляемых элементов
                     allEvents.append(event)
                     events.append(event)
                     event.place = place
@@ -332,7 +334,8 @@ extension EventDataManager {
     
     func updateCityEvents(decodedEvents: [DecodedEvent]?, for city: City, modelContext: ModelContext) -> [Event] {
         guard let decodedEvents, !decodedEvents.isEmpty else {
-            city.events.forEach( { modelContext.delete($0) } )
+            // todo! Удалить потому что может брать только today events / должна только обновлять, а не удалять!!!
+           // city.events.forEach( { modelContext.delete($0) } )
             return []
         }
         do {
