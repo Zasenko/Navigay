@@ -42,9 +42,11 @@ struct ImageLoadingView<Content: View>: View {
             } else {
                 loadView()
                     .onAppear() {
-                        Task(priority: .high) {
+                        Task(priority: .userInitiated) {
                             if let image = await ImageLoader.shared.loadImage(urlString: url) {
-                                self.image = image
+                                await MainActor.run {
+                                    self.image = image
+                                }
                             }
                         }
                     }
@@ -60,3 +62,46 @@ struct ImageLoadingView<Content: View>: View {
 //        Color.red
 //    }
 //}
+
+struct TabBarImageLoadingView<Content: View>: View {
+    
+    // MARK: - Properties
+    
+    let loadView: () -> Content  //todo change name and name in init LoadingView
+    
+    // MARK: - Private Properties
+    
+    @State private var image: Image?
+    let url: String
+    let width: CGFloat?
+    let height: CGFloat?
+    let contentMode: ContentMode
+    
+    // MARK: - Init
+    
+    init(url: String, width: CGFloat?, height: CGFloat?, contentMode: ContentMode, @ViewBuilder content: @escaping () -> Content) {
+        self.loadView = content
+        self.url = url
+        self.width = width
+        self.height = height
+        self.contentMode = contentMode
+    }
+    
+    // MARK: - Body
+    
+    var body: some View {
+        ZStack {
+            loadView()
+                .task(priority: .userInitiated) {
+                    if let image = await ImageLoader.shared.loadImage(urlString: url) {
+                        self.image = image
+                    }
+                    
+                }
+            image?
+                .resizable()
+                .aspectRatio(contentMode: contentMode)
+        }
+        .frame(width: width, height: height)
+    }
+}

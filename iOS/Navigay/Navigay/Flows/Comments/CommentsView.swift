@@ -12,27 +12,7 @@ struct CommentsView: View {
     @StateObject var viewModel: CommentsViewModel
 
     @EnvironmentObject private var authenticationManager: AuthenticationManager
-//    let placeNetworkManager: PlaceNetworkManagerProtocol
-//    let errorManager: ErrorManagerProtocol
-//    
-//    let size: CGSize
-//    let place: Place
-//    
-//    @Binding var comments: [DecodedComment]
-//    
-//    private let firstReviewPrompt = "Hey there! Looks like this place is waiting to be discovered. Share your thoughts and be the first to leave a review!"
-//    private let firstReviewPrompts = [
-//        "Hey there! Looks like this place is waiting to be discovered. Share your thoughts and be the first to leave a review!",
-//        "Be the trailblazer! Drop a review for this place and let others know about your experience.",
-//        "Psst... the review section is feeling lonely. Care to share your thoughts and help others with your feedback?",
-//        "Ready to be a trendsetter? Leave the first review and pave the way for others!",
-//        "Silence is golden, but reviews are priceless! Be the first to break the silence and share your thoughts about this place."
-//    ]
-//    
-//    @State private var showAddReviewView: Bool = false
-//    @State private var showRegistrationView: Bool = false
-//    @State private var showLoginView: Bool = false
-    
+
     var body: some View {
             Section {
                 HStack {
@@ -42,7 +22,6 @@ struct CommentsView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                     if let user = authenticationManager.appUser, user.status != .blocked {
                         addReviewButton
-                        
                     }
                 }
                 .padding(.top, 50)
@@ -95,43 +74,47 @@ struct CommentsView: View {
     }
     
     private var authButtons: some View {
-        HStack {
-            Button {
-                viewModel.showLoginView = true
-            } label: {
-                Text("Log In")
-                    .font(.caption)
-                    .bold()
-                    .foregroundStyle(.blue)
-                    .padding()
-                    .background(AppColors.lightGray6)
-                    .clipShape(Capsule(style: .continuous))
-            }
-            .fullScreenCover(isPresented: $viewModel.showLoginView) {
-                LoginView(viewModel: LoginViewModel(email: nil)) {
-                    viewModel.showLoginView = false
+        VStack(spacing: 0) {
+            Text("To add a review, please log in or sign up.")
+                .font(.caption)
+            HStack {
+                Button {
+                    viewModel.showLoginView = true
+                } label: {
+                    Text("Log In")
+                        .font(.caption)
+                        .bold()
+                        .foregroundStyle(.blue)
+                        .padding()
+                        .background(AppColors.lightGray6)
+                        .clipShape(Capsule(style: .continuous))
+                }
+                .fullScreenCover(isPresented: $viewModel.showLoginView) {
+                    LoginView(viewModel: LoginViewModel(email: nil)) {
+                        viewModel.showLoginView = false
+                    }
+                }
+                Button {
+                    viewModel.showRegistrationView = true
+                } label: {
+                    Text("Sign up")
+                        .font(.caption)
+                        .bold()
+                        .foregroundStyle(.blue)
+                        .padding()
+                        .background(AppColors.lightGray6)
+                        .clipShape(Capsule(style: .continuous))
+                }
+                .fullScreenCover(isPresented: $viewModel.showRegistrationView) {
+                    RegistrationView(authenticationManager: authenticationManager, errorManager: authenticationManager.errorManager) {
+                        viewModel.showRegistrationView = false
+                    }
                 }
             }
-            Button {
-                viewModel.showRegistrationView = true
-            } label: {
-                Text("Registation")
-                    .font(.caption)
-                    .bold()
-                    .foregroundStyle(.blue)
-                    .padding()
-                    .background(AppColors.lightGray6)
-                    .clipShape(Capsule(style: .continuous))
-            }
-            .fullScreenCover(isPresented: $viewModel.showRegistrationView) {
-                RegistrationView(authenticationManager: authenticationManager, errorManager: authenticationManager.errorManager) {
-                    viewModel.showRegistrationView = false
-                }
-            }
+            .frame(maxWidth: .infinity)
+            .padding()
+            .padding(.bottom)
         }
-        .frame(maxWidth: .infinity)
-        .padding()
-        .padding(.bottom)
     }
     
     private func commentView(comment: DecodedComment) -> some View {

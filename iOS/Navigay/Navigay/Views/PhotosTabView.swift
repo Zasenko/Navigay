@@ -8,18 +8,18 @@
 import SwiftUI
 
 struct PhotosTabView: View {
+    
     @Binding var allPhotos: [String]
     @State private var selectedPhotoIndex: Int = 0
+    
     let width: CGFloat
     var body: some View {
         VStack(spacing: 0) {
             TabView(selection: $selectedPhotoIndex) {
                 ForEach(allPhotos.indices, id: \.self) { index in
-                    ImageLoadingView(url: allPhotos[index], width: width, height: (width / 4) * 5, contentMode: .fill) {
+                    TabBarImageLoadingView(url: allPhotos[index], width: width, height: (width / 4) * 5, contentMode: .fill) {
                         AppColors.lightGray6
-                            .frame(width: width, height: (width / 4) * 5)
                     }
-                    .frame(width: width, height: (width / 4) * 5)
                     .clipped()
                     .tag(index)
                     
@@ -49,3 +49,5 @@ struct PhotosTabView: View {
 #Preview {
     PhotosTabView(allPhotos: .constant([]), width: 200)
 }
+
+
