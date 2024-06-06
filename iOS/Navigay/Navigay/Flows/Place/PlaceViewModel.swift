@@ -115,6 +115,20 @@ extension PlaceView {
             UIApplication.shared.open(url)
         }
         
+        func showUpcomingEvents() {
+            displayedEvents = upcomingEvents
+        }
+        
+        func getEvents(for date: Date) {
+            Task {
+                let events = await eventDataManager.getEvents(for: date, events: place.events )
+                await MainActor.run {
+                    displayedEvents = events
+                }
+                await fetchEvents(for: date)
+            }
+        }
+        
         private func fetchPlace() async {
             guard !placeNetworkManager.loadedPlaces.contains(where: { $0 ==  place.id } ) else {
                 return
@@ -165,6 +179,24 @@ extension PlaceView {
             self.place.eventsDates = activeDates
         }
         
+        private func fetchEvents(for date: Date) async {
+            let message = "Something went wrong. The information didn't update. Please try again later."
+            do {
+                let events = try await eventNetworkManager.fetchEvents(placeId: place.id, date: date)
+                await MainActor.run {
+                    let events = eventDataManager.updateEvents(decodedEvents: events, for: place, modelContext: modelContext)
+                    self.displayedEvents = events
+                }
+            } catch NetworkErrors.apiError(let error) {
+                if let error, error.show {
+                    errorManager.showError(model: ErrorModel(error: NetworkErrors.api, message: error.message))
+                } else {
+                    errorManager.showError(model: ErrorModel(error: NetworkErrors.api, message: message))
+                }
+            } catch {
+                errorManager.showError(model: ErrorModel(error: error, message: message))
+            }
+        }
 //        private func updateEvents(events: [Event]) {
 //            Task {
 //                let actualEvents = await eventDataManager.getActualEvents(for: events.sorted(by: { $0.id < $1.id}))

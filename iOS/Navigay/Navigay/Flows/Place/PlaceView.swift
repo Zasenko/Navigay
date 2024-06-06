@@ -101,9 +101,9 @@ struct PlaceView: View {
             .onChange(of: viewModel.selectedDate, initial: false) { oldValue, newValue in
                 viewModel.showCalendar = false
                 if let date = newValue {
-                    //getEvents(for: date)
+                    viewModel.getEvents(for: date)
                 } else {
-                    showUpcomingEvents()
+                    viewModel.showUpcomingEvents()
                 }
             }
             .sheet(isPresented:  $viewModel.showCalendar) {} content: {
@@ -182,9 +182,7 @@ struct PlaceView: View {
                     CommentsView(viewModel: CommentsViewModel(commentsNetworkManager: viewModel.commentsNetworkManager, errorManager: viewModel.errorManager, size: proxy.size, place: viewModel.place))
                         .listRowSeparator(.hidden)
                         .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-//                        .onAppear {
-//                            viewModel.fetchComments()
-//                        }
+
                     Color.clear
                         .frame(height: 50)
                         .listRowSeparator(.hidden)
@@ -284,19 +282,6 @@ struct PlaceView: View {
         }
         .listRowSeparator(.hidden)
         .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-    }
-    
-//    private func getEvents(for date: Date) {
-//        Task {
-//            let events = await viewModel.eventDataManager.getEvents(for: date, events: viewModel.actualEvents )
-//            await MainActor.run {
-//                viewModel.displayedEvents = events
-//            }
-//        }
-//    }
-    
-    private func showUpcomingEvents() {
-        viewModel.displayedEvents = viewModel.upcomingEvents
     }
 }
 
