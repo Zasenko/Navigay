@@ -189,21 +189,28 @@ struct HomeView2: View {
     }
         
     func categoryView(category: SortingCategory, size: CGSize) -> some View {
-        List {
-            switch category {
-            case .events:
-                eventsSection(size: size)
-            default:
-                placesSection(category: category)
+        ScrollViewReader { scrollProxy in
+            List {
+                switch category {
+                case .events:
+                    eventsSection(size: size)
+                default:
+                    placesSection(category: category)
+                }
+                Color.clear
+                    .frame(height: 50)
+                    .listSectionSeparator(.hidden)
             }
-            Color.clear
-                .frame(height: 50)
-                .listSectionSeparator(.hidden)
+            .scrollIndicators(.hidden)
+            .listSectionSeparator(.hidden)
+            .listStyle(.plain)
+            .buttonStyle(PlainButtonStyle())
+            .onChange(of: viewModel.selectedDate, initial: false) { oldValue, newValue in
+                withAnimation {
+                    scrollProxy.scrollTo("UpcomingEvents", anchor: .top)
+                }
+            }
         }
-        .scrollIndicators(.hidden)
-        .listSectionSeparator(.hidden)
-        .listStyle(.plain)
-        .buttonStyle(PlainButtonStyle())
     }
     
 //    private var listView: some View {
