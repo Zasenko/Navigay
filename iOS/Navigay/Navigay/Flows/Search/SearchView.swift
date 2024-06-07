@@ -280,7 +280,7 @@ struct SearchView: View {
                         Button {
                             viewModel.selectedEvent = event
                         } label: {
-                            EventCell(event: event, showCountryCity: true, showStartDayInfo: true, showStartTimeInfo: false)
+                            EventCell(event: event, showCountryCity: true, showStartDayInfo: true, showStartTimeInfo: false, showLike: true)
                                 .matchedGeometryEffect(id: "\(item.id)\(event.id)", in: animation)
                         }
                         .frame(maxWidth: size.width / 2)
@@ -292,7 +292,7 @@ struct SearchView: View {
                         Button {
                             viewModel.selectedEvent = event
                         } label: {
-                            EventCell(event: event, showCountryCity: true, showStartDayInfo: true, showStartTimeInfo: false)
+                            EventCell(event: event, showCountryCity: true, showStartDayInfo: true, showStartTimeInfo: false, showLike: true)
                                 .matchedGeometryEffect(id: "\(item.id)\(event.id)", in: animation)
                         }
                     }

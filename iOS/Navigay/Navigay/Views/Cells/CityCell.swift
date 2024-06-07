@@ -49,16 +49,16 @@ struct CityCell: View {
                         }
                         if showLocationsCount {
                             HStack {
-                                if city.eventsCount ?? 0 > 0 {
-                                    Text(String(city.eventsCount ?? 0))
-                                    + Text(city.eventsCount ?? 0 > 1 ? " events" : " event")
+                                if city.eventsCount > 0 {
+                                    Text(String(city.eventsCount))
+                                    + Text(city.eventsCount > 1 ? " events" : " event")
                                 }
-                                if ((city.eventsCount ?? 0 > 0) && (city.placesCount ?? 0 > 0)) {
+                                if (city.eventsCount > 0) && (city.placesCount > 0) {
                                     Text("•")
                                 }
-                                if city.placesCount ?? 0 > 0 {
-                                    Text(String(city.placesCount ?? 0))
-                                    + Text(city.placesCount ?? 0 > 1 ? " places" : " place")
+                                if city.placesCount > 0 {
+                                    Text(String(city.placesCount))
+                                    + Text(city.placesCount > 1 ? " places" : " place")
                                 }
                             }
                             .font(.footnote)

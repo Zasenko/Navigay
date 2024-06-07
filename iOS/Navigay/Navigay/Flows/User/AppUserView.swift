@@ -18,6 +18,8 @@ struct AppUserView: View {
     
     @State private var viewModel: AppUserViewModel
     @EnvironmentObject private var authenticationManager: AuthenticationManager
+    @Namespace private var animation
+
     
     init(modelContext: ModelContext,
          userNetworkManager: UserNetworkManagerProtocol,
@@ -146,6 +148,9 @@ struct AppUserView: View {
                     LoginView(viewModel: LoginViewModel()) {
                         viewModel.showLoginView = false
                     }
+                }
+                .fullScreenCover(item: $viewModel.selectedEvent) { event in
+                    EventView(viewModel: EventView.EventViewModel.init(event: event, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, commentsNetworkManager: viewModel.commentsNetworkManager))
                 }
             }
         }
@@ -377,14 +382,38 @@ struct AppUserView: View {
             .padding(.top, 50)
             .padding(.bottom, 10)
             .offset(x: 90)
-            LazyVGrid(columns: viewModel.gridLayout, spacing: 20) {
+//            LazyVGrid(columns: viewModel.gridLayout, spacing: 20) {
+//                ForEach(likedEvents) { event in
+//                    EventCell(event: event, showCountryCity: true, showStartDayInfo: true, showStartTimeInfo: false)//, width: (width / 2) - 30)
+//                    
+//                 //   EventCell(event: event, width: (width / 2) - 30, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, showCountryCity: true, authenticationManager: authenticationManager, showStartDayInfo: true, showStartTimeInfo: false)
+//                }
+//            }
+//            .padding(.horizontal, 20)
+            if likedEvents.count == 1 {
                 ForEach(likedEvents) { event in
-                    EventCell(event: event, showCountryCity: true, showStartDayInfo: true, showStartTimeInfo: false)//, width: (width / 2) - 30)
-                    
-                 //   EventCell(event: event, width: (width / 2) - 30, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, showCountryCity: true, authenticationManager: authenticationManager, showStartDayInfo: true, showStartTimeInfo: false)
+                    Button {
+                        viewModel.selectedEvent = event
+                    } label: {
+                        EventCell(event: event, showCountryCity: true, showStartDayInfo: true, showStartTimeInfo: true, showLike: false)
+                            .matchedGeometryEffect(id: "DisplayedEv\(event.id)", in: animation)
+                    }
+                    .frame(maxWidth: width / 2)
+                    .frame(maxWidth: .infinity)
+                    .padding(.bottom)
                 }
+            } else {
+                StaggeredGrid(columns: 2, showsIndicators: false, spacing: 10, list: likedEvents) { event in
+                    Button {
+                        viewModel.selectedEvent = event
+                    } label: {
+                        EventCell(event: event, showCountryCity: true, showStartDayInfo: true, showStartTimeInfo: true, showLike: false)
+                            .matchedGeometryEffect(id: "DisplayedEv\(event.id)", in: animation)
+                    }
+                }
+                .padding(.horizontal, 10)
+                .padding(.bottom)
             }
-            .padding(.horizontal, 20)
         }
         .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
         .listRowSeparator(.hidden)

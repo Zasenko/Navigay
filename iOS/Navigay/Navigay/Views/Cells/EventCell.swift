@@ -17,7 +17,8 @@ struct EventCell: View {
     let showCountryCity: Bool
     let showStartDayInfo: Bool
     let showStartTimeInfo: Bool
-    
+    let showLike: Bool
+
     @State private var image: Image? = nil
 
     // MARK: - Body
@@ -41,12 +42,14 @@ struct EventCell: View {
                 .aspectRatio(contentMode: .fit)
                 .clipped()
                 .transition(.scale.animation(.easeInOut))
-            HStack(spacing: 0) {
-                if event.isLiked {
+            HStack(alignment: .top, spacing: 0) {
+                Spacer()
+                if showLike && event.isLiked {
                     AppImages.iconHeartFill
                         .font(.footnote)
                         .bold()
                         .foregroundColor(.white)
+                        .frame(height: 16)
                         .padding(5)
                         .padding(.horizontal, 5)
                         .padding(.trailing, event.isFree ? 15 : 0)
@@ -59,6 +62,7 @@ struct EventCell: View {
                         .font(.footnote)
                         .bold()
                         .foregroundColor(AppColors.background)
+                        .frame(height: 16)
                         .padding(5)
                         .padding(.horizontal, 5)
                         .background(.green)
@@ -83,18 +87,16 @@ struct EventCell: View {
                 }
             }
         }
-//        .onChange(of: event.smallPoster) { oldValue, newValue in
-//            Task {
-//                guard let url = newValue else {
-//                    return
-//                }
-//                if let image = await ImageLoader.shared.loadImage(urlString: url) {
-//                    await MainActor.run {
-//                        self.image = image
-//                    }
-//                }
-//            }
-//        }
+        .onChange(of: event.smallPoster) { oldValue, newValue in
+            Task {
+                guard let url = newValue else { return }
+                if let image = await ImageLoader.shared.loadImage(urlString: url) {
+                    await MainActor.run {
+                        self.image = image
+                    }
+                }
+            }
+        }
     }
     
     private var infoView: some View {
@@ -232,9 +234,27 @@ struct EventCell: View {
     let errorManager = ErrorManager()
     let appSettingsManager = AppSettingsManager()
     let  networkMonitorManager = NetworkMonitorManager(errorManager: errorManager)
-    let eventNetworkManager = EventNetworkManager(networkMonitorManager: networkMonitorManager, appSettingsManager: appSettingsManager)
-    let decodedEvent = DecodedEvent(id: 0, name: "HARD ON party", type: .party, startDate: "2024-04-23", startTime: "13:34:00", finishDate: "2024-04-25", finishTime: "19:20:00", address: "", latitude: 16.25566, longitude: 48.655885, poster: "https://www.navigay.me/images/events/AT/12/1700152341132_227.jpg", smallPoster: "https://www.navigay.me/images/events/AT/12/1700152341132_684.jpg", isFree: true, tags: nil, location: "Cafe Savoy", lastUpdate: "2023-11-16 17:26:12", about: nil, fee: nil, tickets: nil, www: nil, facebook: nil, instagram: nil, phone: nil, place: nil, owner: nil, city: nil, cityId: nil)
+  //  let eventNetworkManager = EventNetworkManager(networkMonitorManager: networkMonitorManager, appSettingsManager: appSettingsManager)
+    let decodedEvent = DecodedEvent(id: 0,
+                                    name: "HARD ON party",
+                                    type: .party,
+                                    startDate: "2024-04-23",
+                                    startTime: "13:34:00",
+                                    finishDate: "2024-04-25",
+                                    finishTime: "19:20:00",
+                                    address: "",
+                                    latitude: 16.25566,
+                                    longitude: 48.655885,
+                                    poster: nil,// "https://www.navigay.me/images/events/AT/12/1700152341132_227.jpg",
+                                    smallPoster: "https://www.navigay.me/images/events/AT/12/1700152341132_684.jpg",
+                                    isFree: true,
+                                    tags: nil, 
+                                    location: "Cafe Savoy",
+                                    lastUpdate: "2023-11-16 17:26:12",
+                                    about: nil, fee: nil, tickets: nil, www: nil, facebook: nil, instagram: nil, phone: nil, place: nil, owner: nil, city: nil, cityId: nil)
     let event = Event(decodedEvent: decodedEvent)
     event.isLiked = true
-    return EventCell(event: event, showCountryCity: false, showStartDayInfo: true, showStartTimeInfo: true)
+   // event.smallPosterImg = Image("13")
+    return EventCell(event: event, showCountryCity: false, showStartDayInfo: true, showStartTimeInfo: true, showLike: true)
 }
+

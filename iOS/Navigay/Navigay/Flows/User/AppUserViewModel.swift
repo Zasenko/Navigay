@@ -16,7 +16,9 @@ extension AppUserView {
         var userImage: Image? = nil
         var isLoadingPhoto: Bool = false
         
-        var gridLayout: [GridItem] = Array(repeating: GridItem(.flexible(), spacing: 20), count: 2)
+        //var gridLayout: [GridItem] = Array(repeating: GridItem(.flexible(), spacing: 20), count: 2)
+        
+        var selectedEvent: Event? = nil
         
         var showTitle: Bool = false
         

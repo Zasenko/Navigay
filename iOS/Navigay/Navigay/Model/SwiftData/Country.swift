@@ -22,8 +22,8 @@ final class Country {
     var lastUpdateIncomplete: Date? = nil
     var lastUpdateComplite: Date? = nil
     
-    var eventsCount: Int? = nil
-    var placesCount: Int? = nil
+    var eventsCount: Int = 0
+    var placesCount: Int = 0
     
     @Relationship(deleteRule: .cascade, inverse: \Region.country) var regions: [Region] = []
         
