@@ -18,6 +18,7 @@ struct EventCell: View {
     let showStartDayInfo: Bool
     let showStartTimeInfo: Bool
     let showLike: Bool
+    let showLocation: Bool
 
     @State private var image: Image? = nil
 
@@ -120,7 +121,7 @@ struct EventCell: View {
             if showStartTimeInfo, let timeString = stringForToday() {
                 infoRow(icon: AppImages.iconClock, text: timeString)
             }
-            if let location = event.location {
+            if showLocation, let location = event.location {
                 infoRow(icon: AppImages.iconLocationFill, text: location)
             }
             if showCountryCity {
@@ -255,6 +256,6 @@ struct EventCell: View {
     let event = Event(decodedEvent: decodedEvent)
     event.isLiked = true
    // event.smallPosterImg = Image("13")
-    return EventCell(event: event, showCountryCity: false, showStartDayInfo: true, showStartTimeInfo: true, showLike: true)
+    return EventCell(event: event, showCountryCity: false, showStartDayInfo: true, showStartTimeInfo: true, showLike: true, showLocation: true)
 }
 

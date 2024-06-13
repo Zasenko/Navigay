@@ -395,7 +395,7 @@ struct AppUserView: View {
                     Button {
                         viewModel.selectedEvent = event
                     } label: {
-                        EventCell(event: event, showCountryCity: true, showStartDayInfo: true, showStartTimeInfo: true, showLike: false)
+                        EventCell(event: event, showCountryCity: true, showStartDayInfo: true, showStartTimeInfo: true, showLike: false, showLocation: true)
                             .matchedGeometryEffect(id: "DisplayedEv\(event.id)", in: animation)
                     }
                     .frame(maxWidth: width / 2)
@@ -407,7 +407,7 @@ struct AppUserView: View {
                     Button {
                         viewModel.selectedEvent = event
                     } label: {
-                        EventCell(event: event, showCountryCity: true, showStartDayInfo: true, showStartTimeInfo: true, showLike: false)
+                        EventCell(event: event, showCountryCity: true, showStartDayInfo: true, showStartTimeInfo: true, showLike: false, showLocation: true)
                             .matchedGeometryEffect(id: "DisplayedEv\(event.id)", in: animation)
                     }
                 }
