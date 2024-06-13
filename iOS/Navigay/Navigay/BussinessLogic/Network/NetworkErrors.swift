@@ -21,4 +21,5 @@ enum NetworkErrors: Error {
     case api
     case apiError(ApiError?)
     case dataConversionError
+    case noUserForTocken
 }

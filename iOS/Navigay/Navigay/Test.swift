@@ -14,7 +14,6 @@ struct Test: View {
     @State private var image = Image("16")
     @State private var scrollPosition: CGPoint = .zero
 
-    let n = AroundNetworkManager(networkMonitorManager: NetworkMonitorManager(errorManager: ErrorManager()), appSettingsManager: AppSettingsManager())
     private let firstReviewPrompt = "Hey there! Looks like this place is waiting to be discovered. Share your thoughts and be the first to leave a review!"
     
     init() {
