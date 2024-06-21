@@ -68,13 +68,11 @@ extension EditCityNetworkManager: EditCityNetworkManagerProtocol {
     
     func fetchCity(id: Int, user: AppUser) async throws -> AdminCity {
         debugPrint("--- EditCityNetworkManager fetchCity id \(id)")
-        guard let sessionKey = user.sessionKey else {
-            throw NetworkErrors.noSessionKey
-        }
+        let tocken = try networkManager.getTocken(email: user.email)
         let parameters = [
             "city_id": String(id),
             "user_id": String(user.id),
-            "session_key": sessionKey,
+            "session_key": tocken,
         ]
         let body = try JSONSerialization.data(withJSONObject: parameters)
         let headers = ["Content-Type": "application/json"]
@@ -87,9 +85,7 @@ extension EditCityNetworkManager: EditCityNetworkManagerProtocol {
     }
     
     func updateCity(id: Int, name: String, about: String?, longitude: Double?, latitude: Double?, isCapital: Bool, isParadise: Bool, redirectCity: Int?, isActive: Bool, isChecked: Bool, user: AppUser) async throws {
-        guard let sessionKey = user.sessionKey else {
-            throw NetworkErrors.noSessionKey
-        }
+        let tocken = try networkManager.getTocken(email: user.email)
         var parameters = [
             "city_id": String(id),
             "name_en": name,
@@ -99,7 +95,7 @@ extension EditCityNetworkManager: EditCityNetworkManagerProtocol {
             "is_active": isActive ? "1" : "0",
             "is_checked": isChecked ? "1" : "0",
             "user_id": String(user.id),
-            "session_key": sessionKey,
+            "session_key": tocken,
         ]
         if let longitude, let latitude {
                parameters["longitude"] = String(longitude)
@@ -118,12 +114,10 @@ extension EditCityNetworkManager: EditCityNetworkManagerProtocol {
     }
     
     func updateCityPhoto(cityId: Int, uiImage: UIImage, uiImageSmall: UIImage, user: AppUser) async throws -> PosterUrls {
-        guard let sessionKey = user.sessionKey else {
-            throw NetworkErrors.noSessionKey
-        }
+        let tocken = try networkManager.getTocken(email: user.email)
         let boundary = UUID().uuidString
         let headers = ["Content-Type": "multipart/form-data; boundary=\(boundary)"]
-        let body = try await createBodyImageUpdating(image: uiImage, smallImage: uiImageSmall, cityId: cityId, userID: user.id, sessionKey: sessionKey, boundary: boundary)
+        let body = try await createBodyImageUpdating(image: uiImage, smallImage: uiImageSmall, cityId: cityId, userID: user.id, tocken: tocken, boundary: boundary)
         let request = try await networkManager.request(endpoint: EditCityEndPoint.updatePhoto, method: .post, headers: headers, body: body)
         let decodedResult = try await networkManager.fetch(type: PosterResult.self, with: request)
         guard decodedResult.result, let poster = decodedResult.poster else {
@@ -134,12 +128,10 @@ extension EditCityNetworkManager: EditCityNetworkManagerProtocol {
     
     // TODO: - sessionKey API!!!!!!!
     func updateCityLibraryPhoto(cityId: Int, photoId: String, uiImage: UIImage, from user: AppUser) async throws -> String {
-        guard let sessionKey = user.sessionKey else {
-            throw NetworkErrors.noSessionKey
-        }
+        let tocken = try networkManager.getTocken(email: user.email)
         let boundary = UUID().uuidString
         let headers = ["Content-Type": "multipart/form-data; boundary=\(boundary)"]
-        let body = try await createBodyLibraryImageUpdating(image: uiImage, cityId: cityId, photoId: photoId, userID: user.id, sessionKey: sessionKey, boundary: boundary)
+        let body = try await createBodyLibraryImageUpdating(image: uiImage, cityId: cityId, photoId: photoId, userID: user.id, tocken: tocken, boundary: boundary)
         let request = try await networkManager.request(endpoint: EditCityEndPoint.updateLibraryPhoto, method: .post, headers: headers, body: body)
         let decodedResult = try await networkManager.fetch(type: ImageResult.self, with: request)
         guard decodedResult.result, let url = decodedResult.url else {
@@ -150,14 +142,12 @@ extension EditCityNetworkManager: EditCityNetworkManagerProtocol {
     
     // TODO: - sessionKey в API!!!!!!!
     func deleteCityLibraryPhoto(cityId: Int, photoId: String, from user: AppUser) async throws {
-        guard let sessionKey = user.sessionKey else {
-            throw NetworkErrors.noSessionKey
-        }
+        let tocken = try networkManager.getTocken(email: user.email)
         let parameters: [String: Any] = [
             "id": cityId,
             "photo_id": photoId,
             "user_id": String(user.id),
-            "session_key": sessionKey,
+            "session_key": tocken,
         ]
         let body = try JSONSerialization.data(withJSONObject: parameters)
         let headers = ["Content-Type": "application/json"]
@@ -172,7 +162,7 @@ extension EditCityNetworkManager: EditCityNetworkManagerProtocol {
 // MARK: - Private Functions
 
 extension EditCityNetworkManager {
-    private func createBodyImageUpdating(image: UIImage, smallImage: UIImage, cityId: Int, userID: Int, sessionKey: String, boundary: String) async throws -> Data {
+    private func createBodyImageUpdating(image: UIImage, smallImage: UIImage, cityId: Int, userID: Int, tocken: String, boundary: String) async throws -> Data {
         var body = Data()
         guard let imageData = image.jpegData(compressionQuality: 0.8),
               let smallImageData = smallImage.jpegData(compressionQuality: 0.8) else {
@@ -191,7 +181,7 @@ extension EditCityNetworkManager {
         // sessyinKey
         body.append("--\(boundary)\r\n".data(using: .utf8)!)
         body.append("Content-Disposition: form-data; name=\"session_key\"\r\n\r\n".data(using: .utf8)!)
-        body.append("\(sessionKey)".data(using: .utf8)!)
+        body.append("\(tocken)".data(using: .utf8)!)
         body.append("\r\n".data(using: .utf8)!)
         // image
         body.append("--\(boundary)\r\n".data(using: .utf8)!)
@@ -210,7 +200,7 @@ extension EditCityNetworkManager {
         return body
     }
     
-    private func createBodyLibraryImageUpdating(image: UIImage, cityId: Int, photoId: String, userID: Int, sessionKey: String, boundary: String) async throws -> Data {
+    private func createBodyLibraryImageUpdating(image: UIImage, cityId: Int, photoId: String, userID: Int, tocken: String, boundary: String) async throws -> Data {
         var body = Data()
         guard let imageData = image.jpegData(compressionQuality: 0.8) else {
             throw NetworkErrors.imageDataError
@@ -233,7 +223,7 @@ extension EditCityNetworkManager {
         // sessyinKey
         body.append("--\(boundary)\r\n".data(using: .utf8)!)
         body.append("Content-Disposition: form-data; name=\"session_key\"\r\n\r\n".data(using: .utf8)!)
-        body.append("\(sessionKey)".data(using: .utf8)!)
+        body.append("\(tocken)".data(using: .utf8)!)
         body.append("\r\n".data(using: .utf8)!)
         
         

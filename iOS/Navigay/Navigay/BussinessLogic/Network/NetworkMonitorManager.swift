@@ -24,7 +24,6 @@ final class NetworkMonitorManager: NetworkMonitorManagerProtocol {
         }
     }
     
-
     // MARK: - Private Properties
     
     private var errorManager: ErrorManagerProtocol

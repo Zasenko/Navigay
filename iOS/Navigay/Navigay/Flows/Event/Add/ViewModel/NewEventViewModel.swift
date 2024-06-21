@@ -151,13 +151,11 @@ extension NewEventViewModel {
     
     func addNewEvent() {
         isLoading = true
+        guard let tocken = try? networkManager.networkManager.getTocken(email: user.email) else {
+            isLoading = false
+            return
+        }
         Task {
-            guard let sessionKey = user.sessionKey else {
-                await MainActor.run {
-                    isLoading = false
-                }
-                return
-            }
             guard !name.isEmpty,
                   let type = type?.rawValue,
                   !isoCountryCode.isEmpty,
@@ -224,7 +222,7 @@ extension NewEventViewModel {
                                               ownderId: isOwned ? user.id : nil,
                                               placeId: place?.id,
                                               addedBy: user.id,
-                                              sessionKey: sessionKey,
+                                              tocken: tocken,
                                               isActive: isActive,
                                               isChecked: isChecked,
                                               adminNotes: adminNotes.isEmpty ? nil : adminNotes,

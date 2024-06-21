@@ -16,7 +16,6 @@ final class AppUser {
     var status: UserAccessRights
     var bio: String?
     var photo: String?
-    var sessionKey: String?
     
     var isUserLoggedIn: Bool = false
     
@@ -30,7 +29,6 @@ final class AppUser {
         self.status = decodedUser.status
         self.bio = decodedUser.bio
         self.photo = decodedUser.photo
-        self.sessionKey = decodedUser.sessionKey
     }
     
     func updateUser(decodedUser: DecodedAppUser) {
@@ -39,6 +37,5 @@ final class AppUser {
         status = decodedUser.status
         bio = decodedUser.bio
         photo = decodedUser.photo
-        sessionKey = decodedUser.sessionKey
     }
 }

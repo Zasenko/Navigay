@@ -82,12 +82,10 @@ extension AuthNetworkManager: AuthNetworkManagerProtocol {
     
     func logout(for user: AppUser) async throws {
         debugPrint("--- logout()")
-        guard let sessionKey = user.sessionKey else {
-            throw NetworkErrors.noSessionKey
-        }
+        let tocken = try networkManager.getTocken(email: user.email)
         let parameters = [
             "user_id": String(user.id),
-            "session_key": sessionKey,
+            "session_key": tocken,
         ]        
         let body = try JSONSerialization.data(withJSONObject: parameters)
         let headers = ["Content-Type": "application/json"]
@@ -131,12 +129,10 @@ extension AuthNetworkManager: AuthNetworkManagerProtocol {
     }
     
     func deleteAccount(for user: AppUser) async throws {
-        guard let sessionKey = user.sessionKey else {
-            throw NetworkErrors.noSessionKey
-        }
+        let tocken = try networkManager.getTocken(email: user.email)
         let parameters = [
             "user_id": String(user.id),
-            "session_key": sessionKey,
+            "session_key": tocken,
         ]
         let body = try JSONSerialization.data(withJSONObject: parameters)
         let headers = ["Content-Type": "application/json"]

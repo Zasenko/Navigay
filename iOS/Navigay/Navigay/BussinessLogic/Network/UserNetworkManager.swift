@@ -69,12 +69,10 @@ final class UserNetworkManager {
 extension UserNetworkManager: UserNetworkManagerProtocol {
     
     func deletePhoto(for user: AppUser) async throws {
-        guard let sessionKey = user.sessionKey else {
-            throw NetworkErrors.noSessionKey
-        }
+        let tocken = try networkManager.getTocken(email: user.email)
         let parameters = [
             "user_id": String(user.id),
-            "session_key": sessionKey,
+            "session_key": tocken,
         ]
         let body = try JSONSerialization.data(withJSONObject: parameters)
         let headers = ["Content-Type": "application/json"]
@@ -86,13 +84,11 @@ extension UserNetworkManager: UserNetworkManagerProtocol {
     }
     
     func updateName(for user: AppUser, name: String) async throws {
-        guard let sessionKey = user.sessionKey else {
-            throw NetworkErrors.noSessionKey
-        }
+        let tocken = try networkManager.getTocken(email: user.email)
         let parameters = [
             "user_id": String(user.id),
             "user_name": name,
-            "session_key": sessionKey,
+            "session_key": tocken,
         ]
         let body = try JSONSerialization.data(withJSONObject: parameters)
         let headers = ["Content-Type": "application/json"]
@@ -104,13 +100,11 @@ extension UserNetworkManager: UserNetworkManagerProtocol {
     }
     
     func updateBio(for user: AppUser, bio: String?) async throws {
-        guard let sessionKey = user.sessionKey else {
-            throw NetworkErrors.noSessionKey
-        }
+        let tocken = try networkManager.getTocken(email: user.email)
         let parameters = [
             "user_id": String(user.id),
             "user_bio": bio,
-            "session_key": sessionKey,
+            "session_key": tocken,
         ]
         let body = try JSONSerialization.data(withJSONObject: parameters)
         let headers = ["Content-Type": "application/json"]
@@ -122,12 +116,10 @@ extension UserNetworkManager: UserNetworkManagerProtocol {
     }
     
     func updatePhoto(for user: AppUser, uiImage: UIImage) async throws -> String {
-        guard let sessionKey = user.sessionKey else {
-            throw NetworkErrors.noSessionKey
-        }
+        let tocken = try networkManager.getTocken(email: user.email)
         let boundary = UUID().uuidString
         let headers = ["Content-Type": "multipart/form-data; boundary=\(boundary)"]
-        let body = try await createBodyImageUpdating(userID: user.id, key: sessionKey, image: uiImage, boundary: boundary)
+        let body = try await createBodyImageUpdating(userID: user.id, tocken: tocken, image: uiImage, boundary: boundary)
         let request = try await networkManager.request(endpoint: UserEndPoints.updatePhoto, method: .post, headers: headers, body: body)
         let decodedResult = try await networkManager.fetch(type: ImageResult.self, with: request)
         guard decodedResult.result, let url = decodedResult.url else {
@@ -139,7 +131,7 @@ extension UserNetworkManager: UserNetworkManagerProtocol {
 
 extension UserNetworkManager {
     
-    private func createBodyImageUpdating(userID: Int, key: String, image: UIImage, boundary: String) async throws -> Data {
+    private func createBodyImageUpdating(userID: Int, tocken: String, image: UIImage, boundary: String) async throws -> Data {
         var body = Data()
         
         guard let imageData = image.jpegData(compressionQuality: 0.8) else {
@@ -153,7 +145,7 @@ extension UserNetworkManager {
         
         body.append("--\(boundary)\r\n".data(using: .utf8)!)
         body.append("Content-Disposition: form-data; name=\"session_key\"\r\n\r\n".data(using: .utf8)!)
-        body.append("\(key)".data(using: .utf8)!)
+        body.append("\(tocken)".data(using: .utf8)!)
         body.append("\r\n".data(using: .utf8)!)
         
         body.append("--\(boundary)\r\n".data(using: .utf8)!)

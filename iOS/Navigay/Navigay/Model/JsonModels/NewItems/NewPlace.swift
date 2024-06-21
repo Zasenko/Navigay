@@ -41,7 +41,7 @@ struct NewPlace: Codable {
     let regionId: Int?
     let cityId: Int?
     
-    init(name: String, type: Int, isoCountryCode: String, countryNameEn: String?, regionNameEn: String?, cityNameEn: String?, address: String, latitude: Double, longitude: Double, about: String?, tags: [Int]?, timetable: [PlaceWorkDay]?, otherInfo: String?, email: String?, phone: String?, www: String?, facebook: String?, instagram: String?, ownderId: Int?, addedBy: Int?, sessionKey: String, isActive: Bool, isChecked: Bool, adminNotes: String?, countryId: Int?, regionId: Int?, cityId: Int?) {
+    init(name: String, type: Int, isoCountryCode: String, countryNameEn: String?, regionNameEn: String?, cityNameEn: String?, address: String, latitude: Double, longitude: Double, about: String?, tags: [Int]?, timetable: [PlaceWorkDay]?, otherInfo: String?, email: String?, phone: String?, www: String?, facebook: String?, instagram: String?, ownderId: Int?, addedBy: Int?, tocken: String, isActive: Bool, isChecked: Bool, adminNotes: String?, countryId: Int?, regionId: Int?, cityId: Int?) {
         self.name = name
         self.type = type
         self.isoCountryCode = isoCountryCode
@@ -62,7 +62,7 @@ struct NewPlace: Codable {
         self.instagram = instagram
         self.ownderId = ownderId
         self.addedBy = addedBy
-        self.sessionKey = sessionKey
+        self.sessionKey = tocken
         self.isActive = isActive
         self.isChecked = isChecked
         self.adminNotes = adminNotes

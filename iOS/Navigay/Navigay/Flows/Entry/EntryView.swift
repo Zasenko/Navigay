@@ -17,15 +17,11 @@ struct EntryView: View {
     
     // MARK: - Private Properties
     
-    @Query private var appUsers: [AppUser]
     @AppStorage("firstTimeInApp") private var firstTimeInApp: Bool = true
-    @State private var router: EntryViewRouter = .welcomeView
+    @Query private var appUsers: [AppUser]
     @StateObject private var authenticationManager: AuthenticationManager
-    
-    private let appSettingsManager: AppSettingsManagerProtocol
+    @State private var router: EntryViewRouter = .welcomeView
     private let errorManager: ErrorManagerProtocol
-    private let networkMonitor: NetworkMonitorManagerProtocol
-    
     private let networkManager: NetworkManagerProtocol
     
     // MARK: - Init
@@ -38,8 +34,6 @@ struct EntryView: View {
         let networkManager = NetworkManager(session: URLSession(configuration: .default), networkMonitorManager: networkMonitorManager, appSettingsManager: appSettingsManager, keychainManager: keychainManager)
         let authNetworkManager = AuthNetworkManager(networkManager: networkManager)
         let authenticationManager = AuthenticationManager(keychainManager: keychainManager, networkMonitorManager: networkMonitorManager, networkManager: networkManager, authNetworkManager: authNetworkManager, errorManager: errorManager)
-        self.networkMonitor = networkMonitorManager
-        self.appSettingsManager = appSettingsManager
         self.errorManager = errorManager
         self.networkManager = networkManager
         _authenticationManager = StateObject(wrappedValue: authenticationManager)

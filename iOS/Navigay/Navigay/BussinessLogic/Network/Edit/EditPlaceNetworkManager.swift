@@ -66,9 +66,9 @@ extension EditPlaceEndPoints: EndPoint {
 }
 
 protocol EditPlaceNetworkManagerProtocol {
+    var networkManager: NetworkManagerProtocol {get}
     func fetchPlace(id: Int, for user: AppUser) async throws -> AdminPlace
     func addNewPlace(place: NewPlace) async throws -> Int
-    
     func updateAbout(id: Int, about: String?, for user: AppUser) async throws
     func updateTitleAndType(id: Int, name: String, type: PlaceType, for user: AppUser) async throws
     func updateAdditionalInformation(placeId: Int, email: String?, phone: String?, www: String?, facebook: String?, instagram: String?, otherInfo: String?, tags: [Tag]?, for user: AppUser) async throws
@@ -86,7 +86,7 @@ final class EditPlaceNetworkManager {
         
     // MARK: - Private Properties
     
-    private let networkManager: NetworkManagerProtocol
+    let networkManager: NetworkManagerProtocol
     
     // MARK: - Inits
     
@@ -98,16 +98,14 @@ final class EditPlaceNetworkManager {
 extension EditPlaceNetworkManager: EditPlaceNetworkManagerProtocol {
     
     func updateActivity(placeId: Int, isActive: Bool, isChecked: Bool, adminNotes: String?, user: AppUser) async throws {
-        guard let sessionKey = user.sessionKey else {
-            throw NetworkErrors.noSessionKey
-        }
+        let tocken = try networkManager.getTocken(email: user.email)
         let parameters = [
             "place_id": String(placeId),
             "is_active": isActive ? "1" : "0",
             "is_checked": isChecked ? "1" : "0",
             "admin_notes": adminNotes,
             "user_id": String(user.id),
-            "session_key": sessionKey,
+            "session_key": tocken,
         ]
         let body = try JSONSerialization.data(withJSONObject: parameters)
         let headers = ["Content-Type": "application/json"]
@@ -119,13 +117,11 @@ extension EditPlaceNetworkManager: EditPlaceNetworkManagerProtocol {
     }
     
     func updateTimetable(placeId: Int, timetable: [PlaceWorkDay]?, for user: AppUser) async throws {
-        guard let sessionKey = user.sessionKey else {
-            throw NetworkErrors.noSessionKey
-        }
+        let tocken = try networkManager.getTocken(email: user.email)
         var parameters = [
             "place_id": String(placeId),
             "user_id": String(user.id),
-            "session_key": sessionKey,
+            "session_key": tocken,
         ]
         if let timetable {
             let encoder = JSONEncoder()
@@ -146,13 +142,11 @@ extension EditPlaceNetworkManager: EditPlaceNetworkManagerProtocol {
     }
     
     func updateAdditionalInformation(placeId: Int, email: String?, phone: String?, www: String?, facebook: String?, instagram: String?, otherInfo: String?, tags: [Tag]?, for user: AppUser) async throws {
-        guard let sessionKey = user.sessionKey else {
-            throw NetworkErrors.noSessionKey
-        }
+        let tocken = try networkManager.getTocken(email: user.email)
         var parameters = [
             "place_id": String(placeId),
             "user_id": String(user.id),
-            "session_key": sessionKey,
+            "session_key": tocken,
             "email": email,
             "phone": phone,
             "www": www,
@@ -178,14 +172,12 @@ extension EditPlaceNetworkManager: EditPlaceNetworkManagerProtocol {
     }
     
     func updateAbout(id: Int, about: String?, for user: AppUser) async throws {
-        guard let sessionKey = user.sessionKey else {
-            throw NetworkErrors.noSessionKey
-        }
+        let tocken = try networkManager.getTocken(email: user.email)
         let parameters = [
             "place_id": String(id),
             "about": about,
             "user_id": String(user.id),
-            "session_key": sessionKey,
+            "session_key": tocken,
         ]
         let body = try JSONSerialization.data(withJSONObject: parameters)
         let headers = ["Content-Type": "application/json"]
@@ -197,15 +189,13 @@ extension EditPlaceNetworkManager: EditPlaceNetworkManagerProtocol {
     }
     
     func updateTitleAndType(id: Int, name: String, type: PlaceType, for user: AppUser) async throws {
-        guard let sessionKey = user.sessionKey else {
-            throw NetworkErrors.noSessionKey
-        }
+        let tocken = try networkManager.getTocken(email: user.email)
         let parameters = [
             "place_id": String(id),
             "name": name,
             "type": String(type.rawValue),
             "user_id": String(user.id),
-            "session_key": sessionKey,
+            "session_key": tocken,
         ]
         let body = try JSONSerialization.data(withJSONObject: parameters)
         let headers = ["Content-Type": "application/json"]
@@ -223,13 +213,11 @@ extension EditPlaceNetworkManager: EditPlaceNetworkManagerProtocol {
     }
     
     func fetchPlace(id: Int, for user: AppUser) async throws -> AdminPlace {
-        guard let sessionKey = user.sessionKey else {
-            throw NetworkErrors.noSessionKey
-        }
+        let tocken = try networkManager.getTocken(email: user.email)
         let parameters = [
             "place_id": String(id),
             "user_id": String(user.id),
-            "session_key": sessionKey,
+            "session_key": tocken,
         ]
         let body = try JSONSerialization.data(withJSONObject: parameters)
         let headers = ["Content-Type": "application/json"]
@@ -253,12 +241,10 @@ extension EditPlaceNetworkManager: EditPlaceNetworkManagerProtocol {
     }
     
     func updateMainPhoto(placeId: Int, uiImage: UIImage, from user: AppUser) async throws -> String {
-        guard let sessionKey = user.sessionKey else {
-            throw NetworkErrors.noSessionKey
-        }
+        let tocken = try networkManager.getTocken(email: user.email)
         let boundary = UUID().uuidString
         let headers = ["Content-Type": "multipart/form-data; boundary=\(boundary)"]
-        let body = try await createBodyImageUpdating(image: uiImage, placeId: placeId, userID: user.id, sessionKey: sessionKey, boundary: boundary)
+        let body = try await createBodyImageUpdating(image: uiImage, placeId: placeId, userID: user.id, tocken: tocken, boundary: boundary)
         let request = try await networkManager.request(endpoint: EditPlaceEndPoints.updateMainPhoto, method: .post, headers: headers, body: body)
         let decodedResult = try await networkManager.fetch(type: ImageResult.self, with: request)
         guard decodedResult.result, let url = decodedResult.url else {
@@ -268,12 +254,10 @@ extension EditPlaceNetworkManager: EditPlaceNetworkManagerProtocol {
     }
     
     func updateAvatar(placeId: Int, uiImage: UIImage, from user: AppUser) async throws -> String {
-        guard let sessionKey = user.sessionKey else {
-            throw NetworkErrors.noSessionKey
-        }
+        let tocken = try networkManager.getTocken(email: user.email)
         let boundary = UUID().uuidString
         let headers = ["Content-Type": "multipart/form-data; boundary=\(boundary)"]
-        let body = try await createBodyImageUpdating(image: uiImage, placeId: placeId, userID: user.id, sessionKey: sessionKey, boundary: boundary)
+        let body = try await createBodyImageUpdating(image: uiImage, placeId: placeId, userID: user.id, tocken: tocken, boundary: boundary)
         let request = try await networkManager.request(endpoint: EditPlaceEndPoints.updateAvatar, method: .post, headers: headers, body: body)
         let decodedResult = try await networkManager.fetch(type: ImageResult.self, with: request)
         guard decodedResult.result, let url = decodedResult.url else {
@@ -283,12 +267,10 @@ extension EditPlaceNetworkManager: EditPlaceNetworkManagerProtocol {
     }
 
     func updateLibraryPhoto(placeId: Int, photoId: String, uiImage: UIImage, from user: AppUser) async throws -> String {
-        guard let sessionKey = user.sessionKey else {
-            throw NetworkErrors.noSessionKey
-        }
+        let tocken = try networkManager.getTocken(email: user.email)
         let boundary = UUID().uuidString
         let headers = ["Content-Type": "multipart/form-data; boundary=\(boundary)"]
-        let body = try await createBodyLibraryImageUpdating(image: uiImage, placeId: placeId, photoId: photoId, userID: user.id, sessionKey: sessionKey, boundary: boundary)
+        let body = try await createBodyLibraryImageUpdating(image: uiImage, placeId: placeId, photoId: photoId, userID: user.id, tocken: tocken, boundary: boundary)
         let request = try await networkManager.request(endpoint: EditPlaceEndPoints.updateLibraryPhoto, method: .post, headers: headers, body: body)
         let decodedResult = try await networkManager.fetch(type: ImageResult.self, with: request)
         guard decodedResult.result, let url = decodedResult.url else {
@@ -298,14 +280,12 @@ extension EditPlaceNetworkManager: EditPlaceNetworkManagerProtocol {
     }
     
     func deleteLibraryPhoto(placeId: Int, photoId: String, from user: AppUser) async throws {
-        guard let sessionKey = user.sessionKey else {
-            throw NetworkErrors.noSessionKey
-        }
+        let tocken = try networkManager.getTocken(email: user.email)
         let parameters: [String: Any] = [
             "place_id": placeId,
             "photo_id": photoId,
             "user_id": String(user.id),
-            "session_key": sessionKey,
+            "session_key": tocken,
         ]
         let body = try JSONSerialization.data(withJSONObject: parameters)
         let headers = ["Content-Type": "application/json"]
@@ -320,7 +300,7 @@ extension EditPlaceNetworkManager: EditPlaceNetworkManagerProtocol {
 // MARK: - Private Functions
 
 extension EditPlaceNetworkManager {
-    private func createBodyImageUpdating(image: UIImage, placeId: Int, userID: Int, sessionKey: String, boundary: String) async throws -> Data {
+    private func createBodyImageUpdating(image: UIImage, placeId: Int, userID: Int, tocken: String, boundary: String) async throws -> Data {
         var body = Data()
         guard let imageData = image.jpegData(compressionQuality: 0.8) else {
             throw NetworkErrors.imageDataError
@@ -338,7 +318,7 @@ extension EditPlaceNetworkManager {
         // sessyinKey
         body.append("--\(boundary)\r\n".data(using: .utf8)!)
         body.append("Content-Disposition: form-data; name=\"session_key\"\r\n\r\n".data(using: .utf8)!)
-        body.append("\(sessionKey)".data(using: .utf8)!)
+        body.append("\(tocken)".data(using: .utf8)!)
         body.append("\r\n".data(using: .utf8)!)
         //image
         body.append("--\(boundary)\r\n".data(using: .utf8)!)
@@ -350,7 +330,7 @@ extension EditPlaceNetworkManager {
         return body
     }
     
-    private func createBodyLibraryImageUpdating(image: UIImage, placeId: Int, photoId: String, userID: Int, sessionKey: String, boundary: String) async throws -> Data {
+    private func createBodyLibraryImageUpdating(image: UIImage, placeId: Int, photoId: String, userID: Int, tocken: String, boundary: String) async throws -> Data {
         var body = Data()
         guard let imageData = image.jpegData(compressionQuality: 0.8) else {
             throw NetworkErrors.imageDataError
@@ -368,7 +348,7 @@ extension EditPlaceNetworkManager {
         // sessyinKey
         body.append("--\(boundary)\r\n".data(using: .utf8)!)
         body.append("Content-Disposition: form-data; name=\"session_key\"\r\n\r\n".data(using: .utf8)!)
-        body.append("\(sessionKey)".data(using: .utf8)!)
+        body.append("\(tocken)".data(using: .utf8)!)
         body.append("\r\n".data(using: .utf8)!)
         //photo_id
         body.append("--\(boundary)\r\n".data(using: .utf8)!)

@@ -90,12 +90,16 @@ extension AuthenticationManager {
         return false
     }
     
+    
     private func auth(user: AppUser) {
         Task {
             let message = "Oops! Something went wrong. You're not logged in. Please try again later."
             do {
                 let password = try keychainManager.getGenericPasswordFor(account: user.email, service: "User login")
                 let decodedAppUser = try await authNetworkManager.login(email: user.email, password: password)
+                try keychainManager.storeGenericPasswordFor(account: user.email,
+                                                            service: "User tocken",
+                                                            password: decodedAppUser.sessionKey)
                 await MainActor.run {
                     user.updateUser(decodedUser: decodedAppUser)
                     isUserOnline = true
@@ -121,6 +125,9 @@ extension AuthenticationManager {
         try keychainManager.storeGenericPasswordFor(account: email,
                                                     service: "User login",
                                                     password: password)
+        try keychainManager.storeGenericPasswordFor(account: email,
+                                                    service: "User tocken",
+                                                    password: decodedAppUser.sessionKey)
         let user = AppUser(decodedUser: decodedAppUser)
         user.isUserLoggedIn = true
         lastLoginnedUserId = user.id
@@ -136,6 +143,9 @@ extension AuthenticationManager {
         try keychainManager.storeGenericPasswordFor(account: email,
                                                     service: "User login",
                                                     password: password)
+        try keychainManager.storeGenericPasswordFor(account: email,
+                                                    service: "User tocken",
+                                                    password: decodedAppUser.sessionKey)
         lastLoginnedUserId = decodedAppUser.id
         return decodedAppUser
     }
@@ -143,6 +153,8 @@ extension AuthenticationManager {
     func deleteAccount(user: AppUser) async -> Bool {
         do {
             try await authNetworkManager.deleteAccount(for: user)
+            try? keychainManager.deleteGenericPasswordFor(account: user.email, service: "User login")
+            try? keychainManager.deleteGenericPasswordFor(account: user.email, service: "User tocken")
             return true
         } catch NetworkErrors.noConnection {
             errorManager.showNetworkNoConnected()

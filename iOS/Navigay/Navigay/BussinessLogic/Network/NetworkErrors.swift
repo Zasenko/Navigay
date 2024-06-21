@@ -8,7 +8,6 @@
 import Foundation
 
 enum NetworkErrors: Error {
-    case noSessionKey
     case connection
     case noConnection
     case decoderError

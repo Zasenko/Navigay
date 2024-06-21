@@ -63,21 +63,18 @@ extension EditEventEndPoints: EndPoint {
 }
 
 protocol EditEventNetworkManagerProtocol {
+    var networkManager: NetworkManagerProtocol {get}
     func fetchEvent(id: Int, for user: AppUser) async throws -> AdminEvent
-    
     func addNewEvent(event: NewEvent) async throws -> [Int]
     func addPosterToEvents(with ids: [Int], poster: UIImage, smallPoster: UIImage, from user: AppUser) async throws
-    
     func updateTitleAndType(id: Int, name: String, type: EventType, user: AppUser) async throws
     func updateAbout(id: Int, about: String?, user: AppUser) async throws
     func updateAdditionalInformation(id: Int, email: String?, phone: String?, www: String?, facebook: String?, instagram: String?, tags: [Tag]?, user: AppUser) async throws
     func updateActivity(id: Int, isActive: Bool, isChecked: Bool, adminNotes: String?, user: AppUser) async throws
     func updateTime(id: Int, startDate: Date, startTime: Date?, finishDate: Date?, finishTime: Date?, user: AppUser) async throws
     func updateFee(id: Int, isFree: Bool, tickets: String?, fee: String?, user: AppUser) async throws
-    
     func updatePoster(eventId: Int, poster: UIImage, smallPoster: UIImage, from user: AppUser) async throws -> PosterUrls
     func deletePoster(eventId: Int, from user: AppUser) async throws
-    
     func deleteEvent(eventId: Int, from user: AppUser) async throws
 }
 
@@ -85,7 +82,7 @@ final class EditEventNetworkManager {
 
     // MARK: - Private Properties
     
-    private let networkManager: NetworkManagerProtocol
+    let networkManager: NetworkManagerProtocol
     
     // MARK: - Inits
     
@@ -100,13 +97,11 @@ extension EditEventNetworkManager: EditEventNetworkManagerProtocol {
     
     func fetchEvent(id: Int, for user: AppUser) async throws -> AdminEvent {
         debugPrint("-AdminNetworkManager- fetchEvent id \(id)")
-        guard let sessionKey = user.sessionKey else {
-            throw NetworkErrors.noSessionKey
-        }
+        let tocken = try networkManager.getTocken(email: user.email)
         let parameters = [
             "event_id": String(id),
             "user_id": String(user.id),
-            "session_key": sessionKey,
+            "session_key": tocken,
         ]
         let body = try JSONSerialization.data(withJSONObject: parameters)
         let headers = ["Content-Type": "application/json"]
@@ -132,12 +127,10 @@ extension EditEventNetworkManager: EditEventNetworkManagerProtocol {
     }
     
     func addPosterToEvents(with ids: [Int], poster: UIImage, smallPoster: UIImage, from user: AppUser) async throws {
-        guard let sessionKey = user.sessionKey else {
-            throw NetworkErrors.noSessionKey
-        }
+        let tocken = try networkManager.getTocken(email: user.email)
         let boundary = UUID().uuidString
         let headers = ["Content-Type": "multipart/form-data; boundary=\(boundary)"]
-        let body = try await createBodyEventsPosterUpdating(poster: poster, smallPoster: smallPoster, boundary: boundary, eventIDs: ids, addedBy: user.id, sessionKey: sessionKey)
+        let body = try await createBodyEventsPosterUpdating(poster: poster, smallPoster: smallPoster, boundary: boundary, eventIDs: ids, addedBy: user.id, tocken: tocken)
         let request = try await networkManager.request(endpoint: EditEventEndPoints.addPosterToEvents, method: .post, headers: headers, body: body)
         let decodedResult = try await networkManager.fetch(type: ApiResult.self, with: request)
         guard decodedResult.result else {
@@ -146,15 +139,13 @@ extension EditEventNetworkManager: EditEventNetworkManagerProtocol {
     }
     
     func updateTitleAndType(id: Int, name: String, type: EventType, user: AppUser) async throws {
-        guard let sessionKey = user.sessionKey else {
-            throw NetworkErrors.noSessionKey
-        }
+        let tocken = try networkManager.getTocken(email: user.email)
         let parameters = [
             "event_id": String(id),
             "name": name,
             "type": String(type.rawValue),
             "user_id": String(user.id),
-            "session_key": sessionKey,
+            "session_key": tocken,
         ]
         let body = try JSONSerialization.data(withJSONObject: parameters)
         let headers = ["Content-Type": "application/json"]
@@ -166,9 +157,7 @@ extension EditEventNetworkManager: EditEventNetworkManagerProtocol {
     }
     
     func updateTime(id: Int, startDate: Date, startTime: Date?, finishDate: Date?, finishTime: Date?, user: AppUser) async throws {
-        guard let sessionKey = user.sessionKey else {
-            throw NetworkErrors.noSessionKey
-        }
+        let tocken = try networkManager.getTocken(email: user.email)
         let parameters = [
             "event_id": String(id),
             "start_date": startDate.format("yyyy-MM-dd"),
@@ -176,7 +165,7 @@ extension EditEventNetworkManager: EditEventNetworkManagerProtocol {
             "finish_date": finishDate?.format("yyyy-MM-dd"),
             "finish_time": finishTime?.format("HH:mm"),
             "user_id": String(user.id),
-            "session_key": sessionKey,
+            "session_key": tocken,
         ]
         let body = try JSONSerialization.data(withJSONObject: parameters)
         let headers = ["Content-Type": "application/json"]
@@ -188,16 +177,14 @@ extension EditEventNetworkManager: EditEventNetworkManagerProtocol {
     }
     
     func updateFee(id: Int, isFree: Bool, tickets: String?, fee: String?, user: AppUser) async throws {
-        guard let sessionKey = user.sessionKey else {
-            throw NetworkErrors.noSessionKey
-        }
+        let tocken = try networkManager.getTocken(email: user.email)
         let parameters = [
             "event_id": String(id),
             "is_free": isFree ? "1" : "0",
             "tickets": tickets,
             "fee": fee,
             "user_id": String(user.id),
-            "session_key": sessionKey,
+            "session_key": tocken,
         ]
         let body = try JSONSerialization.data(withJSONObject: parameters)
         let headers = ["Content-Type": "application/json"]
@@ -210,13 +197,11 @@ extension EditEventNetworkManager: EditEventNetworkManagerProtocol {
     
     
     func updateAdditionalInformation(id: Int, email: String?, phone: String?, www: String?, facebook: String?, instagram: String?, tags: [Tag]?, user: AppUser) async throws {
-        guard let sessionKey = user.sessionKey else {
-            throw NetworkErrors.noSessionKey
-        }
+        let tocken = try networkManager.getTocken(email: user.email)
         var parameters = [
             "event_id": String(id),
             "user_id": String(user.id),
-            "session_key": sessionKey,
+            "session_key": tocken,
             "email": email,
             "phone": phone,
             "www": www,
@@ -241,14 +226,12 @@ extension EditEventNetworkManager: EditEventNetworkManagerProtocol {
     }
     
     func updateAbout(id: Int, about: String?, user: AppUser) async throws {
-        guard let sessionKey = user.sessionKey else {
-            throw NetworkErrors.noSessionKey
-        }
+        let tocken = try networkManager.getTocken(email: user.email)
         let parameters = [
             "event_id": String(id),
             "about": about,
             "user_id": String(user.id),
-            "session_key": sessionKey,
+            "session_key": tocken,
         ]
         let body = try JSONSerialization.data(withJSONObject: parameters)
         let headers = ["Content-Type": "application/json"]
@@ -260,16 +243,14 @@ extension EditEventNetworkManager: EditEventNetworkManagerProtocol {
     }
     
     func updateActivity(id: Int, isActive: Bool, isChecked: Bool, adminNotes: String?, user: AppUser) async throws {
-        guard let sessionKey = user.sessionKey else {
-            throw NetworkErrors.noSessionKey
-        }
+        let tocken = try networkManager.getTocken(email: user.email)
         let parameters = [
             "event_id": String(id),
             "is_active": isActive ? "1" : "0",
             "is_checked": isChecked ? "1" : "0",
             "admin_notes": adminNotes,
             "user_id": String(user.id),
-            "session_key": sessionKey,
+            "session_key": tocken,
         ]
         let body = try JSONSerialization.data(withJSONObject: parameters)
         let headers = ["Content-Type": "application/json"]
@@ -281,12 +262,10 @@ extension EditEventNetworkManager: EditEventNetworkManagerProtocol {
     }
     
     func updatePoster(eventId: Int, poster: UIImage, smallPoster: UIImage, from user: AppUser) async throws -> PosterUrls {
-        guard let sessionKey = user.sessionKey else {
-            throw NetworkErrors.noSessionKey
-        }
+        let tocken = try networkManager.getTocken(email: user.email)
         let boundary = UUID().uuidString
         let headers = ["Content-Type": "multipart/form-data; boundary=\(boundary)"]
-        let body = try await createBodyPosterUpdating(poster: poster, smallPoster: smallPoster, eventId: eventId, userID: user.id, sessionKey: sessionKey, boundary: boundary)
+        let body = try await createBodyPosterUpdating(poster: poster, smallPoster: smallPoster, eventId: eventId, userID: user.id, tocken: tocken, boundary: boundary)
         
         let request = try await networkManager.request(endpoint: EditEventEndPoints.updatePoster, method: .post, headers: headers, body: body)
         let decodedResult = try await networkManager.fetch(type: PosterResult.self, with: request)
@@ -298,13 +277,11 @@ extension EditEventNetworkManager: EditEventNetworkManagerProtocol {
     
     func deletePoster(eventId: Int, from user: AppUser) async throws {
         debugPrint("-EventNetworkManager- deletePoster eventId: \(eventId)")
-        guard let sessionKey = user.sessionKey else {
-            throw NetworkErrors.noSessionKey
-        }
+        let tocken = try networkManager.getTocken(email: user.email)
         let parameters = [
             "event_id": String(eventId),
             "user_id": String(user.id),
-            "session_key": sessionKey,
+            "session_key": tocken,
         ]
         let body = try JSONSerialization.data(withJSONObject: parameters)
         let headers = ["Content-Type": "application/json"]
@@ -317,13 +294,11 @@ extension EditEventNetworkManager: EditEventNetworkManagerProtocol {
     
     func deleteEvent(eventId: Int, from user: AppUser) async throws {
         debugPrint("-EventNetworkManager- deleteEvent eventId: \(eventId)")
-        guard let sessionKey = user.sessionKey else {
-            throw NetworkErrors.noSessionKey
-        }
+        let tocken = try networkManager.getTocken(email: user.email)
         let parameters = [
             "event_id": String(eventId),
             "user_id": String(user.id),
-            "session_key": sessionKey,
+            "session_key": tocken,
         ]
         let body = try JSONSerialization.data(withJSONObject: parameters)
         let headers = ["Content-Type": "application/json"]
@@ -338,7 +313,7 @@ extension EditEventNetworkManager: EditEventNetworkManagerProtocol {
 // MARK: - Private Functions
 
 extension EditEventNetworkManager {
-    private func createBodyPosterUpdating(poster: UIImage, smallPoster: UIImage, eventId: Int, userID: Int, sessionKey: String, boundary: String) async throws -> Data {
+    private func createBodyPosterUpdating(poster: UIImage, smallPoster: UIImage, eventId: Int, userID: Int, tocken: String, boundary: String) async throws -> Data {
         var body = Data()
         guard let posterData = poster.jpegData(compressionQuality: 0.8), let smallPosterData = smallPoster.jpegData(compressionQuality: 0.8) else {
             throw NetworkErrors.imageDataError
@@ -356,7 +331,7 @@ extension EditEventNetworkManager {
         // sessyinKey
         body.append("--\(boundary)\r\n".data(using: .utf8)!)
         body.append("Content-Disposition: form-data; name=\"session_key\"\r\n\r\n".data(using: .utf8)!)
-        body.append("\(sessionKey)".data(using: .utf8)!)
+        body.append("\(tocken)".data(using: .utf8)!)
         body.append("\r\n".data(using: .utf8)!)
         // poster
         body.append("--\(boundary)\r\n".data(using: .utf8)!)
@@ -375,7 +350,7 @@ extension EditEventNetworkManager {
         return body
     }
     
-    private func createBodyEventsPosterUpdating(poster: UIImage, smallPoster: UIImage, boundary: String, eventIDs: [Int], addedBy: Int, sessionKey: String) async throws -> Data {
+    private func createBodyEventsPosterUpdating(poster: UIImage, smallPoster: UIImage, boundary: String, eventIDs: [Int], addedBy: Int, tocken: String) async throws -> Data {
         var body = Data()
         guard let posterData = poster.jpegData(compressionQuality: 0.8), let smallPosterData = smallPoster.jpegData(compressionQuality: 0.8) else {
             throw NetworkErrors.imageDataError
@@ -395,7 +370,7 @@ extension EditEventNetworkManager {
         // sessyin_key
         body.append("--\(boundary)\r\n".data(using: .utf8)!)
         body.append("Content-Disposition: form-data; name=\"session_key\"\r\n\r\n".data(using: .utf8)!)
-        body.append("\(sessionKey)".data(using: .utf8)!)
+        body.append("\(tocken)".data(using: .utf8)!)
         body.append("\r\n".data(using: .utf8)!)
         // poster
         body.append("--\(boundary)\r\n".data(using: .utf8)!)

@@ -27,6 +27,7 @@ protocol NetworkManagerProtocol {
     func fetch<T: Codable>(type: T.Type,
                            with request: URLRequest) async throws -> T
     func emptyFetch(with request: URLRequest) async throws
+    func getTocken(email: String) throws -> String
 }
 
 final class NetworkManager {
@@ -48,6 +49,10 @@ final class NetworkManager {
         self.networkMonitorManager = networkMonitorManager
         self.appSettingsManager = appSettingsManager
         self.keychainManager = keychainManager
+    }
+    
+    func getTocken(email: String) throws -> String {
+        try keychainManager.getGenericPasswordFor(account: email, service: "User tocken")
     }
 }
 

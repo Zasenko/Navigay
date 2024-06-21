@@ -71,13 +71,11 @@ final class AdminNetworkManager {
 extension AdminNetworkManager: AdminNetworkManagerProtocol {
     func getCities(regionID: Int, user: AppUser) async throws -> [AdminCity] {
         debugPrint("--- AdminNetworkManager getCities()")
-        guard let sessionKey = user.sessionKey else {
-            throw NetworkErrors.noSessionKey
-        }
+        let tocken = try networkManager.getTocken(email: user.email)
         let parameters = [
             "region_id": String(regionID),
             "user_id": String(user.id),
-            "session_key": sessionKey,
+            "session_key": tocken,
         ]
         let body = try JSONSerialization.data(withJSONObject: parameters)
         let headers = ["Content-Type": "application/json"]
@@ -91,12 +89,10 @@ extension AdminNetworkManager: AdminNetworkManagerProtocol {
         
     func getCountries(for user: AppUser) async throws  -> [AdminCountry] {
         debugPrint("--- AdminNetworkManager getCountries()")
-        guard let sessionKey = user.sessionKey else {
-            throw NetworkErrors.noSessionKey
-        }
+        let tocken = try networkManager.getTocken(email: user.email)
         let parameters = [
             "user_id": String(user.id),
-            "session_key": sessionKey,
+            "session_key": tocken,
         ]
         let body = try JSONSerialization.data(withJSONObject: parameters)
         let headers = ["Content-Type": "application/json"]
@@ -110,13 +106,11 @@ extension AdminNetworkManager: AdminNetworkManagerProtocol {
     
     func getRegions(countryID: Int, user: AppUser) async throws  -> [AdminRegion] {
         debugPrint("--- AdminNetworkManager getRegions()")
-        guard let sessionKey = user.sessionKey else {
-            throw NetworkErrors.noSessionKey
-        }
+        let tocken = try networkManager.getTocken(email: user.email)
         let parameters = [
             "country_id": String(countryID),
             "user_id": String(user.id),
-            "session_key": sessionKey,
+            "session_key": tocken,
         ]
         let body = try JSONSerialization.data(withJSONObject: parameters)
         let headers = ["Content-Type": "application/json"]
@@ -130,12 +124,10 @@ extension AdminNetworkManager: AdminNetworkManagerProtocol {
     
     func getAdminInfo(for user: AppUser) async throws -> AdminInfo {
         debugPrint("--- AdminNetworkManager getAdminInfo()")
-        guard let sessionKey = user.sessionKey else {
-            throw NetworkErrors.noSessionKey
-        }
+        let tocken = try networkManager.getTocken(email: user.email)
         let parameters = [
             "user_id": String(user.id),
-            "session_key": sessionKey,
+            "session_key": tocken,
         ]
         let body = try JSONSerialization.data(withJSONObject: parameters)
         let headers = ["Content-Type": "application/json"]

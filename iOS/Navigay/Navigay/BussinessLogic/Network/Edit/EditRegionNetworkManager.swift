@@ -58,13 +58,11 @@ extension EditRegionNetworkManager: EditRegionNetworkManagerProtocol {
     
     func fetchRegion(id: Int, user: AppUser) async throws -> AdminRegion {
         debugPrint("--- EditRegionNetworkManager fetchRegion id \(id)")
-        guard let sessionKey = user.sessionKey else {
-            throw NetworkErrors.noSessionKey
-        }
+        let tocken = try networkManager.getTocken(email: user.email)
         let parameters = [
             "region_id": String(id),
             "user_id": String(user.id),
-            "session_key": sessionKey,
+            "session_key": tocken,
         ]
         let body = try JSONSerialization.data(withJSONObject: parameters)
         let headers = ["Content-Type": "application/json"]
@@ -77,16 +75,14 @@ extension EditRegionNetworkManager: EditRegionNetworkManagerProtocol {
     }
     
     func updateRegion(id: Int, name: String, isActive: Bool, isChecked: Bool, user: AppUser) async throws {
-        guard let sessionKey = user.sessionKey else {
-            throw NetworkErrors.noSessionKey
-        }
+        let tocken = try networkManager.getTocken(email: user.email)
         let parameters = [
             "region_id": String(id),
             "name_en": name,
             "is_active": isActive ? "1" : "0",
             "is_checked": isChecked ? "1" : "0",
             "user_id": String(user.id),
-            "session_key": sessionKey,
+            "session_key": tocken,
         ]
         let body = try JSONSerialization.data(withJSONObject: parameters)
         let headers = ["Content-Type": "application/json"]
@@ -98,12 +94,10 @@ extension EditRegionNetworkManager: EditRegionNetworkManagerProtocol {
     }
     
     func updateRegionPhoto(regionId: Int, uiImage: UIImage, user: AppUser) async throws -> String {
-        guard let sessionKey = user.sessionKey else {
-            throw NetworkErrors.noSessionKey
-        }
+        let tocken = try networkManager.getTocken(email: user.email)
         let boundary = UUID().uuidString
         let headers = ["Content-Type": "multipart/form-data; boundary=\(boundary)"]
-        let body = try await createBodyImageUpdating(image: uiImage, regionId: regionId, userID: user.id, sessionKey: sessionKey, boundary: boundary)
+        let body = try await createBodyImageUpdating(image: uiImage, regionId: regionId, userID: user.id, tocken: tocken, boundary: boundary)
         let request = try await networkManager.request(endpoint: EditRegionEndPoint.updatePhoto, method: .post, headers: headers, body: body)
         let decodedResult = try await networkManager.fetch(type: ImageResult.self, with: request)
         guard decodedResult.result, let url = decodedResult.url else {
@@ -117,7 +111,7 @@ extension EditRegionNetworkManager: EditRegionNetworkManagerProtocol {
 
 extension EditRegionNetworkManager {
     
-    private func createBodyImageUpdating(image: UIImage, regionId: Int, userID: Int, sessionKey: String, boundary: String) async throws -> Data {
+    private func createBodyImageUpdating(image: UIImage, regionId: Int, userID: Int, tocken: String, boundary: String) async throws -> Data {
         var body = Data()
         guard let imageData = image.jpegData(compressionQuality: 0.8) else {
             throw NetworkErrors.imageDataError
@@ -135,7 +129,7 @@ extension EditRegionNetworkManager {
         // sessyinKey
         body.append("--\(boundary)\r\n".data(using: .utf8)!)
         body.append("Content-Disposition: form-data; name=\"session_key\"\r\n\r\n".data(using: .utf8)!)
-        body.append("\(sessionKey)".data(using: .utf8)!)
+        body.append("\(tocken)".data(using: .utf8)!)
         body.append("\r\n".data(using: .utf8)!)
         //image
         body.append("--\(boundary)\r\n".data(using: .utf8)!)
