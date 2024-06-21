@@ -233,14 +233,14 @@ struct NewEventView: View {
     }
 }
 
-#Preview {
-    let decodetUser = DecodedAppUser(id: 0, name: "Test", email: "test@test.com", status: .admin, sessionKey: "000", bio: nil, photo: nil)
-    let user = AppUser(decodedUser: decodetUser)
-    let errorManager = ErrorManager()
-    let appSettingsManager = AppSettingsManager()
-    let networkMonitorManager = NetworkMonitorManager(errorManager: errorManager)
-    let networkManager = EditEventNetworkManager(networkMonitorManager: networkMonitorManager)
-    let auth = AuthenticationManager(keychainManager: KeychainManager(), networkMonitorManager: networkMonitorManager, networkManager: AuthNetworkManager(networkMonitorManager: networkMonitorManager, appSettingsManager: appSettingsManager), errorManager: errorManager)
-    return NewEventView(viewModel: NewEventViewModel(user: user, place: nil, copy: nil, networkManager: networkManager, errorManager: errorManager))
-        .environmentObject(auth)
-}
+//#Preview {
+//    let decodetUser = DecodedAppUser(id: 0, name: "Test", email: "test@test.com", status: .admin, sessionKey: "000", bio: nil, photo: nil)
+//    let user = AppUser(decodedUser: decodetUser)
+//    let errorManager = ErrorManager()
+//    let appSettingsManager = AppSettingsManager()
+//    let networkMonitorManager = NetworkMonitorManager(errorManager: errorManager)
+//    let networkManager = EditEventNetworkManager(networkMonitorManager: networkMonitorManager)
+//    let auth = AuthenticationManager(keychainManager: KeychainManager(), networkMonitorManager: networkMonitorManager, networkManager: AuthNetworkManager(networkMonitorManager: networkMonitorManager, appSettingsManager: appSettingsManager), errorManager: errorManager)
+//    return NewEventView(viewModel: NewEventViewModel(user: user, place: nil, copy: nil, networkManager: networkManager, errorManager: errorManager))
+//        .environmentObject(auth)
+//}

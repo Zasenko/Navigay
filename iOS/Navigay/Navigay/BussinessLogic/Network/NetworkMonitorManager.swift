@@ -5,7 +5,7 @@
 //  Created by Dmitry Zasenko on 21.02.24.
 //
 
-import SwiftUI
+import Foundation
 import Network
 
 protocol NetworkMonitorManagerProtocol {

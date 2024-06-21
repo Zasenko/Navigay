@@ -80,10 +80,10 @@ struct PlaceView: View {
                         if let user = authenticationManager.appUser, (user.status == .admin || user.status == .moderator) {
                             Menu {
                                 NavigationLink("Edit Place") {
-                                    EditPlaceView(viewModel: EditPlaceViewModel(id: viewModel.place.id, place: viewModel.place, user: user, networkManager: EditPlaceNetworkManager(networkMonitorManager: authenticationManager.networkMonitorManager), errorManager: viewModel.errorManager))
+                                    EditPlaceView(viewModel: EditPlaceViewModel(id: viewModel.place.id, place: viewModel.place, user: user, networkManager: EditPlaceNetworkManager(networkManager: authenticationManager.networkManager), errorManager: viewModel.errorManager))
                                 }
                                 NavigationLink("Add Event") {
-                                    NewEventView(viewModel: NewEventViewModel(user: user, place: viewModel.place, copy: nil, networkManager: EditEventNetworkManager(networkMonitorManager: authenticationManager.networkMonitorManager), errorManager: viewModel.errorManager))
+                                    NewEventView(viewModel: NewEventViewModel(user: user, place: viewModel.place, copy: nil, networkManager: EditEventNetworkManager(networkManager: authenticationManager.networkManager), errorManager: viewModel.errorManager))
                                 }
                             } label: {
                                 AppImages.iconSettings

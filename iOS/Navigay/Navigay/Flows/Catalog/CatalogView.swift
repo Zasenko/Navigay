@@ -78,16 +78,15 @@ struct CatalogView: View {
                         .font(.title2)
                         .frame(maxWidth: .infinity, alignment: .leading)
                     HStack {
-                        if country.eventsCount ?? 0 > 0 {
-                            Text(String(country.eventsCount ?? 0))
-                            + Text(country.eventsCount ?? 0 > 1 ? " events" : " event")
+                        if country.eventsCount > 0 {
+                            Text(String(country.eventsCount))
+                            + Text(country.eventsCount > 1 ? " events" : " event")
                         }
-                        if ((country.eventsCount ?? 0 > 0) && (country.placesCount ?? 0 > 0)) {
+                        if ((country.eventsCount > 0) && (country.placesCount > 0)) {
                             Text("•")
                         }
-                        if country.placesCount ?? 0 > 0 {
-                            Text(String(country.placesCount ?? 0))
-                            + Text(country.placesCount ?? 0 > 1 ? " places" : " place")
+                        if country.placesCount > 0 {
+                            Text(String(country.placesCount)) + Text(country.placesCount > 1 ? " places" : " place")
                         }
                     }
                     .font(.footnote)

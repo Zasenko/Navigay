@@ -62,7 +62,7 @@ struct AdminCitiesView: View {
             List {
                 ForEach(viewModel.cities) { city in
                     NavigationLink {
-                        EditCityView(viewModel: EditCityViewModel(id: city.id, city: nil, user: viewModel.user, errorManager: viewModel.errorManager, networkManager: EditCityNetworkManager(networkMonitorManager: authenticationManager.networkMonitorManager)))
+                        EditCityView(viewModel: EditCityViewModel(id: city.id, city: nil, user: viewModel.user, errorManager: viewModel.errorManager, networkManager: EditCityNetworkManager(networkManager: authenticationManager.networkManager)))
                     } label: {
                         HStack {
                             VStack(alignment: .leading, spacing: 10) {

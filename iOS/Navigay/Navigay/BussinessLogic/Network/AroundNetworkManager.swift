@@ -5,15 +5,15 @@
 //  Created by Dmitry Zasenko on 16.11.23.
 //
 
-import SwiftUI
+import Foundation
 import CoreLocation
 
-enum AroundNetworkEndPoints {
+enum AroundEndPoints {
   //  case fetchLocations(location: CLLocation)
     case fetchAround(location: CLLocation)
 }
 
-extension AroundNetworkEndPoints: EndPoint {
+extension AroundEndPoints: EndPoint {
     
     func urlComponents() -> URLComponents {
         var components = URLComponents()
@@ -74,7 +74,7 @@ extension AroundNetworkManager: AroundNetworkManagerProtocol {
     func fetchAround(location: CLLocation) async throws -> AroundItemsResult {
         debugPrint("--- fetchLocations around()")
         
-        let request = try await networkManager.request(endpoint: AroundNetworkEndPoints.fetchAround(location: location), method: .get, headers: nil, body: nil)
+        let request = try await networkManager.request(endpoint: AroundEndPoints.fetchAround(location: location), method: .get, headers: nil, body: nil)
         let decodedResult = try await networkManager.fetch(type: AroundResultNew.self, with: request)
         guard decodedResult.result, let decodedItems = decodedResult.items else {
             throw NetworkErrors.apiError(decodedResult.error)

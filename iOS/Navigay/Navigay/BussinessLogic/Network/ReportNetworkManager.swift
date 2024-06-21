@@ -7,57 +7,62 @@
 
 import Foundation
 
+enum ReportEndPoints {
+    case sendReport
+}
+
 protocol ReportNetworkManagerProtocol {
     func sendReport(_ report: Report) async throws
 }
 
 final class ReportNetworkManager {
     
-    private let scheme = "https"
-    private let host = "www.navigay.me"
-    private let networkMonitorManager: NetworkMonitorManagerProtocol
+    // MARK: - Private Properties
+    
+    private let networkManager: NetworkManagerProtocol
     
     // MARK: - Inits
     
-    init(networkMonitorManager: NetworkMonitorManagerProtocol) {
-        self.networkMonitorManager = networkMonitorManager
+    init(networkManager: NetworkManagerProtocol) {
+        self.networkManager = networkManager
     }
 }
 
 extension ReportNetworkManager: ReportNetworkManagerProtocol {
     
     func sendReport(_ report: Report) async throws {
-        guard networkMonitorManager.isConnected else {
-            throw NetworkErrors.noConnection
-        }
-        let path = "/api/report/add-report.php"
-        var urlComponents: URLComponents {
-            var components = URLComponents()
-            components.scheme = scheme
-            components.host = host
-            components.path = path
-            return components
-        }
-        
-        guard let url = urlComponents.url else {
-            throw NetworkErrors.badUrl
-        }
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        let jsonData = try JSONEncoder().encode(report)
-        request.httpBody = jsonData
-        
-        let (data, response) = try await URLSession.shared.data(for: request)
-        guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
-            throw NetworkErrors.invalidData
-        }
-        guard let decodedResult = try? JSONDecoder().decode(ApiResult.self, from: data) else {
-            throw NetworkErrors.decoderError
-        }
+        let body = try JSONEncoder().encode(report)
+        let headers = ["Content-Type": "application/json"]
+        let request = try await networkManager.request(endpoint: ReportEndPoints.sendReport, method: .post, headers: headers, body: body)
+        let decodedResult = try await networkManager.fetch(type: ApiResult.self, with: request)
         guard decodedResult.result else {
             throw NetworkErrors.apiError(decodedResult.error)
         }
     }
 }
 
+extension ReportEndPoints: EndPoint {
+    
+    func urlComponents() -> URLComponents {
+        var components = URLComponents()
+        components.scheme = "https"
+        components.host = "www.navigay.me"
+        components.path = path()
+        components.queryItems = queryItems()
+        return components
+    }
+    
+    private func path() -> String {
+        switch self {
+        case .sendReport:
+            return "/api/report/add-report.php"
+        }
+    }
+    
+    private func queryItems() -> [URLQueryItem]? {
+        switch self {
+        default:
+            return nil
+        }
+    }
+}

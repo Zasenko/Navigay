@@ -119,21 +119,21 @@ struct WelcomeView: View {
     }
 }
 
-#Preview {
-    let errorManager: ErrorManagerProtocol = ErrorManager()
-    let appSettingsManager: AppSettingsManagerProtocol = AppSettingsManager()
-    let networkMonitorManager: NetworkMonitorManagerProtocol = NetworkMonitorManager(errorManager: errorManager)
-    
-    let keychainManager: KeychainManagerProtocol = KeychainManager()
-    
-    let authNetworkManager = AuthNetworkManager(networkMonitorManager: networkMonitorManager, appSettingsManager: appSettingsManager)
-    
-    let authenticationManager = AuthenticationManager(keychainManager: keychainManager, networkMonitorManager: networkMonitorManager, networkManager: authNetworkManager, errorManager: errorManager)
-   return WelcomeView(onFinish: {
-       print("on Finish")
-    })
-   .environmentObject(authenticationManager)
-}
+//#Preview {
+//    let errorManager: ErrorManagerProtocol = ErrorManager()
+//    let appSettingsManager: AppSettingsManagerProtocol = AppSettingsManager()
+//    let networkMonitorManager: NetworkMonitorManagerProtocol = NetworkMonitorManager(errorManager: errorManager)
+//    
+//    let keychainManager: KeychainManagerProtocol = KeychainManager()
+//    
+//    let authNetworkManager = AuthNetworkManager(networkMonitorManager: networkMonitorManager, appSettingsManager: appSettingsManager)
+//    
+//    let authenticationManager = AuthenticationManager(keychainManager: keychainManager, networkMonitorManager: networkMonitorManager, networkManager: authNetworkManager, errorManager: errorManager)
+//   return WelcomeView(onFinish: {
+//       print("on Finish")
+//    })
+//   .environmentObject(authenticationManager)
+//}
 
 /// Google button
 //            Button {

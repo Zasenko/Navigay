@@ -91,14 +91,6 @@ struct Test: View {
         }
         .ignoresSafeArea()
         .background(.black)
-        .task {
-            do {
-                let a = try await n.fetchAround(location: CLLocation(latitude: 48.259218725960174, longitude: 16.447639677728187))
-                print(a)
-            } catch {
-                print(error)
-            }
-        }
     }
 }
 

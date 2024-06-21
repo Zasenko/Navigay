@@ -26,6 +26,8 @@ struct EntryView: View {
     private let errorManager: ErrorManagerProtocol
     private let networkMonitor: NetworkMonitorManagerProtocol
     
+    private let networkManager: NetworkManagerProtocol
+    
     // MARK: - Init
     
     init() {
@@ -33,13 +35,13 @@ struct EntryView: View {
         let errorManager = ErrorManager()
         let keychainManager = KeychainManager()
         let networkMonitorManager = NetworkMonitorManager(errorManager: errorManager)
-        let authNetworkManager = AuthNetworkManager(networkMonitorManager: networkMonitorManager, appSettingsManager: appSettingsManager)
-        let authenticationManager = AuthenticationManager(keychainManager: keychainManager, networkMonitorManager: networkMonitorManager, networkManager: authNetworkManager, errorManager: errorManager)
-        
+        let networkManager = NetworkManager(session: URLSession(configuration: .default), networkMonitorManager: networkMonitorManager, appSettingsManager: appSettingsManager, keychainManager: keychainManager)
+        let authNetworkManager = AuthNetworkManager(networkManager: networkManager)
+        let authenticationManager = AuthenticationManager(keychainManager: keychainManager, networkMonitorManager: networkMonitorManager, networkManager: networkManager, authNetworkManager: authNetworkManager, errorManager: errorManager)
         self.networkMonitor = networkMonitorManager
         self.appSettingsManager = appSettingsManager
         self.errorManager = errorManager
-
+        self.networkManager = networkManager
         _authenticationManager = StateObject(wrappedValue: authenticationManager)
         _router = State(wrappedValue: EntryViewRouter.welcomeView)
     }
@@ -55,7 +57,7 @@ struct EntryView: View {
                     router = .tabView
                 }
             case .tabView:
-                TabBarView(appSettingsManager: appSettingsManager, errorManager: errorManager, networkMonitor: networkMonitor)
+                TabBarView(errorManager: errorManager, networkManager: networkManager)
             }
             ErrorView(viewModel: ErrorViewModel(errorManager: errorManager), moveFrom: .bottom, alignment: .bottom)
         }

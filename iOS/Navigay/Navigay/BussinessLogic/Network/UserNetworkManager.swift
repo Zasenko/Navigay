@@ -5,17 +5,16 @@
 //  Created by Dmitry Zasenko on 06.10.23.
 //
 
-import Foundation
 import SwiftUI
 
-enum UserNetworkEndPoints {
+enum UserEndPoints {
     case deletePhoto
     case updatePhoto
     case updateBio
     case updateName
 }
 
-extension UserNetworkEndPoints: EndPoint {
+extension UserEndPoints: EndPoint {
     
     func urlComponents() -> URLComponents {
         var components = URLComponents()
@@ -67,8 +66,6 @@ final class UserNetworkManager {
     }
 }
 
-// MARK: - AuthNetworkManagerProtocol
-
 extension UserNetworkManager: UserNetworkManagerProtocol {
     
     func deletePhoto(for user: AppUser) async throws {
@@ -81,7 +78,7 @@ extension UserNetworkManager: UserNetworkManagerProtocol {
         ]
         let body = try JSONSerialization.data(withJSONObject: parameters)
         let headers = ["Content-Type": "application/json"]
-        let request = try await networkManager.request(endpoint: UserNetworkEndPoints.deletePhoto, method: .post, headers: headers, body: body)
+        let request = try await networkManager.request(endpoint: UserEndPoints.deletePhoto, method: .post, headers: headers, body: body)
         let decodedResult = try await networkManager.fetch(type: ApiResult.self, with: request)
         guard decodedResult.result else {
             throw NetworkErrors.apiError(decodedResult.error)
@@ -99,7 +96,7 @@ extension UserNetworkManager: UserNetworkManagerProtocol {
         ]
         let body = try JSONSerialization.data(withJSONObject: parameters)
         let headers = ["Content-Type": "application/json"]
-        let request = try await networkManager.request(endpoint: UserNetworkEndPoints.updateName, method: .post, headers: headers, body: body)
+        let request = try await networkManager.request(endpoint: UserEndPoints.updateName, method: .post, headers: headers, body: body)
         let decodedResult = try await networkManager.fetch(type: ApiResult.self, with: request)
         guard decodedResult.result else {
             throw NetworkErrors.apiError(decodedResult.error)
@@ -117,7 +114,7 @@ extension UserNetworkManager: UserNetworkManagerProtocol {
         ]
         let body = try JSONSerialization.data(withJSONObject: parameters)
         let headers = ["Content-Type": "application/json"]
-        let request = try await networkManager.request(endpoint: UserNetworkEndPoints.updateBio, method: .post, headers: headers, body: body)
+        let request = try await networkManager.request(endpoint: UserEndPoints.updateBio, method: .post, headers: headers, body: body)
         let decodedResult = try await networkManager.fetch(type: ApiResult.self, with: request)
         guard decodedResult.result else {
             throw NetworkErrors.apiError(decodedResult.error)
@@ -128,11 +125,10 @@ extension UserNetworkManager: UserNetworkManagerProtocol {
         guard let sessionKey = user.sessionKey else {
             throw NetworkErrors.noSessionKey
         }
-
         let boundary = UUID().uuidString
         let headers = ["Content-Type": "multipart/form-data; boundary=\(boundary)"]
         let body = try await createBodyImageUpdating(userID: user.id, key: sessionKey, image: uiImage, boundary: boundary)
-        let request = try await networkManager.request(endpoint: UserNetworkEndPoints.updatePhoto, method: .post, headers: headers, body: body)
+        let request = try await networkManager.request(endpoint: UserEndPoints.updatePhoto, method: .post, headers: headers, body: body)
         let decodedResult = try await networkManager.fetch(type: ImageResult.self, with: request)
         guard decodedResult.result, let url = decodedResult.url else {
             throw NetworkErrors.apiError(decodedResult.error)

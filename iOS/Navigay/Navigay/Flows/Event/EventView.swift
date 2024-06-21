@@ -77,10 +77,10 @@ struct EventView: View {
             if let user = authenticationManager.appUser, user.status == .admin {
                 Menu {
                     NavigationLink("Edit Event") {
-                        EditEventView(viewModel: EditEventViewModel(eventID: viewModel.event.id, user: user, event: viewModel.event, networkManager: EditEventNetworkManager(networkMonitorManager: authenticationManager.networkMonitorManager), errorManager: viewModel.errorManager))
+                        EditEventView(viewModel: EditEventViewModel(eventID: viewModel.event.id, user: user, event: viewModel.event, networkManager: EditEventNetworkManager(networkManager: authenticationManager.networkManager), errorManager: viewModel.errorManager))
                     }
                     NavigationLink("Clone Event") {
-                        NewEventView(viewModel: NewEventViewModel(user: user, place: nil, copy: viewModel.event, networkManager: EditEventNetworkManager(networkMonitorManager: authenticationManager.networkMonitorManager), errorManager: viewModel.errorManager))
+                        NewEventView(viewModel: NewEventViewModel(user: user, place: nil, copy: viewModel.event, networkManager: EditEventNetworkManager(networkManager: authenticationManager.networkManager), errorManager: viewModel.errorManager))
                     }
                 } label: {
                     AppImages.iconSettings

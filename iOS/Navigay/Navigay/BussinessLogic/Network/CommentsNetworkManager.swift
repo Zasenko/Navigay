@@ -7,6 +7,41 @@
 
 import Foundation
 
+enum CommentsNetworkEndPoints {
+    case fetchComments(placeID: Int)
+    case addComment
+}
+
+extension CommentsNetworkEndPoints: EndPoint {
+    
+    func urlComponents() -> URLComponents {
+        var components = URLComponents()
+        components.scheme = "https"
+        components.host = "www.navigay.me"
+        components.path = path()
+        components.queryItems = queryItems()
+        return components
+    }
+    
+    private func path() -> String {
+        switch self {
+        case .fetchComments:
+            return "/api/place/get-comments.php"
+        case .addComment:
+            return "/api/place/add-comment.php"
+        }
+    }
+    
+    private func queryItems() -> [URLQueryItem]? {
+        switch self {
+        case .fetchComments(let placeID):
+            return [URLQueryItem(name: "place_id", value: "\(placeID)")]
+        default:
+            return nil
+        }
+    }
+}
+
 protocol CommentsNetworkManagerProtocol {
     func fetchComments(placeID: Int) async throws -> [DecodedComment]
     func addComment(comment: NewComment) async throws
@@ -14,97 +49,37 @@ protocol CommentsNetworkManagerProtocol {
 
 final class CommentsNetworkManager {
     
-    
     // MARK: - Private Properties
         
-    private let scheme = "https"
-    private let host = "www.navigay.me"
-    
-    private let networkMonitorManager: NetworkMonitorManagerProtocol
-    private let appSettingsManager: AppSettingsManagerProtocol
+    private let networkManager: NetworkManagerProtocol
     
     // MARK: - Inits
     
-    init(networkMonitorManager: NetworkMonitorManagerProtocol, appSettingsManager: AppSettingsManagerProtocol) {
-        self.networkMonitorManager = networkMonitorManager
-        self.appSettingsManager = appSettingsManager
+    init(networkManager: NetworkManagerProtocol) {
+        self.networkManager = networkManager
     }
 }
-
-// MARK: - AuthNetworkManagerProtocol
 
 extension CommentsNetworkManager: CommentsNetworkManagerProtocol {
     
     func addComment(comment: NewComment) async throws {
-        guard networkMonitorManager.isConnected else {
-            throw NetworkErrors.noConnection
-        }
-        let path = "/api/place/add-comment.php"
-        var urlComponents: URLComponents {
-            var components = URLComponents()
-            components.scheme = scheme
-            components.host = host
-            components.path = path
-            return components
-        }
-        guard let url = urlComponents.url else {
-            throw NetworkErrors.badUrl
-        }
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        let jsonData = try JSONEncoder().encode(comment)
-        request.httpBody = jsonData
-        
-        let (data, response) = try await URLSession.shared.data(for: request)
-        guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
-            throw NetworkErrors.invalidData
-        }
-        guard let decodedResult = try? JSONDecoder().decode(ApiResult.self, from: data) else {
-            throw NetworkErrors.decoderError
-        }
+        let body = try JSONEncoder().encode(comment)
+        let headers = ["Content-Type": "application/json"]
+        let request = try await networkManager.request(endpoint: CommentsNetworkEndPoints.addComment, method: .post, headers: headers, body: body)
+        let decodedResult = try await networkManager.fetch(type: ApiResult.self, with: request)
         guard decodedResult.result else {
             throw NetworkErrors.apiError(decodedResult.error)
         }
     }
     
     func fetchComments(placeID: Int) async throws -> [DecodedComment] {
-//        if loadedComments.keys.contains(where: { $0 == placeID } ),
-//           let result = loadedComments[placeID] {
-//            return result
-//        }
         debugPrint("--- fetchComments for Place id: ", placeID)
-        guard networkMonitorManager.isConnected else {
-            throw NetworkErrors.noConnection
-        }
-        let path = "/api/place/get-comments.php"
-        var urlComponents: URLComponents {
-            var components = URLComponents()
-            components.scheme = scheme
-            components.host = host
-            components.path = path
-            components.queryItems = [
-                URLQueryItem(name: "place_id", value: "\(placeID)"),
-            ]
-            return components
-        }
-        guard let url = urlComponents.url else {
-            throw NetworkErrors.badUrl
-        }
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
-        let (data, response) = try await URLSession.shared.data(for: request)
-        guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
-            throw NetworkErrors.invalidData
-        }
-        guard let decodedResult = try? JSONDecoder().decode(CommentsResult.self, from: data) else {
-            throw NetworkErrors.decoderError
-        }
+        let request = try await networkManager.request(endpoint: CommentsNetworkEndPoints.fetchComments(placeID: placeID), method: .get, headers: nil, body: nil)
+        
+        let decodedResult = try await networkManager.fetch(type: CommentsResult.self, with: request)
         guard decodedResult.result, let decodedComments = decodedResult.comments else {
             throw NetworkErrors.apiError(decodedResult.error)
         }
-       // loadedComments[placeID] = decodedComments
         return decodedComments
     }
-    
 }

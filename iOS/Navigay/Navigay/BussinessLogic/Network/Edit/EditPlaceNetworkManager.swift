@@ -7,6 +7,64 @@
 
 import SwiftUI
 
+enum EditPlaceEndPoints {
+    case fetchPlace
+    case addNewPlace
+    case updateAbout
+    case updateTitleAndType
+    case updateAdditionalInformation
+    case updateTimetable
+    case updateActivity
+    case updateAvatar //TODO
+    case deleteAvatar //TODO
+    case updateMainPhoto
+    case deleteMainPhoto
+    case updateLibraryPhoto
+    case deleteLibraryPhoto
+}
+
+extension EditPlaceEndPoints: EndPoint {
+    
+    func urlComponents() -> URLComponents {
+        var components = URLComponents()
+        components.scheme = "https"
+        components.host = "www.navigay.me"
+        components.path = path()
+        return components
+    }
+    
+    private func path() -> String {
+        switch self {
+        case .fetchPlace:
+            return "/api/admin/get-place.php"
+        case .addNewPlace:
+            return "/api/place/add-new-place.php"
+        case .updateAbout:
+            return "/api/place/update-about.php"
+        case .updateTitleAndType:
+            return "/api/place/update-title-and-type.php"
+        case .updateAdditionalInformation:
+            return "/api/place/update-additional-information.php"
+        case .updateTimetable:
+            return "/api/place/update-timetable.php"
+        case .updateActivity:
+            return "/api/place/update-activity.php"
+        case .updateAvatar:
+            return "/api/place/update-avatar.php"
+        case .deleteAvatar:
+            return ""
+        case .updateMainPhoto:
+            return "/api/place/update-main-photo.php"
+        case .deleteMainPhoto:
+            return ""
+        case .updateLibraryPhoto:
+            return "/api/place/update-library-photo.php"
+        case .deleteLibraryPhoto:
+            return "/api/place/delete-library-photo.php"
+        }
+    }
+}
+
 protocol EditPlaceNetworkManagerProtocol {
     func fetchPlace(id: Int, for user: AppUser) async throws -> AdminPlace
     func addNewPlace(place: NewPlace) async throws -> Int
@@ -28,39 +86,20 @@ final class EditPlaceNetworkManager {
         
     // MARK: - Private Properties
     
-    private let scheme = "https"
-    private let host = "www.navigay.me"
-    
-    private let networkMonitorManager: NetworkMonitorManagerProtocol
+    private let networkManager: NetworkManagerProtocol
     
     // MARK: - Inits
     
-    init(networkMonitorManager: NetworkMonitorManagerProtocol) {
-        self.networkMonitorManager = networkMonitorManager
+    init(networkManager: NetworkManagerProtocol) {
+        self.networkManager = networkManager
     }
 }
-
-// MARK: - EditPlaceNetworkManagerProtocol
 
 extension EditPlaceNetworkManager: EditPlaceNetworkManagerProtocol {
     
     func updateActivity(placeId: Int, isActive: Bool, isChecked: Bool, adminNotes: String?, user: AppUser) async throws {
-        guard networkMonitorManager.isConnected else {
-            throw NetworkErrors.noConnection
-        }
         guard let sessionKey = user.sessionKey else {
             throw NetworkErrors.noSessionKey
-        }
-        let path = "/api/place/update-activity.php"
-        var urlComponents: URLComponents {
-            var components = URLComponents()
-            components.scheme = scheme
-            components.host = host
-            components.path = path
-            return components
-        }
-        guard let url = urlComponents.url else {
-            throw NetworkErrors.badUrl
         }
         let parameters = [
             "place_id": String(placeId),
@@ -70,37 +109,18 @@ extension EditPlaceNetworkManager: EditPlaceNetworkManagerProtocol {
             "user_id": String(user.id),
             "session_key": sessionKey,
         ]
-        let requestData = try JSONSerialization.data(withJSONObject: parameters)
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = requestData
-        let (data, response) = try await URLSession.shared.data(for: request)
-        guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
-            throw NetworkErrors.invalidData
-        }
-        guard let decodedResult = try? JSONDecoder().decode(ApiResult.self, from: data) else {
-            throw NetworkErrors.decoderError
-        }
+        let body = try JSONSerialization.data(withJSONObject: parameters)
+        let headers = ["Content-Type": "application/json"]
+        let request = try await networkManager.request(endpoint: EditPlaceEndPoints.updateActivity, method: .post, headers: headers, body: body)
+        let decodedResult = try await networkManager.fetch(type: ApiResult.self, with: request)
         guard decodedResult.result else {
             throw NetworkErrors.apiError(decodedResult.error)
         }
     }
     
     func updateTimetable(placeId: Int, timetable: [PlaceWorkDay]?, for user: AppUser) async throws {
-        guard networkMonitorManager.isConnected else {
-            throw NetworkErrors.noConnection
-        }
         guard let sessionKey = user.sessionKey else {
             throw NetworkErrors.noSessionKey
-        }
-        let path = "/api/place/update-timetable.php"
-        var urlComponents = URLComponents()
-        urlComponents.scheme = scheme
-        urlComponents.host = host
-        urlComponents.path = path
-        guard let url = urlComponents.url else {
-            throw NetworkErrors.badUrl
         }
         var parameters = [
             "place_id": String(placeId),
@@ -116,37 +136,18 @@ extension EditPlaceNetworkManager: EditPlaceNetworkManagerProtocol {
             }
             parameters["timetable"] = timetableJSONString
         }
-        let requestData = try JSONSerialization.data(withJSONObject: parameters)
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = requestData
-        let (data, response) = try await URLSession.shared.data(for: request)
-        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-            throw NetworkErrors.invalidData
-        }
-        guard let decodedResult = try? JSONDecoder().decode(ApiResult.self, from: data) else {
-            throw NetworkErrors.decoderError
-        }
+        let body = try JSONSerialization.data(withJSONObject: parameters)
+        let headers = ["Content-Type": "application/json"]
+        let request = try await networkManager.request(endpoint: EditPlaceEndPoints.updateTimetable, method: .post, headers: headers, body: body)
+        let decodedResult = try await networkManager.fetch(type: ApiResult.self, with: request)
         guard decodedResult.result else {
             throw NetworkErrors.apiError(decodedResult.error)
         }
     }
     
     func updateAdditionalInformation(placeId: Int, email: String?, phone: String?, www: String?, facebook: String?, instagram: String?, otherInfo: String?, tags: [Tag]?, for user: AppUser) async throws {
-        guard networkMonitorManager.isConnected else {
-            throw NetworkErrors.noConnection
-        }
         guard let sessionKey = user.sessionKey else {
             throw NetworkErrors.noSessionKey
-        }
-        let path = "/api/place/update-additional-information.php"
-        var urlComponents = URLComponents()
-        urlComponents.scheme = scheme
-        urlComponents.host = host
-        urlComponents.path = path
-        guard let url = urlComponents.url else {
-            throw NetworkErrors.badUrl
         }
         var parameters = [
             "place_id": String(placeId),
@@ -167,40 +168,18 @@ extension EditPlaceNetworkManager: EditPlaceNetworkManagerProtocol {
             }
             parameters["tags"] = tagsString
         }
-        let requestData = try JSONSerialization.data(withJSONObject: parameters)
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = requestData
-        let (data, response) = try await URLSession.shared.data(for: request)
-        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-            throw NetworkErrors.invalidData
-        }
-        guard let decodedResult = try? JSONDecoder().decode(ApiResult.self, from: data) else {
-            throw NetworkErrors.decoderError
-        }
+        let body = try JSONSerialization.data(withJSONObject: parameters)
+        let headers = ["Content-Type": "application/json"]
+        let request = try await networkManager.request(endpoint: EditPlaceEndPoints.updateAdditionalInformation, method: .post, headers: headers, body: body)
+        let decodedResult = try await networkManager.fetch(type: ApiResult.self, with: request)
         guard decodedResult.result else {
             throw NetworkErrors.apiError(decodedResult.error)
         }
     }
     
     func updateAbout(id: Int, about: String?, for user: AppUser) async throws {
-        guard networkMonitorManager.isConnected else {
-            throw NetworkErrors.noConnection
-        }
         guard let sessionKey = user.sessionKey else {
             throw NetworkErrors.noSessionKey
-        }
-        let path = "/api/place/update-about.php"
-        var urlComponents: URLComponents {
-            var components = URLComponents()
-            components.scheme = scheme
-            components.host = host
-            components.path = path
-            return components
-        }
-        guard let url = urlComponents.url else {
-            throw NetworkErrors.badUrl
         }
         let parameters = [
             "place_id": String(id),
@@ -208,40 +187,18 @@ extension EditPlaceNetworkManager: EditPlaceNetworkManagerProtocol {
             "user_id": String(user.id),
             "session_key": sessionKey,
         ]
-        let requestData = try JSONSerialization.data(withJSONObject: parameters)
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = requestData
-        let (data, response) = try await URLSession.shared.data(for: request)
-        guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
-            throw NetworkErrors.invalidData
-        }
-        guard let decodedResult = try? JSONDecoder().decode(ApiResult.self, from: data) else {
-            throw NetworkErrors.decoderError
-        }
+        let body = try JSONSerialization.data(withJSONObject: parameters)
+        let headers = ["Content-Type": "application/json"]
+        let request = try await networkManager.request(endpoint: EditPlaceEndPoints.updateAbout, method: .post, headers: headers, body: body)
+        let decodedResult = try await networkManager.fetch(type: ApiResult.self, with: request)
         guard decodedResult.result else {
             throw NetworkErrors.apiError(decodedResult.error)
         }
     }
     
     func updateTitleAndType(id: Int, name: String, type: PlaceType, for user: AppUser) async throws {
-        guard networkMonitorManager.isConnected else {
-            throw NetworkErrors.noConnection
-        }
         guard let sessionKey = user.sessionKey else {
             throw NetworkErrors.noSessionKey
-        }
-        let path = "/api/place/update-title-and-type.php"
-        var urlComponents: URLComponents {
-            var components = URLComponents()
-            components.scheme = scheme
-            components.host = host
-            components.path = path
-            return components
-        }
-        guard let url = urlComponents.url else {
-            throw NetworkErrors.badUrl
         }
         let parameters = [
             "place_id": String(id),
@@ -250,67 +207,34 @@ extension EditPlaceNetworkManager: EditPlaceNetworkManagerProtocol {
             "user_id": String(user.id),
             "session_key": sessionKey,
         ]
-        let requestData = try JSONSerialization.data(withJSONObject: parameters)
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = requestData
-        let (data, response) = try await URLSession.shared.data(for: request)
-        guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
-            throw NetworkErrors.invalidData
-        }
-        guard let decodedResult = try? JSONDecoder().decode(ApiResult.self, from: data) else {
-            throw NetworkErrors.decoderError
-        }
+        let body = try JSONSerialization.data(withJSONObject: parameters)
+        let headers = ["Content-Type": "application/json"]
+        let request = try await networkManager.request(endpoint: EditPlaceEndPoints.updateTitleAndType, method: .post, headers: headers, body: body)
+        let decodedResult = try await networkManager.fetch(type: ApiResult.self, with: request)
         guard decodedResult.result else {
             throw NetworkErrors.apiError(decodedResult.error)
         }
     }
     
     func deleteAvatar(placeId: Int, from user: AppUser) async throws {
-        
     }
     
     func deleteMainPhoto(placeId: Int, from user: AppUser) async throws {
-        
     }
     
-    
     func fetchPlace(id: Int, for user: AppUser) async throws -> AdminPlace {
-        guard networkMonitorManager.isConnected else {
-            throw NetworkErrors.noConnection
-        }
         guard let sessionKey = user.sessionKey else {
             throw NetworkErrors.noSessionKey
-        }
-        let path = "/api/admin/get-place.php"
-        var urlComponents: URLComponents {
-            var components = URLComponents()
-            components.scheme = scheme
-            components.host = host
-            components.path = path
-            return components
-        }
-        guard let url = urlComponents.url else {
-            throw NetworkErrors.badUrl
         }
         let parameters = [
             "place_id": String(id),
             "user_id": String(user.id),
             "session_key": sessionKey,
         ]
-        let requestData = try JSONSerialization.data(withJSONObject: parameters)
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = requestData
-        let (data, response) = try await URLSession.shared.data(for: request)
-        guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
-            throw NetworkErrors.invalidData
-        }
-        guard let decodedResult = try? JSONDecoder().decode(AdminPlaceResult.self, from: data) else {
-            throw NetworkErrors.decoderError
-        }
+        let body = try JSONSerialization.data(withJSONObject: parameters)
+        let headers = ["Content-Type": "application/json"]
+        let request = try await networkManager.request(endpoint: EditPlaceEndPoints.fetchPlace, method: .post, headers: headers, body: body)
+        let decodedResult = try await networkManager.fetch(type: AdminPlaceResult.self, with: request)
         guard decodedResult.result, let decodedPlace = decodedResult.place else {
             throw NetworkErrors.apiError(decodedResult.error)
         }
@@ -318,32 +242,10 @@ extension EditPlaceNetworkManager: EditPlaceNetworkManagerProtocol {
     }
     
     func addNewPlace(place: NewPlace) async throws -> Int {
-        guard networkMonitorManager.isConnected else {
-            throw NetworkErrors.noConnection
-        }
-        let path = "/api/place/add-new-place.php"
-        var urlComponents: URLComponents {
-            var components = URLComponents()
-            components.scheme = scheme
-            components.host = host
-            components.path = path
-            return components
-        }
-        guard let url = urlComponents.url else {
-            throw NetworkErrors.badUrl
-        }
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        let jsonData = try JSONEncoder().encode(place)
-        request.httpBody = jsonData
-        let (data, response) = try await URLSession.shared.data(for: request)
-        guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
-            throw NetworkErrors.invalidData
-        }
-        guard let decodedResult = try? JSONDecoder().decode(NewPlaceResult.self, from: data) else {
-            throw NetworkErrors.decoderError
-        }
+        let body = try JSONEncoder().encode(place)
+        let headers = ["Content-Type": "application/json"]
+        let request = try await networkManager.request(endpoint: EditPlaceEndPoints.addNewPlace, method: .post, headers: headers, body: body)
+        let decodedResult = try await networkManager.fetch(type: NewPlaceResult.self, with: request)
         guard decodedResult.result, let placeId = decodedResult.placeId else {
             throw NetworkErrors.apiError(decodedResult.error)
         }
@@ -351,35 +253,14 @@ extension EditPlaceNetworkManager: EditPlaceNetworkManagerProtocol {
     }
     
     func updateMainPhoto(placeId: Int, uiImage: UIImage, from user: AppUser) async throws -> String {
-        guard networkMonitorManager.isConnected else {
-            throw NetworkErrors.noConnection
-        }
         guard let sessionKey = user.sessionKey else {
             throw NetworkErrors.noSessionKey
         }
-        let path = "/api/place/update-main-photo.php"
-        var urlComponents: URLComponents {
-            var components = URLComponents()
-            components.scheme = scheme
-            components.host = host
-            components.path = path
-            return components
-        }
-        guard let url = urlComponents.url else {
-            throw NetworkErrors.badUrl
-        }
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
         let boundary = UUID().uuidString
-        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
-        request.httpBody = try await createBodyImageUpdating(image: uiImage, placeId: placeId, userID: user.id, sessionKey: sessionKey, boundary: boundary)
-        let (data, response) = try await URLSession.shared.data(for: request)
-        guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
-            throw NetworkErrors.invalidData
-        }
-        guard let decodedResult = try? JSONDecoder().decode(ImageResult.self, from: data) else {
-            throw NetworkErrors.decoderError
-        }
+        let headers = ["Content-Type": "multipart/form-data; boundary=\(boundary)"]
+        let body = try await createBodyImageUpdating(image: uiImage, placeId: placeId, userID: user.id, sessionKey: sessionKey, boundary: boundary)
+        let request = try await networkManager.request(endpoint: EditPlaceEndPoints.updateMainPhoto, method: .post, headers: headers, body: body)
+        let decodedResult = try await networkManager.fetch(type: ImageResult.self, with: request)
         guard decodedResult.result, let url = decodedResult.url else {
             throw NetworkErrors.apiError(decodedResult.error)
         }
@@ -387,35 +268,14 @@ extension EditPlaceNetworkManager: EditPlaceNetworkManagerProtocol {
     }
     
     func updateAvatar(placeId: Int, uiImage: UIImage, from user: AppUser) async throws -> String {
-        guard networkMonitorManager.isConnected else {
-            throw NetworkErrors.noConnection
-        }
         guard let sessionKey = user.sessionKey else {
             throw NetworkErrors.noSessionKey
         }
-        let path = "/api/place/update-avatar.php"
-        var urlComponents: URLComponents {
-            var components = URLComponents()
-            components.scheme = scheme
-            components.host = host
-            components.path = path
-            return components
-        }
-        guard let url = urlComponents.url else {
-            throw NetworkErrors.badUrl
-        }
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
         let boundary = UUID().uuidString
-        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
-        request.httpBody = try await createBodyImageUpdating(image: uiImage, placeId: placeId, userID: user.id, sessionKey: sessionKey, boundary: boundary)
-        let (data, response) = try await URLSession.shared.data(for: request)
-        guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
-            throw NetworkErrors.invalidData
-        }
-        guard let decodedResult = try? JSONDecoder().decode(ImageResult.self, from: data) else {
-            throw NetworkErrors.decoderError
-        }
+        let headers = ["Content-Type": "multipart/form-data; boundary=\(boundary)"]
+        let body = try await createBodyImageUpdating(image: uiImage, placeId: placeId, userID: user.id, sessionKey: sessionKey, boundary: boundary)
+        let request = try await networkManager.request(endpoint: EditPlaceEndPoints.updateAvatar, method: .post, headers: headers, body: body)
+        let decodedResult = try await networkManager.fetch(type: ImageResult.self, with: request)
         guard decodedResult.result, let url = decodedResult.url else {
             throw NetworkErrors.apiError(decodedResult.error)
         }
@@ -423,35 +283,14 @@ extension EditPlaceNetworkManager: EditPlaceNetworkManagerProtocol {
     }
 
     func updateLibraryPhoto(placeId: Int, photoId: String, uiImage: UIImage, from user: AppUser) async throws -> String {
-        guard networkMonitorManager.isConnected else {
-            throw NetworkErrors.noConnection
-        }
         guard let sessionKey = user.sessionKey else {
             throw NetworkErrors.noSessionKey
         }
-        let path = "/api/place/update-library-photo.php"
-        var urlComponents: URLComponents {
-            var components = URLComponents()
-            components.scheme = scheme
-            components.host = host
-            components.path = path
-            return components
-        }
-        guard let url = urlComponents.url else {
-            throw NetworkErrors.badUrl
-        }
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
         let boundary = UUID().uuidString
-        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
-        request.httpBody = try await createBodyLibraryImageUpdating(image: uiImage, placeId: placeId, photoId: photoId, userID: user.id, sessionKey: sessionKey, boundary: boundary)
-        let (data, response) = try await URLSession.shared.data(for: request)
-        guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
-            throw NetworkErrors.invalidData
-        }
-        guard let decodedResult = try? JSONDecoder().decode(ImageResult.self, from: data) else {
-            throw NetworkErrors.decoderError
-        }
+        let headers = ["Content-Type": "multipart/form-data; boundary=\(boundary)"]
+        let body = try await createBodyLibraryImageUpdating(image: uiImage, placeId: placeId, photoId: photoId, userID: user.id, sessionKey: sessionKey, boundary: boundary)
+        let request = try await networkManager.request(endpoint: EditPlaceEndPoints.updateLibraryPhoto, method: .post, headers: headers, body: body)
+        let decodedResult = try await networkManager.fetch(type: ImageResult.self, with: request)
         guard decodedResult.result, let url = decodedResult.url else {
             throw NetworkErrors.apiError(decodedResult.error)
         }
@@ -459,22 +298,8 @@ extension EditPlaceNetworkManager: EditPlaceNetworkManagerProtocol {
     }
     
     func deleteLibraryPhoto(placeId: Int, photoId: String, from user: AppUser) async throws {
-        guard networkMonitorManager.isConnected else {
-            throw NetworkErrors.noConnection
-        }
         guard let sessionKey = user.sessionKey else {
             throw NetworkErrors.noSessionKey
-        }
-        let path = "/api/place/delete-library-photo.php"
-        var urlComponents: URLComponents {
-            var components = URLComponents()
-            components.scheme = scheme
-            components.host = host
-            components.path = path
-            return components
-        }
-        guard let url = urlComponents.url else {
-            throw NetworkErrors.badUrl
         }
         let parameters: [String: Any] = [
             "place_id": placeId,
@@ -482,19 +307,10 @@ extension EditPlaceNetworkManager: EditPlaceNetworkManagerProtocol {
             "user_id": String(user.id),
             "session_key": sessionKey,
         ]
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        
-        let requestData = try JSONSerialization.data(withJSONObject: parameters)
-        request.httpBody = requestData
-        let (data, response) = try await URLSession.shared.data(for: request)
-        guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
-            throw NetworkErrors.invalidData
-        }
-        guard let decodedResult = try? JSONDecoder().decode(ApiResult.self, from: data) else {
-            throw NetworkErrors.decoderError
-        }
+        let body = try JSONSerialization.data(withJSONObject: parameters)
+        let headers = ["Content-Type": "application/json"]
+        let request = try await networkManager.request(endpoint: EditPlaceEndPoints.deleteLibraryPhoto, method: .post, headers: headers, body: body)
+        let decodedResult = try await networkManager.fetch(type: ApiResult.self, with: request)
         guard decodedResult.result else {
             throw NetworkErrors.apiError(decodedResult.error)
         }

@@ -169,7 +169,7 @@ struct CommentsView: View {
                 
                 Menu {
                     NavigationLink("Report") {
-                        ReportView(viewModel: ReportViewModel(item: .comment, itemId: comment.id, reasons: [.inappropriateContent, .misleadingInformation, .spam, .other], user: authenticationManager.appUser, networkManager: ReportNetworkManager(networkMonitorManager: authenticationManager.networkMonitorManager), errorManager: viewModel.errorManager)) {
+                        ReportView(viewModel: ReportViewModel(item: .comment, itemId: comment.id, reasons: [.inappropriateContent, .misleadingInformation, .spam, .other], user: authenticationManager.appUser, networkManager: ReportNetworkManager(networkManager: authenticationManager.networkManager), errorManager: viewModel.errorManager)) {
                             viewModel.deleteComment(id: comment.id)
                         }
                     }

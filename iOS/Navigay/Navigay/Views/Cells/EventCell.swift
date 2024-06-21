@@ -231,31 +231,31 @@ struct EventCell: View {
     }
 }
 
-#Preview {
-    let errorManager = ErrorManager()
-    let appSettingsManager = AppSettingsManager()
-    let  networkMonitorManager = NetworkMonitorManager(errorManager: errorManager)
-  //  let eventNetworkManager = EventNetworkManager(networkMonitorManager: networkMonitorManager, appSettingsManager: appSettingsManager)
-    let decodedEvent = DecodedEvent(id: 0,
-                                    name: "HARD ON party",
-                                    type: .party,
-                                    startDate: "2024-04-23",
-                                    startTime: "13:34:00",
-                                    finishDate: "2024-04-25",
-                                    finishTime: "19:20:00",
-                                    address: "",
-                                    latitude: 16.25566,
-                                    longitude: 48.655885,
-                                    poster: nil,// "https://www.navigay.me/images/events/AT/12/1700152341132_227.jpg",
-                                    smallPoster: "https://www.navigay.me/images/events/AT/12/1700152341132_684.jpg",
-                                    isFree: true,
-                                    tags: nil, 
-                                    location: "Cafe Savoy",
-                                    lastUpdate: "2023-11-16 17:26:12",
-                                    about: nil, fee: nil, tickets: nil, www: nil, facebook: nil, instagram: nil, phone: nil, place: nil, owner: nil, city: nil, cityId: nil)
-    let event = Event(decodedEvent: decodedEvent)
-    event.isLiked = true
-   // event.smallPosterImg = Image("13")
-    return EventCell(event: event, showCountryCity: false, showStartDayInfo: true, showStartTimeInfo: true, showLike: true, showLocation: true)
-}
+//#Preview {
+//    let errorManager = ErrorManager()
+//    let appSettingsManager = AppSettingsManager()
+//    let  networkMonitorManager = NetworkMonitorManager(errorManager: errorManager)
+//  //  let eventNetworkManager = EventNetworkManager(networkMonitorManager: networkMonitorManager, appSettingsManager: appSettingsManager)
+//    let decodedEvent = DecodedEvent(id: 0,
+//                                    name: "HARD ON party",
+//                                    type: .party,
+//                                    startDate: "2024-04-23",
+//                                    startTime: "13:34:00",
+//                                    finishDate: "2024-04-25",
+//                                    finishTime: "19:20:00",
+//                                    address: "",
+//                                    latitude: 16.25566,
+//                                    longitude: 48.655885,
+//                                    poster: nil,// "https://www.navigay.me/images/events/AT/12/1700152341132_227.jpg",
+//                                    smallPoster: "https://www.navigay.me/images/events/AT/12/1700152341132_684.jpg",
+//                                    isFree: true,
+//                                    tags: nil, 
+//                                    location: "Cafe Savoy",
+//                                    lastUpdate: "2023-11-16 17:26:12",
+//                                    about: nil, fee: nil, tickets: nil, www: nil, facebook: nil, instagram: nil, phone: nil, place: nil, owner: nil, city: nil, cityId: nil)
+//    let event = Event(decodedEvent: decodedEvent)
+//    event.isLiked = true
+//   // event.smallPosterImg = Image("13")
+//    return EventCell(event: event, showCountryCity: false, showStartDayInfo: true, showStartTimeInfo: true, showLike: true, showLocation: true)
+//}
 

@@ -7,6 +7,35 @@
 
 import SwiftUI
 
+enum EditCountryEndPoint {
+    case fetch
+    case update
+    case updatePhoto
+}
+
+extension EditCountryEndPoint: EndPoint {
+    
+    func urlComponents() -> URLComponents {
+        var components = URLComponents()
+        components.scheme = "https"
+        components.host = "www.navigay.me"
+        components.path = path()
+        return components
+    }
+    
+    private func path() -> String {
+        switch self {
+        case .fetch:
+            return "/api/admin/get-country.php"
+        case .update:
+            return "/api/admin/update-country.php"
+        case .updatePhoto:
+            return "/api/admin/update-country-photo.php"
+        }
+    }
+}
+
+
 protocol EditCountryNetworkManagerProtocol {
     func fetchCountry(id: Int, for user: AppUser) async throws -> AdminCountry
     func updateCountry(id: Int, name: String, flag: String, about: String, showRegions: Bool, isActive: Bool, isChecked: Bool, user: AppUser) async throws
@@ -15,89 +44,42 @@ protocol EditCountryNetworkManagerProtocol {
 
 final class EditCountryNetworkManager {
     
-    // MARK: - Properties
-    
-    
-    
     // MARK: - Private Properties
     
-    private let scheme = "https"
-    private let host = "www.navigay.me"
-        
-    private let networkMonitorManager: NetworkMonitorManagerProtocol
+    private let networkManager: NetworkManagerProtocol
     
     // MARK: - Inits
     
-    init(networkMonitorManager: NetworkMonitorManagerProtocol) {
-        self.networkMonitorManager = networkMonitorManager
+    init(networkManager: NetworkManagerProtocol) {
+        self.networkManager = networkManager
     }
 }
-
-// MARK: - CountryNetworkManagerProtocol
 
 extension EditCountryNetworkManager: EditCountryNetworkManagerProtocol {
     
     func fetchCountry(id: Int, for user: AppUser) async throws -> AdminCountry {
         debugPrint("--- AdminNetworkManager fetchCountry id \(id)")
-        guard networkMonitorManager.isConnected else {
-            throw NetworkErrors.noConnection
-        }
         guard let sessionKey = user.sessionKey else {
             throw NetworkErrors.noSessionKey
-        }
-        let path = "/api/admin/get-country.php"
-        var urlComponents: URLComponents {
-            var components = URLComponents()
-            components.scheme = scheme
-            components.host = host
-            components.path = path
-            return components
-        }
-        guard let url = urlComponents.url else {
-            throw NetworkErrors.badUrl
         }
         let parameters = [
             "country_id": String(id),
             "user_id": String(user.id),
             "session_key": sessionKey,
         ]
-        let requestData = try JSONSerialization.data(withJSONObject: parameters)
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = requestData
-        let (data, response) = try await URLSession.shared.data(for: request)
-        guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
-            throw NetworkErrors.invalidData
-        }
-        guard let decodedResult = try? JSONDecoder().decode(AdminCountryResult.self, from: data) else {
-            throw NetworkErrors.decoderError
-        }
+        let body = try JSONSerialization.data(withJSONObject: parameters)
+        let headers = ["Content-Type": "application/json"]
+        let request = try await networkManager.request(endpoint: EditCountryEndPoint.fetch, method: .post, headers: headers, body: body)
+        let decodedResult = try await networkManager.fetch(type: AdminCountryResult.self, with: request)
         guard decodedResult.result, let decodedCountry = decodedResult.country else {
             throw NetworkErrors.apiError(decodedResult.error)
         }
         return decodedCountry
     }
-    
-    
-    
+
     func updateCountry(id: Int, name: String, flag: String, about: String, showRegions: Bool, isActive: Bool, isChecked: Bool, user: AppUser) async throws {
-        guard networkMonitorManager.isConnected else {
-            throw NetworkErrors.noConnection
-        }
         guard let sessionKey = user.sessionKey else {
             throw NetworkErrors.noSessionKey
-        }
-        let path = "/api/admin/update-country.php"
-        var urlComponents: URLComponents {
-            var components = URLComponents()
-            components.scheme = scheme
-            components.host = host
-            components.path = path
-            return components
-        }
-        guard let url = urlComponents.url else {
-            throw NetworkErrors.badUrl
         }
         let parameters = [
             "country_id": String(id),
@@ -110,53 +92,24 @@ extension EditCountryNetworkManager: EditCountryNetworkManagerProtocol {
             "user_id": String(user.id),
             "session_key": sessionKey,
         ]
-        let requestData = try JSONSerialization.data(withJSONObject: parameters)
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = requestData
-        let (data, response) = try await URLSession.shared.data(for: request)
-        guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
-            throw NetworkErrors.invalidData
-        }
-        guard let decodedResult = try? JSONDecoder().decode(ApiResult.self, from: data) else {
-            throw NetworkErrors.decoderError
-        }
+        let body = try JSONSerialization.data(withJSONObject: parameters)
+        let headers = ["Content-Type": "application/json"]
+        let request = try await networkManager.request(endpoint: EditCountryEndPoint.update, method: .post, headers: headers, body: body)
+        let decodedResult = try await networkManager.fetch(type: ApiResult.self, with: request)
         guard decodedResult.result else {
             throw NetworkErrors.apiError(decodedResult.error)
         }
     }
     
     func updateCountryPhoto(countryId: Int, uiImage: UIImage, from user: AppUser) async throws -> String {
-        guard networkMonitorManager.isConnected else {
-            throw NetworkErrors.noConnection
-        }
         guard let sessionKey = user.sessionKey else {
             throw NetworkErrors.noSessionKey
         }
-        let path = "/api/admin/update-country-photo.php"
-        var urlComponents: URLComponents {
-            var components = URLComponents()
-            components.scheme = scheme
-            components.host = host
-            components.path = path
-            return components
-        }
-        guard let url = urlComponents.url else {
-            throw NetworkErrors.badUrl
-        }
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
         let boundary = UUID().uuidString
-        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
-        request.httpBody = try await createBodyImageUpdating(image: uiImage, countryId: countryId, userID: user.id, sessionKey: sessionKey, boundary: boundary)
-        let (data, response) = try await URLSession.shared.data(for: request)
-        guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
-            throw NetworkErrors.invalidData
-        }
-        guard let decodedResult = try? JSONDecoder().decode(ImageResult.self, from: data) else {
-            throw NetworkErrors.decoderError
-        }
+        let headers = ["Content-Type": "multipart/form-data; boundary=\(boundary)"]
+        let body = try await createBodyImageUpdating(image: uiImage, countryId: countryId, userID: user.id, sessionKey: sessionKey, boundary: boundary)
+        let request = try await networkManager.request(endpoint: EditPlaceEndPoints.updateAvatar, method: .post, headers: headers, body: body)
+        let decodedResult = try await networkManager.fetch(type: ImageResult.self, with: request)
         guard decodedResult.result, let url = decodedResult.url else {
             throw NetworkErrors.apiError(decodedResult.error)
         }
@@ -173,13 +126,13 @@ extension EditCountryNetworkManager {
         guard let imageData = image.jpegData(compressionQuality: 0.8) else {
             throw NetworkErrors.imageDataError
         }
-        body.append("--\(boundary)\r\n".data(using: .utf8)!)
         // country_id
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
         body.append("Content-Disposition: form-data; name=\"country_id\"\r\n\r\n".data(using: .utf8)!)
         body.append("\(countryId)\r\n".data(using: .utf8)!)
         body.append("\r\n".data(using: .utf8)!)
-        body.append("--\(boundary)\r\n".data(using: .utf8)!)
         // user_id
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
         body.append("Content-Disposition: form-data; name=\"user_id\"\r\n\r\n".data(using: .utf8)!)
         body.append("\(userID)\r\n".data(using: .utf8)!)
         body.append("\r\n".data(using: .utf8)!)

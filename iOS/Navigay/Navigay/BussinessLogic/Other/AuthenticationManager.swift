@@ -26,22 +26,26 @@ final class AuthenticationManager: ObservableObject {
     @Published var isUserOnline: Bool = false
     
     let errorManager: ErrorManagerProtocol
-    let networkManager: AuthNetworkManagerProtocol
-    var networkMonitorManager: NetworkMonitorManagerProtocol
+    let authNetworkManager: AuthNetworkManagerProtocol
+    
+    let networkManager: NetworkManagerProtocol
     
     // MARK: - Private Properties
     
+    private var networkMonitorManager: NetworkMonitorManagerProtocol
     private let keychainManager: KeychainManagerProtocol
     
     // MARK: - Init
     
     init(keychainManager: KeychainManagerProtocol,
          networkMonitorManager: NetworkMonitorManagerProtocol,
-         networkManager: AuthNetworkManagerProtocol,
+         networkManager: NetworkManagerProtocol,
+         authNetworkManager: AuthNetworkManagerProtocol,
          errorManager: ErrorManagerProtocol) {
         self.keychainManager = keychainManager
         self.networkMonitorManager = networkMonitorManager
         self.networkManager = networkManager
+        self.authNetworkManager = authNetworkManager
         self.errorManager = errorManager
     }
 }
@@ -68,13 +72,13 @@ extension AuthenticationManager {
         user.isUserLoggedIn = false
         appUser = nil
         Task {
-            try? await networkManager.logout(for: user)
+            try? await authNetworkManager.logout(for: user)
         }
     }
     
     func resetPassword(email: String) async -> Bool {
         do {
-            try await networkManager.resetPassword(email: email)
+            try await authNetworkManager.resetPassword(email: email)
             return true
         } catch NetworkErrors.noConnection {
             errorManager.showNetworkNoConnected()
@@ -91,7 +95,7 @@ extension AuthenticationManager {
             let message = "Oops! Something went wrong. You're not logged in. Please try again later."
             do {
                 let password = try keychainManager.getGenericPasswordFor(account: user.email, service: "User login")
-                let decodedAppUser = try await networkManager.login(email: user.email, password: password)
+                let decodedAppUser = try await authNetworkManager.login(email: user.email, password: password)
                 await MainActor.run {
                     user.updateUser(decodedUser: decodedAppUser)
                     isUserOnline = true
@@ -112,7 +116,7 @@ extension AuthenticationManager {
     
     @MainActor
     func registration(email: String, password: String) async throws -> AppUser {
-        let decodedAppUser = try await networkManager.registration(email: email,
+        let decodedAppUser = try await authNetworkManager.registration(email: email,
                                                                    password: password)
         try keychainManager.storeGenericPasswordFor(account: email,
                                                     service: "User login",
@@ -127,7 +131,7 @@ extension AuthenticationManager {
     
     @MainActor
     func login(email: String, password: String) async throws -> DecodedAppUser {
-        let decodedAppUser = try await networkManager.login(email: email,
+        let decodedAppUser = try await authNetworkManager.login(email: email,
                                                             password: password)
         try keychainManager.storeGenericPasswordFor(account: email,
                                                     service: "User login",
@@ -138,7 +142,7 @@ extension AuthenticationManager {
     
     func deleteAccount(user: AppUser) async -> Bool {
         do {
-            try await networkManager.deleteAccount(for: user)
+            try await authNetworkManager.deleteAccount(for: user)
             return true
         } catch NetworkErrors.noConnection {
             errorManager.showNetworkNoConnected()

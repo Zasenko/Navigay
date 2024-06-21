@@ -401,13 +401,13 @@ struct EditEventView: View {
 }
 
 
-#Preview {
-    let appSettingsManager = AppSettingsManager()
-    let errorManager = ErrorManager()
-    let networkMonitorManager: NetworkMonitorManagerProtocol = NetworkMonitorManager(errorManager: errorManager)
-    let networkManager: EditEventNetworkManagerProtocol = EditEventNetworkManager(networkMonitorManager: networkMonitorManager)
-    let user = AppUser(decodedUser: DecodedAppUser(id: 0, name: "Dima", email: "test@test.ru", status: .admin, sessionKey: "fddddddd", bio: "dddd", photo: nil))
-    
-    return EditEventView(viewModel: EditEventViewModel(eventID: 1, user: user, event: nil, networkManager: networkManager, errorManager: errorManager))
-
-}
+//#Preview {
+//    let appSettingsManager = AppSettingsManager()
+//    let errorManager = ErrorManager()
+//    let networkMonitorManager: NetworkMonitorManagerProtocol = NetworkMonitorManager(errorManager: errorManager)
+//    let networkManager: EditEventNetworkManagerProtocol = EditEventNetworkManager(networkMonitorManager: networkMonitorManager)
+//    let user = AppUser(decodedUser: DecodedAppUser(id: 0, name: "Dima", email: "test@test.ru", status: .admin, sessionKey: "fddddddd", bio: "dddd", photo: nil))
+//    
+//    return EditEventView(viewModel: EditEventViewModel(eventID: 1, user: user, event: nil, networkManager: networkManager, errorManager: errorManager))
+//
+//}
