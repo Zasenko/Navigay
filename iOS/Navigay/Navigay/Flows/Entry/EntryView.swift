@@ -16,7 +16,7 @@ enum EntryViewRouter {
 struct EntryView: View {
     
     // MARK: - Private Properties
-    
+    @Environment(\.modelContext) private var modelContext
     @AppStorage("firstTimeInApp") private var firstTimeInApp: Bool = true
     @Query private var appUsers: [AppUser]
     @StateObject private var authenticationManager: AuthenticationManager

@@ -8,12 +8,12 @@
 import Foundation
 import CoreLocation
 
-enum AroundEndPoints {
+enum AroundEndPoint {
   //  case fetchLocations(location: CLLocation)
     case fetchAround(location: CLLocation)
 }
 
-extension AroundEndPoints: EndPoint {
+extension AroundEndPoint: EndPoint {
     
     func urlComponents() -> URLComponents {
         var components = URLComponents()
@@ -73,8 +73,7 @@ extension AroundNetworkManager: AroundNetworkManagerProtocol {
     
     func fetchAround(location: CLLocation) async throws -> AroundItemsResult {
         debugPrint("--- fetchLocations around()")
-        
-        let request = try await networkManager.request(endpoint: AroundEndPoints.fetchAround(location: location), method: .get, headers: nil, body: nil)
+        let request = try await networkManager.request(endpoint: AroundEndPoint.fetchAround(location: location), method: .get, headers: nil, body: nil)
         let decodedResult = try await networkManager.fetch(type: AroundResultNew.self, with: request)
         guard decodedResult.result, let decodedItems = decodedResult.items else {
             throw NetworkErrors.apiError(decodedResult.error)

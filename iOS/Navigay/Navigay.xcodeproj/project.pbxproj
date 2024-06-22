@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		0A1954AB2BD04B89001E4841 /* AdminRegionsResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A1954AA2BD04B89001E4841 /* AdminRegionsResult.swift */; };
 		0A1A31162C09ECCE00B02F62 /* search.json in Resources */ = {isa = PBXBuildFile; fileRef = 0A1A31152C09ECCE00B02F62 /* search.json */; };
+		0A1BB6A92C26AA830098C04F /* AroundManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A1BB6A82C26AA830098C04F /* AroundManager.swift */; };
 		0A5022A82C0DC84000F937C8 /* ReportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A5022A72C0DC84000F937C8 /* ReportView.swift */; };
 		0A5022AA2C0DDDF800F937C8 /* ReportNetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A5022A92C0DDDF800F937C8 /* ReportNetworkManager.swift */; };
 		0A5022AD2C0DEFCA00F937C8 /* ReportViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A5022AC2C0DEFCA00F937C8 /* ReportViewModel.swift */; };
@@ -239,6 +240,7 @@
 /* Begin PBXFileReference section */
 		0A1954AA2BD04B89001E4841 /* AdminRegionsResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdminRegionsResult.swift; sourceTree = "<group>"; };
 		0A1A31152C09ECCE00B02F62 /* search.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = search.json; path = ../../../../../web/api/catalog/search.json; sourceTree = "<group>"; };
+		0A1BB6A82C26AA830098C04F /* AroundManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AroundManager.swift; sourceTree = "<group>"; };
 		0A5022A72C0DC84000F937C8 /* ReportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportView.swift; sourceTree = "<group>"; };
 		0A5022A92C0DDDF800F937C8 /* ReportNetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportNetworkManager.swift; sourceTree = "<group>"; };
 		0A5022AC2C0DEFCA00F937C8 /* ReportViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportViewModel.swift; sourceTree = "<group>"; };
@@ -867,6 +869,7 @@
 			children = (
 				0F741A972ACDB7B300A7759E /* TabBarButton.swift */,
 				0F741A812ACD705D00A7759E /* TabBarView.swift */,
+				0A1BB6A82C26AA830098C04F /* AroundManager.swift */,
 				0F741A992ACDB7CE00A7759E /* TabBarButtonView.swift */,
 			);
 			path = TabBar;
@@ -1362,6 +1365,7 @@
 				0AEB53D02C08B7DD009A94B1 /* HomeViewModel2.swift in Sources */,
 				0F7981812B443CBF00BFEAE5 /* SearchResult.swift in Sources */,
 				0F26F8712B85ED99004DEDBF /* AdminRegionsView.swift in Sources */,
+				0A1BB6A92C26AA830098C04F /* AroundManager.swift in Sources */,
 				0F741A3D2ACD502100A7759E /* AuthNetworkManager.swift in Sources */,
 				0FD5771A2B56BEA600C65C21 /* AdminPlaceResult.swift in Sources */,
 				0F9915282ACC6C5E008416D6 /* AuthenticationManager.swift in Sources */,

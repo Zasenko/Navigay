@@ -9,53 +9,31 @@ import SwiftUI
 import SwiftData
 import CoreLocation
 
-struct HomeView2: View {
+struct HomeView: View {
+    
+    // MARK: - Properties
+
+    @ObservedObject var aroundManager: AroundManager
     
     // MARK: - Private Properties
     
     @EnvironmentObject private var locationManager: LocationManager
-   // @StateObject private var locationManager: LocationManager
-    @State private var viewModel: HomeViewModel2
     @EnvironmentObject private var authenticationManager: AuthenticationManager
-   // @StateObject private var authenticationManager: AuthenticationManager
-   // @State private var showSorting: Bool = true
-    // MARK: - Init
-    
-    init(modelContext: ModelContext,
-         aroundNetworkManager: AroundNetworkManagerProtocol,
-         placeNetworkManager: PlaceNetworkManagerProtocol,
-         eventNetworkManager: EventNetworkManagerProtocol,
-         catalogNetworkManager: CatalogNetworkManagerProtocol,
-         errorManager: ErrorManagerProtocol,
-         placeDataManager: PlaceDataManagerProtocol,
-         eventDataManager: EventDataManagerProtocol,
-         catalogDataManager: CatalogDataManagerProtocol,
-         commentsNetworkManager: CommentsNetworkManagerProtocol) {
-        let viewModel = HomeViewModel2(modelContext: modelContext, aroundNetworkManager: aroundNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, catalogNetworkManager: catalogNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, catalogDataManager: catalogDataManager, commentsNetworkManager: commentsNetworkManager)
-        _viewModel = State(initialValue: viewModel)
-        
-        //todo delete:
-//        let keychainManager: KeychainManagerProtocol = KeychainManager()
-//        let appSettingsManager: AppSettingsManagerProtocol = AppSettingsManager()
-//        let networkMonitorManager: NetworkMonitorManagerProtocol = NetworkMonitorManager(errorManager: errorManager)
-//        let authNetworkManager: AuthNetworkManagerProtocol = AuthNetworkManager(networkMonitorManager: networkMonitorManager, appSettingsManager: appSettingsManager)
-//        _authenticationManager = StateObject(wrappedValue: AuthenticationManager(keychainManager: keychainManager, networkMonitorManager: networkMonitorManager, networkManager: authNetworkManager, errorManager: errorManager))
-//        _locationManager = StateObject(wrappedValue: LocationManager())
-    }
-    
+    @Environment(\.modelContext) private var modelContext
+
     // MARK: - Body
     
     var body: some View {
         NavigationStack {
             ZStack {
-                if viewModel.isLoading {
+                if aroundManager.isLoading {
                     ProgressView()
                         .tint(.blue)
                         .frame(maxHeight: .infinity)
                 } else {
                     mainView
-                        .fullScreenCover(isPresented: $viewModel.showMap) {
-                            MapView(viewModel: MapViewModel(events: viewModel.todayEvents, places: viewModel.aroundPlaces, categories: viewModel.sortingMapCategories, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, commentsNetworkManager: viewModel.commentsNetworkManager))
+                        .fullScreenCover(isPresented: $aroundManager.showMap) {
+                            MapView(viewModel: MapViewModel(events: aroundManager.todayEvents, places: aroundManager.aroundPlaces, categories: aroundManager.sortingMapCategories, modelContext: modelContext, placeNetworkManager: aroundManager.placeNetworkManager, eventNetworkManager: aroundManager.eventNetworkManager, errorManager: aroundManager.errorManager, placeDataManager: aroundManager.placeDataManager, eventDataManager: aroundManager.eventDataManager, commentsNetworkManager: aroundManager.commentsNetworkManager))
                         }
                 }
             }
@@ -67,12 +45,11 @@ struct HomeView2: View {
                         .font(.title).bold()
                         .foregroundColor(.primary)
                 }
-                
-                if !(viewModel.isLoading || locationManager.isAlertIfLocationDeniedDisplayed || !viewModel.isLocationsAround20Found) {
+                if !(aroundManager.isLoading || locationManager.isAlertIfLocationDeniedDisplayed || !aroundManager.isLocationsAround20Found) {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button {
                             withAnimation {
-                                viewModel.showMap.toggle()
+                                aroundManager.showMap.toggle()
                             }
                         } label: {
                             AppImages.iconLocation
@@ -84,37 +61,28 @@ struct HomeView2: View {
                     }
                 }
             }
-            .task(priority: .high) {
-                await MainActor.run {
-                    let category = viewModel.selectedHomeSortingCategory
-                    viewModel.selectedHomeSortingCategory = .all
-                    viewModel.selectedHomeSortingCategory = category
-                }
-                if let userLocation = locationManager.userLocation {
-                    viewModel.updateAtInit(userLocation: userLocation)
-                }
-            }
-            .onChange(of: locationManager.userLocation, initial: false) { _, newValue in
-                 guard let userLocation = newValue else { return }
-                 viewModel.update(userLocation: userLocation)
-            }
-            .onChange(of: viewModel.selectedDate, initial: false) { oldValue, newValue in
-                viewModel.showCalendar = false
-                if let date = newValue {
-                    guard let userLocation = locationManager.userLocation else { return }
-                    viewModel.getEvents(for: date, userLocation: userLocation)
-                } else {
-                    viewModel.displayedEvents = viewModel.upcomingEvents
-                }
-            }
-            .sheet(isPresented:  $viewModel.showCalendar) {} content: {
-                CalendarView(selectedDate: $viewModel.selectedDate, eventsDates: $viewModel.eventsDates)
+//            .onAppear() {
+//                let category = aroundManager.selectedHomeSortingCategory
+//                aroundManager.selectedHomeSortingCategory = .all
+//                aroundManager.selectedHomeSortingCategory = category
+//            }
+            .sheet(isPresented:  $aroundManager.showCalendar) {} content: {
+                CalendarView(selectedDate: $aroundManager.selectedDate, eventsDates: $aroundManager.eventsDates)
                     .presentationDetents([.medium])
                     .presentationDragIndicator(.hidden)
                     .presentationCornerRadius(25)
             }
-            .fullScreenCover(item: $viewModel.selectedEvent) { event in
-                EventView(viewModel: EventView.EventViewModel.init(event: event, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, commentsNetworkManager: viewModel.commentsNetworkManager))
+            .fullScreenCover(item: $aroundManager.selectedEvent) { event in
+                EventView(viewModel: EventView.EventViewModel.init(event: event, modelContext: modelContext, placeNetworkManager: aroundManager.placeNetworkManager, eventNetworkManager: aroundManager.eventNetworkManager, errorManager: aroundManager.errorManager, placeDataManager: aroundManager.placeDataManager, eventDataManager: aroundManager.eventDataManager, commentsNetworkManager: aroundManager.commentsNetworkManager))
+            }
+            .onChange(of: aroundManager.selectedDate, initial: false) { _, newValue in
+                aroundManager.showCalendar = false
+                if let date = newValue {
+                    guard let userLocation = locationManager.userLocation else { return }
+                    getEvents(for: date, userLocation: userLocation)
+                } else {
+                    aroundManager.displayedEvents = aroundManager.upcomingEvents
+                }
             }
         }
     }
@@ -127,10 +95,10 @@ struct HomeView2: View {
                 noLocationView
             } else {
                 VStack(spacing: 0) {
-                    if viewModel.isLocationsAround20Found {
+                    if aroundManager.isLocationsAround20Found {
                         menuView
                         Divider()
-                        if viewModel.sortingHomeCategories.count > 0 {
+                        if aroundManager.sortingHomeCategories.count > 0 {
                             tabView(size: geomentry.size)
                         }
                     } else {
@@ -146,10 +114,10 @@ struct HomeView2: View {
             ScrollViewReader { scrollProxy in
                 ScrollView(.horizontal, showsIndicators: false) {
                     LazyHGrid(rows: [GridItem()], alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/, spacing: 0) {
-                        ForEach(viewModel.sortingHomeCategories, id: \.self) { category in
+                        ForEach(aroundManager.sortingHomeCategories, id: \.self) { category in
                             Button {
                                 withAnimation(.easeIn) {
-                                    viewModel.selectedHomeSortingCategory = category
+                                    aroundManager.selectedHomeSortingCategory = category
                                 }
                             } label: {
                                 Text(category.getName())
@@ -158,7 +126,7 @@ struct HomeView2: View {
                                     .foregroundStyle(.primary)
                                     .padding(5)
                                     .padding(.horizontal, 5)
-                                    .background(viewModel.selectedHomeSortingCategory == category ? AppColors.lightGray6 : .clear)
+                                    .background(aroundManager.selectedHomeSortingCategory == category ? AppColors.lightGray6 : .clear)
                                     .clipShape(.capsule)
                             }
                             .padding(.leading)
@@ -168,7 +136,7 @@ struct HomeView2: View {
                     .padding(.trailing)
                 }
                 .frame(height: 40)
-                .onChange(of: viewModel.selectedHomeSortingCategory, initial: true) { oldValue, newValue in
+                .onChange(of: aroundManager.selectedHomeSortingCategory, initial: true) { oldValue, newValue in
                     withAnimation {
                         scrollProxy.scrollTo(newValue, anchor: .leading)
                     }
@@ -178,8 +146,8 @@ struct HomeView2: View {
     }
 
     private func tabView(size: CGSize) -> some View {
-        TabView(selection: $viewModel.selectedHomeSortingCategory) {
-            ForEach(viewModel.sortingHomeCategories, id: \.self) { category in
+        TabView(selection: $aroundManager.selectedHomeSortingCategory) {
+            ForEach(aroundManager.sortingHomeCategories, id: \.self) { category in
                 categoryView(category: category, size: size)
                     .tag(category)
             }
@@ -205,53 +173,16 @@ struct HomeView2: View {
             .listSectionSeparator(.hidden)
             .listStyle(.plain)
             .buttonStyle(PlainButtonStyle())
-            .onChange(of: viewModel.selectedDate, initial: false) { oldValue, newValue in
+            .onChange(of: aroundManager.selectedDate, initial: false) { oldValue, newValue in
                 withAnimation {
                     scrollProxy.scrollTo("UpcomingEvents", anchor: .top)
                 }
             }
         }
     }
-    
-//    private var listView: some View {
-//        GeometryReader { proxy in
-//            ScrollViewReader { scrollProxy in
-//                List {
-//                    if !viewModel.isLocationsAround20Found {
-//                        notFountView
-//                            .listRowSeparator(.hidden)
-//                    }
-//                    if viewModel.eventsCount > 0 {
-//                        eventsView(size: proxy.size)
-//                            .listRowSeparator(.hidden)
-//                            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-//                            .id(SortingCategory.events)
-//                    }
-//                    placesView
-//                    Color.clear
-//                        .frame(height: 50)
-//                        .listSectionSeparator(.hidden)
-//                }
-//                .listSectionSeparator(.hidden)
-//                .listStyle(.plain)
-//                .scrollIndicators(.hidden)
-//                .buttonStyle(PlainButtonStyle())
-//                .onChange(of: selectedSortedCategory, initial: false) { oldValue, newValue in
-//                    withAnimation {
-//                        scrollProxy.scrollTo(newValue, anchor: .top)
-//                    }
-//                }
-//                .onChange(of: viewModel.selectedDate, initial: false) { oldValue, newValue in
-//                    withAnimation {
-//                        scrollProxy.scrollTo("UpcomingEvents", anchor: .top)
-//                    }
-//                }
-//            }
-//        }
-//    }
-    
+        
     private func eventsSection(size: CGSize) -> some View {
-        EventsView(modelContext: viewModel.modelContext, selectedDate: $viewModel.selectedDate, displayedEvents: $viewModel.displayedEvents, eventsCount: $viewModel.eventsCount, todayEvents: $viewModel.todayEvents, upcomingEvents: $viewModel.upcomingEvents, eventsDates: $viewModel.eventsDates, selectedEvent: $viewModel.selectedEvent, showCalendar: $viewModel.showCalendar, size: size, showLocation: true)
+        EventsView(modelContext: modelContext, selectedDate: $aroundManager.selectedDate, displayedEvents: $aroundManager.displayedEvents, eventsCount: $aroundManager.eventsCount, todayEvents: $aroundManager.todayEvents, upcomingEvents: $aroundManager.upcomingEvents, eventsDates: $aroundManager.eventsDates, selectedEvent: $aroundManager.selectedEvent, showCalendar: $aroundManager.showCalendar, size: size, showLocation: true)
             .listRowSeparator(.hidden)
             .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
     }
@@ -264,11 +195,11 @@ struct HomeView2: View {
                 .foregroundStyle(.primary)
                 .offset(x: 70)
                 .padding(.vertical)
-            ForEach(viewModel.groupedPlaces[category] ?? []) { place in
+            ForEach(aroundManager.groupedPlaces[category] ?? []) { place in
                 NavigationLink {
-                    PlaceView(viewModel: PlaceView.PlaceViewModel(place: place, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, commentsNetworkManager: viewModel.commentsNetworkManager, showOpenInfo: true))
+                    PlaceView(viewModel: PlaceView.PlaceViewModel(place: place, modelContext: modelContext, placeNetworkManager: aroundManager.placeNetworkManager, eventNetworkManager: aroundManager.eventNetworkManager, errorManager: aroundManager.errorManager, placeDataManager: aroundManager.placeDataManager, eventDataManager: aroundManager.eventDataManager, commentsNetworkManager: aroundManager.commentsNetworkManager, showOpenInfo: true))
                 } label: {
-                    PlaceCell(place: place, showOpenInfo: viewModel.isLocationsAround20Found ? true : false, showDistance: true, showCountryCity: viewModel.isLocationsAround20Found ? false : true, showLike: true)
+                    PlaceCell(place: place, showOpenInfo: aroundManager.isLocationsAround20Found ? true : false, showDistance: true, showCountryCity: aroundManager.isLocationsAround20Found ? false : true, showLike: true)
                 }
             }
         }
@@ -294,7 +225,7 @@ struct HomeView2: View {
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical)
-                CitiesView(modelContext: viewModel.modelContext, cities: viewModel.citiesAround, showCountryRegion: true, catalogNetworkManager: viewModel.catalogNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, errorManager: viewModel.errorManager, authenticationManager: authenticationManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, catalogDataManager: viewModel.catalogDataManager, commentsNetworkManager: viewModel.commentsNetworkManager)
+                CitiesView(modelContext: modelContext, cities: aroundManager.citiesAround, showCountryRegion: true, catalogNetworkManager: aroundManager.catalogNetworkManager, eventNetworkManager: aroundManager.eventNetworkManager, placeNetworkManager: aroundManager.placeNetworkManager, errorManager: aroundManager.errorManager, authenticationManager: authenticationManager, placeDataManager: aroundManager.placeDataManager, eventDataManager: aroundManager.eventDataManager, catalogDataManager: aroundManager.catalogDataManager, commentsNetworkManager: aroundManager.commentsNetworkManager)
                 
             }
             .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
@@ -339,6 +270,52 @@ struct HomeView2: View {
             .padding(.vertical)
         }
         .padding()
+    }
+    
+    // MARK: - Private Functions
+    
+    private func getEvents(for date: Date, userLocation: CLLocation) {
+        let events = aroundManager.eventDataManager.getEvents(for: date, userLocation: userLocation, modelContext: modelContext)
+        aroundManager.displayedEvents = events
+        let ids = aroundManager.dateEvents.filter { $0.key == date }.flatMap { $0.value.map { $0 } }
+        var savedEvents: [Event] = []
+        var newIds: [Int] = []
+        ids.forEach { id in
+            if aroundManager.eventNetworkManager.loadedCalendarEventsId.contains(where: { $0 == id }) {
+                if let event = aroundManager.eventDataManager.getEvent(id: id, modelContext: modelContext) {
+                    savedEvents.append(event)
+                } else {
+                    newIds.append(id)
+                }
+            } else {
+                newIds.append(id)
+            }
+        }
+        guard !newIds.isEmpty else { return }
+        
+        Task {
+            let message = "Something went wrong. The information didn't update. Please try again later."
+            do {
+                let items = try await aroundManager.fetchEvents(for: date, ids: newIds)
+                await MainActor.run { [savedEvents] in
+                    let countries = aroundManager.catalogDataManager.updateCountries(decodedCountries: items.countries, modelContext: modelContext)
+                    let regions = aroundManager.catalogDataManager.updateRegions(decodedRegions: items.regions, countries: countries, modelContext: modelContext)
+                    let cities = aroundManager.catalogDataManager.updateCities(decodedCities: items.cities, regions: regions, modelContext: modelContext)
+                    var events = aroundManager.eventDataManager.updateEvents(decodedEvents: items.events, for: cities, modelContext: modelContext)
+                    events.append(contentsOf: savedEvents)
+                    aroundManager.displayedEvents = events
+                }
+
+            } catch NetworkErrors.apiError(let error) {
+                if let error, error.show {
+                    aroundManager.errorManager.showError(model: ErrorModel(error: NetworkErrors.api, message: error.message))
+                } else {
+                    aroundManager.errorManager.showError(model: ErrorModel(error: NetworkErrors.api, message: message))
+                }
+            } catch {
+                aroundManager.errorManager.showError(model: ErrorModel(error: error, message: message))
+            }
+        }
     }
 }
 

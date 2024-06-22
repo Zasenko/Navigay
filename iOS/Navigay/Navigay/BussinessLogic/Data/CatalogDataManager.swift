@@ -21,7 +21,7 @@ protocol CatalogDataManagerProtocol {
     func getAllCountries(modelContext: ModelContext) -> [Country]
     
     ///return  ->  filtered by distance
-    func getCitiesAround(count: Int, userLocation: CLLocation, modelContext: ModelContext) async -> [City]
+    func getCitiesAround(count: Int, userLocation: CLLocation, modelContext: ModelContext) -> [City]
     
     /// return  -> sorted by name
     func updateCities(decodedCities: [DecodedCity]?, modelContext: ModelContext) -> [City]
@@ -70,7 +70,7 @@ final class CatalogDataManager: CatalogDataManagerProtocol {
         }
     }
     
-    func getCitiesAround(count: Int, userLocation: CLLocation, modelContext: ModelContext) async -> [City] {
+    func getCitiesAround(count: Int, userLocation: CLLocation, modelContext: ModelContext) -> [City] {
         let allCities = getAllCities(modelContext: modelContext)
         let sortedCities = allCities.sorted(by: {  userLocation.distance(from: CLLocation(latitude: $0.latitude, longitude: $0.longitude)) < userLocation.distance(from: CLLocation(latitude: $1.latitude, longitude: $1.longitude)) })
             

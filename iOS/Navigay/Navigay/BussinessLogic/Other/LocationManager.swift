@@ -20,8 +20,8 @@ final class LocationManager: NSObject, ObservableObject {
     @Published var authorizationStatus: LocationStatus = .loading
     @Published var isAlertIfLocationDeniedDisplayed: Bool = false
     
-    @AppStorage("lastUserLatitude") var lastLatitude: CLLocationDegrees = 0
-    @AppStorage("lastUserLongitude") var lastLongitude: CLLocationDegrees = 0
+    @AppStorage("lastUserLatitude") var lastLatitude: Double = 0.0
+    @AppStorage("lastUserLongitude") var lastLongitude: Double = 0.0
     
     // MARK: - Private Properties
     

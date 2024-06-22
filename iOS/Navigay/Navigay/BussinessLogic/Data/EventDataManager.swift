@@ -30,8 +30,8 @@ protocol EventDataManagerProtocol {
     
     func getActiveDates(for events: [Event]) async -> [Date]
     
-    func getEvents(for date: Date, userLocation: CLLocation, modelContext: ModelContext) async -> [Event]
-    func getEvents(for date: Date, events: [Event]) async -> [Event]
+    func getEvents(for date: Date, userLocation: CLLocation, modelContext: ModelContext) -> [Event]
+    func getEvents(for date: Date, events: [Event]) -> [Event]
     
     func updateEvents(decodedEvents: [DecodedEvent]?, for cities: [City], modelContext: ModelContext) -> [Event]
     
@@ -68,14 +68,14 @@ extension EventDataManager {
         return events.first(where: { $0.id == id })
     }
 
-    func getAroundEvents(radius: Double, allEvents: [Event], userLocation: CLLocation) async -> [Event] {
+    func getAroundEvents(radius: Double, allEvents: [Event], userLocation: CLLocation) -> [Event] {
         return allEvents.filter { event in
             let distance = userLocation.distance(from: CLLocation(latitude: event.latitude, longitude: event.longitude))
             return distance <= radius
         }
     }
     
-    func getActualEvents(for events: [Event]) async -> [Event] {
+    func getActualEvents(for events: [Event]) -> [Event] {
         return events.filter { event in
             if event.startDate.isToday || event.startDate.isFutureDay  {
                 return true
@@ -181,43 +181,43 @@ extension EventDataManager {
         return activeDates.uniqued().sorted()
     }
     
-    func getEvents(for date: Date, events: [Event]) async -> [Event] {
-            return events.filter { event in
-                if event.startDate.isFutureDay(of: date) {
-                    return false
-                }
-                if event.startDate.isSameDayWithOtherDate(date) {
-                    return true
-                }
-                guard let finishDate = event.finishDate else {
-                    return false
-                }
-                
-                if finishDate.isFutureDay(of: date) {
-                    return true
-                }
-                if finishDate.isSameDayWithOtherDate(date) {
-                    guard let finishTime = event.finishTime,
-                          let elevenAM = Calendar.current.date(bySettingHour: 11, minute: 0, second: 0, of: Date())
-                    else {
-                        return false
-                    }
-                    if finishTime.isPastHour(of: elevenAM) {
-                        return false
-                    } else {
-                        return true
-                    }
-                }
+    func getEvents(for date: Date, events: [Event]) -> [Event] {
+        return events.filter { event in
+            if event.startDate.isFutureDay(of: date) {
                 return false
             }
+            if event.startDate.isSameDayWithOtherDate(date) {
+                return true
+            }
+            guard let finishDate = event.finishDate else {
+                return false
+            }
+            
+            if finishDate.isFutureDay(of: date) {
+                return true
+            }
+            if finishDate.isSameDayWithOtherDate(date) {
+                guard let finishTime = event.finishTime,
+                      let elevenAM = Calendar.current.date(bySettingHour: 11, minute: 0, second: 0, of: Date())
+                else {
+                    return false
+                }
+                if finishTime.isPastHour(of: elevenAM) {
+                    return false
+                } else {
+                    return true
+                }
+            }
+            return false
+        }
     }
     
-    func getEvents(for date: Date, userLocation: CLLocation, modelContext: ModelContext) async -> [Event] {
+    func getEvents(for date: Date, userLocation: CLLocation, modelContext: ModelContext) -> [Event] {
         let radius: Double = 20000
         let allEvents = getAllEvents(modelContext: modelContext)
-        let aroundEvents = await getAroundEvents(radius: radius, allEvents: allEvents, userLocation: userLocation)
-        let actualEvents = await getActualEvents(for: aroundEvents)
-        let events = await getEvents(for: date, events: actualEvents)
+        let aroundEvents = getAroundEvents(radius: radius, allEvents: allEvents, userLocation: userLocation)
+        let actualEvents = getActualEvents(for: aroundEvents)
+        let events = getEvents(for: date, events: actualEvents)
         return events
     }
     

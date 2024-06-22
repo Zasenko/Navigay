@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum AuthEndPoints {
+enum AuthEndPoint {
     case login
     case registration
     case logout
@@ -15,7 +15,7 @@ enum AuthEndPoints {
     case resetPassword
 }
 
-extension AuthEndPoints: EndPoint {
+extension AuthEndPoint: EndPoint {
     
     func urlComponents() -> URLComponents {
         var components = URLComponents()
@@ -73,7 +73,7 @@ extension AuthNetworkManager: AuthNetworkManagerProtocol {
         ]
         let body = try JSONSerialization.data(withJSONObject: parameters)
         let headers = ["Content-Type": "application/json"]
-        let request = try await networkManager.request(endpoint: AuthEndPoints.resetPassword, method: .post, headers: headers, body: body)
+        let request = try await networkManager.request(endpoint: AuthEndPoint.resetPassword, method: .post, headers: headers, body: body)
         let decodedResult = try await networkManager.fetch(type: ApiResult.self, with: request)
         guard decodedResult.result else {
             throw NetworkErrors.apiError(decodedResult.error)
@@ -89,7 +89,7 @@ extension AuthNetworkManager: AuthNetworkManagerProtocol {
         ]        
         let body = try JSONSerialization.data(withJSONObject: parameters)
         let headers = ["Content-Type": "application/json"]
-        let request = try await networkManager.request(endpoint: AuthEndPoints.logout, method: .post, headers: headers, body: body)
+        let request = try await networkManager.request(endpoint: AuthEndPoint.logout, method: .post, headers: headers, body: body)
         let decodedResult = try await networkManager.fetch(type: ApiResult.self, with: request)
         guard decodedResult.result else {
             throw NetworkErrors.apiError(decodedResult.error)
@@ -104,7 +104,7 @@ extension AuthNetworkManager: AuthNetworkManagerProtocol {
         ]
         let body = try JSONSerialization.data(withJSONObject: parameters)
         let headers = ["Content-Type": "application/json"]
-        let request = try await networkManager.request(endpoint: AuthEndPoints.registration, method: .post, headers: headers, body: body)
+        let request = try await networkManager.request(endpoint: AuthEndPoint.registration, method: .post, headers: headers, body: body)
         let decodedResult = try await networkManager.fetch(type: AuthResult.self, with: request)
         guard decodedResult.result, let decodedAppUser = decodedResult.user else {
             throw NetworkErrors.apiError(decodedResult.error)
@@ -120,7 +120,7 @@ extension AuthNetworkManager: AuthNetworkManagerProtocol {
         ]
         let body = try JSONSerialization.data(withJSONObject: parameters)
         let headers = ["Content-Type": "application/json"]
-        let request = try await networkManager.request(endpoint: AuthEndPoints.login, method: .post, headers: headers, body: body)
+        let request = try await networkManager.request(endpoint: AuthEndPoint.login, method: .post, headers: headers, body: body)
         let decodedResult = try await networkManager.fetch(type: AuthResult.self, with: request)
         guard decodedResult.result, let decodedAppUser = decodedResult.user else {
             throw NetworkErrors.apiError(decodedResult.error)
@@ -136,7 +136,7 @@ extension AuthNetworkManager: AuthNetworkManagerProtocol {
         ]
         let body = try JSONSerialization.data(withJSONObject: parameters)
         let headers = ["Content-Type": "application/json"]
-        let request = try await networkManager.request(endpoint: AuthEndPoints.deleteAccount, method: .post, headers: headers, body: body)
+        let request = try await networkManager.request(endpoint: AuthEndPoint.deleteAccount, method: .post, headers: headers, body: body)
         let decodedResult = try await networkManager.fetch(type: ApiResult.self, with: request)
         guard decodedResult.result else {
             throw NetworkErrors.apiError(decodedResult.error)
