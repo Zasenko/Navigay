@@ -11,44 +11,45 @@ protocol NotificationsManagerProtocol {
 
 final class NotificationsManager: ObservableObject {
     
-    @Published var images: [(UIImage, URL)] = []
+    @Published var urls: [URL] = []
     let center: UNUserNotificationCenter
     private let directory: URL
 
     init() {
         self.center = UNUserNotificationCenter.current()
         let manager = FileManager.default
-        directory = manager.urls(for: .documentDirectory, in: .userDomainMask).first!
+        self.directory = manager.urls(for: .documentDirectory, in: .userDomainMask).first!
         requestNotificationAuthorization()
         center.removeAllDeliveredNotifications()
 //        
 //        self.folderURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appendingPathComponent("Notifications")
 //        checkFolder(url: folderURL)
-//        scanTheDirectory(folderURL)
+        scanTheDirectory(directory)
     }
     
 //    private func checkFolder(url: URL) {
-//        if !fileManager.fileExists(atPath: url.path) {
+//        if !FileManager.default.fileExists(atPath: url.path) {
 //            do {
-//                try fileManager.createDirectory(at: url, withIntermediateDirectories: true, attributes: nil)
+//                try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true, attributes: nil)
 //            } catch {
 //                print("Failed to create folder: \(error.localizedDescription)")
 //            }
 //        }
 //    }
-//    
+    
     private func scanTheDirectory(_ url: URL) {
-        images.removeAll()
+        urls.removeAll()
         let urls = (try? FileManager.default.contentsOfDirectory(at: url, includingPropertiesForKeys: nil, options: [])) ?? []
         print("-------scanTheDirectory URLS--------")
         print(urls)
         print("---------------------")
 
         for url in urls {
-            if let data = try? Data(contentsOf: url),
-               let image = UIImage(data: data) {
-                images.append((image, url))
-            }
+            self.urls.append(url)
+//            if let data = try? Data(contentsOf: url),
+//               let image = UIImage(data: data) {
+//                urls.append((image, url))
+//            }
         }
     }
 }
@@ -85,6 +86,7 @@ extension NotificationsManager: NotificationsManagerProtocol {
     }
     
     func addEventNotification(event: Event) {
+        let identifier = "EventNotification\(event.id)"
         let calendar = Calendar.current
         guard let year = calendar.dateComponents([.year], from: event.startDate).year,
               let month = calendar.dateComponents([.month], from: event.startDate).month,
@@ -100,8 +102,6 @@ extension NotificationsManager: NotificationsManagerProtocol {
             dateComponents.hour = 10
             dateComponents.minute = 0
         }
-        let identifier = "EventNotification\(event.id)"
-
         if let eventDate = calendar.date(from: dateComponents),
            let finalDate = calendar.date(byAdding: .hour, value: -2, to: eventDate) {
             let finalDateComponents = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: finalDate)
@@ -114,19 +114,18 @@ extension NotificationsManager: NotificationsManagerProtocol {
                         return
                     }
                     debugPrint("data.count: ", data.count)
+                    
                     DispatchQueue.main.async {
                         var attachments: [UNNotificationAttachment]? = nil
-                        let fileURL = self.directory.appendingPathComponent(UUID().uuidString)
+                        let fileURL = self.directory.appendingPathComponent(identifier)
                         do {
                             try data.write(to: fileURL)
-                            event.posterDataUrl = fileURL
-                            self.images.append((image, fileURL))
-                            let content = UNMutableNotificationContent()
-                            content.title = event.name
-                            content.body = "Don't miss! The event starts soon."
-                            content.sound = UNNotificationSound.default
+                            
+//                           self.images.append((image, fileURL))
+                            self.urls.append(fileURL)
+                            
                             if let imageData = image.jpegData(compressionQuality: 1.0) {
-                                let fileName = UUID().uuidString + ".jpg"
+                                let fileName = identifier + ".jpg"
                                 let fileURL = self.directory.appendingPathComponent(fileName)
                                 try imageData.write(to: fileURL)
                                 let newAttachment = try UNNotificationAttachment(identifier: identifier, url: fileURL, options: nil)
@@ -304,20 +303,21 @@ extension NotificationsManager {
     
     private func removeImageFromDisk(event: Event) {
         print("----removeImageFromDisk----")
-        guard let fileURL = event.posterDataUrl else {
-            print("Error: Could not find url.")
+        guard let url = urls.first(where: {$0.absoluteString.contains("EventNotification\(event.id)")} )
+        else {
+            print("Error: url not fiund.")
             return
         }
-        if FileManager.default.fileExists(atPath: fileURL.path) {
-            print("File exists at path: \(fileURL.path)")
+        if FileManager.default.fileExists(atPath: url.path) {
+            print("File exists at path: \(url.path)")
             do {
-                try FileManager.default.removeItem(at: fileURL)
-                print("File \(fileURL.path) deleted successfully.")
+                try FileManager.default.removeItem(at: url)
+                print("File \(url.path) deleted successfully.")
             } catch {
                 print("Error deleting image: \(error.localizedDescription) /", error)
             }
         } else {
-            print("File does not exist at: \(fileURL.path)")
+            print("File does not exist at: \(url.path)")
         }
     }
 }
@@ -325,13 +325,13 @@ extension NotificationsManager {
 @available(iOSApplicationExtension 10.0, *)
 extension UNNotificationAttachment {
     
-    static func createAttachment(identifier: String, url: URL, options: [NSObject : AnyObject]?) -> UNNotificationAttachment? {
-        do {
-            return try UNNotificationAttachment(identifier: identifier, url: url, options: options)
-        } catch {
-            // Обрабатываем ошибки
-            print("Error saving image to disk: \(error.localizedDescription)")
-            return nil
-        }
-    }
+//    static func createAttachment(identifier: String, url: URL, options: [NSObject : AnyObject]?) -> UNNotificationAttachment? {
+//        do {
+//            return try UNNotificationAttachment(identifier: identifier, url: url, options: options)
+//        } catch {
+//            // Обрабатываем ошибки
+//            print("Error saving image to disk: \(error.localizedDescription)")
+//            return nil
+//        }
+//    }
 }
