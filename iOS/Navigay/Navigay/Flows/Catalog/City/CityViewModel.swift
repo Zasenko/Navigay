@@ -61,6 +61,7 @@ extension CityView {
         let placeDataManager: PlaceDataManagerProtocol
         let eventDataManager: EventDataManagerProtocol
         let catalogDataManager: CatalogDataManagerProtocol
+        let notificationsManager: NotificationsManagerProtocol
        // var adminCity: AdminCity? = nil
         
         init(modelContext: ModelContext,
@@ -72,7 +73,8 @@ extension CityView {
              placeDataManager: PlaceDataManagerProtocol,
              eventDataManager: EventDataManagerProtocol,
              catalogDataManager: CatalogDataManagerProtocol,
-             commentsNetworkManager: CommentsNetworkManagerProtocol) {
+             commentsNetworkManager: CommentsNetworkManagerProtocol,
+             notificationsManager: NotificationsManagerProtocol) {
             self.modelContext = modelContext
             self.city = city
             self.catalogNetworkManager = catalogNetworkManager
@@ -83,7 +85,7 @@ extension CityView {
             self.eventDataManager = eventDataManager
             self.catalogDataManager = catalogDataManager
             self.commentsNetworkManager = commentsNetworkManager
-
+            self.notificationsManager = notificationsManager
             let newPhotosLinks = city.getAllPhotos()
             allPhotos = newPhotosLinks
         }
@@ -139,11 +141,9 @@ extension CityView {
         }
         
         func getEvents(for date: Date) {
+            let events = eventDataManager.getEvents(for: date, events: city.events)
+            displayedEvents = events
             Task {
-                let events = await eventDataManager.getEvents(for: date, events: city.events )
-                await MainActor.run {
-                    displayedEvents = events
-                }
                 await fetchEvents(for: date)
             }
         }

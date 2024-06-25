@@ -34,8 +34,9 @@ final class MapViewModel: ObservableObject {
     let placeNetworkManager: PlaceNetworkManagerProtocol
     let errorManager: ErrorManagerProtocol
     let commentsNetworkManager: CommentsNetworkManagerProtocol
+    let notificationsManager: NotificationsManagerProtocol
     
-    init(events: [Event], places: [Place], categories: [SortingCategory], modelContext: ModelContext, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol, placeDataManager: PlaceDataManagerProtocol, eventDataManager: EventDataManagerProtocol, commentsNetworkManager: CommentsNetworkManagerProtocol) {
+    init(events: [Event], places: [Place], categories: [SortingCategory], modelContext: ModelContext, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol, placeDataManager: PlaceDataManagerProtocol, eventDataManager: EventDataManagerProtocol, commentsNetworkManager: CommentsNetworkManagerProtocol, notificationsManager: NotificationsManagerProtocol) {
         self.events = events
         self.places = places
         self.categories = categories
@@ -46,6 +47,7 @@ final class MapViewModel: ObservableObject {
         self.placeDataManager = placeDataManager
         self.eventDataManager = eventDataManager
         self.commentsNetworkManager = commentsNetworkManager
+        self.notificationsManager = notificationsManager
     }
 }
 

@@ -39,6 +39,7 @@ extension AppUserView {
         let eventDataManager: EventDataManagerProtocol
         let errorManager: ErrorManagerProtocol
         let commentsNetworkManager: CommentsNetworkManagerProtocol
+        let notificationsManager: NotificationsManagerProtocol
         
         //MARK: - Init
         
@@ -49,7 +50,8 @@ extension AppUserView {
              userNetworkManager: UserNetworkManagerProtocol,
              placeDataManager: PlaceDataManagerProtocol,
              eventDataManager: EventDataManagerProtocol,
-             commentsNetworkManager: CommentsNetworkManagerProtocol) {
+             commentsNetworkManager: CommentsNetworkManagerProtocol,
+             notificationsManager: NotificationsManagerProtocol) {
             self.modelContext = modelContext
             self.eventNetworkManager = eventNetworkManager
             self.placeNetworkManager = placeNetworkManager
@@ -58,6 +60,7 @@ extension AppUserView {
             self.placeDataManager = placeDataManager
             self.eventDataManager = eventDataManager
             self.commentsNetworkManager = commentsNetworkManager
+            self.notificationsManager = notificationsManager
         }
         
         func deleteAccountButtonTapped(for user: AppUser) {

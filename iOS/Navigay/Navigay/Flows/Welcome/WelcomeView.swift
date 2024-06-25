@@ -10,7 +10,7 @@ import SwiftUI
 struct WelcomeView: View {
     
     // MARK: - Properties
-    
+    let notificationsManager: NotificationsManagerProtocol
     @EnvironmentObject private var authenticationManager: AuthenticationManager
     @Environment(\.colorScheme) private var deviceColorScheme
     let onFinish: () -> Void
@@ -22,8 +22,9 @@ struct WelcomeView: View {
     
     // MARK: - Init
     
-    init(onFinish: @escaping () -> Void) {
+    init(notificationsManager: NotificationsManagerProtocol, onFinish: @escaping () -> Void) {
         self.onFinish = onFinish
+        self.notificationsManager = notificationsManager
     }
     
     // MARK: - Body

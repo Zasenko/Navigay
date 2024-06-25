@@ -9,7 +9,6 @@ import Foundation
 import CoreLocation
 
 enum AroundEndPoint {
-  //  case fetchLocations(location: CLLocation)
     case fetchAround(location: CLLocation)
 }
 
@@ -42,7 +41,7 @@ extension AroundEndPoint: EndPoint {
 }
 
 protocol AroundNetworkManagerProtocol {
-    var userLocations: [CLLocation] { get set }  // todo убрать в dataManager
+    //var userLocations: [CLLocation] { get set }  // todo убрать в dataManager
     func fetchAround(location: CLLocation) async throws -> AroundItemsResult
 }
 
@@ -50,7 +49,7 @@ final class AroundNetworkManager {
     
     // MARK: - Properties
     
-    var userLocations: [CLLocation] = [] // todo убрать в dataManager
+   // var userLocations: [CLLocation] = [] // todo убрать в dataManager
     
     // MARK: - Private Properties
     
@@ -67,9 +66,9 @@ final class AroundNetworkManager {
 
 extension AroundNetworkManager: AroundNetworkManagerProtocol {
     
-    private func addToUserLocations(location: CLLocation) {
-        userLocations.append(location)
-    }
+//    private func addToUserLocations(location: CLLocation) {
+//        userLocations.append(location)
+//    }
     
     func fetchAround(location: CLLocation) async throws -> AroundItemsResult {
         debugPrint("--- fetchLocations around()")
@@ -78,7 +77,7 @@ extension AroundNetworkManager: AroundNetworkManagerProtocol {
         guard decodedResult.result, let decodedItems = decodedResult.items else {
             throw NetworkErrors.apiError(decodedResult.error)
         }
-        addToUserLocations(location: location) // todo убрать в dataManager
+       // addToUserLocations(location: location) // todo убрать в dataManager
         return decodedItems
     }
 }

@@ -100,11 +100,12 @@ struct EventView: View {
             }
         }
     }
-    
+   // @State private var img: Image? = nil
     private func listView(size: CGSize) -> some View {
         List {
             Section {
                 VStack {
+//                    img
                     if viewModel.event.isFree {
                         Text("free event")
                             .font(.footnote)
@@ -116,10 +117,16 @@ struct EventView: View {
                             .clipShape(RoundedRectangle(cornerRadius: 10))
                             .padding(.bottom)
                     }
+                    
                 }
                 .frame(maxWidth: .infinity)
                 .onAppear {
                     viewModel.showInfo = false
+                    
+//                    if let i = FileManager.default.loadImgfromDisk(event: viewModel.event) {
+//                        img = Image(uiImage: i)
+//                    }
+                    
                 }
                 .onDisappear {
                     viewModel.showInfo = true
@@ -254,7 +261,7 @@ struct EventView: View {
                 HStack(spacing: 10) {
                     Button {
                         // douplicate button - to do function
-                        viewModel.event.isLiked.toggle()
+                        viewModel.likeButtonTapped()
                         guard let user = authenticationManager.appUser else { return }
                         if user.likedEvents.contains(where: {$0 == viewModel.event.id} ) {
                             user.likedEvents.removeAll(where: {$0 == viewModel.event.id})
@@ -446,7 +453,7 @@ struct EventView: View {
                         }
                         if let place = viewModel.event.place {
                             NavigationLink {
-                                PlaceView(viewModel: PlaceView.PlaceViewModel(place: place, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, commentsNetworkManager: viewModel.commentsNetworkManager, showOpenInfo: false))
+                                PlaceView(viewModel: PlaceView.PlaceViewModel(place: place, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, commentsNetworkManager: viewModel.commentsNetworkManager, notificationsManager: viewModel.notificationsManager, showOpenInfo: false))
                             } label: {
                                 HStack(spacing: 20) {
                                     if let url = place.avatar {

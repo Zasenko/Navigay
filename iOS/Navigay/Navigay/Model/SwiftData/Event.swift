@@ -45,12 +45,13 @@ final class Event {
     
     var isLiked: Bool = false
     
+    var posterDataUrl: URL? = nil
+    
     @Transient
     lazy var coordinate: CLLocationCoordinate2D = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
     
     @Transient
     var tag: UUID = UUID()
-    
     @Transient
     var posterImg: Image?
     @Transient

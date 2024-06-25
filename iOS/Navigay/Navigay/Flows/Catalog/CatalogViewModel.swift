@@ -29,6 +29,7 @@ extension CatalogView {
         let eventDataManager: EventDataManagerProtocol
         let catalogDataManager: CatalogDataManagerProtocol
         let commentsNetworkManager: CommentsNetworkManagerProtocol
+        let notificationsManager: NotificationsManagerProtocol
         
         init(modelContext: ModelContext,
              catalogNetworkManager: CatalogNetworkManagerProtocol,
@@ -38,7 +39,8 @@ extension CatalogView {
              placeDataManager: PlaceDataManagerProtocol,
              eventDataManager: EventDataManagerProtocol,
              catalogDataManager: CatalogDataManagerProtocol,
-             commentsNetworkManager: CommentsNetworkManagerProtocol) {
+             commentsNetworkManager: CommentsNetworkManagerProtocol,
+             notificationsManager: NotificationsManagerProtocol) {
             self.modelContext = modelContext
             self.catalogNetworkManager = catalogNetworkManager
             self.eventNetworkManager = eventNetworkManager
@@ -48,6 +50,7 @@ extension CatalogView {
             self.eventDataManager = eventDataManager
             self.catalogDataManager = catalogDataManager
             self.commentsNetworkManager = commentsNetworkManager
+            self.notificationsManager = notificationsManager
         }
         
         func getCountriesFromDB() {

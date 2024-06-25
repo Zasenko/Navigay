@@ -14,6 +14,11 @@ enum KeychainError: Error {
     case unableToConvertToString
 }
 
+enum KeychainService: String {
+    case login = "User login"
+    case tocken = "User tocken"
+}
+
 protocol KeychainManagerProtocol {
     func storeGenericPasswordFor(account: String, service: String, password: String) throws
     func getGenericPasswordFor(account: String, service: String) throws -> String

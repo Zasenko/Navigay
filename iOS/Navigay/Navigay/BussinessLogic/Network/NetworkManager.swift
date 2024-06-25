@@ -50,10 +50,6 @@ final class NetworkManager {
         self.appSettingsManager = appSettingsManager
         self.keychainManager = keychainManager
     }
-    
-    func getTocken(email: String) throws -> String {
-        try keychainManager.getGenericPasswordFor(account: email, service: "User tocken")
-    }
 }
 
 extension NetworkManager: NetworkManagerProtocol {
@@ -76,6 +72,10 @@ extension NetworkManager: NetworkManagerProtocol {
             throw NetworkErrors.bedResponse
         }
     }
+    
+    func getTocken(email: String) throws -> String {
+        try keychainManager.getGenericPasswordFor(account: email, service: KeychainService.tocken.rawValue)
+    }
 }
 
 extension NetworkManager {
@@ -96,69 +96,3 @@ extension NetworkManager {
         }
     }
 }
-//
-//import UIKit
-//
-//protocol UserNetworkProtocol: NetworkService {
-//    
-//    var endpoint: EndPoint { get }
-//    func updateName(user: AppUser, name: String) async throws
-//    func updateBio(user: AppUser, bio: String?) async throws
-//    func updatePhoto(user: AppUser, uiImage: UIImage) async throws -> String
-//    func deletePhoto(user: AppUser) async throws
-//}
-//
-//// And at extension we can perform some
-//extension UserNetworkProtocol {
-//    
-//    var endpoint: EndPoint {
-//        return PlaceEndPoint
-//    }
-//    
-//    func updateName(user: AppUser, name: String) async throws {
-//        /// Creating our request with all necessary parameters.
-//        let request = (endpoint: PlaceEndPoint.updateLibraryPhoto,
-//                       method: APIMethod.get,
-//                       headers: [String: String],
-//                       body: Data?)
-//        
-//        /// Fetching user.
-//        return try await fetch(type: User.self, with: request)
-//    }
-//}
-//
-//enum PlaceEndPoint: EndPoint {
-//    
-//    case fetchPlace(id: Int, userDate: String)
-//    case updateLibraryPhoto
-//    
-//    func path() -> String {
-//        switch self {
-//        case .fetchPlace:
-//            return "/api/place/get-place.php"
-//        case .updateLibraryPhoto:
-//            return "/api/place/update-library-photo.php"
-//        }
-//    }
-//    
-//    var queryItems: [URLQueryItem]? {
-//        switch self {
-//        case .fetchPlace(let id, let userDate):
-//            return [
-//                URLQueryItem(name: "place_id", value: "\(id)"),
-//                URLQueryItem(name: "user_date", value: userDate)
-//            ]
-//        default:
-//            return nil
-//        }
-//    }
-//    
-//    func urlComponents() -> URLComponents {
-//        var components = URLComponents()
-//        components.scheme = "https"
-//        components.host = "www.navigay.me"
-//        components.path = path()
-//        components.queryItems = queryItems
-//        return components
-//    }
-//}

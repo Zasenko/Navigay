@@ -14,7 +14,7 @@ extension EventView {
     @Observable
     final class EventViewModel {
         
-        //MARK: - Properties
+        // MARK: - Properties
         
         var modelContext: ModelContext
         let event: Event
@@ -27,9 +27,12 @@ extension EventView {
         let eventDataManager: EventDataManagerProtocol
         let errorManager: ErrorManagerProtocol
         let commentsNetworkManager: CommentsNetworkManagerProtocol
+        
+        let notificationsManager: NotificationsManagerProtocol
+        
         //MARK: - Inits
         
-        init(event: Event, modelContext: ModelContext, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol, placeDataManager: PlaceDataManagerProtocol, eventDataManager: EventDataManagerProtocol, commentsNetworkManager: CommentsNetworkManagerProtocol) {
+        init(event: Event, modelContext: ModelContext, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol, placeDataManager: PlaceDataManagerProtocol, eventDataManager: EventDataManagerProtocol, commentsNetworkManager: CommentsNetworkManagerProtocol, notificationsManager: NotificationsManagerProtocol) {
             self.event = event
             self.modelContext = modelContext
             self.eventNetworkManager = eventNetworkManager
@@ -38,11 +41,21 @@ extension EventView {
             self.placeDataManager = placeDataManager
             self.eventDataManager = eventDataManager
             self.commentsNetworkManager = commentsNetworkManager
+            self.notificationsManager = notificationsManager
             position = .camera(MapCamera(centerCoordinate: event.coordinate, distance: 2000))
             loadEvent()
         }
         
         //MARK: - Functions
+        
+        func likeButtonTapped() {
+            event.isLiked.toggle()
+            if event.isLiked {
+                notificationsManager.addEventNotification(event: event)
+            } else {
+                notificationsManager.removeEventNotification(event: event)
+            }
+        }
         
         func loadEvent() {
             debugPrint("loadEvent()")

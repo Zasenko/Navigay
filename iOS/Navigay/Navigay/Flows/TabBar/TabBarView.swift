@@ -39,10 +39,10 @@ struct TabBarView: View {
     private let placeDataManager: PlaceDataManagerProtocol
     private let eventDataManager: EventDataManagerProtocol
     private let catalogDataManager: CatalogDataManagerProtocol
-    
+    private let notificationsManager: NotificationsManagerProtocol
     //MARK: - Init
     
-    init(errorManager: ErrorManagerProtocol, networkManager: NetworkManagerProtocol, locationManager: LocationManager = LocationManager()) {
+    init(errorManager: ErrorManagerProtocol, networkManager: NetworkManagerProtocol, notificationsManager: NotificationsManagerProtocol, locationManager: LocationManager = LocationManager()) {
         self.errorManager = errorManager
         self.aroundNetworkManager = AroundNetworkManager(networkManager: networkManager)
         self.catalogNetworkManager = CatalogNetworkManager(networkManager: networkManager)
@@ -52,7 +52,8 @@ struct TabBarView: View {
         self.placeDataManager = PlaceDataManager()
         self.eventDataManager = EventDataManager()
         self.catalogDataManager = CatalogDataManager()
-        let aroundManager = AroundManager(aroundNetworkManager: aroundNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, catalogNetworkManager: catalogNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, catalogDataManager: catalogDataManager, commentsNetworkManager: commentsNetworkManager)
+        self.notificationsManager = notificationsManager
+        let aroundManager = AroundManager(aroundNetworkManager: aroundNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, catalogNetworkManager: catalogNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, catalogDataManager: catalogDataManager, commentsNetworkManager: commentsNetworkManager, notificationsManager: notificationsManager)
         _locationManager = StateObject(wrappedValue: locationManager)
         _aroundManager = StateObject(wrappedValue: aroundManager)
     }
@@ -66,11 +67,11 @@ struct TabBarView: View {
                 HomeView(aroundManager: aroundManager)
                     .environmentObject(locationManager)
             case .catalog:
-                CatalogView(viewModel: CatalogView.CatalogViewModel(modelContext: modelContext, catalogNetworkManager: catalogNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, catalogDataManager: catalogDataManager, commentsNetworkManager: commentsNetworkManager))
+                CatalogView(viewModel: CatalogView.CatalogViewModel(modelContext: modelContext, catalogNetworkManager: catalogNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, catalogDataManager: catalogDataManager, commentsNetworkManager: commentsNetworkManager, notificationsManager: notificationsManager))
             case .search:
-                SearchView(viewModel: SearchView.SearchViewModel(modelContext: modelContext, catalogNetworkManager: catalogNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, catalogDataManager: catalogDataManager, commentsNetworkManager: commentsNetworkManager))
+                SearchView(viewModel: SearchView.SearchViewModel(modelContext: modelContext, catalogNetworkManager: catalogNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, catalogDataManager: catalogDataManager, commentsNetworkManager: commentsNetworkManager, notificationsManager: notificationsManager))
             case .user:
-                AppUserView(modelContext: modelContext, userNetworkManager: UserNetworkManager(networkManager: authenticationManager.networkManager), placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, commentsNetworkManager: commentsNetworkManager)
+                AppUserView(modelContext: modelContext, userNetworkManager: UserNetworkManager(networkManager: authenticationManager.networkManager), placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, commentsNetworkManager: commentsNetworkManager, notificationsManager: notificationsManager)
             case .admin:
                 if let user = authenticationManager.appUser, (user.status == .admin || user.status == .moderator) {
                     AdminView(viewModel: AdminViewModel(user: user, errorManager: errorManager, networkManager: AdminNetworkManager(networkManager: authenticationManager.networkManager)))
@@ -198,7 +199,7 @@ struct TabBarView: View {
                 let todayEvents = await eventDataManager.getTodayEvents(from: actualEvents)
                 let upcomingEvents = await eventDataManager.getUpcomingEvents(from: actualEvents)
                 let eventsDatesWithoutToday = await eventDataManager.getActiveDates(for: actualEvents)
-                let activeDates = eventDataManager.dateEvents?.keys.sorted().filter( { $0.isToday || $0.isFutureDay } )
+                let activeDates = eventDataManager.dateEvents?.keys.sorted().filter( { $0.isFutureDay } )
                 await MainActor.run {
                     aroundManager.upcomingEvents = upcomingEvents
                     aroundManager.aroundPlaces = aroundPlaces
@@ -260,7 +261,7 @@ struct TabBarView: View {
             let groupedPlaces = await placeDataManager.createHomeGroupedPlaces(places: places)
             let todayEvents = events.today.sorted(by: { $0.id < $1.id })
             let upcomingEvents = events.upcoming.sorted(by: { $0.id < $1.id }).sorted(by: { $0.startDate < $1.startDate })
-           let activeDates = events.allDates.keys.sorted().filter( { $0.isToday || $0.isFutureDay } )
+            let activeDates = events.allDates.keys.sorted().filter( { $0.isFutureDay } )
             await MainActor.run {
                 aroundManager.upcomingEvents = upcomingEvents
                 aroundManager.aroundPlaces = places
@@ -274,6 +275,7 @@ struct TabBarView: View {
                 aroundManager.eventDataManager.dateEvents = events.allDates
             }
             await aroundManager.updateCategories()
+            notificationsManager.addAroundNotification(dates: activeDates)
         }
     }
 }

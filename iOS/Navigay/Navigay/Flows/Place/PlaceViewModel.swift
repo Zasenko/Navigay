@@ -51,7 +51,7 @@ extension PlaceView {
         
         let placeDataManager: PlaceDataManagerProtocol
         let eventDataManager: EventDataManagerProtocol
-        
+        let notificationsManager: NotificationsManagerProtocol
         
         var showRegistrationView: Bool = false
         var showAddEventView: Bool = false
@@ -67,6 +67,7 @@ extension PlaceView {
              placeDataManager: PlaceDataManagerProtocol,
              eventDataManager: EventDataManagerProtocol,
              commentsNetworkManager: CommentsNetworkManagerProtocol,
+             notificationsManager: NotificationsManagerProtocol,
              showOpenInfo: Bool) {
             self.place = place
             self.showOpenInfo = showOpenInfo
@@ -78,6 +79,7 @@ extension PlaceView {
             self.placeDataManager = placeDataManager
             self.eventDataManager = eventDataManager
             self.commentsNetworkManager = commentsNetworkManager
+            self.notificationsManager = notificationsManager
         }
         
         //MARK: - Functions
@@ -120,11 +122,9 @@ extension PlaceView {
         }
         
         func getEvents(for date: Date) {
+            let events = eventDataManager.getEvents(for: date, events: place.events)
+            displayedEvents = events
             Task {
-                let events = await eventDataManager.getEvents(for: date, events: place.events )
-                await MainActor.run {
-                    displayedEvents = events
-                }
                 await fetchEvents(for: date)
             }
         }

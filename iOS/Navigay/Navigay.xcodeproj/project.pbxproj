@@ -10,6 +10,9 @@
 		0A1954AB2BD04B89001E4841 /* AdminRegionsResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A1954AA2BD04B89001E4841 /* AdminRegionsResult.swift */; };
 		0A1A31162C09ECCE00B02F62 /* search.json in Resources */ = {isa = PBXBuildFile; fileRef = 0A1A31152C09ECCE00B02F62 /* search.json */; };
 		0A1BB6A92C26AA830098C04F /* AroundManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A1BB6A82C26AA830098C04F /* AroundManager.swift */; };
+		0A1BB6AB2C2878510098C04F /* NotificationsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A1BB6AA2C2878510098C04F /* NotificationsManager.swift */; };
+		0A1BB6AD2C2998470098C04F /* Image+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A1BB6AC2C2998470098C04F /* Image+Ext.swift */; };
+		0A1BB6AF2C29ED900098C04F /* FileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A1BB6AE2C29ED900098C04F /* FileManager.swift */; };
 		0A5022A82C0DC84000F937C8 /* ReportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A5022A72C0DC84000F937C8 /* ReportView.swift */; };
 		0A5022AA2C0DDDF800F937C8 /* ReportNetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A5022A92C0DDDF800F937C8 /* ReportNetworkManager.swift */; };
 		0A5022AD2C0DEFCA00F937C8 /* ReportViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A5022AC2C0DEFCA00F937C8 /* ReportViewModel.swift */; };
@@ -241,6 +244,9 @@
 		0A1954AA2BD04B89001E4841 /* AdminRegionsResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdminRegionsResult.swift; sourceTree = "<group>"; };
 		0A1A31152C09ECCE00B02F62 /* search.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = search.json; path = ../../../../../web/api/catalog/search.json; sourceTree = "<group>"; };
 		0A1BB6A82C26AA830098C04F /* AroundManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AroundManager.swift; sourceTree = "<group>"; };
+		0A1BB6AA2C2878510098C04F /* NotificationsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsManager.swift; sourceTree = "<group>"; };
+		0A1BB6AC2C2998470098C04F /* Image+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Image+Ext.swift"; sourceTree = "<group>"; };
+		0A1BB6AE2C29ED900098C04F /* FileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileManager.swift; sourceTree = "<group>"; };
 		0A5022A72C0DC84000F937C8 /* ReportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportView.swift; sourceTree = "<group>"; };
 		0A5022A92C0DDDF800F937C8 /* ReportNetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportNetworkManager.swift; sourceTree = "<group>"; };
 		0A5022AC2C0DEFCA00F937C8 /* ReportViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportViewModel.swift; sourceTree = "<group>"; };
@@ -577,6 +583,8 @@
 				0F9915262ACC6C5E008416D6 /* AuthenticationManager.swift */,
 				0F741A2E2ACD4DB600A7759E /* ErrorManager.swift */,
 				0FC965302ADD4C2900108443 /* LocationManager.swift */,
+				0A1BB6AA2C2878510098C04F /* NotificationsManager.swift */,
+				0A1BB6AE2C29ED900098C04F /* FileManager.swift */,
 			);
 			path = Other;
 			sourceTree = "<group>";
@@ -842,6 +850,7 @@
 			isa = PBXGroup;
 			children = (
 				0F741A7C2ACD664D00A7759E /* Date+Ext.swift */,
+				0A1BB6AC2C2998470098C04F /* Image+Ext.swift */,
 				0F9C320A2B306B3100CAB3D3 /* Sequence+Ext.swift */,
 				0FFB3A492AF23DE0001CF946 /* Bundle+Ext.swift */,
 				0F151F432AE90E8B0049C60F /* View+Ext.swift */,
@@ -1340,6 +1349,7 @@
 				0A5022AF2C0DF34200F937C8 /* Report.swift in Sources */,
 				0F741A5D2ACD641400A7759E /* Tag.swift in Sources */,
 				0F741A8E2ACDB66900A7759E /* CityView.swift in Sources */,
+				0A1BB6AB2C2878510098C04F /* NotificationsManager.swift in Sources */,
 				0F741A672ACD642200A7759E /* PlaceType.swift in Sources */,
 				0FC7B4D32B07CD910077E555 /* PlaceResult.swift in Sources */,
 				0F354CBE2AFE82FA00594AE0 /* AdminCity.swift in Sources */,
@@ -1394,6 +1404,7 @@
 				0FD617A62ACC3B0400877C70 /* UserAccessRights.swift in Sources */,
 				0F741A662ACD642200A7759E /* Country.swift in Sources */,
 				0FD577182B56B1AF00C65C21 /* EditPlaceViewModel.swift in Sources */,
+				0A1BB6AF2C29ED900098C04F /* FileManager.swift in Sources */,
 				0F741A592ACD640900A7759E /* Place.swift in Sources */,
 				0FB1C1AE2BD681D3003A5E7E /* SortingCategory.swift in Sources */,
 				0F741A932ACDB68500A7759E /* CatalogNetworkManager.swift in Sources */,
@@ -1471,6 +1482,7 @@
 				0F5DE3912B04E511007D5238 /* EditCityViewModel.swift in Sources */,
 				0FD617A42ACC3AF500877C70 /* DecodedUser.swift in Sources */,
 				0F741A7B2ACD644D00A7759E /* CityResult.swift in Sources */,
+				0A1BB6AD2C2998470098C04F /* Image+Ext.swift in Sources */,
 				0F0E352E2B7B9DDB00D396B0 /* WelcomeView.swift in Sources */,
 				0F741A912ACDB66900A7759E /* PlaceView.swift in Sources */,
 				0FF7B8F82B3B2800003A4B6A /* AdminCityResult.swift in Sources */,

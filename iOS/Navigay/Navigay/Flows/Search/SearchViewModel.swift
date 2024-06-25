@@ -56,7 +56,7 @@ extension SearchView {
         let placeDataManager: PlaceDataManagerProtocol
         let eventDataManager: EventDataManagerProtocol
         let catalogDataManager: CatalogDataManagerProtocol
-        
+        let notificationsManager: NotificationsManagerProtocol
         let textSubject = PassthroughSubject<String, Never>()
         
         private var cancellable: AnyCancellable?
@@ -69,7 +69,8 @@ extension SearchView {
              placeDataManager: PlaceDataManagerProtocol,
              eventDataManager: EventDataManagerProtocol,
              catalogDataManager: CatalogDataManagerProtocol,
-             commentsNetworkManager: CommentsNetworkManagerProtocol) {
+             commentsNetworkManager: CommentsNetworkManagerProtocol,
+             notificationsManager: NotificationsManagerProtocol) {
             self.modelContext = modelContext
             self.catalogNetworkManager = catalogNetworkManager
             self.eventNetworkManager = eventNetworkManager
@@ -79,6 +80,7 @@ extension SearchView {
             self.eventDataManager = eventDataManager
             self.catalogDataManager = catalogDataManager
             self.commentsNetworkManager = commentsNetworkManager
+            self.notificationsManager = notificationsManager
 
             cancellable = textSubject
                 .debounce(for: .seconds(1.5), scheduler: DispatchQueue.main)

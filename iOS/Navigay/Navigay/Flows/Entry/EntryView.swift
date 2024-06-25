@@ -16,6 +16,7 @@ enum EntryViewRouter {
 struct EntryView: View {
     
     // MARK: - Private Properties
+    
     @Environment(\.modelContext) private var modelContext
     @AppStorage("firstTimeInApp") private var firstTimeInApp: Bool = true
     @Query private var appUsers: [AppUser]
@@ -23,6 +24,7 @@ struct EntryView: View {
     @State private var router: EntryViewRouter = .welcomeView
     private let errorManager: ErrorManagerProtocol
     private let networkManager: NetworkManagerProtocol
+    private let notificationsManager: NotificationsManagerProtocol
     
     // MARK: - Init
     
@@ -36,6 +38,7 @@ struct EntryView: View {
         let authenticationManager = AuthenticationManager(keychainManager: keychainManager, networkMonitorManager: networkMonitorManager, networkManager: networkManager, authNetworkManager: authNetworkManager, errorManager: errorManager)
         self.errorManager = errorManager
         self.networkManager = networkManager
+        self.notificationsManager = NotificationsManager()
         _authenticationManager = StateObject(wrappedValue: authenticationManager)
         _router = State(wrappedValue: EntryViewRouter.welcomeView)
     }
@@ -46,12 +49,12 @@ struct EntryView: View {
         ZStack {
             switch router {
             case .welcomeView:
-                WelcomeView {
+                WelcomeView(notificationsManager: notificationsManager) {
                     firstTimeInApp = false
                     router = .tabView
                 }
             case .tabView:
-                TabBarView(errorManager: errorManager, networkManager: networkManager)
+                TabBarView(errorManager: errorManager, networkManager: networkManager, notificationsManager: notificationsManager)
             }
             ErrorView(viewModel: ErrorViewModel(errorManager: errorManager), moveFrom: .bottom, alignment: .bottom)
         }

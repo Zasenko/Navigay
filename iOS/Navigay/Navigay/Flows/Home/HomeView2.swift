@@ -33,7 +33,17 @@ struct HomeView: View {
                 } else {
                     mainView
                         .fullScreenCover(isPresented: $aroundManager.showMap) {
-                            MapView(viewModel: MapViewModel(events: aroundManager.todayEvents, places: aroundManager.aroundPlaces, categories: aroundManager.sortingMapCategories, modelContext: modelContext, placeNetworkManager: aroundManager.placeNetworkManager, eventNetworkManager: aroundManager.eventNetworkManager, errorManager: aroundManager.errorManager, placeDataManager: aroundManager.placeDataManager, eventDataManager: aroundManager.eventDataManager, commentsNetworkManager: aroundManager.commentsNetworkManager))
+                            MapView(viewModel: MapViewModel(events: aroundManager.todayEvents, 
+                                                            places: aroundManager.aroundPlaces,
+                                                            categories: aroundManager.sortingMapCategories,
+                                                            modelContext: modelContext,
+                                                            placeNetworkManager: aroundManager.placeNetworkManager,
+                                                            eventNetworkManager: aroundManager.eventNetworkManager,
+                                                            errorManager: aroundManager.errorManager,
+                                                            placeDataManager: aroundManager.placeDataManager,
+                                                            eventDataManager: aroundManager.eventDataManager,
+                                                            commentsNetworkManager: aroundManager.commentsNetworkManager,
+                                                            notificationsManager: aroundManager.notificationsManager))
                         }
                 }
             }
@@ -73,7 +83,7 @@ struct HomeView: View {
                     .presentationCornerRadius(25)
             }
             .fullScreenCover(item: $aroundManager.selectedEvent) { event in
-                EventView(viewModel: EventView.EventViewModel.init(event: event, modelContext: modelContext, placeNetworkManager: aroundManager.placeNetworkManager, eventNetworkManager: aroundManager.eventNetworkManager, errorManager: aroundManager.errorManager, placeDataManager: aroundManager.placeDataManager, eventDataManager: aroundManager.eventDataManager, commentsNetworkManager: aroundManager.commentsNetworkManager))
+                EventView(viewModel: EventView.EventViewModel.init(event: event, modelContext: modelContext, placeNetworkManager: aroundManager.placeNetworkManager, eventNetworkManager: aroundManager.eventNetworkManager, errorManager: aroundManager.errorManager, placeDataManager: aroundManager.placeDataManager, eventDataManager: aroundManager.eventDataManager, commentsNetworkManager: aroundManager.commentsNetworkManager, notificationsManager: aroundManager.notificationsManager))
             }
             .onChange(of: aroundManager.selectedDate, initial: false) { _, newValue in
                 aroundManager.showCalendar = false
@@ -197,7 +207,7 @@ struct HomeView: View {
                 .padding(.vertical)
             ForEach(aroundManager.groupedPlaces[category] ?? []) { place in
                 NavigationLink {
-                    PlaceView(viewModel: PlaceView.PlaceViewModel(place: place, modelContext: modelContext, placeNetworkManager: aroundManager.placeNetworkManager, eventNetworkManager: aroundManager.eventNetworkManager, errorManager: aroundManager.errorManager, placeDataManager: aroundManager.placeDataManager, eventDataManager: aroundManager.eventDataManager, commentsNetworkManager: aroundManager.commentsNetworkManager, showOpenInfo: true))
+                    PlaceView(viewModel: PlaceView.PlaceViewModel(place: place, modelContext: modelContext, placeNetworkManager: aroundManager.placeNetworkManager, eventNetworkManager: aroundManager.eventNetworkManager, errorManager: aroundManager.errorManager, placeDataManager: aroundManager.placeDataManager, eventDataManager: aroundManager.eventDataManager, commentsNetworkManager: aroundManager.commentsNetworkManager, notificationsManager: aroundManager.notificationsManager, showOpenInfo: true))
                 } label: {
                     PlaceCell(place: place, showOpenInfo: aroundManager.isLocationsAround20Found ? true : false, showDistance: true, showCountryCity: aroundManager.isLocationsAround20Found ? false : true, showLike: true)
                 }
@@ -225,7 +235,7 @@ struct HomeView: View {
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical)
-                CitiesView(modelContext: modelContext, cities: aroundManager.citiesAround, showCountryRegion: true, catalogNetworkManager: aroundManager.catalogNetworkManager, eventNetworkManager: aroundManager.eventNetworkManager, placeNetworkManager: aroundManager.placeNetworkManager, errorManager: aroundManager.errorManager, authenticationManager: authenticationManager, placeDataManager: aroundManager.placeDataManager, eventDataManager: aroundManager.eventDataManager, catalogDataManager: aroundManager.catalogDataManager, commentsNetworkManager: aroundManager.commentsNetworkManager)
+                CitiesView(modelContext: modelContext, cities: aroundManager.citiesAround, showCountryRegion: true, catalogNetworkManager: aroundManager.catalogNetworkManager, eventNetworkManager: aroundManager.eventNetworkManager, placeNetworkManager: aroundManager.placeNetworkManager, errorManager: aroundManager.errorManager, placeDataManager: aroundManager.placeDataManager, eventDataManager: aroundManager.eventDataManager, catalogDataManager: aroundManager.catalogDataManager, commentsNetworkManager: aroundManager.commentsNetworkManager, notificationsManager: aroundManager.notificationsManager)
                 
             }
             .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))

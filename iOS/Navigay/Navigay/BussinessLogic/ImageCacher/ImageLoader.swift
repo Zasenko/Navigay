@@ -50,6 +50,21 @@ extension ImageLoader {
         }
     }
     
+    func loadData(urlString: String) async -> Data? {
+        do {
+            if let imageData = cache.object(forKey: urlString) {
+                return imageData
+            }
+            let data = try await fetch(stringUrl: urlString)
+            cache.set(object: data, forKey: urlString)
+            return data
+        } catch {
+            // TODO
+            debugPrint("ImageLoader error: ", error)
+            return nil
+        }
+    }
+    
     //MARK: - Private functions
     
     private func makeImageFromData(data: Data) async throws -> Image {

@@ -23,6 +23,7 @@ extension CountryView {
         let eventDataManager: EventDataManagerProtocol
         let catalogDataManager: CatalogDataManagerProtocol
         let commentsNetworkManager: CommentsNetworkManagerProtocol
+        let notificationsManager: NotificationsManagerProtocol
         var showMap: Bool = false
                 
         // MARK: - Init
@@ -36,7 +37,8 @@ extension CountryView {
              placeDataManager: PlaceDataManagerProtocol,
              eventDataManager: EventDataManagerProtocol,
              catalogDataManager: CatalogDataManagerProtocol,
-             commentsNetworkManager: CommentsNetworkManagerProtocol) {
+             commentsNetworkManager: CommentsNetworkManagerProtocol,
+             notificationsManager: NotificationsManagerProtocol) {
             self.modelContext = modelContext
             self.country = country
             self.catalogNetworkManager = catalogNetworkManager
@@ -47,6 +49,7 @@ extension CountryView {
             self.eventDataManager = eventDataManager
             self.catalogDataManager = catalogDataManager
             self.commentsNetworkManager = commentsNetworkManager
+            self.notificationsManager = notificationsManager
         }
         
         func fetch() {
