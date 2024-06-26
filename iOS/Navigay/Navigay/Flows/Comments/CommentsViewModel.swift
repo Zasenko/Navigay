@@ -20,15 +20,7 @@ final class CommentsViewModel: ObservableObject {
     let size: CGSize
     let place: Place
         
-    let firstReviewPrompt = "Hey there! Looks like this place is waiting to be discovered. Share your thoughts and be the first to leave a review!"
-    let firstReviewPrompts = [
-        "Hey there! Looks like this place is waiting to be discovered. Share your thoughts and be the first to leave a review!",
-        "Be the trailblazer! Drop a review for this place and let others know about your experience.",
-        "Psst... the review section is feeling lonely. Care to share your thoughts and help others with your feedback?",
-        "Ready to be a trendsetter? Leave the first review and pave the way for others!",
-        "Silence is golden, but reviews are priceless! Be the first to break the silence and share your thoughts about this place."
-    ]
-    
+    let noReviewsText = "Hey there! Looks like this place is waiting to be discovered. Share your thoughts and be the first to leave a review!"
     init(commentsNetworkManager: CommentsNetworkManagerProtocol, errorManager: ErrorManagerProtocol, size: CGSize, place: Place) {
         self.commentsNetworkManager = commentsNetworkManager
         self.errorManager = errorManager

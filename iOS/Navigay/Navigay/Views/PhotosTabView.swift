@@ -18,7 +18,8 @@ struct PhotosTabView: View {
             TabView(selection: $selectedPhotoIndex) {
                 ForEach(allPhotos.indices, id: \.self) { index in
                     TabBarImageLoadingView(url: allPhotos[index], width: width, height: (width / 4) * 5, contentMode: .fill) {
-                        AppColors.lightGray6
+                        ImageFetchingView()
+
                     }
                     .clipped()
                     .tag(index)

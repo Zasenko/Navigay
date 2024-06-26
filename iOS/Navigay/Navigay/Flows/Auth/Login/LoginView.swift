@@ -10,10 +10,6 @@ import SwiftData
 
 struct LoginView: View {
     
-    // MARK: - Properties
-    
-    let onDismiss: () -> Void
-    
     // MARK: - Private Properties
     
     @StateObject private var viewModel: LoginViewModel
@@ -29,9 +25,8 @@ struct LoginView: View {
     
     // MARK: - Init
     
-    init(viewModel: LoginViewModel, onDismiss: @escaping () -> Void) {
+    init(viewModel: LoginViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel)
-        self.onDismiss = onDismiss
     }
     
     // MARK: - Body
@@ -229,21 +224,29 @@ struct LoginView: View {
             let message = "Oops! Something went wrong. You're not logged in. Please try again later."
             do {
                 let decodedAppUser = try await authenticationManager.login(email: viewModel.email, password: viewModel.password)
-                let descriptor = FetchDescriptor(predicate: #Predicate<AppUser>{ $0.id == decodedAppUser.id })
-                if let user = try context.fetch(descriptor).first {
-                    user.isUserLoggedIn = true
-                    user.updateUser(decodedUser: decodedAppUser)
-                    authenticationManager.appUser = user
-                    authenticationManager.isUserOnline = true
-                    setLikedItems(for: user)
-                } else {
-                    let user = AppUser(decodedUser: decodedAppUser)
-                    user.isUserLoggedIn = true
-                    authenticationManager.appUser = user
-                    authenticationManager.isUserOnline = true
-                    context.insert(user)
+                await MainActor.run {
+                    let descriptor = FetchDescriptor(predicate: #Predicate<AppUser>{ $0.id == decodedAppUser.id })
+                    do {
+                        if let user = try context.fetch(descriptor).first {
+                            user.isUserLoggedIn = true
+                            user.updateUser(decodedUser: decodedAppUser)
+                            authenticationManager.isUserOnline = true
+                            setLikedItems(for: user)
+                            authenticationManager.appUser = user
+                        } else {
+                            let user = AppUser(decodedUser: decodedAppUser)
+                            user.isUserLoggedIn = true
+                            authenticationManager.isUserOnline = true
+                            context.insert(user)
+                            authenticationManager.appUser = user
+                        }
+                        viewModel.isPresented = false
+                    } catch {
+                        debugPrint(error)
+                        viewModel.allViewsDisabled = false
+                        viewModel.buttonState = .normal
+                    }
                 }
-                onDismiss()
                 return
             } catch NetworkErrors.noConnection {
                 authenticationManager.errorManager.showNetworkNoConnected()

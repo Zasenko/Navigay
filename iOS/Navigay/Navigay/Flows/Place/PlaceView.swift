@@ -203,7 +203,7 @@ struct PlaceView: View {
         HStack(spacing: 20) {
             if let url = viewModel.place.avatar {
                 ImageLoadingView(url: url, width: 60, height: 60, contentMode: .fill) {
-                    Color.orange
+                    ImageFetchingView()
                 }
                 .clipShape(Circle())
                 .overlay(Circle().stroke(AppColors.lightGray5, lineWidth: 1))

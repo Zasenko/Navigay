@@ -16,18 +16,19 @@ final class RegistrationViewModel: ObservableObject {
     
     // MARK: - Properties
     
+    @Binding var isPresented: Bool
+
     @Published var email = ""
     @Published var password = ""
     @Published var allViewsDisabled = false
     
     @Published var buttonState: ButtonStates = .normal
     @Published var isButtonValid = false
-    
-    // MARK: - Private Properties
-        
+            
     // MARK: - Inits
     
-    init() {
+    init(isPresented: Binding<Bool>) {
+        _isPresented = isPresented
         isAuthFormValidPublisher
             .receive(on: RunLoop.main)
             .assign(to: &$isButtonValid)

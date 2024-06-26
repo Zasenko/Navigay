@@ -33,7 +33,7 @@ struct CommentsView: View {
                         AppImages.iconInfoBubble
                             .font(.title)
                             .foregroundStyle(.secondary)
-                        Text(viewModel.firstReviewPrompts.randomElement() ?? viewModel.firstReviewPrompt)
+                        Text(viewModel.noReviewsText)
                             .font(.subheadline)
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }
@@ -49,6 +49,12 @@ struct CommentsView: View {
             }
             .onAppear {
                 viewModel.fetchComments()
+            }
+            .fullScreenCover(isPresented: $viewModel.showLoginView) {
+                LoginView(viewModel: LoginViewModel(isPresented: $viewModel.showLoginView))
+            }
+            .fullScreenCover(isPresented: $viewModel.showRegistrationView) {
+                RegistrationView(viewModel: RegistrationViewModel(isPresented: $viewModel.showRegistrationView))
             }
     }
     
@@ -89,11 +95,6 @@ struct CommentsView: View {
                         .background(AppColors.lightGray6)
                         .clipShape(Capsule(style: .continuous))
                 }
-                .fullScreenCover(isPresented: $viewModel.showLoginView) {
-                    LoginView(viewModel: LoginViewModel(email: nil)) {
-                        viewModel.showLoginView = false
-                    }
-                }
                 Button {
                     viewModel.showRegistrationView = true
                 } label: {
@@ -104,11 +105,6 @@ struct CommentsView: View {
                         .padding()
                         .background(AppColors.lightGray6)
                         .clipShape(Capsule(style: .continuous))
-                }
-                .fullScreenCover(isPresented: $viewModel.showRegistrationView) {
-                    RegistrationView(authenticationManager: authenticationManager, errorManager: authenticationManager.errorManager) {
-                        viewModel.showRegistrationView = false
-                    }
                 }
             }
             .frame(maxWidth: .infinity)

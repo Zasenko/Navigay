@@ -120,7 +120,6 @@ extension NotificationsManager: NotificationsManagerProtocol {
                         let fileURL = self.directory.appendingPathComponent(identifier)
                         do {
                             try data.write(to: fileURL)
-                            
 //                           self.images.append((image, fileURL))
                             self.urls.append(fileURL)
                             

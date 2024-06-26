@@ -146,9 +146,7 @@ struct AppUserView: View {
                     }
                 }
                 .fullScreenCover(isPresented: $viewModel.showLoginView) {
-                    LoginView(viewModel: LoginViewModel()) {
-                        viewModel.showLoginView = false
-                    }
+                    LoginView(viewModel: LoginViewModel(isPresented: $viewModel.showLoginView))
                 }
                 .fullScreenCover(item: $viewModel.selectedEvent) { event in
                     EventView(viewModel: EventView.EventViewModel.init(event: event, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, commentsNetworkManager: viewModel.commentsNetworkManager, notificationsManager: viewModel.notificationsManager))
@@ -313,9 +311,7 @@ struct AppUserView: View {
                     .clipShape(Capsule())
             }
             .fullScreenCover(isPresented: $viewModel.showRegistrationView) {
-                RegistrationView(viewModel: RegistrationViewModel(), authenticationManager: authenticationManager, errorManager: authenticationManager.errorManager) {
-                    viewModel.showRegistrationView = false
-                }
+                RegistrationView(viewModel: RegistrationViewModel(isPresented: $viewModel.showRegistrationView))
             }
             
 //            Button {

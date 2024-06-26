@@ -30,7 +30,7 @@ struct PlaceCell: View {
             HStack(spacing: 20) {
                 if let url = place.avatar {
                     ImageLoadingView(url: url, width: 50, height: 50, contentMode: .fill) {
-                        AppColors.lightGray6
+                        ImageFetchingView()
                     }
                     .clipShape(.circle)
                     .overlay(Circle().stroke(AppColors.lightGray5, lineWidth: 1))

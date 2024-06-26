@@ -8,11 +8,6 @@
 import SwiftUI
 import SwiftData
 
-enum EntryViewRouter {
-    case tabView
-    case welcomeView
-}
-
 struct EntryView: View {
     
     // MARK: - Private Properties
@@ -21,7 +16,6 @@ struct EntryView: View {
     @AppStorage("firstTimeInApp") private var firstTimeInApp: Bool = true
     @Query private var appUsers: [AppUser]
     @StateObject private var authenticationManager: AuthenticationManager
-    @State private var router: EntryViewRouter = .welcomeView
     private let errorManager: ErrorManagerProtocol
     private let networkManager: NetworkManagerProtocol
     private let notificationsManager: NotificationsManagerProtocol
@@ -40,40 +34,26 @@ struct EntryView: View {
         self.networkManager = networkManager
         self.notificationsManager = NotificationsManager()
         _authenticationManager = StateObject(wrappedValue: authenticationManager)
-        _router = State(wrappedValue: EntryViewRouter.welcomeView)
     }
     
     // MARK: - Body
     
     var body: some View {
         ZStack {
-            switch router {
-            case .welcomeView:
-                WelcomeView(notificationsManager: notificationsManager) {
-                    firstTimeInApp = false
-                    router = .tabView
-                }
-            case .tabView:
+            if firstTimeInApp {
+                WelcomeView(firstTimeInApp: $firstTimeInApp)
+            } else {
                 TabBarView(errorManager: errorManager, networkManager: networkManager, notificationsManager: notificationsManager)
+                    .onAppear {
+                        authentificate()
+                    }
             }
             ErrorView(viewModel: ErrorViewModel(errorManager: errorManager), moveFrom: .bottom, alignment: .bottom)
-        }
-        .onAppear() {
-            setRouter()
         }
         .environmentObject(authenticationManager)
     }
     
     // MARK: - Private Functions
-    
-    private func setRouter() {
-        if firstTimeInApp {
-            router = .welcomeView
-        } else {
-            router = .tabView
-            authentificate()
-        }
-    }
     
     private func authentificate() {
         guard let appUser = appUsers.first(where: { $0.id == authenticationManager.lastLoginnedUserId }),

@@ -56,6 +56,17 @@ struct ImageLoadingView<Content: View>: View {
     }
 }
 
+struct ImageFetchingView: View {
+    var body: some View {
+        AppColors.lightGray6
+    }
+}
+
+
+#Preview {
+    ImageFetchingView()
+}
+
 
 //#Preview {
 //    ImageLoadingView(url: "", width: .infinity, height: .infinity, contentMode: .fill) {

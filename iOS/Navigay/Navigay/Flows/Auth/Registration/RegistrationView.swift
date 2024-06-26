@@ -9,22 +9,22 @@ import SwiftUI
 
 struct RegistrationView: View {
     
+    // MARK: - Private Properties
+    
+    @StateObject private var viewModel: RegistrationViewModel
+    @EnvironmentObject private var authenticationManager: AuthenticationManager
+    @Environment(\.modelContext) private var context
+    @Environment(\.dismiss) private var dismiss
+    @FocusState private var focusedField: FocusField?
     private enum FocusField: Hashable, CaseIterable {
         case email, password
     }
     
-    // MARK: - Properties
+    // MARK: - Init
     
-    @StateObject var viewModel: RegistrationViewModel = RegistrationViewModel()
-    @ObservedObject var authenticationManager: AuthenticationManager
-    let errorManager: ErrorManagerProtocol
-    let onDismiss: () -> Void
-    
-    // MARK: - Private Properties
-    
-    @Environment(\.modelContext) private var context
-    @Environment(\.dismiss) private var dismiss
-    @FocusState private var focusedField: FocusField?
+    init(viewModel: RegistrationViewModel) {
+        _viewModel = StateObject(wrappedValue: viewModel)
+    }
     
     // MARK: - Body
     
@@ -48,7 +48,7 @@ struct RegistrationView: View {
                             .tint(.primary)
                         }
                     }
-                ErrorView(viewModel: ErrorViewModel(errorManager: errorManager), moveFrom: .top, alignment: .top)
+                ErrorView(viewModel: ErrorViewModel(errorManager: authenticationManager.errorManager), moveFrom: .top, alignment: .top)
             }
         }
     }
@@ -201,16 +201,24 @@ struct RegistrationView: View {
         viewModel.buttonState = .loading
         Task {
             do {
-                let appUser = try await authenticationManager.registration(email: viewModel.email, password: viewModel.password)
-                context.insert(appUser)
-                onDismiss()
+                let decodedAppUser = try await authenticationManager.registration(email: viewModel.email, password: viewModel.password)
+                
+                await MainActor.run {
+                    let user = AppUser(decodedUser: decodedAppUser)
+                    user.isUserLoggedIn = true
+                    authenticationManager.lastLoginnedUserId = user.id
+                    authenticationManager.isUserOnline = true
+                    context.insert(user)
+                    authenticationManager.appUser = user
+                    viewModel.isPresented = false
+                }
                 return
             } catch NetworkErrors.noConnection {
                 authenticationManager.errorManager.showNetworkNoConnected()
             } catch NetworkErrors.apiError(let apiError) {
-                authenticationManager.errorManager.showApiError(apiError: apiError, or: errorManager.errorMessage, img: nil, color: nil)
+                authenticationManager.errorManager.showApiError(apiError: apiError, or: authenticationManager.errorManager.errorMessage, img: nil, color: nil)
             } catch {
-                authenticationManager.errorManager.showError(model: ErrorModel(error: error, message: errorManager.errorMessage, img: AppImages.iconPersonError, color: nil))
+                authenticationManager.errorManager.showError(model: ErrorModel(error: error, message: authenticationManager.errorManager.errorMessage, img: AppImages.iconPersonError, color: nil))
             }
             await MainActor.run {
                 viewModel.allViewsDisabled = false

@@ -119,7 +119,7 @@ extension AuthenticationManager {
     }
     
     @MainActor
-    func registration(email: String, password: String) async throws -> AppUser {
+    func registration(email: String, password: String) async throws -> DecodedAppUser {
         let decodedAppUser = try await authNetworkManager.registration(email: email,
                                                                    password: password)
         try keychainManager.storeGenericPasswordFor(account: email,
@@ -128,12 +128,7 @@ extension AuthenticationManager {
         try keychainManager.storeGenericPasswordFor(account: email,
                                                     service: KeychainService.tocken.rawValue,
                                                     password: decodedAppUser.sessionKey)
-        let user = AppUser(decodedUser: decodedAppUser)
-        user.isUserLoggedIn = true
-        lastLoginnedUserId = user.id
-        appUser = user
-        isUserOnline = true
-        return user
+        return decodedAppUser
     }
     
     @MainActor

@@ -10,22 +10,15 @@ import SwiftUI
 struct WelcomeView: View {
     
     // MARK: - Properties
-    let notificationsManager: NotificationsManagerProtocol
-    @EnvironmentObject private var authenticationManager: AuthenticationManager
-    @Environment(\.colorScheme) private var deviceColorScheme
-    let onFinish: () -> Void
+    
+    @Binding var firstTimeInApp: Bool
     
     // MARK: - Private Properties
     
+    @EnvironmentObject private var authenticationManager: AuthenticationManager
+    @Environment(\.colorScheme) private var deviceColorScheme
     @State private var showLoginView = false
     @State private var showRegistrationView = false
-    
-    // MARK: - Init
-    
-    init(notificationsManager: NotificationsManagerProtocol, onFinish: @escaping () -> Void) {
-        self.onFinish = onFinish
-        self.notificationsManager = notificationsManager
-    }
     
     // MARK: - Body
     
@@ -47,7 +40,7 @@ struct WelcomeView: View {
             Spacer()
             
             Button {
-                onFinish()
+                firstTimeInApp = false
             } label: {
                 HStack(spacing: 0) {
                     AppImages.iconX
@@ -94,9 +87,7 @@ struct WelcomeView: View {
             }
             
             .fullScreenCover(isPresented: $showLoginView) {
-                LoginView(viewModel: LoginViewModel()) {
-                    onFinish()
-                }
+                LoginView(viewModel: LoginViewModel(isPresented: $firstTimeInApp))
             }
             
             Button {
@@ -112,9 +103,7 @@ struct WelcomeView: View {
                     .foregroundStyle(deviceColorScheme == .light ? .blue : .white)
             }
             .fullScreenCover(isPresented: $showRegistrationView) {
-                RegistrationView(viewModel: RegistrationViewModel(), authenticationManager: authenticationManager, errorManager: authenticationManager.errorManager) {
-                    onFinish()
-                }
+                RegistrationView(viewModel: RegistrationViewModel(isPresented: $firstTimeInApp))
             }
         }
     }

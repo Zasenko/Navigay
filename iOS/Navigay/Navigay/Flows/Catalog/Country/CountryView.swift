@@ -32,7 +32,7 @@ struct CountryView: View {
                     List {
                         if let url = viewModel.country.photo {
                             ImageLoadingView(url: url, width: geometry.size.width, height: (geometry.size.width / 4) * 5, contentMode: .fill) {
-                                AppColors.lightGray6
+                                ImageFetchingView()
                             }
                             .clipped()
                             .listRowSeparator(.hidden)

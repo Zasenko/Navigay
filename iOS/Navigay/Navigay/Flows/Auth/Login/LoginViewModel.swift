@@ -12,6 +12,8 @@ final class LoginViewModel: ObservableObject {
     
     // MARK: - Properties
     
+    @Binding var isPresented: Bool
+    
     @Published var email = ""
     @Published var password = ""
     @Published var allViewsDisabled = false
@@ -20,13 +22,11 @@ final class LoginViewModel: ObservableObject {
     @Published var isButtonValid = false
     
     @Published var showForgetPasswordView = false
-    
-    // MARK: - Private Properties
-        
+            
     // MARK: - Inits
     
-    init(email: String? = nil) {
-        
+    init(isPresented: Binding<Bool>, email: String? = nil) {
+        _isPresented = isPresented
         if let email {
             self.email = email
         }

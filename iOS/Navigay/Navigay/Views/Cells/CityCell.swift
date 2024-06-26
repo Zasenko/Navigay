@@ -25,7 +25,7 @@ struct CityCell: View {
             HStack(spacing: 20) {
                 if let url = city.smallPhoto {
                     ImageLoadingView(url: url, width: 50, height: 50, contentMode: .fill) {
-                        AppColors.lightGray6
+                        ImageFetchingView()
                     }
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                     .overlay(RoundedRectangle(cornerRadius: 10).stroke(AppColors.lightGray5, lineWidth: 1))
