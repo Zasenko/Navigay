@@ -26,9 +26,14 @@ extension PlaceView {
         var showOpenInfo: Bool
         
         var allPhotos: [String] = []
-        var showAddCommentButton: Bool = false
+        
         var comments: [DecodedComment] = []
-        var selectedTag: UUID? = nil /// for Map (big Pin) 
+        var isCommentsLoading = true
+        var showAddCommentView: Bool = false
+        var showRegistrationView: Bool = false
+        var showLoginView: Bool = false
+
+        var selectedTag: UUID? = nil /// for Map (big Pin)
 
         var todayEvents: [Event] = []
         var upcomingEvents: [Event] = []
@@ -53,7 +58,6 @@ extension PlaceView {
         let eventDataManager: EventDataManagerProtocol
         let notificationsManager: NotificationsManagerProtocol
         
-        var showRegistrationView: Bool = false
         var showAddEventView: Bool = false
         var showEditView: Bool = false
         

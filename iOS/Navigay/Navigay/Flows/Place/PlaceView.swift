@@ -112,8 +112,17 @@ struct PlaceView: View {
                     .presentationDragIndicator(.hidden)
                     .presentationCornerRadius(25)
             }
+            .sheet(isPresented: $viewModel.showAddCommentView) {
+                AddCommentView(viewModel: AddCommentViewModel(placeId: viewModel.place.id, networkManager: viewModel.commentsNetworkManager, errorManager: viewModel.errorManager))
+            }
             .fullScreenCover(item: $viewModel.selectedEvent) { event in
                 EventView(viewModel: EventView.EventViewModel.init(event: event, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, commentsNetworkManager: viewModel.commentsNetworkManager, notificationsManager: viewModel.notificationsManager))
+            }
+            .fullScreenCover(isPresented: $viewModel.showLoginView) {
+                LoginView(viewModel: LoginViewModel(isPresented: $viewModel.showLoginView))
+            }
+            .fullScreenCover(isPresented: $viewModel.showRegistrationView) {
+                RegistrationView(viewModel: RegistrationViewModel(isPresented: $viewModel.showRegistrationView))
             }
         }
     }
@@ -179,7 +188,7 @@ struct PlaceView: View {
                         .listRowSeparator(.hidden)
                         .listRowInsets(EdgeInsets(top: 50, leading: 0, bottom: 50, trailing: 0))
                     }
-                    CommentsView(viewModel: CommentsViewModel(commentsNetworkManager: viewModel.commentsNetworkManager, errorManager: viewModel.errorManager, size: proxy.size, place: viewModel.place))
+                    CommentsView(viewModel: CommentsViewModel(comments: $viewModel.comments, isLoading: $viewModel.isCommentsLoading, showAddReviewView: $viewModel.showAddCommentView, showRegistrationView: $viewModel.showRegistrationView, showLoginView: $viewModel.showLoginView, commentsNetworkManager: viewModel.commentsNetworkManager, errorManager: viewModel.errorManager, size: proxy.size, place: viewModel.place))
                         .listRowSeparator(.hidden)
                         .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
 

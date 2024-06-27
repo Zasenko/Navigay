@@ -8,62 +8,66 @@
 import Foundation
 import UIKit
 
-
-//extension FileManager {
-//    
-//    static var documentDirectoryURL: URL {
-//        let documentDirectoryURL = try! FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
-//        return documentDirectoryURL
-//    }
-//    
-//    func scanTheDirectory(_ folder: URL) {
-//        print("----------scanTheDirectory--------")
-//            let enm = FileManager.default.enumerator(at: folder, includingPropertiesForKeys: nil)
-//            for url in enm! {
-//                print(url)
+extension FileManager {
+    
+    func scanDirectory(url: URL) -> [URL] {
+        let urls = (try? self.contentsOfDirectory(at: url, includingPropertiesForKeys: nil, options: [])) ?? []
+        return urls
+    }
+    
+    func checkFolder(url: URL) {
+        if !self.fileExists(atPath: url.path) {
+            do {
+                try self.createDirectory(at: url, withIntermediateDirectories: true, attributes: nil)
+            } catch {
+                print("Failed to create folder: \(error.localizedDescription)")
+            }
+        }
+    }
+    
+    func saveImage(data: Data, directory: URL, identifier: String) -> URL? {
+        let fileURL = directory.appendingPathComponent(identifier)
+        do {
+            try data.write(to: fileURL)
+            if let imageData = UIImage(data: data)?.jpegData(compressionQuality: 1.0) {
+                let fileName = identifier + ".jpg"
+                let imageFileURL = directory.appendingPathComponent(fileName)
+                try imageData.write(to: imageFileURL)
+                return imageFileURL
+            }
+        } catch {
+            print("Failed to save image data: \(error.localizedDescription)")
+        }
+        return nil
+    }
+    
+    func removeImageFromDisk(directory: URL, identifier: String) {
+        
+        let fileURL = directory.appendingPathComponent(identifier)
+        
+        if self.fileExists(atPath: fileURL.path) {
+            do {
+                try self.removeItem(at: fileURL)
+                print("File \(fileURL.path) deleted successfully.")
+            } catch {
+                print("Error deleting image: \(error.localizedDescription) /", error)
+            }
+        } else {
+            print("File does not exist at: \(fileURL.path)")
+        }
+    }
+    
+//    func loadDataFromDisk(url: URL) -> Data? {
+//        if self.fileExists(atPath: url.path) {
+//            do {
+//                let data = try Data(contentsOf: url)
+//                return data
+//            } catch {
+//                print("Failed to load data from disk: \(error.localizedDescription)")
 //            }
-//        print("----------scanTheDirectory END--------")
-//      }
-//
-//    //Creating a folder
-//    func checkFolder(url: URL) {
-//         debugPrint("-------------createAnotherFolder-----------------")
-//          //  humansURL = newFolderURL
-//            if !FileManager.default.fileExists(atPath: url.path) {
-//                do {
-//                    try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true, attributes: nil)
-//                    debugPrint("created at: \(url)")
-//                }
-//                catch let err {
-//                    print(err.localizedDescription)
-//                }
-//            } else {
-//                debugPrint("already created at: \(url)")
-//            }
+//        } else {
+//            print("File does not exist at: \(url.path)")
 //        }
-//    
-//    
-////    func loadImgfromDisk(event: Event) -> UIImage? {
-////        debugPrint("-------------loadImgsfromDisk-----------------")
-////            do {
-////                
-////                guard let url = event.posterDataUrl else {
-////                    debugPrint("no url")
-////                    return nil
-////                }
-////                let imgData = try Data.init(contentsOf: url)
-////                
-////                guard let img = UIImage.init(data: imgData) else {
-////                    debugPrint("no img")
-////                    return nil
-////                }
-////              //  newimgs.append(retrivedImg)
-////                debugPrint("loaded")
-////                return img
-////            } catch {
-////                debugPrint(error.localizedDescription)
-////                return nil
-////            }
-////        
-////    }
-//}
+//        return nil
+//    }
+}

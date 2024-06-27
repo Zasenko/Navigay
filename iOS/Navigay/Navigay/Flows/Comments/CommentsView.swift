@@ -50,12 +50,6 @@ struct CommentsView: View {
             .onAppear {
                 viewModel.fetchComments()
             }
-            .fullScreenCover(isPresented: $viewModel.showLoginView) {
-                LoginView(viewModel: LoginViewModel(isPresented: $viewModel.showLoginView))
-            }
-            .fullScreenCover(isPresented: $viewModel.showRegistrationView) {
-                RegistrationView(viewModel: RegistrationViewModel(isPresented: $viewModel.showRegistrationView))
-            }
     }
     
     private var addReviewButton: some View {
@@ -73,9 +67,6 @@ struct CommentsView: View {
             .padding()
             .background(AppColors.lightGray6)
             .clipShape(Capsule(style: .continuous))
-        }
-        .sheet(isPresented: $viewModel.showAddReviewView) {
-            AddCommentView(viewModel: AddCommentViewModel(placeId: viewModel.place.id, networkManager: viewModel.commentsNetworkManager, errorManager: viewModel.errorManager))
         }
     }
     
