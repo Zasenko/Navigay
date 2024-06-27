@@ -20,7 +20,7 @@ struct HomeView: View {
     @EnvironmentObject private var locationManager: LocationManager
     @EnvironmentObject private var authenticationManager: AuthenticationManager
     @Environment(\.modelContext) private var modelContext
-
+    @State private var isPresented: Bool = false
     // MARK: - Body
     
     var body: some View {
@@ -71,11 +71,13 @@ struct HomeView: View {
                     }
                 }
             }
-//            .onAppear() {
-//                let category = aroundManager.selectedHomeSortingCategory
-//                aroundManager.selectedHomeSortingCategory = .all
-//                aroundManager.selectedHomeSortingCategory = category
-//            }
+            .onAppear {
+                if !isPresented {
+                    isPresented = true
+                    let selectedCategory = aroundManager.selectedHomeSortingCategory
+                    aroundManager.selectedHomeSortingCategory = aroundManager.sortingHomeCategories.first ?? selectedCategory
+                }
+            }
             .sheet(isPresented:  $aroundManager.showCalendar) {} content: {
                 CalendarView(selectedDate: $aroundManager.selectedDate, eventsDates: $aroundManager.eventsDates)
                     .presentationDetents([.medium])

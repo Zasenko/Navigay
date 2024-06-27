@@ -261,7 +261,16 @@ struct TabBarView: View {
             let groupedPlaces = await placeDataManager.createHomeGroupedPlaces(places: places)
             let todayEvents = events.today.sorted(by: { $0.id < $1.id })
             let upcomingEvents = events.upcoming.sorted(by: { $0.id < $1.id }).sorted(by: { $0.startDate < $1.startDate })
-            let activeDates = events.allDates.keys.sorted().filter( { $0.isFutureDay } )
+            let activeDates = events.allDates.keys.sorted().filter { date -> Bool in
+                if date.isFutureDay {
+                    return true
+                } else if date.isToday {/// this for Notifications
+                    let hour = Calendar.current.component(.hour, from: date)
+                    return hour < 6
+                } else {
+                    return false
+                }
+            }
             await MainActor.run {
                 aroundManager.upcomingEvents = upcomingEvents
                 aroundManager.aroundPlaces = places

@@ -1,4 +1,3 @@
-import Foundation
 import UserNotifications
 import SwiftUI
 
@@ -11,28 +10,37 @@ protocol NotificationsManagerProtocol {
 
 final class NotificationsManager {
         
+    // MARK: - Private Properties
+
     private let center: UNUserNotificationCenter
-    private let directory: URL
+    private let directory: URL?
     private let fileManager: FileManager
 
+    // MARK: - Init
 
     init() {
         self.center = UNUserNotificationCenter.current()
         self.fileManager = .default
-        self.directory = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first!.appendingPathComponent("Notifications")
+        if let directory = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Notifications"),
+           fileManager.checkFolder(url: directory) {
+            self.directory = directory
+     //       let urls = fileManager.scanDirectory(url: directory)
+     //       for url in urls {
+               // self.urls.append(url)
+    //            if let data = try? Data(contentsOf: url),
+    //               let image = UIImage(data: data) {
+    //                urls.append((image, url))
+    //            }
+    //        }
+        } else {
+            self.directory = nil
+        }
         requestNotificationAuthorization()
         center.removeAllDeliveredNotifications()
-        fileManager.checkFolder(url: directory)
-        let urls = fileManager.scanDirectory(url: directory)
-        for url in urls {
-           // self.urls.append(url)
-//            if let data = try? Data(contentsOf: url),
-//               let image = UIImage(data: data) {
-//                urls.append((image, url))
-//            }
-        }
     }
 }
+
+// MARK: - NotificationsManagerProtocol
 
 extension NotificationsManager: NotificationsManagerProtocol {
     
@@ -85,16 +93,16 @@ extension NotificationsManager: NotificationsManagerProtocol {
         if let eventDate = calendar.date(from: dateComponents),
            let finalDate = calendar.date(byAdding: .hour, value: -2, to: eventDate) {
             let finalDateComponents = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: finalDate)
-            if let url = event.smallPoster {
+            if let url = event.smallPoster,
+               let directory {
                 Task {
                     guard let data = await ImageLoader.shared.loadData(urlString: url),
-                        let image = UIImage(data: data) else {
+                        let _ = UIImage(data: data) else {
                         createCalendarNotification(title: event.name, body: "Don't miss! The event starts soon.", attachments: nil, dateComponents: finalDateComponents, identifier: identifier)
                         return
                     }
                     DispatchQueue.main.async {
-                        if let fileURL = self.fileManager.saveImage(data: data, directory: self.directory, identifier: identifier) {
-                      //      self.urls.append(fileURL)
+                        if let fileURL = self.fileManager.saveImage(data: data, directory: directory, identifier: identifier) {
                             do {
                                 let newAttachment = try UNNotificationAttachment(identifier: identifier, url: fileURL, options: nil)
                                 self.createCalendarNotification(title: event.name, body: "Don't miss! The event starts soon.", attachments: [newAttachment], dateComponents: finalDateComponents, identifier: identifier)
@@ -117,12 +125,16 @@ extension NotificationsManager: NotificationsManagerProtocol {
         
     func removeEventNotification(event: Event) {
         let identifier = "EventNotification\(event.id)"
-        fileManager.removeImageFromDisk(directory: directory, identifier: identifier)
+        if let directory {
+            fileManager.removeImageFromDisk(directory: directory, identifier: identifier)
+        }
         center.removePendingNotificationRequests(withIdentifiers: [identifier])
     }
 }
 
 extension NotificationsManager {
+    
+    // MARK: - Private Functions
     
     private func requestNotificationAuthorization() {
         center.getNotificationSettings { [weak self] settings in

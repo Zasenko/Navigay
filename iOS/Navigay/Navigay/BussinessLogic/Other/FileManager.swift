@@ -11,16 +11,26 @@ import UIKit
 extension FileManager {
     
     func scanDirectory(url: URL) -> [URL] {
-        let urls = (try? self.contentsOfDirectory(at: url, includingPropertiesForKeys: nil, options: [])) ?? []
-        return urls
+        do {
+            let urls = try self.contentsOfDirectory(at: url, includingPropertiesForKeys: nil, options: [])  
+            return urls
+        } catch {
+            debugPrint("Failed to scan folder \(url): \(error.localizedDescription)")
+            return []
+        }
     }
     
-    func checkFolder(url: URL) {
-        if !self.fileExists(atPath: url.path) {
+    func checkFolder(url: URL) -> Bool {
+        
+        if self.fileExists(atPath: url.path) {
+            return true
+        } else {
             do {
                 try self.createDirectory(at: url, withIntermediateDirectories: true, attributes: nil)
+                return true
             } catch {
-                print("Failed to create folder: \(error.localizedDescription)")
+                debugPrint("Failed to create folder: \(error.localizedDescription)")
+                return false
             }
         }
     }
@@ -36,24 +46,22 @@ extension FileManager {
                 return imageFileURL
             }
         } catch {
-            print("Failed to save image data: \(error.localizedDescription)")
+            debugPrint("Failed to save image data: \(error.localizedDescription)")
         }
         return nil
     }
     
     func removeImageFromDisk(directory: URL, identifier: String) {
-        
         let fileURL = directory.appendingPathComponent(identifier)
-        
         if self.fileExists(atPath: fileURL.path) {
             do {
                 try self.removeItem(at: fileURL)
-                print("File \(fileURL.path) deleted successfully.")
+                debugPrint("File \(fileURL.path) deleted successfully.")
             } catch {
-                print("Error deleting image: \(error.localizedDescription) /", error)
+                debugPrint("Error deleting image: \(error.localizedDescription) /", error)
             }
         } else {
-            print("File does not exist at: \(fileURL.path)")
+            debugPrint("File does not exist at: \(fileURL.path)")
         }
     }
     
