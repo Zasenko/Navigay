@@ -42,7 +42,7 @@ struct EventCell: View {
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .clipped()
-                .transition(.scale.animation(.easeInOut))
+             //   .transition(.opacity.animation(.easeInOut))
             HStack(alignment: .top, spacing: 0) {
                 Spacer()
                 if showLike && event.isLiked {

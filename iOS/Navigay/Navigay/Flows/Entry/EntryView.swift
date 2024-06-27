@@ -48,7 +48,7 @@ struct EntryView: View {
                         authentificate()
                     }
             }
-            ErrorView(viewModel: ErrorViewModel(errorManager: errorManager), moveFrom: .bottom, alignment: .bottom)
+            ErrorView(viewModel: ErrorViewModel(errorManager: errorManager), moveFrom: .top, alignment: .top)
         }
         .environmentObject(authenticationManager)
     }

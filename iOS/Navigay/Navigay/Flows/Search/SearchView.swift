@@ -46,20 +46,28 @@ struct SearchView: View {
                 .opacity(focused ? 1 : 0)
                 
             }
-        //    .toolbar(.hidden, for: .navigationBar)
+            .toolbarTitleDisplayMode(.inline)
+            .toolbar {
+                    ToolbarItem(placement: .principal) {
+                        Text("Hunt for Locations and Events")
+                            .foregroundStyle(.primary)
+                            .bold()
+                            .font(.headline)
+                    }
+            }
+           // .toolbar(focused ? .hidden : .visible, for: .navigationBar)
             .onChange(of: viewModel.isSearching) { _, newValue in
                 if newValue {
                     hideKeyboard()
                 }
             }
             .onChange(of: viewModel.searchText, initial: false) { _, newValue in
-                viewModel.notFound = false
                 viewModel.textSubject.send(newValue.lowercased())
             }
             .fullScreenCover(item: $viewModel.selectedEvent) { event in
                 EventView(viewModel: EventView.EventViewModel.init(event: event, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, commentsNetworkManager: viewModel.commentsNetworkManager, notificationsManager: viewModel.notificationsManager))
             }
-            .animation(.easeInOut, value: focused)
+            .animation(.default, value: focused)
         }
     }
     
@@ -80,15 +88,18 @@ struct SearchView: View {
                             .bold()
                             .frame(width: 40, height: 40)
                     }
-                    TextField("Search...", text: $viewModel.searchText)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled(true)
-                        .lineLimit(1)
-                        .frame(maxWidth: .infinity)
-                        .focused($focused)
+                    TextField("Search...", text: $viewModel.searchText, onCommit: {
+                        viewModel.search()
+                    })
+                   .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled(true)
+                    .lineLimit(1)
+                    .frame(maxWidth: .infinity)
+                    .focused($focused)
+                    .submitLabel(.search)
                 }
                 .padding(.trailing, 10)
-                .background(AppColors.lightGray6)
+                .background(.ultraThickMaterial)
                 .cornerRadius(16)
                 .frame(maxWidth: .infinity)
                 .onTapGesture {
@@ -97,75 +108,116 @@ struct SearchView: View {
                 if focused {
                     Button("Cancel") {
                         focused = false
+                        viewModel.searchText = ""
                     }
+                    .bold()
                     .padding(.leading)
+                    .transition(.move(edge: .trailing).combined(with: .opacity).animation(.default))
                 }
             }
             .padding(.horizontal)
             .padding(.bottom, 8)
             .frame(maxWidth: .infinity)
-            .animation(.interactiveSpring, value: viewModel.searchText.isEmpty)
-            if !focused {
+            .animation(.default, value: viewModel.searchText.isEmpty)
+            if !focused, !viewModel.categories.isEmpty {
                 menuView
+                    .transition(.move(edge: .top).combined(with: .opacity).animation(.default))
             }
         }
     }
     
     private var mainView: some View {
         GeometryReader { proxy in
-            ZStack {
-                if focused || viewModel.searchText.isEmpty {
+            if focused || viewModel.searchText.count < 3 {
+                List {
+                    lastSearchResultsSection
+                        .listRowBackground(Color.clear)
+                    Color.clear
+                        .frame(height: 50)
+                        .listRowBackground(Color.clear)
+                        .listSectionSeparator(.hidden)
+                }
+                .scrollContentBackground(.hidden)
+                .background(Color.clear)
+                .listSectionSeparator(.hidden)
+                .listStyle(.plain)
+                .scrollIndicators(.hidden)
+                .buttonStyle(PlainButtonStyle())
+                .onTapGesture {
+                    focused = false
+                }
+                .transition(.move(edge: .bottom).combined(with: .opacity).animation(.default))
+            } else {
+                if viewModel.notFound {
                     List {
-                        lastSearchResultsView
+                        notFoundView
+                        Color.clear
+                            .frame(height: 50)
                             .listRowBackground(Color.clear)
+                            .listSectionSeparator(.hidden)
                     }
+                    .background(Color.clear)
                     .scrollContentBackground(.hidden)
                     .listSectionSeparator(.hidden)
                     .listStyle(.plain)
                     .scrollIndicators(.hidden)
                     .buttonStyle(PlainButtonStyle())
-                    .onTapGesture {
-                        focused = false
-                    }
-                } else {
-                    if viewModel.notFound {
-                        List {
-                            notFoundView
-                        }
-                        .scrollContentBackground(.hidden)
-                        .listSectionSeparator(.hidden)
-                        .listStyle(.plain)
-                        .scrollIndicators(.hidden)
-                        .buttonStyle(PlainButtonStyle())
-                    }
-                    
-                    if !viewModel.categories.isEmpty {
-                        tabView(size: proxy.size)
-                    }
+                }
+                if !viewModel.categories.isEmpty {
+                    tabView(size: proxy.size)
                 }
             }
         }
     }
     
-    private var lastSearchResultsView: some View {
+    private var lastSearchResultsSection: some View {
         Section {
-            ForEach(viewModel.catalogNetworkManager.loadedSearchText.keys.uniqued(), id: \.self) { key in
+            ForEach(viewModel.searchedKeys, id: \.self) { key in
                 Button {
                     hideKeyboard()
-                    viewModel.searchText = key
-                    viewModel.search(text: key)
+                    viewModel.getSearchedResult(key: key)
                 } label: {
                     HStack(alignment: .firstTextBaseline) {
-                        AppImages.iconArrowUpRight
+                        AppImages.iconClock
                             .font(.caption)
                             .bold()
-                            .foregroundStyle(.blue)
-                        Text(key)
-                            .font(.body)
-                            .padding(.vertical)
+                            .foregroundStyle(.primary)
+                        VStack(alignment: .leading, spacing: 0) {
+                            Text(key)
+                                .font(.body)
+                                .bold()
+                                .foregroundStyle(.primary)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            if let result = viewModel.catalogNetworkManager.loadedSearchText[key] {
+                                HStack {
+                                    if result.eventsCount == 0 && result.placeCount == 0 {
+                                        Text("No results found")
+                                    }  else {
+                                        if result.eventsCount > 0 {
+                                            Text(String(result.eventsCount))
+                                            + Text(result.eventsCount > 1 ? " events" : " event")
+                                        }
+                                        if ((result.eventsCount > 0) && (result.placeCount > 0)) {
+                                            Text("•")
+                                        }
+                                        if result.placeCount > 0 {
+                                            Text(String(result.placeCount)) + Text(result.placeCount > 1 ? " places" : " place")
+                                        }
+                                    }
+                                }
+                                .font(.footnote)
+                                .foregroundColor(.secondary)
+                                .multilineTextAlignment(.leading)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            }
+                        }
+                        AppImages.iconArrowDownLeft
+                            .font(.caption)
+                            .bold()
                             .foregroundStyle(.secondary)
-                            .frame(maxWidth: .infinity, alignment: .leading)
                     }
+                    .padding(.vertical, 10)
+                    .contentShape(Rectangle())
                 }
             }
         }
@@ -193,8 +245,10 @@ struct SearchView: View {
                 .textSelection(.enabled)
                 .padding()
             }
+            .listRowBackground(Color.clear)
             .frame(maxWidth: .infinity)
         }
+        .listRowBackground(Color.clear)
         .listSectionSeparator(.hidden)
         .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
     }
@@ -220,7 +274,6 @@ struct SearchView: View {
                                     .clipShape(.capsule)
                             }
                             .padding(.leading)
-
                             .id(category)
                         }
                     }
@@ -233,6 +286,7 @@ struct SearchView: View {
                     }
                 }
             }
+            Divider()
         }
     }
     
@@ -247,7 +301,7 @@ struct SearchView: View {
         .frame(width: .infinity, height: .infinity)
     }
     
-    func categoryView(category: SortingCategory, size: CGSize) -> some View {
+    private func categoryView(category: SortingCategory, size: CGSize) -> some View {
         List {
             switch category {
             case .events:
@@ -258,10 +312,12 @@ struct SearchView: View {
             Color.clear
                 .frame(height: 50)
                 .listSectionSeparator(.hidden)
+                .listRowBackground(Color.clear)
         }
         .scrollContentBackground(.hidden)
         .scrollIndicators(.hidden)
         .listSectionSeparator(.hidden)
+        .background(Color.clear)
         .listStyle(.plain)
         .buttonStyle(PlainButtonStyle())
     }
@@ -275,6 +331,7 @@ struct SearchView: View {
                     .foregroundStyle(.primary)
                     .offset(x: 70)
                     .padding(.vertical)
+                    .listRowBackground(Color.clear)
                 if item.events.count == 1 {
                     ForEach(item.events) { event in
                         Button {
@@ -286,6 +343,7 @@ struct SearchView: View {
                         .frame(maxWidth: size.width / 2)
                         .frame(maxWidth: .infinity)
                         .padding(.bottom)
+                        .listRowBackground(Color.clear)
                     }
                 } else {
                     StaggeredGrid(columns: 2, showsIndicators: false, spacing: 10, list: item.events) { event in
@@ -298,12 +356,13 @@ struct SearchView: View {
                     }
                     .padding(.horizontal, 10)
                     .padding(.bottom)
-                    
+                    .listRowBackground(Color.clear)
                 }
             }
-            
             .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
             .listRowSeparator(.hidden)
+            .background(Color.clear)
+            .listRowBackground(Color.clear)
             
         }
     }
@@ -320,13 +379,17 @@ struct SearchView: View {
                             .foregroundStyle(.primary)
                         // .offset(x: 70)
                             .padding(.vertical)
+                            .listRowBackground(Color.clear)
                         ForEach(item.places) { place in
                             placeCell(place: place)
+                                .listRowBackground(Color.clear)
                         }
                         
                     }
                     .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
                     .listRowSeparator(.hidden)
+                    .background(Color.clear)
+                    .listRowBackground(Color.clear)
                     
                 }
             }
@@ -355,5 +418,4 @@ struct SearchView: View {
             )
         }
     }
-    
 }

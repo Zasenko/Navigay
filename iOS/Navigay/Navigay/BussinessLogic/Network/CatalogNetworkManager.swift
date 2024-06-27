@@ -8,8 +8,11 @@
 import Foundation
 
 struct SearchItems {
-    let places: [Place]
-    let events: [Event]
+    let places: [SearchPlacesTest]
+    let events: [SearchEvents]
+    let categories: [SortingCategory]
+    let eventsCount: Int
+    let placeCount: Int
 }
 
 enum CatalogEndPoint {
@@ -65,6 +68,8 @@ protocol CatalogNetworkManagerProtocol {
     var isCountriesLoaded: Bool { get }// TODO
     var loadedCountries: [Int] { get }// TODO
     var loadedCities: [Int] { get }// TODO
+    
+    
     var loadedSearchText: [String:SearchItems] { get }// TODO
     func addToLoadedSearchItems(result: SearchItems, for text: String)// TODO
     

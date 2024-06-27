@@ -31,26 +31,28 @@ struct Test: View {
 //        }
 //        .padding()
             
-//            Text("Hello world")
-//                .font(.largeTitle)
-//            Text("Hello world")
-//                .font(.title)
-//            Text("Hello world")
-//                .font(.title2)
-//            Text("Hello world")
-//                .font(.title3)
-//            Text("Hello world")
-//                .font(.body)
-//            Text("Hello world")
-//                .font(.callout)
-//            Text("Hello world")
-//                .font(.subheadline)
-//            Text("Hello world")
-//                .font(.footnote)
-//            Text("Hello world")
-//                .font(.caption)
-//            Text("Hello world")
-//                .font(.caption2)
+            Text("Hello world")
+                .font(.largeTitle)
+            Text("Hello world")
+                .font(.title)
+            Text("Hello world")
+                .font(.title2)
+            Text("Hello world")
+                .font(.title3)
+        Text("Hello world")
+            .font(.headline)
+            Text("Hello world")
+                .font(.body)
+            Text("Hello world")
+                .font(.callout)
+            Text("Hello world")
+                .font(.subheadline)
+            Text("Hello world")
+                .font(.footnote)
+            Text("Hello world")
+                .font(.caption)
+            Text("Hello world")
+                .font(.caption2)
         
         
 //        Button {
@@ -68,29 +70,29 @@ struct Test: View {
 //            .tint(.blue)
 //        }
 //
-//             
-//       
-        VStack {
-            HStack {
-                Image(systemName: "heart.fill")
-                    .foregroundColor(.red)
-                Text("0.5")
-                
-            }
-            .padding (10)
-            .background(Color.white)
-            .clipShape(RoundedRectangle(cornerRadius: 25.0, style: .continuous))
-            .overlay(alignment: .bottom) {
-                Image(systemName: "arrowtriangle.left.fill")
-                    .rotationEffect (Angle(degrees: 270))
-                    .foregroundColor(.white)
-                    .offset(y: 10)
-                
-            }
-            
-        }
-        .ignoresSafeArea()
-        .background(.black)
+
+        
+//        VStack {
+//            HStack {
+//                Image(systemName: "heart.fill")
+//                    .foregroundColor(.red)
+//                Text("0.5")
+//                
+//            }
+//            .padding (10)
+//            .background(Color.white)
+//            .clipShape(RoundedRectangle(cornerRadius: 25.0, style: .continuous))
+//            .overlay(alignment: .bottom) {
+//                Image(systemName: "arrowtriangle.left.fill")
+//                    .rotationEffect (Angle(degrees: 270))
+//                    .foregroundColor(.white)
+//                    .offset(y: 10)
+//                
+//            }
+//            
+//        }
+//        .ignoresSafeArea()
+//        .background(.black)
     }
 }
 

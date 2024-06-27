@@ -42,10 +42,11 @@ extension SearchView {
         
         var searchPlaces: [SearchPlacesTest] = []
         var searchEvents: [SearchEvents] = []
-
         var categories: [SortingCategory] = []
+        
+        var searchedKeys: [String] = []
+        
         var selectedCategory: SortingCategory = .all
-
         var selectedEvent: Event?
         
         let catalogNetworkManager: CatalogNetworkManagerProtocol
@@ -60,6 +61,10 @@ extension SearchView {
         let textSubject = PassthroughSubject<String, Never>()
         
         private var cancellable: AnyCancellable?
+        
+        private enum SearchError: Error {
+            case searchTextLessThan3
+        }
         
         init(modelContext: ModelContext,
              catalogNetworkManager: CatalogNetworkManagerProtocol,
@@ -81,56 +86,95 @@ extension SearchView {
             self.catalogDataManager = catalogDataManager
             self.commentsNetworkManager = commentsNetworkManager
             self.notificationsManager = notificationsManager
-
+            searchedKeys = catalogNetworkManager.loadedSearchText.keys.uniqued()
+            
             cancellable = textSubject
-                .debounce(for: .seconds(1.5), scheduler: DispatchQueue.main)
+             //   .debounce(for: .seconds(0), scheduler: DispatchQueue.main)
                 .sink { [weak self] searchText in
-                    guard !searchText.isEmpty, searchText.count > 2 else {
+                    self?.notFound = false
+                    guard !searchText.isEmpty else {
                         DispatchQueue.main.async {
                             withAnimation {
+                                self?.selectedCategory = .all
+                                self?.categories = []
                                 self?.searchEvents = []
                                 self?.searchPlaces = []
-                                self?.categories = []
-                                self?.selectedCategory = .all
+                                self?.searchedKeys = catalogNetworkManager.loadedSearchText.keys.uniqued()
                             }
                         }
                         return
                     }
-                    self?.search(text: searchText)
+                    self?.searchedKeys = catalogNetworkManager.loadedSearchText.keys.uniqued().filter( { $0.contains(searchText)} )
                 }
         }
         
-        func search(text: String) {
-            
-            if let result = catalogNetworkManager.loadedSearchText[text] {
-                searchEvents = getEvents(events: result.events)
-                searchPlaces = getPlaces(places: result.places)
-                Task {
-                    await updateSortingMapCategories(events: result.events, places: result.places)
-                }
-            } else {
-                isSearching = true
-                Task {
-                    do {
-                        let result = try await catalogNetworkManager.search(text: text)
-                        await MainActor.run {
-                            updateSearchResult(result: result, for: text)
-                        }
-                    } catch NetworkErrors.noConnection {
-                        errorManager.showNetworkNoConnected()
-                    } catch NetworkErrors.apiError(let apiError) {
-                        errorManager.showApiError(apiError: apiError, or: errorManager.updateMessage, img: nil, color: nil)
-                    } catch {
-                        errorManager.showUpdateError(error: error)
-                    }
-                    await MainActor.run {
-                        isSearching = false
-                    }
+        func getPlaces(category: SortingCategory) -> [SearchPlaces] {
+            //SearchPlacesTest
+            guard let a = searchPlaces.first(where: { $0.type == category} ) else {
+                return []
+            }
+            return a.places
+        }
+        
+        func getSearchedResult(key: String) {
+            searchText = key
+            if let result = catalogNetworkManager.loadedSearchText[searchText] {
+                selectedCategory = result.categories.first ?? .all
+                categories = result.categories
+                searchEvents = result.events
+                searchPlaces = result.places
+                if (result.eventsCount == 0 && result.placeCount == 0) {
+                    notFound = true
                 }
             }
         }
-
-        func getPlaces(places: [Place]) -> [SearchPlacesTest] {
+        
+        func search() {
+            guard searchText.count > 2 else {
+                //todo - сообщить в error manager
+                errorManager.showError(model: ErrorModel(error: SearchError.searchTextLessThan3, message: "Search text must be at least 3 characters long."))
+                searchedKeys = catalogNetworkManager.loadedSearchText.keys.uniqued()
+                selectedCategory = .all
+                categories = []
+                searchEvents = []
+                searchPlaces = []
+                return
+            }
+            isSearching = true
+            Task {
+                do {
+                    let result = try await catalogNetworkManager.search(text: searchText)
+                    await MainActor.run {
+                        updateSearchResult(result: result, for: searchText)
+                    }
+                } catch NetworkErrors.noConnection {
+                    errorManager.showNetworkNoConnected()
+                } catch NetworkErrors.apiError(let apiError) {
+                    errorManager.showApiError(apiError: apiError, or: errorManager.updateMessage, img: nil, color: nil)
+                } catch {
+                    errorManager.showUpdateError(error: error)
+                }
+                await MainActor.run {
+                    isSearching = false
+                }
+            }
+        }
+        
+        private func transformEvents(events: [Event]) async -> [SearchEvents] {
+            var searchEvents: [Country: [Event]] = [:]
+            for event in events {
+                if let country = event.city?.region?.country {
+                    if searchEvents[country] != nil {
+                        searchEvents[country]?.append(event)
+                    } else {
+                        searchEvents[country] = [event]
+                    }
+                }
+            }
+            return searchEvents.map({ SearchEvents(id: UUID(), country: $0, events: $1) })
+        }
+        
+        private func transformPlaces(places: [Place]) async -> [SearchPlacesTest] {
             var searchPlaces: [SortingCategory: [Country: [Place]]] = [:]
             for place in places {
                 let category = SortingCategory(placeType: place.type)
@@ -151,45 +195,36 @@ extension SearchView {
             }
         }
         
-        func getPlaces(category: SortingCategory) -> [SearchPlaces] {
-            //SearchPlacesTest
-            guard let a = searchPlaces.first(where: { $0.type == category} ) else {
-                return []
-            }
-            return a.places
-        }
-        
-        func getEvents(events: [Event]) -> [SearchEvents] {
-            var searchEvents: [Country: [Event]] = [:]
-            for event in events {
-                if let country = event.city?.region?.country {
-                    if searchEvents[country] != nil {
-                        searchEvents[country]?.append(event)
-                    } else {
-                        searchEvents[country] = [event]
-                    }
-                }
-            }
-            return searchEvents.map({ SearchEvents(id: UUID(), country: $0, events: $1) })
-        }
         private func updateSearchResult(result: DecodedSearchItems, for text: String) {
             let countries = catalogDataManager.updateCountries(decodedCountries: result.countries, modelContext: modelContext)
             let regions = catalogDataManager.updateRegions(decodedRegions: result.regions, countries: countries, modelContext: modelContext)
             let cities = catalogDataManager.updateCities(decodedCities: result.cities, regions: regions, modelContext: modelContext)
             let places = placeDataManager.updatePlaces(decodedPlaces: result.places, for: cities, modelContext: modelContext)
             let events = eventDataManager.updateEvents(decodedEvents: result.events, for: cities, modelContext: modelContext)
-            searchEvents = getEvents(events: events)
-            searchPlaces = getPlaces(places: places)
             Task {
-                await updateSortingMapCategories(events: events, places: places)
+                let searchEvents = await transformEvents(events: events)
+                let searchPlaces = await transformPlaces(places: places)
+                let categories = await getCategories(events: events, places: places)
+                let items = SearchItems(places: searchPlaces, events: searchEvents, categories: categories, eventsCount: events.count, placeCount: places.count)
+                catalogNetworkManager.addToLoadedSearchItems(result: items, for: text)
+                await MainActor.run {
+                    //       withAnimation {
+                    self.selectedCategory = categories.first ?? .all
+                    self.categories = categories
+                    self.searchEvents = searchEvents
+                    self.searchPlaces = searchPlaces
+                    
+                    if (events.count == 0 && places.count == 0) {
+                        notFound = true
+                    }
+                    //       }
+                }
+
             }
-            let items = SearchItems(places: places, events: events)
-            catalogNetworkManager.addToLoadedSearchItems(result: items, for: text)
         }
         
-        private func updateSortingMapCategories(events: [Event], places: [Place]) async {
+        private func getCategories(events: [Event], places: [Place]) async -> [SortingCategory] {
             var categories: [SortingCategory] = []
-            var selectedCategory: SortingCategory?
             if events.count > 0 {
                 categories.append(.events)
                 selectedCategory = .events
@@ -197,21 +232,10 @@ extension SearchView {
             
             let placesTypes = places.map { $0.type }.uniqued()
             placesTypes.forEach { categories.append(SortingCategory(placeType: $0)) }
-            let sortedCategories = categories.sorted(by: {$0.getSortPreority() < $1.getSortPreority()})
-            
-            if let firstCategory = sortedCategories.first {
-                selectedCategory = firstCategory
-            }
-            
-            await MainActor.run { [categories, selectedCategory] in
-                withAnimation {
-                    self.categories = categories
-                    self.selectedCategory = selectedCategory ?? .all
-                }
-            }
+            return categories.sorted(by: {$0.getSortPreority() < $1.getSortPreority()})
         }
         
-        func searchInDB(text: String) {
+        private func searchInDB(text: String) {
 //            if let result = catalogNetworkManager.loadedSearchText[text] {
 //                searchRegions = result.regions
 //                searchCities = result.cities
