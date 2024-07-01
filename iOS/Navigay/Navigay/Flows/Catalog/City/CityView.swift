@@ -109,22 +109,6 @@ struct CityView: View {
                     PhotosTabView(allPhotos: $viewModel.allPhotos, width: geometry.size.width)
                         .listRowSeparator(.hidden)
                         .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                    if viewModel.city.isCapital || viewModel.city.isParadise {
-                        HStack {
-                            if viewModel.city.isCapital {
-                                    Text("⭐️ capital")
-                                .frame(maxWidth: .infinity)
-                            }
-                            if viewModel.city.isParadise {
-                                    Text("🏳️‍🌈 heaven")
-                                .frame(maxWidth: .infinity)
-                            }
-                        }
-                        .font(.callout).bold()
-                        .foregroundColor(.secondary)
-                        .listRowSeparator(.hidden)
-                        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                    }
                     Section {
                         eventsSection(size: geometry.size)
                         placesSection()
@@ -135,19 +119,39 @@ struct CityView: View {
                     }
                     .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                     .listRowSeparator(.hidden)
-                    
+
                     Section {
-                        if let about = viewModel.city.about {
-                            Text(about)
-                                .font(.callout)
-                                .foregroundStyle(.secondary)
-                                .padding(.top, 40)
-                                .listRowSeparator(.hidden)
+                        if viewModel.city.isCapital || viewModel.city.isParadise || (viewModel.city.about != nil) {
+                            Color.clear
+                                .frame(height: 100)
+                            if viewModel.city.isCapital || viewModel.city.isParadise {
+                                HStack {
+                                    if viewModel.city.isCapital {
+                                        Text("⭐️ capital".uppercased())
+                                            .frame(maxWidth: .infinity)
+                                    }
+                                    if viewModel.city.isParadise {
+                                        Text("🏳️‍🌈 heaven".uppercased())
+                                            .frame(maxWidth: .infinity)
+                                    }
+                                }
+                                .font(.callout).bold()
+                                .foregroundColor(.secondary)
+                                .padding()
+                            }
+                            if let about = viewModel.city.about {
+                                Text(about)
+                                    .font(.callout)
+                                    .foregroundStyle(.secondary)
+                                    .padding()
+                            }
                         }
+                        Color.clear
+                            .frame(height: 50)
                     }
-                    Color.clear
-                        .frame(height: 50)
-                        .listSectionSeparator(.hidden)
+                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                    .listRowSeparator(.hidden)
+
                 }
                 .listSectionSeparator(.hidden)
                 .listStyle(.plain)

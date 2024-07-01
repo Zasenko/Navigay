@@ -48,14 +48,22 @@ extension SearchView {
         var searchPlaces: [SearchPlacesTest] = []
         var searchEvents: [SearchEvents] = []
         var categories: [SortingCategory] = []
-        
-        
+        var selectedCategory: SortingCategory = .all
+        var selectedEvent: Event?
+
         var searchedKeys: [String] = []
         var last10SearchResults: [LastSearchItem] {
             get {
                 if let data = UserDefaults.standard.data(forKey: "last10SearchResults"),
                    let results = try? PropertyListDecoder().decode([LastSearchItem].self, from: data) {
-                    return results.sorted(by: { $0.date > $1.date})
+                    let filteredResult = results.filter { LastSearchItem in
+                        if searchedKeys.contains(where: { $0 == LastSearchItem.text}) {
+                            return false
+                        } else {
+                            return true
+                        }
+                    }
+                    return filteredResult.sorted(by: { $0.date > $1.date})
                 }
                 return []
             }
@@ -64,10 +72,7 @@ extension SearchView {
                 UserDefaults.standard.set(encodedResults, forKey: "last10SearchResults")
             }
         }
-        
-        var selectedCategory: SortingCategory = .all
-        var selectedEvent: Event?
-        
+                
         let catalogNetworkManager: CatalogNetworkManagerProtocol
         let placeNetworkManager: PlaceNetworkManagerProtocol
         let eventNetworkManager: EventNetworkManagerProtocol
