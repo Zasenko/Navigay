@@ -21,7 +21,6 @@ extension FileManager {
     }
     
     func checkFolder(url: URL) -> Bool {
-        
         if self.fileExists(atPath: url.path) {
             return true
         } else {

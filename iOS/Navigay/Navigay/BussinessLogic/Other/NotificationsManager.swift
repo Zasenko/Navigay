@@ -24,7 +24,9 @@ final class NotificationsManager {
         if let directory = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Notifications"),
            fileManager.checkFolder(url: directory) {
             self.directory = directory
-     //       let urls = fileManager.scanDirectory(url: directory)
+            let urls = fileManager.scanDirectory(url: directory)
+            debugPrint("----- FileManager Notifications urls ------")
+            debugPrint(urls)
      //       for url in urls {
                // self.urls.append(url)
     //            if let data = try? Data(contentsOf: url),

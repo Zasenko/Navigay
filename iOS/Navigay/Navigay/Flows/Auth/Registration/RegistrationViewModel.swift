@@ -6,59 +6,52 @@
 //
 
 import SwiftUI
-import Combine
-
-enum ButtonStates {
-    case normal, loading, success, failure
-}
 
 final class RegistrationViewModel: ObservableObject {
     
     // MARK: - Properties
     
     @Binding var isPresented: Bool
-
     @Published var email = ""
     @Published var password = ""
-    @Published var allViewsDisabled = false
+    @Published var isEmailValid = false
+    @Published var isPasswordCountValid = false
+    @Published var isPasswordNumberValid = false
+    @Published var isPasswordLetterValid = false
+    var isFormValid: Bool {
+        isEmailValid && isPasswordCountValid && isPasswordNumberValid && isPasswordLetterValid
+    }
+    var allViewsDisabled = false
+    var buttonState: ButtonStates = .normal
     
-    @Published var buttonState: ButtonStates = .normal
-    @Published var isButtonValid = false
-            
-    // MARK: - Inits
+    // MARK: - Private Properties
+
+    private let validator = AuthValidator()
+
+    // MARK: - Init
     
     init(isPresented: Binding<Bool>) {
         _isPresented = isPresented
-        isAuthFormValidPublisher
-            .receive(on: RunLoop.main)
-            .assign(to: &$isButtonValid)
     }
 }
 
-private extension RegistrationViewModel {
+extension RegistrationViewModel {
     
-    var isUserEmailValidPublisher: AnyPublisher<Bool, Never> {
-        $email
-            .map { email in
-                let emailPredicate = NSPredicate(format: "SELF MATCHES %@", "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}")
-                return emailPredicate.evaluate(with: email)
-            }
-            .eraseToAnyPublisher()
+    // MARK: - Functions
+
+    func validateEmail() async {
+        let result = await validator.validateEmail(email)
+        await MainActor.run {
+            self.isEmailValid = result
+        }
     }
     
-    var isPasswordValidPublisher: AnyPublisher<Bool, Never> {
-        $password
-            .map { password in
-                return password.count >= 8 && (NSPredicate(format: "SELF MATCHES %@", ".*[0-9]+.*").evaluate(with: password)) && (NSPredicate(format:"SELF MATCHES %@", ".*[a-z]+.*").evaluate(with: password))
-            }
-            .eraseToAnyPublisher()
-    }
-    
-    var isAuthFormValidPublisher: AnyPublisher<Bool, Never> {
-        Publishers.CombineLatest(isUserEmailValidPublisher, isPasswordValidPublisher)
-            .map { isEmailValid, isPasswordValid in
-                return isEmailValid && isPasswordValid
-            }
-            .eraseToAnyPublisher()
+    func validatePassword() async {
+        let result = await validator.validatePassword(password)
+        await MainActor.run {
+            self.isPasswordCountValid = result.isCountValid
+            self.isPasswordNumberValid = result.containsNumber
+            self.isPasswordLetterValid = result.containsLetter
+        }
     }
 }

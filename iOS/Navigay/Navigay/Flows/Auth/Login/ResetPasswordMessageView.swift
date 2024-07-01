@@ -62,6 +62,6 @@ struct ResetPasswordMessageView: View {
 }
 
 
-#Preview {
-    ResetPasswordMessageView(email: "test@test.ru")
-}
+//#Preview {
+//    ResetPasswordMessageView(email: "test@test.ru")
+//}

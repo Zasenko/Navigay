@@ -24,6 +24,8 @@
 		0AB7FBCB2C066C0000EF8DBF /* aroundjson.json in Resources */ = {isa = PBXBuildFile; fileRef = 0AB7FBCA2C066C0000EF8DBF /* aroundjson.json */; };
 		0AC12DA72BB581F100343DE3 /* EditRegionNetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AC12DA62BB581F100343DE3 /* EditRegionNetworkManager.swift */; };
 		0AC12DA92BB5879A00343DE3 /* AdminRegionResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AC12DA82BB5879A00343DE3 /* AdminRegionResult.swift */; };
+		0AD119F62C32A3BD00AB49DD /* AuthValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AD119F52C32A3BD00AB49DD /* AuthValidator.swift */; };
+		0AD119F82C32A64700AB49DD /* ButtonStates.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AD119F72C32A64700AB49DD /* ButtonStates.swift */; };
 		0AEB53D02C08B7DD009A94B1 /* HomeViewModel2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AEB53CF2C08B7DD009A94B1 /* HomeViewModel2.swift */; };
 		0F0317152BD7AC67003B2E6C /* CommentsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F0317142BD7AC67003B2E6C /* CommentsView.swift */; };
 		0F0E352E2B7B9DDB00D396B0 /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F0E352D2B7B9DDB00D396B0 /* WelcomeView.swift */; };
@@ -258,6 +260,8 @@
 		0AB7FBCA2C066C0000EF8DBF /* aroundjson.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = aroundjson.json; path = ../../../../../web/api/around/aroundjson.json; sourceTree = "<group>"; };
 		0AC12DA62BB581F100343DE3 /* EditRegionNetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditRegionNetworkManager.swift; sourceTree = "<group>"; };
 		0AC12DA82BB5879A00343DE3 /* AdminRegionResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdminRegionResult.swift; sourceTree = "<group>"; };
+		0AD119F52C32A3BD00AB49DD /* AuthValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthValidator.swift; sourceTree = "<group>"; };
+		0AD119F72C32A64700AB49DD /* ButtonStates.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonStates.swift; sourceTree = "<group>"; };
 		0AEB53CF2C08B7DD009A94B1 /* HomeViewModel2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel2.swift; sourceTree = "<group>"; };
 		0F0317142BD7AC67003B2E6C /* CommentsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentsView.swift; sourceTree = "<group>"; };
 		0F0E352D2B7B9DDB00D396B0 /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
@@ -585,6 +589,7 @@
 				0FC965302ADD4C2900108443 /* LocationManager.swift */,
 				0A1BB6AA2C2878510098C04F /* NotificationsManager.swift */,
 				0A1BB6AE2C29ED900098C04F /* FileManager.swift */,
+				0AD119F52C32A3BD00AB49DD /* AuthValidator.swift */,
 			);
 			path = Other;
 			sourceTree = "<group>";
@@ -980,14 +985,15 @@
 			isa = PBXGroup;
 			children = (
 				0FD617A52ACC3B0400877C70 /* UserAccessRights.swift */,
+				0AD119F72C32A64700AB49DD /* ButtonStates.swift */,
+				0F354CB02AFE144000594AE0 /* Photo.swift */,
+				0F7E98002BA59227001A1550 /* AdminPhoto.swift */,
+				0FB1C1AD2BD681D3003A5E7E /* SortingCategory.swift */,
 				0F741A5B2ACD641400A7759E /* Tag.swift */,
 				0F151F3F2AE90DBC0049C60F /* Language.swift */,
 				0F741A642ACD642200A7759E /* EventType.swift */,
 				0F741A622ACD642200A7759E /* PlaceType.swift */,
 				0F79B2652AF26E5800FCAED2 /* DayOfWeek.swift */,
-				0F354CB02AFE144000594AE0 /* Photo.swift */,
-				0F7E98002BA59227001A1550 /* AdminPhoto.swift */,
-				0FB1C1AD2BD681D3003A5E7E /* SortingCategory.swift */,
 				0A5022AE2C0DF34200F937C8 /* Report.swift */,
 			);
 			path = Other;
@@ -1470,6 +1476,7 @@
 				0FC9652F2ADD329100108443 /* EventCell.swift in Sources */,
 				0FC965312ADD4C2900108443 /* LocationManager.swift in Sources */,
 				0F34DF7E2AE665BA005D29D0 /* AddLocationView.swift in Sources */,
+				0AD119F62C32A3BD00AB49DD /* AuthValidator.swift in Sources */,
 				0FD7749A2BA8462400842362 /* EditEventNetworkManager.swift in Sources */,
 				0F7E57ED2AE15BB50091A0F8 /* NewPlaceView.swift in Sources */,
 				0F3607362B62C4C800C74088 /* CatalogDataManager.swift in Sources */,
@@ -1528,6 +1535,7 @@
 				0F90B4DD2AF90D7E00547224 /* NewPlace.swift in Sources */,
 				0FD22FE42BC6D6510057CC75 /* EditEventTitleView.swift in Sources */,
 				0F69D5CE2B8E78F7007C7D63 /* EditEventRequiredView.swift in Sources */,
+				0AD119F82C32A64700AB49DD /* ButtonStates.swift in Sources */,
 				0F8917AF2B62E00200FB4D7D /* AdminCountryResult.swift in Sources */,
 				0F7E57E82AE129A40091A0F8 /* HomeView.swift in Sources */,
 				0F741A952ACDB68E00A7759E /* EventNetworkManager.swift in Sources */,

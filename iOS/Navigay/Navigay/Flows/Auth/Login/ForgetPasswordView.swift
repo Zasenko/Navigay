@@ -121,8 +121,8 @@ struct ForgetPasswordView: View {
     }
 }
 
-#Preview {
-    ForgetPasswordView(email: "") { string in
-        print(string)
-    }
-}
+//#Preview {
+//    ForgetPasswordView(email: "") { string in
+//        print(string)
+//    }
+//}

@@ -41,8 +41,9 @@ struct CountryView: View {
                         }
                         HStack {
                             Text("Cities")
-                                .font(.title)
-                                .foregroundStyle(.secondary)
+                                .font(.title2)
+                                .bold()
+                                .foregroundStyle(.primary)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                             Button {
                                 viewModel.showMap.toggle()

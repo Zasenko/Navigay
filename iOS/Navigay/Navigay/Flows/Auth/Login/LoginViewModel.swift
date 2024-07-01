@@ -13,14 +13,11 @@ final class LoginViewModel: ObservableObject {
     // MARK: - Properties
     
     @Binding var isPresented: Bool
-    
     @Published var email = ""
     @Published var password = ""
     @Published var allViewsDisabled = false
-    
     @Published var buttonState: ButtonStates = .normal
     @Published var isButtonValid = false
-    
     @Published var showForgetPasswordView = false
             
     // MARK: - Inits

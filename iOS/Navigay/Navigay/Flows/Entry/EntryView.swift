@@ -64,6 +64,6 @@ struct EntryView: View {
     }
 }
 
-#Preview {
-    EntryView()
-}
+//#Preview {
+//    EntryView()
+//}

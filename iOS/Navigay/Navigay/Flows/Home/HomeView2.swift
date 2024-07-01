@@ -33,6 +33,7 @@ struct HomeView: View {
                 } else {
                     mainView
                         .fullScreenCover(isPresented: $aroundManager.showMap) {
+                            
                             MapView(viewModel: MapViewModel(events: aroundManager.todayEvents, 
                                                             places: aroundManager.aroundPlaces,
                                                             categories: aroundManager.sortingMapCategories,

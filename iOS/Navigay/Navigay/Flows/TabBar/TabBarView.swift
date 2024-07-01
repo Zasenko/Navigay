@@ -40,6 +40,7 @@ struct TabBarView: View {
     private let eventDataManager: EventDataManagerProtocol
     private let catalogDataManager: CatalogDataManagerProtocol
     private let notificationsManager: NotificationsManagerProtocol
+    
     //MARK: - Init
     
     init(errorManager: ErrorManagerProtocol, networkManager: NetworkManagerProtocol, notificationsManager: NotificationsManagerProtocol, locationManager: LocationManager = LocationManager()) {

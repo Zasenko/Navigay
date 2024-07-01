@@ -11,15 +11,16 @@ struct RegistrationView: View {
     
     // MARK: - Private Properties
     
-    @StateObject private var viewModel: RegistrationViewModel
-    @EnvironmentObject private var authenticationManager: AuthenticationManager
-    @Environment(\.modelContext) private var context
-    @Environment(\.dismiss) private var dismiss
-    @FocusState private var focusedField: FocusField?
     private enum FocusField: Hashable, CaseIterable {
         case email, password
     }
     
+    @FocusState private var focusedField: FocusField?
+    @StateObject private var viewModel: RegistrationViewModel
+    @EnvironmentObject private var authenticationManager: AuthenticationManager
+    @Environment(\.modelContext) private var context
+    @Environment(\.dismiss) private var dismiss
+
     // MARK: - Init
     
     init(viewModel: RegistrationViewModel) {
@@ -63,17 +64,16 @@ struct RegistrationView: View {
                 .frame(maxWidth: .infinity)
                 .padding(.bottom, 20)
                 .listRowSeparator(.hidden)
-            
             VStack {
                 VStack(spacing: 20) {
                     emailView
                     passwordView
+                        .padding(.bottom)
                 }
                 .frame(maxWidth: 400)
             }
             .frame(maxWidth: .infinity)
             .listRowSeparator(.hidden)
-            
             registrationButtonView
                 .listRowSeparator(.hidden)
         }
@@ -83,11 +83,10 @@ struct RegistrationView: View {
         .onTapGesture {
             focusedField = nil
         }
-        .onSubmit(focusNextField)
         .disabled(viewModel.allViewsDisabled)
     }
     
-    var emailView: some View {
+    private var emailView: some View {
         HStack {
             VStack(spacing: 0) {
                 HStack {
@@ -96,16 +95,19 @@ struct RegistrationView: View {
                         .foregroundStyle(.secondary)
                     Spacer()
                 }
-                TextField("", text: $viewModel.email) {
-               //     authenticationManager.checkEmail(email: viewModel.email)
-                }
-                .font(.body)
-                .bold()
-                .keyboardType(.emailAddress)
-                .autocorrectionDisabled(true)
-                .textInputAutocapitalization(.never)
-                .lineLimit(1)
-                .focused($focusedField, equals: .email)
+                TextField("", text: $viewModel.email)
+                    .font(.body)
+                    .bold()
+                    .keyboardType(.emailAddress)
+                    .autocorrectionDisabled(true)
+                    .textInputAutocapitalization(.never)
+                    .lineLimit(1)
+                    .focused($focusedField, equals: .email)
+                    .onChange(of: viewModel.email) { _, newValue in
+                        Task {
+                            await viewModel.validateEmail()
+                        }
+                    }
             }
             AppImages.iconEnvelope
                 .font(.callout)
@@ -121,7 +123,7 @@ struct RegistrationView: View {
         }
     }
     
-    var passwordView: some View {
+    private var passwordView: some View {
         VStack(spacing: 0) {
             HStack {
                 VStack(spacing: 0) {
@@ -131,15 +133,18 @@ struct RegistrationView: View {
                             .foregroundColor(.secondary)
                         Spacer()
                     }
-                    SecureField("", text: $viewModel.password) {
-                       // authenticationManager.checkPassword(password: viewModel.password)
-                    }
-                    .font(.body)
-                    .bold()
-                    .autocorrectionDisabled(true)
-                    .textInputAutocapitalization(.never)
-                    .lineLimit(1)
-                    .focused($focusedField, equals: .password)
+                    SecureField("", text: $viewModel.password)
+                        .font(.body)
+                        .bold()
+                        .autocorrectionDisabled(true)
+                        .textInputAutocapitalization(.never)
+                        .lineLimit(1)
+                        .focused($focusedField, equals: .password)
+                        .onChange(of: viewModel.password) { _, newValue in
+                            Task {
+                                await viewModel.validatePassword()
+                            }
+                        }
                 }
                 AppImages.iconLock
                     .font(.callout)
@@ -153,21 +158,46 @@ struct RegistrationView: View {
             .onTapGesture {
                 focusedField = .password
             }
-            Text("The password must consist of at least 8 characters, at least one number and one letter.")
-                .foregroundColor(.secondary)
-                .font(.caption)
-                .multilineTextAlignment(.center)
-                .padding()
+            VStack(alignment: .leading) {
+                HStack(alignment: .firstTextBaseline) {
+                    AppImages.iconCheckmark
+                        .opacity(viewModel.isPasswordCountValid ? 1 : 0)
+
+                    Text("At least 8 characters")
+                }
+                .foregroundColor(viewModel.isPasswordCountValid ? .green : .secondary)
+
+                HStack(alignment: .firstTextBaseline) {
+                    AppImages.iconCheckmark
+                        .opacity(viewModel.isPasswordNumberValid ? 1 : 0)
+
+                    Text("At least one number")
+                }
+                .foregroundColor(viewModel.isPasswordNumberValid ? .green : .secondary)
+
+                HStack(alignment: .firstTextBaseline) {
+                    AppImages.iconCheckmark
+                        .opacity(viewModel.isPasswordLetterValid ? 1 : 0)
+                    Text("At least one letter")
+                    
+                }
+                .foregroundColor(viewModel.isPasswordLetterValid ? .green : .secondary)
+
+            }
+            .font(.footnote)
+            .multilineTextAlignment(.leading)
+            .padding()
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
-    
-    var registrationButtonView: some View {
+        
+    private var registrationButtonView: some View {
         Button {
             registrationButtonTapped()
         } label: {
             HStack {
                 Text("Login")
-                    .foregroundColor(viewModel.isButtonValid ? .white : .secondary)
+                    .foregroundColor(viewModel.isFormValid ? .white : .secondary)
                 switch viewModel.buttonState {
                 case .normal, .success, .failure:
                     AppImages.iconArrowRight
@@ -175,7 +205,7 @@ struct RegistrationView: View {
                         .scaledToFit()
                         .bold()
                         .frame(width: 20, height: 20)
-                        .foregroundColor(viewModel.isButtonValid ? .white : .secondary)
+                        .foregroundColor(viewModel.isFormValid ? .white : .secondary)
                 case .loading:
                     ProgressView()
                         .frame(width: 20, height: 20)
@@ -185,15 +215,15 @@ struct RegistrationView: View {
             .bold()
             .padding(12)
             .padding(.horizontal)
-            .background(viewModel.isButtonValid ? .green : AppColors.lightGray5)
+            .background(viewModel.isFormValid ? .green : AppColors.lightGray5)
             .clipShape(Capsule())
         }
         .frame(maxWidth: .infinity)
-        .disabled(!viewModel.isButtonValid)
+        .disabled(!viewModel.isFormValid)
     }
         
     // MARK: - Private Functions
-    
+        
     @MainActor
     private func registrationButtonTapped() {
         focusedField = nil
@@ -202,7 +232,6 @@ struct RegistrationView: View {
         Task {
             do {
                 let decodedAppUser = try await authenticationManager.registration(email: viewModel.email, password: viewModel.password)
-                
                 await MainActor.run {
                     let user = AppUser(decodedUser: decodedAppUser)
                     user.isUserLoggedIn = true
@@ -226,48 +255,32 @@ struct RegistrationView: View {
             }
         }
     }
-    
-    private func focusNextField() {
-        switch focusedField {
-        case .email:
-            if viewModel.password.isEmpty {
-                focusedField = .password
-            } else {
-                focusedField = nil
-            }
-        case .password:
-            if viewModel.email.isEmpty {
-                focusedField = .email
-            } else {
-                focusedField = nil
-            }
-        case .none:
-            break
-        }
-    }
-    
-    private func checkEmptyFields() -> Bool {
-        if viewModel.email.isEmpty {
-            focusedField = .email
-            return false
-        } else if viewModel.password.isEmpty {
-            focusedField = .password
-            return false
-        } else {
-            focusedField = nil
-            return true
-        }
-    }
 }
-
+//
 //#Preview {
-//    let viewModel = RegistrationViewModel()
+//    let viewModel = RegistrationViewModel(isPresented: .constant(true))
+//    
+//    let errorManager = ErrorManager()
 //    let keychainManager = KeychainManager()
 //    let appSettingsManager = AppSettingsManager()
-//    let networkManager = AuthNetworkManager(appSettingsManager: appSettingsManager)
-//    let errorManager = ErrorManager()
-//    let authenticationManager = AuthenticationManager(keychainManager: keychainManager, networkManager: networkManager, errorManager: errorManager)
-//    return RegistrationView(viewModel: viewModel, authenticationManager: authenticationManager) {
-//        print("dissmised")
-//    }
+//    let networkMonitorManager = NetworkMonitorManager(errorManager: errorManager)
+//    let networkManager = NetworkManager(session: URLSession.shared, networkMonitorManager: networkMonitorManager, appSettingsManager: appSettingsManager, keychainManager: keychainManager)
+//    let authNetworkManager = AuthNetworkManager(networkManager: networkManager)
+//    let authenticationManager = AuthenticationManager(keychainManager: keychainManager, networkMonitorManager: networkMonitorManager, networkManager: networkManager, authNetworkManager: authNetworkManager, errorManager: errorManager)
+//    return RegistrationView(viewModel: viewModel)
+//        .environmentObject(authenticationManager)
+//        .modelContainer(sharedModelContainer)
 //}
+//
+//var sharedModelContainer: ModelContainer = {
+//    let schema = Schema([
+//        AppUser.self, Country.self, Region.self, City.self, Event.self, Place.self, User.self
+//    ])
+//    let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+//    
+//    do {
+//        return try ModelContainer(for: schema, configurations: [modelConfiguration])
+//    } catch {
+//        fatalError("Could not create ModelContainer: \(error)")
+//    }
+//}()

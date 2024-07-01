@@ -78,8 +78,8 @@ extension ImageLoader {
         guard let url = URL(string: stringUrl) else {
             throw ImageLoaderError.invalidUrl
         }
-        let (data, _) = try await URLSession.shared.data(from: url)
         debugPrint("fetch img stringUrl: ", stringUrl)
+        let (data, _) = try await URLSession.shared.data(from: url)
         return data
     }
     

@@ -329,8 +329,8 @@ struct SearchView: View {
                     .font(.title2)
                     .bold()
                     .foregroundStyle(.primary)
-                    .offset(x: 70)
                     .padding(.vertical)
+                    .frame(maxWidth: .infinity)
                     .listRowBackground(Color.clear)
                 if item.events.count == 1 {
                     ForEach(item.events) { event in
@@ -358,6 +358,7 @@ struct SearchView: View {
                     .padding(.bottom)
                     .listRowBackground(Color.clear)
                 }
+                Color.clear
             }
             .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
             .listRowSeparator(.hidden)
@@ -371,20 +372,19 @@ struct SearchView: View {
         ForEach(viewModel.searchPlaces) { typeItems in
             if typeItems.type == category {
                 ForEach(viewModel.getPlaces(category: category)) { item in
-                    
                     Section {
                         Text("\(item.country.flagEmoji) \(item.country.name)")
                             .font(.title2)
                             .bold()
                             .foregroundStyle(.primary)
-                        // .offset(x: 70)
+                            .offset(x: 70)
                             .padding(.vertical)
                             .listRowBackground(Color.clear)
                         ForEach(item.places) { place in
                             placeCell(place: place)
                                 .listRowBackground(Color.clear)
                         }
-                        
+                        Color.clear
                     }
                     .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
                     .listRowSeparator(.hidden)
