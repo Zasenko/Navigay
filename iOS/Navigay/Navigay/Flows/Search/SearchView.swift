@@ -14,7 +14,6 @@ struct SearchView: View {
     @State private var viewModel: SearchViewModel
     @EnvironmentObject private var authenticationManager: AuthenticationManager
     @FocusState private var focused: Bool
-    //    @Namespace private var animation
     @Namespace private var animation
 
     // MARK: - Init
@@ -55,10 +54,14 @@ struct SearchView: View {
                             .font(.headline)
                     }
             }
-           // .toolbar(focused ? .hidden : .visible, for: .navigationBar)
             .onChange(of: viewModel.isSearching) { _, newValue in
                 if newValue {
                     hideKeyboard()
+                }
+            }
+            .onChange(of: focused) { _, newValue in
+                if newValue {
+                    viewModel.textSubject.send(viewModel.searchText)
                 }
             }
             .onChange(of: viewModel.searchText, initial: false) { _, newValue in
@@ -220,6 +223,27 @@ struct SearchView: View {
                     .contentShape(Rectangle())
                 }
             }
+            ForEach(viewModel.last10SearchResults) { item in
+                Button {
+                    hideKeyboard()
+                    viewModel.searchText = item.text
+                    viewModel.search()
+                } label: {
+                    HStack(alignment: .firstTextBaseline) {
+                        AppImages.iconSearch
+                            .font(.caption)
+                            .bold()
+                        Text(item.text)
+                            .font(.body)
+                            .multilineTextAlignment(.leading)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    .foregroundStyle(.secondary)
+                    .padding(.vertical, 10)
+                    .contentShape(Rectangle())
+                }
+            }
+
         }
         .listSectionSeparator(.hidden)
         .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
