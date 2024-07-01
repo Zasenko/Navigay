@@ -78,23 +78,23 @@ struct EventCell: View {
                         self.image = img
                     }
                 } else {
-                    guard let url = event.smallPoster else { return }
-                    if let image = await ImageLoader.shared.loadImage(urlString: url) {
-                        await MainActor.run {
-                            self.image = image
-                            self.event.smallPosterImg = image
-                        }
+                    guard let url = event.smallPoster,
+                          let image = await ImageLoader.shared.loadImage(urlString: url)
+                    else { return }
+                    await MainActor.run {
+                        self.image = image
+                        self.event.smallPosterImg = image
                     }
                 }
             }
         }
-        .onChange(of: event.smallPoster) { oldValue, newValue in
+        .onChange(of: event.smallPoster) { _, newValue in
             Task {
-                guard let url = newValue else { return }
-                if let image = await ImageLoader.shared.loadImage(urlString: url) {
-                    await MainActor.run {
-                        self.image = image
-                    }
+                guard let url = newValue,
+                      let image = await ImageLoader.shared.loadImage(urlString: url)
+                else { return }
+                await MainActor.run {
+                    self.image = image
                 }
             }
         }

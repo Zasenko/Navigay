@@ -83,7 +83,7 @@ struct TabBarView: View {
             tabBar
         }
         .ignoresSafeArea(.keyboard, edges: .bottom)
-        .onChange(of: authenticationManager.appUser?.photo, initial: true) { _, newValue in
+        .onChange(of: authenticationManager.appUser?.photoUrl, initial: true) { _, newValue in
             guard let url = newValue else {
                 self.userImage = nil
                 return

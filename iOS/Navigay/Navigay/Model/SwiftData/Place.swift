@@ -5,6 +5,7 @@
 //  Created by Dmitry Zasenko on 02.10.23.
 //
 
+import SwiftUI
 import SwiftData
 import CoreLocation
 
@@ -14,8 +15,8 @@ final class Place {
     let id: Int
     var name: String = ""
     var type: PlaceType = PlaceType.other
-    var avatar: String? = nil
-    var mainPhoto: String? = nil
+    var avatarUrl: String? = nil
+    var mainPhotoUrl: String? = nil
     var address: String = ""
     var latitude: Double = 0
     var longitude: Double = 0
@@ -41,6 +42,9 @@ final class Place {
     @Transient var tag: UUID = UUID()
     @Transient var distanceText: String = ""
     
+    @Transient var avatar: Image?
+    @Transient var mainPhoto: Image?
+
     init(decodedPlace: DecodedPlace) {
         self.id = decodedPlace.id
         updatePlaceIncomplete(decodedPlace: decodedPlace)
@@ -51,7 +55,7 @@ final class Place {
         guard lastUpdateIncomplete != lastUpdate else { return }
         name = decodedPlace.name
         type = decodedPlace.type
-        avatar = decodedPlace.avatar
+        avatarUrl = decodedPlace.avatar
         address = decodedPlace.address
         latitude = decodedPlace.latitude
         longitude = decodedPlace.longitude
@@ -70,8 +74,8 @@ final class Place {
         
         name = decodedPlace.name
         type = decodedPlace.type
-        avatar = decodedPlace.avatar
-        mainPhoto = decodedPlace.mainPhoto
+        avatarUrl = decodedPlace.avatar
+        mainPhotoUrl = decodedPlace.mainPhoto
         address = decodedPlace.address
         latitude = decodedPlace.latitude
         longitude = decodedPlace.longitude
@@ -95,8 +99,8 @@ final class Place {
     
     func getAllPhotos() -> [String] {
         var allPhotos: [String] = []
-        if let mainPhoto {
-            allPhotos.append(mainPhoto)
+        if let mainPhotoUrl {
+            allPhotos.append(mainPhotoUrl)
         }
         photos.forEach( { allPhotos.append($0) } )
         return allPhotos

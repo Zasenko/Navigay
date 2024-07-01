@@ -210,7 +210,7 @@ struct PlaceView: View {
     
     private var headerView: some View {
         HStack(spacing: 20) {
-            if let url = viewModel.place.avatar {
+            if let url = viewModel.place.avatarUrl {
                 ImageLoadingView(url: url, width: 60, height: 60, contentMode: .fill) {
                     ImageFetchingView()
                 }

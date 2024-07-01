@@ -1,5 +1,5 @@
 //
-//  RegionView.swift
+//  CoutryRegionView.swift
 //  Navigay
 //
 //  Created by Dmitry Zasenko on 26.12.23.
@@ -8,7 +8,7 @@
 import SwiftUI
 import SwiftData
 
-struct RegionView: View {
+struct CoutryRegionView: View {
     
     private var modelContext: ModelContext
     private let region: Region

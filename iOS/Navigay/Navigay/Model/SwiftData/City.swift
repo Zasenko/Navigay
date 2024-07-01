@@ -5,16 +5,16 @@
 //  Created by Dmitry Zasenko on 02.10.23.
 //
 
-import Foundation
+import SwiftUI
 import SwiftData
 
 @Model
 final class City {
     let id: Int
     var name: String = ""
-    var smallPhoto: String? = nil
-    var photo: String? = nil
-    var photos: [String] = []
+    var smallPhotoUrl: String? = nil
+    var photoUrl: String? = nil
+    var photosUrls: [String] = []
     var about: String? = nil
     
     var latitude: Double = 0
@@ -34,6 +34,9 @@ final class City {
     var lastUpdateIncomplete: Date? = nil
     var lastUpdateComplite: Date? = nil
         
+    @Transient var smallPhoto: Image?
+    @Transient var photo: Image?
+
     init(decodedCity: DecodedCity) {
         self.id = decodedCity.id
         updateCityIncomplete(decodedCity: decodedCity)
@@ -49,7 +52,7 @@ final class City {
         let lastUpdate = decodedCity.lastUpdate.dateFromString(format: "yyyy-MM-dd HH:mm:ss")
         guard lastUpdateIncomplete != lastUpdate else { return }
         name = decodedCity.name
-        smallPhoto = decodedCity.smallPhoto
+        smallPhotoUrl = decodedCity.smallPhoto
         latitude = decodedCity.latitude
         longitude = decodedCity.longitude
         isCapital = decodedCity.isCapital
@@ -67,23 +70,23 @@ final class City {
         let lastUpdate = decodedCity.lastUpdate.dateFromString(format: "yyyy-MM-dd HH:mm:ss")
         guard lastUpdateComplite != lastUpdate else { return }
         name = decodedCity.name
-        smallPhoto = decodedCity.smallPhoto
-        photo = decodedCity.photo
+        smallPhotoUrl = decodedCity.smallPhoto
+        photoUrl = decodedCity.photo
         latitude = decodedCity.latitude
         longitude = decodedCity.longitude
         isCapital = decodedCity.isCapital
         isParadise = decodedCity.isGayParadise
         about = decodedCity.about
-        photos = decodedCity.photos ?? []
+        photosUrls = decodedCity.photos ?? []
         lastUpdateComplite = lastUpdate
     }
     
     func getAllPhotos() -> [String] {
         var allPhotos: [String] = []
-        if let photo {
-            allPhotos.append(photo)
+        if let photoUrl {
+            allPhotos.append(photoUrl)
         }
-        photos.forEach( { allPhotos.append($0) } )
+        photosUrls.forEach( { allPhotos.append($0) } )
         return allPhotos
     }
 }

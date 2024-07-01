@@ -127,7 +127,7 @@ struct MapView: View {
         } label: {
             HStack {
                 HStack(spacing: 20) {
-                    if let url = place.avatar {
+                    if let url = place.avatarUrl {
                         ImageLoadingView(url: url, width: 50, height: 50, contentMode: .fill) {
                             AppColors.lightGray6
                         }

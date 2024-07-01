@@ -423,7 +423,7 @@ struct EventView: View {
                     VStack(alignment: .leading, spacing: 10) {
                         if let owner = viewModel.event.owner {
                             HStack(spacing: 20) {
-                                if let url = owner.photo {
+                                if let url = owner.photoUrl {
                                     ImageLoadingView(url: url, width: 50, height: 50, contentMode: .fill) {
                                         AppColors.lightGray6
                                     }
@@ -456,7 +456,7 @@ struct EventView: View {
                                 PlaceView(viewModel: PlaceView.PlaceViewModel(place: place, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, commentsNetworkManager: viewModel.commentsNetworkManager, notificationsManager: viewModel.notificationsManager, showOpenInfo: false))
                             } label: {
                                 HStack(spacing: 20) {
-                                    if let url = place.avatar {
+                                    if let url = place.avatarUrl {
                                         ImageLoadingView(url: url, width: 50, height: 50, contentMode: .fill) {
                                             AppColors.lightGray6
                                         }

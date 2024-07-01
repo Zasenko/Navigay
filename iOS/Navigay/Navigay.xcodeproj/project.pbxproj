@@ -78,7 +78,7 @@
 		0F3607362B62C4C800C74088 /* CatalogDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F3607352B62C4C800C74088 /* CatalogDataManager.swift */; };
 		0F3CD2BB2B91E60A00A50579 /* AdminEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F3CD2BA2B91E60A00A50579 /* AdminEvent.swift */; };
 		0F3CD2C02B91FC7D00A50579 /* AdminEventResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F3CD2BF2B91FC7D00A50579 /* AdminEventResult.swift */; };
-		0F459E1D2B3B43A200D7E843 /* RegionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F459E1C2B3B43A200D7E843 /* RegionView.swift */; };
+		0F459E1D2B3B43A200D7E843 /* CoutryRegionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F459E1C2B3B43A200D7E843 /* CoutryRegionView.swift */; };
 		0F459E1F2B3B43CC00D7E843 /* CitiesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F459E1E2B3B43CC00D7E843 /* CitiesView.swift */; };
 		0F459E212B3B55F800D7E843 /* DecodedComment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F459E202B3B55F800D7E843 /* DecodedComment.swift */; };
 		0F459E232B3B59F900D7E843 /* CommentsResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F459E222B3B59F900D7E843 /* CommentsResult.swift */; };
@@ -314,7 +314,7 @@
 		0F3607352B62C4C800C74088 /* CatalogDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogDataManager.swift; sourceTree = "<group>"; };
 		0F3CD2BA2B91E60A00A50579 /* AdminEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdminEvent.swift; sourceTree = "<group>"; };
 		0F3CD2BF2B91FC7D00A50579 /* AdminEventResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdminEventResult.swift; sourceTree = "<group>"; };
-		0F459E1C2B3B43A200D7E843 /* RegionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegionView.swift; sourceTree = "<group>"; };
+		0F459E1C2B3B43A200D7E843 /* CoutryRegionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoutryRegionView.swift; sourceTree = "<group>"; };
 		0F459E1E2B3B43CC00D7E843 /* CitiesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CitiesView.swift; sourceTree = "<group>"; };
 		0F459E202B3B55F800D7E843 /* DecodedComment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecodedComment.swift; sourceTree = "<group>"; };
 		0F459E222B3B59F900D7E843 /* CommentsResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentsResult.swift; sourceTree = "<group>"; };
@@ -1250,7 +1250,7 @@
 			children = (
 				0FF7B8ED2B3AC826003A4B6A /* CountryViewModel.swift */,
 				0F741A8A2ACDB66900A7759E /* CountryView.swift */,
-				0F459E1C2B3B43A200D7E843 /* RegionView.swift */,
+				0F459E1C2B3B43A200D7E843 /* CoutryRegionView.swift */,
 				0F459E1E2B3B43CC00D7E843 /* CitiesView.swift */,
 				0F47347B2B03B72700C9B509 /* Edit */,
 			);
@@ -1504,7 +1504,7 @@
 				0F6E088B2B51799300950055 /* CityCell.swift in Sources */,
 				0F10CCC12BDBC3D9007E3E2A /* AdminCitiesView.swift in Sources */,
 				0F89545D2AF420B900CE46EC /* PlaceAdditionalInfo.swift in Sources */,
-				0F459E1D2B3B43A200D7E843 /* RegionView.swift in Sources */,
+				0F459E1D2B3B43A200D7E843 /* CoutryRegionView.swift in Sources */,
 				0F7E98052BA5BEEC001A1550 /* EditCityNetworkManager.swift in Sources */,
 				0F741A7F2ACD664D00A7759E /* String+Ext.swift in Sources */,
 				0FF7B8F62B3B1396003A4B6A /* AdminCountriesResult.swift in Sources */,

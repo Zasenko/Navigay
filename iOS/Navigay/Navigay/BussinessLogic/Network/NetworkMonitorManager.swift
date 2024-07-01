@@ -18,7 +18,7 @@ final class NetworkMonitorManager: NetworkMonitorManagerProtocol {
     // MARK: - Properties
     
     var notify: ((Bool) -> Void)?
-    var isConnected = true {
+    var isConnected = false {
         didSet {
             notify?(isConnected)
         }
@@ -47,16 +47,16 @@ extension NetworkMonitorManager {
             guard let self else { return }
             if path.status == .satisfied {
                 DispatchQueue.main.async {
-                    if self.isConnected != true {
-                        self.errorManager.showNetworkConnected()
-                    }
+//                    if self.isConnected != true {
+//                        self.errorManager.showNetworkConnected()
+//                    }
                     self.isConnected = true
                 }
             } else {
                 DispatchQueue.main.async {
-                    if self.isConnected != false {
-                        self.errorManager.showNetworkNoConnected()
-                    }
+//                    if self.isConnected != false {
+//                        self.errorManager.showNetworkNoConnected()
+//                    }
                     self.isConnected = false
                 }
             }

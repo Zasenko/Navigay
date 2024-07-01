@@ -17,13 +17,11 @@ struct PhotosTabView: View {
         VStack(spacing: 0) {
             TabView(selection: $selectedPhotoIndex) {
                 ForEach(allPhotos.indices, id: \.self) { index in
-                    TabBarImageLoadingView(url: allPhotos[index], width: width, height: (width / 4) * 5, contentMode: .fill) {
+                    TabBarImageLoadingView(url: $allPhotos[index], width: width, height: (width / 4) * 5, contentMode: .fill) {
                         ImageFetchingView()
-
                     }
                     .clipped()
                     .tag(index)
-                    
                 }
             }
             .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
@@ -43,6 +41,9 @@ struct PhotosTabView: View {
                 .frame(height: 30)
                 .frame(maxWidth: .infinity)
             }
+        }
+        .onChange(of: allPhotos.count) {
+            selectedPhotoIndex = 0
         }
     }
 }

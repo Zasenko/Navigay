@@ -110,7 +110,7 @@ extension AppUserView {
                 do {
                     let url = try await userNetworkManager.updatePhoto(for: user, uiImage: scaledImage)
                     await MainActor.run {
-                        user.photo = url
+                        user.photoUrl = url
                         userImage = Image(uiImage: scaledImage)
                     }
                 } catch NetworkErrors.noConnection {
@@ -133,7 +133,7 @@ extension AppUserView {
                 do {
                     try await userNetworkManager.deletePhoto(for: user)
                     await MainActor.run {
-                        user.photo = nil
+                        user.photoUrl = nil
                         userImage = nil
                     }
                 } catch NetworkErrors.noConnection {

@@ -5,7 +5,7 @@
 //  Created by Dmitry Zasenko on 02.10.23.
 //
 
-import Foundation
+import SwiftUI
 import SwiftData
 
 @Model
@@ -16,7 +16,7 @@ final class Country {
     
     var name: String = ""
     var flagEmoji: String = "🏳️‍🌈"
-    var photo: String? = nil
+    var photoUrl: String? = nil
     var about: String? = nil
     var showRegions: Bool = false
     var lastUpdateIncomplete: Date? = nil
@@ -26,6 +26,8 @@ final class Country {
     var placesCount: Int = 0
     
     @Relationship(deleteRule: .cascade, inverse: \Region.country) var regions: [Region] = []
+    
+    @Transient var photo: Image?
         
     init(decodedCountry: DecodedCountry) {
         self.id = decodedCountry.id
@@ -53,7 +55,7 @@ final class Country {
         guard lastUpdateComplite != lastUpdate else { return }
         flagEmoji = decodedCountry.flagEmoji
         name = decodedCountry.name
-        photo = decodedCountry.photo
+        photoUrl = decodedCountry.photo
         showRegions = decodedCountry.showRegions
         about = decodedCountry.about
         lastUpdateComplite = lastUpdate

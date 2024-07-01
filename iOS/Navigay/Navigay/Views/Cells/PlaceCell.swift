@@ -10,34 +10,26 @@ import CoreLocation
 
 struct PlaceCell: View {
     
-    private let place: Place
+    let place: Place
+    let showOpenInfo: Bool
+    let showDistance: Bool
+    let showCountryCity: Bool
+    let showLike: Bool
     
-    private let showOpenInfo: Bool
-    private let showDistance: Bool
-    private let showCountryCity: Bool
-    private let showLike: Bool
-        
-    init(place: Place, showOpenInfo: Bool, showDistance: Bool, showCountryCity: Bool, showLike: Bool) {
-        self.place = place
-        self.showOpenInfo = showOpenInfo
-        self.showDistance = showDistance
-        self.showCountryCity = showCountryCity
-        self.showLike = showLike
-    }
-    
+    @State private var image: Image? = nil
+
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 20) {
-                if let url = place.avatar {
-                    ImageLoadingView(url: url, width: 50, height: 50, contentMode: .fill) {
-                        ImageFetchingView()
-                    }
-                    .clipShape(.circle)
-                    .overlay(Circle().stroke(AppColors.lightGray5, lineWidth: 1))
-                } else {
-                    Color.clear
+                VStack{
+                    image?
+                        .resizable()
+                        .scaledToFill()
                         .frame(width: 50, height: 50)
+                        .clipShape(.circle)
+                        .overlay(Circle().stroke(AppColors.lightGray5, lineWidth: 1))
                 }
+                .frame(width: 50, height: 50)
                 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(place.name)
@@ -82,6 +74,33 @@ struct PlaceCell: View {
             .padding(.vertical, 10)
             Divider()
                 .offset(x: 70)
+        }
+        .onAppear() {
+            Task(priority: .high) {
+                if let img = place.avatar {
+                    await MainActor.run {
+                        self.image = img
+                    }
+                } else {
+                    guard let url = place.avatarUrl,
+                          let image = await ImageLoader.shared.loadImage(urlString: url)
+                    else { return }
+                    await MainActor.run {
+                        self.image = image
+                        self.place.avatar = image
+                    }
+                }
+            }
+        }
+        .onChange(of: place.avatarUrl) { _, newValue in
+            Task {
+                guard let url = newValue,
+                      let image = await ImageLoader.shared.loadImage(urlString: url)
+                else { return }
+                await MainActor.run {
+                    self.image = image
+                }
+            }
         }
     }
 }

@@ -15,7 +15,6 @@ struct SearchPlacesTest: Identifiable {
     let places: [SearchPlaces]
 }
 
-
 struct SearchPlaces: Identifiable {
     let id: UUID
     let country: Country

@@ -84,8 +84,11 @@ extension EditCountryViewModel {
             try await networkManager.updateCountry(id: id, name: nameEn, flag: flagEmoji, about: about, showRegions: showRegions, isActive: isActive, isChecked: isChecked, user: user)
             await MainActor.run {
                 isLoading = false
-                
-                //todo update country
+                country?.name = nameEn
+                country?.flagEmoji = flagEmoji
+                country?.about = about
+                country?.showRegions = showRegions
+                //todo delete country if isActive false
             }
             return true
         } catch NetworkErrors.noConnection {
@@ -110,9 +113,8 @@ extension EditCountryViewModel {
                 let newUrl = try await networkManager.updateCountryPhoto(countryId: id, uiImage: scaledImage, from: user)
                 await MainActor.run {
                     photo = AdminPhoto(id: UUID().uuidString, image: Image(uiImage: uiImage), url: newUrl)
-                    
-                    //todo update country
-                    
+                    country?.photo = Image(uiImage: uiImage)
+                    country?.photoUrl = newUrl
                 }
             } catch NetworkErrors.noConnection {
                 errorManager.showNetworkNoConnected()

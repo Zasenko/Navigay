@@ -106,37 +106,25 @@ struct CityView: View {
         GeometryReader { geometry in
             ScrollViewReader { scrollProxy in
                 List {
-                    if !viewModel.allPhotos.isEmpty {
-                        PhotosTabView(allPhotos: $viewModel.allPhotos, width: geometry.size.width)
-                            .frame(width: geometry.size.width, height: (geometry.size.width / 4) * 5)
-                            .listRowSeparator(.hidden)
-                            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                            .padding(.bottom)
-                    }
-//                    if viewModel.city.isCapital || viewModel.city.isParadise {
-//                        HStack {
-//                            if viewModel.city.isCapital {
-//                                VStack(spacing: 0) {
-//                                    Text("⭐️")
-//                                    Text("capital")
-//                                }
-//                                .frame(maxWidth: .infinity)
-//                            }
-//                            if viewModel.city.isParadise {
-//                                VStack(spacing: 0) {
-//                                    Text("🏳️‍🌈")
-//                                    Text("heaven")
-//                                }
-//                                .frame(maxWidth: .infinity)
-//                            }
-//                        }
-//                        .listRowSeparator(.hidden)
-//                        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-//                        .padding(.bottom)
-//                    }
-                    EmptyView()
+                    PhotosTabView(allPhotos: $viewModel.allPhotos, width: geometry.size.width)
                         .listRowSeparator(.hidden)
                         .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                    if viewModel.city.isCapital || viewModel.city.isParadise {
+                        HStack {
+                            if viewModel.city.isCapital {
+                                    Text("⭐️ capital")
+                                .frame(maxWidth: .infinity)
+                            }
+                            if viewModel.city.isParadise {
+                                    Text("🏳️‍🌈 heaven")
+                                .frame(maxWidth: .infinity)
+                            }
+                        }
+                        .font(.callout).bold()
+                        .foregroundColor(.secondary)
+                        .listRowSeparator(.hidden)
+                        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                    }
                     Section {
                         eventsSection(size: geometry.size)
                         placesSection()
@@ -241,7 +229,7 @@ struct CityView: View {
     private var menuView: some View {
             ScrollViewReader { scrollProxy2 in
                 ScrollView(.horizontal, showsIndicators: false) {
-                    LazyHGrid(rows: [GridItem()], alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/, spacing: 10) {
+                    LazyHGrid(rows: [GridItem()], alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/, spacing: 0) {
                         ForEach(viewModel.sortingHomeCategories, id: \.self) { category in
                             Button {
                                 withAnimation(.easeIn) {
@@ -253,19 +241,19 @@ struct CityView: View {
                                 Text(category.getName())
                                     .font(.caption)
                                     .bold()
-                                    .foregroundStyle(viewModel.selectedMenuCategory == category ? .white : .secondary)
+                                    .foregroundStyle(.blue)
                                     .padding(5)
                                     .padding(.horizontal, 5)
-                                    .background(viewModel.selectedMenuCategory == category ? Color.primary : .clear)
+                                    .background(AppColors.background)
                                     .clipShape(.capsule)
                             }
+                            .padding(.leading)
                             .id(category)
                         }
                     }
-                    .padding(.horizontal)
+                    .padding(.trailing)
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .padding(.vertical, 10)
+                .frame(height: 40)
                 .onChange(of: viewModel.selectedMenuCategory, initial: true) { oldValue, newValue in
                     withAnimation {
                         scrollProxy2.scrollTo(newValue, anchor: .top)

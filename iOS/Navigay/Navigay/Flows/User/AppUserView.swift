@@ -158,7 +158,7 @@ struct AppUserView: View {
     @ViewBuilder private func userView(user: AppUser) -> some View {
         Section {
             HStack(spacing: 20) {
-                PhotoEditView(canDelete: user.photo == nil ? false : true, canAddFromUrl: false) {
+                PhotoEditView(canDelete: user.photoUrl == nil ? false : true, canAddFromUrl: false) {
                     ZStack {
                         if let image = viewModel.userImage {
                             image
@@ -169,7 +169,7 @@ struct AppUserView: View {
                                 .overlay(Circle().stroke(AppColors.lightGray5, lineWidth: 1))
                                 .opacity(viewModel.isLoadingPhoto ? 0.2 : 1)
                         } else {
-                            if let url = user.photo {
+                            if let url = user.photoUrl {
                                 ImageLoadingView(url: url, width: 100, height: 100, contentMode: .fill) {
                                     Color.red
                                 }

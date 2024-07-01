@@ -60,7 +60,7 @@ extension AuthenticationManager {
             auth(user: user)
         } else {
             networkMonitorManager.notify = { [weak self] result in
-                guard let self = self else {return}
+                guard let self else {return}
                 if result, !self.isUserOnline {
                     self.auth(user: user)
                 }

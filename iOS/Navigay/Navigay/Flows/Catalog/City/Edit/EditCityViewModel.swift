@@ -129,8 +129,10 @@ extension EditCityViewModel {
                 let newUrl = try await networkManager.updateCityPhoto(cityId: id, uiImage: scaledImage, uiImageSmall: scaledImageSmall, user: user)
                 await MainActor.run {
                     photo = AdminPhoto(id: UUID().uuidString, image: Image(uiImage: uiImage), url: newUrl.posterUrl)
-                    
-                    //todo update city
+                    city?.smallPhotoUrl = newUrl.smallPosterUrl
+                    city?.photoUrl = newUrl.posterUrl
+                    city?.smallPhoto = Image(uiImage: uiImage)
+                    city?.photo = Image(uiImage: uiImage)
                 }
             } catch NetworkErrors.noConnection {
                 errorManager.showNetworkNoConnected()
