@@ -524,6 +524,15 @@
 			path = Report;
 			sourceTree = "<group>";
 		};
+		0AD119F92C33FC7700AB49DD /* Edit */ = {
+			isa = PBXGroup;
+			children = (
+				0F5DE38B2B04D15F007D5238 /* EditRegionViewModel.swift */,
+				0F5DE3892B04D155007D5238 /* EditRegionView.swift */,
+			);
+			path = Edit;
+			sourceTree = "<group>";
+		};
 		0F0317132BD7AC49003B2E6C /* Add */ = {
 			isa = PBXGroup;
 			children = (
@@ -747,8 +756,7 @@
 		0F5DE3882B04D135007D5238 /* Region */ = {
 			isa = PBXGroup;
 			children = (
-				0F5DE38B2B04D15F007D5238 /* EditRegionViewModel.swift */,
-				0F5DE3892B04D155007D5238 /* EditRegionView.swift */,
+				0AD119F92C33FC7700AB49DD /* Edit */,
 			);
 			path = Region;
 			sourceTree = "<group>";

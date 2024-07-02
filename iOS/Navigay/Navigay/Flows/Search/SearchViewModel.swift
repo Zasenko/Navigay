@@ -230,7 +230,7 @@ extension SearchView {
             let regions = catalogDataManager.updateRegions(decodedRegions: result.regions, countries: countries, modelContext: modelContext)
             let cities = catalogDataManager.updateCities(decodedCities: result.cities, regions: regions, modelContext: modelContext)
             let places = placeDataManager.updatePlaces(decodedPlaces: result.places, for: cities, modelContext: modelContext)
-            let events = eventDataManager.updateEvents(decodedEvents: result.events, for: cities, modelContext: modelContext)
+            let events = eventDataManager.updateEvents2(decodedEvents: result.events, for: cities, modelContext: modelContext)
             Task {
                 let searchEvents = await transformEvents(events: events)
                 let searchPlaces = await transformPlaces(places: places)
@@ -291,13 +291,11 @@ extension SearchView {
                     let searchEvents = await transformEvents(events: events)
                     let searchPlaces = await transformPlaces(places: places)
                     let categories = await getCategories(events: events, places: places)
-                    let items = SearchItems(places: searchPlaces, events: searchEvents, categories: categories, eventsCount: events.count, placeCount: places.count)
                     await MainActor.run {
                         self.selectedCategory = categories.first ?? .all
                         self.categories = categories
                         self.searchEvents = searchEvents
                         self.searchPlaces = searchPlaces
-                        
                         if (events.count == 0 && places.count == 0) {
                             notFound = true
                         }

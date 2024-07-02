@@ -90,9 +90,9 @@ extension CatalogView {
                 }
             }
             await MainActor.run { [countriesToDelete] in
-                countriesToDelete.forEach( { modelContext.delete($0) } )
                 let newCountries = catalogDataManager.updateCountries(decodedCountries: decodedCountries, modelContext: modelContext)
                 self.countries = newCountries.sorted(by: { $0.name < $1.name})
+                countriesToDelete.forEach( { modelContext.delete($0) } )
             }
         }
     }

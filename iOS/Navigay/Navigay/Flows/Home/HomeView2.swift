@@ -314,7 +314,7 @@ struct HomeView: View {
                     let countries = aroundManager.catalogDataManager.updateCountries(decodedCountries: items.countries, modelContext: modelContext)
                     let regions = aroundManager.catalogDataManager.updateRegions(decodedRegions: items.regions, countries: countries, modelContext: modelContext)
                     let cities = aroundManager.catalogDataManager.updateCities(decodedCities: items.cities, regions: regions, modelContext: modelContext)
-                    var events = aroundManager.eventDataManager.updateEvents(decodedEvents: items.events, for: cities, modelContext: modelContext)
+                    var events = aroundManager.eventDataManager.updateEvents2(decodedEvents: items.events, for: cities, modelContext: modelContext)
                     events.append(contentsOf: savedEvents)
                     aroundManager.displayedEvents = events
                 }
