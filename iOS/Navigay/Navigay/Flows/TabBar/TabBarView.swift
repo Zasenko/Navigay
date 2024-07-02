@@ -186,7 +186,7 @@ struct TabBarView: View {
     
     private func getFromDb(userLocation: CLLocation) {
         Task {
-            let radius: Double = 20000
+            let radius: Double = 30000
             
             let allPlaces = placeDataManager.getAllPlaces(modelContext: modelContext)
             let allEvents = eventDataManager.getAllEvents(modelContext: modelContext)
@@ -246,7 +246,6 @@ struct TabBarView: View {
                 place.getDistanceText(distance: distance, inKm: true)
             }
             updateFetchedResult(places: places.sorted(by: { $0.name < $1.name }), events: eventsItems, userLocation: userLocation)
-            aroundManager.isLoading = false
         } else {
             aroundManager.isLocationsAround20Found = false
             let countries = catalogDataManager.updateCountries(decodedCountries: decodedResult.countries, modelContext: modelContext)
@@ -285,6 +284,28 @@ struct TabBarView: View {
                 aroundManager.eventDataManager.dateEvents = events.allDates
             }
             await aroundManager.updateCategories()
+            await MainActor.run {
+                aroundManager.isLoading = false
+            }
+            
+            let allPlaces = placeDataManager.getAllPlaces(modelContext: modelContext)
+            let allEvents = eventDataManager.getAllEvents(modelContext: modelContext)
+            
+            let aroundEvents = await eventDataManager.getAroundEvents(radius: 30000, allEvents: allEvents, userLocation: userLocation)
+            let oldEvents = await eventDataManager.getActualEvents(for: aroundEvents)
+            let oldPlaces = await placeDataManager.getAroundPlaces(radius: 30000, allPlaces: allPlaces, userLocation: userLocation)
+            
+            let placesIDs = Set(places.map { $0.id })
+            let placesToDelete = oldPlaces.filter { !placesIDs.contains($0.id) }
+            
+            let eventsIDs = Set(events.allDates.values.flatMap { $0 })
+            let eventsToDelete = oldEvents.filter { !eventsIDs.contains($0.id) }
+            
+            await MainActor.run {
+                eventsToDelete.forEach( { print("---deleted event: ", $0.id)})
+                eventsToDelete.forEach( { modelContext.delete($0) } )
+                placesToDelete.forEach( { modelContext.delete($0) } )
+            }
             notificationsManager.addAroundNotification(dates: activeDates)
         }
     }

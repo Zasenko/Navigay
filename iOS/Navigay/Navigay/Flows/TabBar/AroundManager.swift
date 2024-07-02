@@ -122,49 +122,4 @@ final class AroundManager: ObservableObject {
     func fetchEvents(for date: Date, ids: [Int]) async throws -> DecodedSearchItems {
         return try await eventNetworkManager.fetchEvents(ids: ids) 
     }
-    
-    // MARK: - Private Functions
-    
-//    private func updateFetchedResult(places: [Place], events: EventsItems, userLocation: CLLocation) {
-//        Task {
-//            let groupedPlaces = await placeDataManager.createHomeGroupedPlaces(places: places)
-//            let todayEvents = events.today.sorted(by: { $0.id < $1.id })
-//            let upcomingEvents = events.upcoming.sorted(by: { $0.id < $1.id }).sorted(by: { $0.startDate < $1.startDate })
-//            let activeDates = events.allDates.keys.sorted().filter( { $0.isFutureDay } )
-//            // let activeDates = await eventDataManager.getActiveDates(for: actualEvents)
-//            //
-//            //                let eventsIDs = actualEvents.map( { $0.id } )
-//            //                var eventsToDelete: [Event] = []
-//            //                self.actualEvents.forEach { event in
-//            //                    if !eventsIDs.contains(event.id) {
-//            //                        eventsToDelete.append(event)
-//            //                    }
-//            //                }
-//            //
-//            //                let placesIDs = aroundPlaces.map( { $0.id } )
-//            //                var placesToDelete: [Place] = []
-//            //                self.aroundPlaces.forEach { place in
-//            //                    if !placesIDs.contains(place.id) {
-//            //                        placesToDelete.append(place)
-//            //                    }
-//            //                }
-//            await MainActor.run { //[eventsToDelete, placesToDelete] in
-//                // eventsToDelete.forEach( { modelContext.delete($0) } )
-//                //  placesToDelete.forEach( { modelContext.delete($0) } )
-//                //  self.actualEvents = actualEvents
-//                self.upcomingEvents = upcomingEvents
-//                self.aroundPlaces = places
-//                self.eventsDates = activeDates
-//                self.todayEvents = todayEvents
-//                self.displayedEvents = upcomingEvents
-//                self.groupedPlaces = groupedPlaces
-//                self.eventsCount = events.count
-//                self.dateEvents = events.allDates
-//                self.eventDataManager.aroundEventsCount = events.count
-//                self.eventDataManager.dateEvents = events.allDates
-//            }
-//            await updateCategories()
-//        }
-//    }
-
 }

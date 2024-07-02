@@ -213,7 +213,6 @@ extension CityView {
                 mapCategories.append(.all)
             }
             
-            
             let sortedMapCategories = mapCategories.sorted(by: {$0.getSortPreority() < $1.getSortPreority()})
             let sortedHomeCategories = homeCategories.sorted(by: {$0.getSortPreority() < $1.getSortPreority()})
             
