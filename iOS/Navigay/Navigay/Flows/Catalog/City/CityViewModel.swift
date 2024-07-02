@@ -96,9 +96,9 @@ extension CityView {
                 
                 let groupedPlaces = await self.placeDataManager.createHomeGroupedPlaces(places: places.sorted(by: { $0.name < $1.name}))
                 let cityPlacesItem = groupedPlaces.map( { CityPlacesItem(id: UUID(), category: $0.key, places: $0.value) } )
-                let actualEvents = await eventDataManager.getActualEvents(for: events)
-                let todayEvents = await eventDataManager.getTodayEvents(from: actualEvents)
-                let upcomingEvents = await eventDataManager.getUpcomingEvents(from: actualEvents)
+                let actualEvents = eventDataManager.getActualEvents(for: events)
+                let todayEvents = eventDataManager.getTodayEvents(from: actualEvents)
+                let upcomingEvents = eventDataManager.getUpcomingEvents(from: actualEvents)
                 await MainActor.run {
                     self.allPlaces = places
                     self.groupedPlaces = cityPlacesItem
@@ -126,8 +126,7 @@ extension CityView {
         }
 
         private func fetch() async {
-            guard !catalogNetworkManager.loadedCities.contains(where: { $0 == city.id}),
-                  city.lastUpdateComplite != nil 
+            guard !catalogNetworkManager.loadedCities.contains(where: { $0 == city.id})
             else {
                 return
             }

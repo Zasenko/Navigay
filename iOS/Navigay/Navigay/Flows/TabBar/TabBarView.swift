@@ -196,10 +196,10 @@ struct TabBarView: View {
             
             if !aroundPlaces.isEmpty || !aroundEvents.isEmpty {
                 let groupedPlaces = await placeDataManager.createHomeGroupedPlaces(places: aroundPlaces)
-                let actualEvents = await eventDataManager.getActualEvents(for: aroundEvents)
-                let todayEvents = await eventDataManager.getTodayEvents(from: actualEvents)
-                let upcomingEvents = await eventDataManager.getUpcomingEvents(from: actualEvents)
-                let eventsDatesWithoutToday = await eventDataManager.getActiveDates(for: actualEvents)
+                let actualEvents = eventDataManager.getActualEvents(for: aroundEvents)
+                let todayEvents = eventDataManager.getTodayEvents(from: actualEvents)
+                let upcomingEvents = eventDataManager.getUpcomingEvents(from: actualEvents)
+                let eventsDatesWithoutToday = eventDataManager.getActiveDates(for: actualEvents)
                 let activeDates = eventDataManager.dateEvents?.keys.sorted().filter( { $0.isFutureDay } )
                 await MainActor.run {
                     aroundManager.upcomingEvents = upcomingEvents
@@ -292,7 +292,7 @@ struct TabBarView: View {
             let allEvents = eventDataManager.getAllEvents(modelContext: modelContext)
             
             let aroundEvents = await eventDataManager.getAroundEvents(radius: 30000, allEvents: allEvents, userLocation: userLocation)
-            let oldEvents = await eventDataManager.getActualEvents(for: aroundEvents)
+            let oldEvents = eventDataManager.getActualEvents(for: aroundEvents)
             let oldPlaces = await placeDataManager.getAroundPlaces(radius: 30000, allPlaces: allPlaces, userLocation: userLocation)
             
             let placesIDs = Set(places.map { $0.id })

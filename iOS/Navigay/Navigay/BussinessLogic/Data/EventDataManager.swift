@@ -21,14 +21,14 @@ protocol EventDataManagerProtocol {
     func getAroundEvents(radius: Double, allEvents: [Event], userLocation: CLLocation) async -> [Event]
     
     ///sorted by date / start date (today or future) or finish Date (future or today with finish time is future)
-    func getActualEvents(for events: [Event]) async -> [Event]
+    func getActualEvents(for events: [Event]) -> [Event]
     
-    func getTodayEvents(from events: [Event]) async -> [Event]
+    func getTodayEvents(from events: [Event]) -> [Event]
     
     ///sorted by date / events for 1 week without today
-    func getUpcomingEvents(from events: [Event]) async -> [Event]
+    func getUpcomingEvents(from events: [Event]) -> [Event]
     
-    func getActiveDates(for events: [Event]) async -> [Date]
+    func getActiveDates(for events: [Event]) -> [Date]
     
     func getEvents(for date: Date, userLocation: CLLocation, modelContext: ModelContext) -> [Event]
     func getEvents(for date: Date, events: [Event]) -> [Event]
@@ -98,7 +98,7 @@ extension EventDataManager {
         }.sorted(by: { $0.startDate < $1.startDate } )
     }
     
-    func getTodayEvents(from events: [Event]) async -> [Event] {
+    func getTodayEvents(from events: [Event]) -> [Event] {
         return events.filter { event in
             if event.startDate.isToday {
                 return true
@@ -129,7 +129,7 @@ extension EventDataManager {
         }
     }
     
-    func getUpcomingEvents(from events: [Event]) async -> [Event] {
+    func getUpcomingEvents(from events: [Event]) -> [Event] {
         let lastDayOfWeek = Calendar.current.date(byAdding: .day, value: 7, to: Date()) ?? Date()
         let sevenDaydFromNow = Date().getAllDatesBetween(finishDate: lastDayOfWeek)
         let upcomingEvents = events.filter { event in
@@ -152,7 +152,7 @@ extension EventDataManager {
         }
     }
     
-    func getActiveDates(for events: [Event]) async -> [Date] {
+    func getActiveDates(for events: [Event]) -> [Date] {
         var activeDates: [Date] = []
         events.forEach { event in
             guard let finishDate = event.finishDate else {
@@ -312,22 +312,39 @@ extension EventDataManager {
         var events: [Event] = []
         events.append(contentsOf: todayEvents)
         events.append(contentsOf: upcomingEvents)
+        
         guard !events.isEmpty else {
             let eventsToDelete = city.events
             city.events = []
             eventsToDelete.forEach( { modelContext.delete($0) } )
             return EventsItems(today: [], upcoming: [], allDates: [:], count: 0)
         }
+        
+        events.forEach( { $0.city = city } )
+        city.events = events
+
         let ids = events.map( { $0.id } )
+        
         var eventsToDelete: [Event] = []
-        city.events.forEach { event in
+        
+        let cityTodayEvents = getTodayEvents(from: city.events)
+        let cityUpcomingEvents = getUpcomingEvents(from: city.events)
+        
+        var oldCityEvents: [Event] = []
+        oldCityEvents.append(contentsOf: cityTodayEvents)
+        oldCityEvents.append(contentsOf: cityUpcomingEvents)
+        oldCityEvents.forEach { event in
             if !ids.contains(event.id) {
                 eventsToDelete.append(event)
             }
         }
-        events.forEach( { $0.city = city } )
-        city.events = events
+        
+        let oldEventIds = oldCityEvents.map { $0.id }
+        let newEvents = events.filter { !oldEventIds.contains($0.id) }
+        city.events.append(contentsOf: newEvents)
+        city.events.removeAll { eventsToDelete.contains($0) } 
         eventsToDelete.forEach( { modelContext.delete($0) } )
+        
         return EventsItems(today: todayEvents, upcoming: upcomingEvents, allDates: updateAllDates(decodedAllDates: decodedEvents?.allDates), count: decodedEvents?.eventsCount ?? 0)
     }
     

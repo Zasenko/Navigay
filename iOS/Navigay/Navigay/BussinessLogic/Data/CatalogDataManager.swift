@@ -11,6 +11,10 @@ import CoreLocation
 
 protocol CatalogDataManagerProtocol {
     
+//    var isCountriesLoaded: Bool { get }// TODO
+//    var loadedCountries: [Int] { get }// TODO
+//    var loadedCities: [Int] { get }// TODO
+    
     /// return  -> sorted by name
     func getAllCountries(modelContext: ModelContext) -> [Country]
     

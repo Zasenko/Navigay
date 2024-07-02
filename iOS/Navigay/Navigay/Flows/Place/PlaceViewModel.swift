@@ -98,9 +98,9 @@ extension PlaceView {
                 Task {
                     let events = place.events.sorted(by: { $0.id < $1.id })
                     
-                    let actualEvents = await self.eventDataManager.getActualEvents(for: events)
-                    let todayEvents = await eventDataManager.getTodayEvents(from: actualEvents)
-                    let upcomingEvents = await eventDataManager.getUpcomingEvents(from: actualEvents)
+                    let actualEvents = eventDataManager.getActualEvents(for: events)
+                    let todayEvents = eventDataManager.getTodayEvents(from: actualEvents)
+                    let upcomingEvents = eventDataManager.getUpcomingEvents(from: actualEvents)
                    // let eventsDatesWithoutToday = await eventDataManager.getActiveDates(for: actualEvents)
                     await MainActor.run {
                         self.upcomingEvents = upcomingEvents

@@ -41,15 +41,10 @@ extension AroundEndPoint: EndPoint {
 }
 
 protocol AroundNetworkManagerProtocol {
-    //var userLocations: [CLLocation] { get set }  // todo убрать в dataManager
     func fetchAround(location: CLLocation) async throws -> AroundItemsResult
 }
 
 final class AroundNetworkManager {
-    
-    // MARK: - Properties
-    
-   // var userLocations: [CLLocation] = [] // todo убрать в dataManager
     
     // MARK: - Private Properties
     
@@ -66,10 +61,6 @@ final class AroundNetworkManager {
 
 extension AroundNetworkManager: AroundNetworkManagerProtocol {
     
-//    private func addToUserLocations(location: CLLocation) {
-//        userLocations.append(location)
-//    }
-    
     func fetchAround(location: CLLocation) async throws -> AroundItemsResult {
         debugPrint("--- fetchLocations around()")
         let request = try await networkManager.request(endpoint: AroundEndPoint.fetchAround(location: location), method: .get, headers: nil, body: nil)
@@ -77,7 +68,6 @@ extension AroundNetworkManager: AroundNetworkManagerProtocol {
         guard decodedResult.result, let decodedItems = decodedResult.items else {
             throw NetworkErrors.apiError(decodedResult.error)
         }
-       // addToUserLocations(location: location) // todo убрать в dataManager
         return decodedItems
     }
 }
