@@ -30,9 +30,9 @@ struct CountryView: View {
                 VStack(spacing: 0) {
                     Divider()
                     List {
-                        if let url = viewModel.country.photo {
+                        if let url = viewModel.country.photoUrl {
                             ImageLoadingView(url: url, width: geometry.size.width, height: (geometry.size.width / 4) * 5, contentMode: .fill) {
-                                AppColors.lightGray6
+                                ImageFetchingView()
                             }
                             .clipped()
                             .listRowSeparator(.hidden)
@@ -41,8 +41,9 @@ struct CountryView: View {
                         }
                         HStack {
                             Text("Cities")
-                                .font(.title)
-                                .foregroundStyle(.secondary)
+                                .font(.title2)
+                                .bold()
+                                .foregroundStyle(.primary)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                             Button {
                                 viewModel.showMap.toggle()
@@ -69,10 +70,10 @@ struct CountryView: View {
                         .listRowSeparator(.hidden)
                         if viewModel.country.showRegions {
                             ForEach(viewModel.country.regions.sorted(by: { $0.id < $1.id } )) { region in
-                                RegionView(modelContext: viewModel.modelContext, region: region, catalogNetworkManager: viewModel.catalogNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, errorManager: viewModel.errorManager, authenticationManager: authenticationManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, catalogDataManager: viewModel.catalogDataManager, commentsNetworkManager: viewModel.commentsNetworkManager)
+                                CoutryRegionView(modelContext: viewModel.modelContext, region: region, catalogNetworkManager: viewModel.catalogNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, catalogDataManager: viewModel.catalogDataManager, commentsNetworkManager: viewModel.commentsNetworkManager, notificationsManager: viewModel.notificationsManager)
                             }
                         } else {
-                            CitiesView(modelContext: viewModel.modelContext, cities: viewModel.country.regions.flatMap( { $0.cities } ).sorted(by: { $0.id < $1.id } ), showCountryRegion: false, catalogNetworkManager: viewModel.catalogNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, errorManager: viewModel.errorManager, authenticationManager: authenticationManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, catalogDataManager: viewModel.catalogDataManager, commentsNetworkManager: viewModel.commentsNetworkManager)
+                            CitiesView(modelContext: viewModel.modelContext, cities: viewModel.country.regions.flatMap( { $0.cities } ).sorted(by: { $0.id < $1.id } ), showCountryRegion: false, catalogNetworkManager: viewModel.catalogNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, catalogDataManager: viewModel.catalogDataManager, commentsNetworkManager: viewModel.commentsNetworkManager, notificationsManager: viewModel.notificationsManager)
                         }
                         Section {
                             Text(viewModel.country.about ?? "")
@@ -109,7 +110,7 @@ struct CountryView: View {
                     if let user = authenticationManager.appUser, (user.status == .admin || user.status == .moderator)  {
                         ToolbarItem(placement: .topBarTrailing) {
                             NavigationLink {
-                                EditCountryView(viewModel: EditCountryViewModel(id: viewModel.country.id, country: viewModel.country, user: user, errorManager: viewModel.errorManager, networkManager: EditCountryNetworkManager(networkMonitorManager: authenticationManager.networkMonitorManager)))
+                                EditCountryView(viewModel: EditCountryViewModel(id: viewModel.country.id, country: viewModel.country, user: user, errorManager: viewModel.errorManager, networkManager: EditCountryNetworkManager(networkManager: authenticationManager.networkManager)))
                             } label: {
                                 AppImages.iconSettings
                                     .bold()

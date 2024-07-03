@@ -31,7 +31,7 @@ struct AdminView: View {
                 Section("Unchecked Countries") {
                     ForEach(viewModel.uncheckedCountries) { country in
                         NavigationLink {
-                            EditCountryView(viewModel: EditCountryViewModel(id: country.id, country: nil, user: viewModel.user, errorManager: viewModel.errorManager, networkManager: EditCountryNetworkManager(networkMonitorManager: authenticationManager.networkMonitorManager)))
+                            EditCountryView(viewModel: EditCountryViewModel(id: country.id, country: nil, user: viewModel.user, errorManager: viewModel.errorManager, networkManager: EditCountryNetworkManager(networkManager: authenticationManager.networkManager)))
                         } label: {
                             HStack(spacing: 10) {
                                 VStack(alignment: .leading, spacing: 10) {
@@ -50,7 +50,7 @@ struct AdminView: View {
                     EmptyView()
                     ForEach(viewModel.uncheckedRegions) { region in
                         NavigationLink {
-                            EditRegionView(viewModel: EditRegionViewModel(id: region.id, countryId: region.countryId, region: nil, user: viewModel.user, errorManager: viewModel.errorManager, networkManager: EditRegionNetworkManager(networkMonitorManager: authenticationManager.networkMonitorManager)))
+                            EditRegionView(viewModel: EditRegionViewModel(id: region.id, countryId: region.countryId, region: nil, user: viewModel.user, errorManager: viewModel.errorManager, networkManager: EditRegionNetworkManager(networkManager: authenticationManager.networkManager)))
                         } label: {
                             VStack {
                                 HStack(spacing: 10) {
@@ -70,7 +70,7 @@ struct AdminView: View {
                 Section("Unchecked Cities") {
                     ForEach(viewModel.uncheckedCities) { city in
                         NavigationLink {
-                            EditCityView(viewModel: EditCityViewModel(id: city.id, city: nil, user: viewModel.user, errorManager: viewModel.errorManager, networkManager: EditCityNetworkManager(networkMonitorManager: authenticationManager.networkMonitorManager)))
+                            EditCityView(viewModel: EditCityViewModel(id: city.id, city: nil, user: viewModel.user, errorManager: viewModel.errorManager, networkManager: EditCityNetworkManager(networkManager: authenticationManager.networkManager)))
                         } label: {
                             VStack(alignment: .leading) {
                                 Text("id \(city.id)")
@@ -83,7 +83,7 @@ struct AdminView: View {
                 Section("Unchecked Events") {
                     ForEach(viewModel.uncheckedEvents) { event in
                         NavigationLink {
-                            EditEventView(viewModel: EditEventViewModel(eventID: event.id, user: viewModel.user, event: nil, networkManager: EditEventNetworkManager(networkMonitorManager: authenticationManager.networkMonitorManager), errorManager: viewModel.errorManager))
+                            EditEventView(viewModel: EditEventViewModel(eventID: event.id, user: viewModel.user, event: nil, networkManager: EditEventNetworkManager(networkManager: authenticationManager.networkManager), errorManager: viewModel.errorManager))
                         } label: {
                             VStack(alignment: .leading) {
                                 Text("id \(event.id)")
@@ -97,7 +97,7 @@ struct AdminView: View {
                 Section("Unchecked Places") {
                     ForEach(viewModel.uncheckedPlaces) { place in
                         NavigationLink {
-                            EditPlaceView(viewModel: EditPlaceViewModel(id: place.id, place: nil, user: viewModel.user, networkManager: EditPlaceNetworkManager(networkMonitorManager: authenticationManager.networkMonitorManager), errorManager: viewModel.errorManager))
+                            EditPlaceView(viewModel: EditPlaceViewModel(id: place.id, place: nil, user: viewModel.user, networkManager: EditPlaceNetworkManager(networkManager: authenticationManager.networkManager), errorManager: viewModel.errorManager))
                         } label: {
                             VStack(alignment: .leading) {
                                 Text("id \(place.id)")
@@ -131,7 +131,7 @@ struct AdminView: View {
     private var addView: some View {
         Section {
             NavigationLink {
-                NewPlaceView(viewModel: AddNewPlaceViewModel(networkManager: EditPlaceNetworkManager(networkMonitorManager: authenticationManager.networkMonitorManager), errorManager: viewModel.errorManager))
+                NewPlaceView(viewModel: AddNewPlaceViewModel(networkManager: EditPlaceNetworkManager(networkManager: authenticationManager.networkManager), errorManager: viewModel.errorManager))
             } label: {
                 Label(
                     title: { Text("Add new Place") },
@@ -139,7 +139,7 @@ struct AdminView: View {
                 )
             }
             NavigationLink {
-                NewEventView(viewModel: NewEventViewModel(user: viewModel.user , place: nil, copy: nil, networkManager: EditEventNetworkManager(networkMonitorManager: authenticationManager.networkMonitorManager), errorManager: viewModel.errorManager))
+                NewEventView(viewModel: NewEventViewModel(user: viewModel.user , place: nil, copy: nil, networkManager: EditEventNetworkManager(networkManager: authenticationManager.networkManager), errorManager: viewModel.errorManager))
             } label: {
                 Label(
                     title: { Text("Add new Event") },

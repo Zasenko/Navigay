@@ -439,13 +439,13 @@ struct EditPlaceView: View {
     }
 }
 
-#Preview {
-    let appSettingsManager = AppSettingsManager()
-    let errorManager = ErrorManager()
-    let networkMonitorManager: NetworkMonitorManagerProtocol = NetworkMonitorManager(errorManager: errorManager)
-    let editPlaceNetworkManager: EditPlaceNetworkManagerProtocol = EditPlaceNetworkManager(networkMonitorManager: networkMonitorManager)
-    let user = AppUser(decodedUser: DecodedAppUser(id: 0, name: "Dima", email: "test@test.ru", status: .admin, sessionKey: "fddddddd", bio: "dddd", photo: nil))
-    return EditPlaceView(viewModel: EditPlaceViewModel(id: 142, place: nil, user: user, networkManager: editPlaceNetworkManager, errorManager: errorManager))
-      //  .modelContainer(for: [Place.self], inMemory: false)
-}
+//#Preview {
+//    let appSettingsManager = AppSettingsManager()
+//    let errorManager = ErrorManager()
+//    let networkMonitorManager: NetworkMonitorManagerProtocol = NetworkMonitorManager(errorManager: errorManager)
+//    let editPlaceNetworkManager: EditPlaceNetworkManagerProtocol = EditPlaceNetworkManager(networkMonitorManager: networkMonitorManager)
+//    let user = AppUser(decodedUser: DecodedAppUser(id: 0, name: "Dima", email: "test@test.ru", status: .admin, sessionKey: "fddddddd", bio: "dddd", photo: nil))
+//    return EditPlaceView(viewModel: EditPlaceViewModel(id: 142, place: nil, user: user, networkManager: editPlaceNetworkManager, errorManager: errorManager))
+//      //  .modelContainer(for: [Place.self], inMemory: false)
+//}
 

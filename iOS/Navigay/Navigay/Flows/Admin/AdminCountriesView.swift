@@ -61,7 +61,7 @@ struct AdminCountriesView: View {
                 ForEach(viewModel.countries) { country in
                     Section {
                         NavigationLink {
-                            EditCountryView(viewModel: EditCountryViewModel(id: country.id, country: nil, user: viewModel.user, errorManager: viewModel.errorManager, networkManager: EditCountryNetworkManager(networkMonitorManager: authenticationManager.networkMonitorManager)))
+                            EditCountryView(viewModel: EditCountryViewModel(id: country.id, country: nil, user: viewModel.user, errorManager: viewModel.errorManager, networkManager: EditCountryNetworkManager(networkManager: authenticationManager.networkManager)))
                             EmptyView()
                         } label: {
                             HStack {

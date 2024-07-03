@@ -65,7 +65,7 @@ struct CityView: View {
                 if let user = authenticationManager.appUser, user.status == .admin {
                     ToolbarItem(placement: .topBarTrailing) {
                         NavigationLink {
-                            EditCityView(viewModel: EditCityViewModel(id: viewModel.city.id, city: viewModel.city, user: user, errorManager: viewModel.errorManager, networkManager: EditCityNetworkManager(networkMonitorManager: authenticationManager.networkMonitorManager)))
+                            EditCityView(viewModel: EditCityViewModel(id: viewModel.city.id, city: viewModel.city, user: user, errorManager: viewModel.errorManager, networkManager: EditCityNetworkManager(networkManager: authenticationManager.networkManager)))
                         } label: {
                             AppImages.iconSettings
                                 .bold()
@@ -89,7 +89,15 @@ struct CityView: View {
                     .presentationCornerRadius(25)
             }
             .fullScreenCover(item: $viewModel.selectedEvent) { event in
-                EventView(viewModel: EventView.EventViewModel.init(event: event, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, commentsNetworkManager: viewModel.commentsNetworkManager))
+                EventView(viewModel: EventView.EventViewModel(event: event,
+                                                              modelContext: viewModel.modelContext,
+                                                              placeNetworkManager: viewModel.placeNetworkManager,
+                                                              eventNetworkManager: viewModel.eventNetworkManager,
+                                                              errorManager: viewModel.errorManager,
+                                                              placeDataManager: viewModel.placeDataManager,
+                                                              eventDataManager: viewModel.eventDataManager,
+                                                              commentsNetworkManager: viewModel.commentsNetworkManager,
+                                                              notificationsManager: viewModel.notificationsManager))
             }
         }
     }
@@ -98,35 +106,7 @@ struct CityView: View {
         GeometryReader { geometry in
             ScrollViewReader { scrollProxy in
                 List {
-                    if !viewModel.allPhotos.isEmpty {
-                        PhotosTabView(allPhotos: $viewModel.allPhotos, width: geometry.size.width)
-                            .frame(width: geometry.size.width, height: (geometry.size.width / 4) * 5)
-                            .listRowSeparator(.hidden)
-                            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                            .padding(.bottom)
-                    }
-//                    if viewModel.city.isCapital || viewModel.city.isParadise {
-//                        HStack {
-//                            if viewModel.city.isCapital {
-//                                VStack(spacing: 0) {
-//                                    Text("⭐️")
-//                                    Text("capital")
-//                                }
-//                                .frame(maxWidth: .infinity)
-//                            }
-//                            if viewModel.city.isParadise {
-//                                VStack(spacing: 0) {
-//                                    Text("🏳️‍🌈")
-//                                    Text("heaven")
-//                                }
-//                                .frame(maxWidth: .infinity)
-//                            }
-//                        }
-//                        .listRowSeparator(.hidden)
-//                        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-//                        .padding(.bottom)
-//                    }
-                    EmptyView()
+                    PhotosTabView(allPhotos: $viewModel.allPhotos, width: geometry.size.width)
                         .listRowSeparator(.hidden)
                         .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                     Section {
@@ -139,19 +119,39 @@ struct CityView: View {
                     }
                     .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                     .listRowSeparator(.hidden)
-                    
+
                     Section {
-                        if let about = viewModel.city.about {
-                            Text(about)
-                                .font(.callout)
-                                .foregroundStyle(.secondary)
-                                .padding(.top, 40)
-                                .listRowSeparator(.hidden)
+                        if viewModel.city.isCapital || viewModel.city.isParadise || (viewModel.city.about != nil) {
+                            Color.clear
+                                .frame(height: 100)
+                            if viewModel.city.isCapital || viewModel.city.isParadise {
+                                HStack {
+                                    if viewModel.city.isCapital {
+                                        Text("⭐️ capital".uppercased())
+                                            .frame(maxWidth: .infinity)
+                                    }
+                                    if viewModel.city.isParadise {
+                                        Text("🏳️‍🌈 heaven".uppercased())
+                                            .frame(maxWidth: .infinity)
+                                    }
+                                }
+                                .font(.callout).bold()
+                                .foregroundColor(.secondary)
+                                .padding()
+                            }
+                            if let about = viewModel.city.about {
+                                Text(about)
+                                    .font(.callout)
+                                    .foregroundStyle(.secondary)
+                                    .padding()
+                            }
                         }
+                        Color.clear
+                            .frame(height: 50)
                     }
-                    Color.clear
-                        .frame(height: 50)
-                        .listSectionSeparator(.hidden)
+                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                    .listRowSeparator(.hidden)
+
                 }
                 .listSectionSeparator(.hidden)
                 .listStyle(.plain)
@@ -208,7 +208,7 @@ struct CityView: View {
                     .padding(.bottom, 10)
                 ForEach(groupedPlace.places) { place in
                     NavigationLink {
-                        PlaceView(viewModel: PlaceView.PlaceViewModel(place: place, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, commentsNetworkManager: viewModel.commentsNetworkManager, showOpenInfo: false))
+                        PlaceView(viewModel: PlaceView.PlaceViewModel(place: place, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, commentsNetworkManager: viewModel.commentsNetworkManager, notificationsManager: viewModel.notificationsManager, showOpenInfo: false))
                     } label: {
                         PlaceCell(place: place, showOpenInfo: false, showDistance: false, showCountryCity: false, showLike: true)
                     }
@@ -233,7 +233,7 @@ struct CityView: View {
     private var menuView: some View {
             ScrollViewReader { scrollProxy2 in
                 ScrollView(.horizontal, showsIndicators: false) {
-                    LazyHGrid(rows: [GridItem()], alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/, spacing: 10) {
+                    LazyHGrid(rows: [GridItem()], alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/, spacing: 0) {
                         ForEach(viewModel.sortingHomeCategories, id: \.self) { category in
                             Button {
                                 withAnimation(.easeIn) {
@@ -245,19 +245,19 @@ struct CityView: View {
                                 Text(category.getName())
                                     .font(.caption)
                                     .bold()
-                                    .foregroundStyle(viewModel.selectedMenuCategory == category ? .white : .secondary)
+                                    .foregroundStyle(.blue)
                                     .padding(5)
                                     .padding(.horizontal, 5)
-                                    .background(viewModel.selectedMenuCategory == category ? Color.primary : .clear)
+                                    .background(AppColors.background)
                                     .clipShape(.capsule)
                             }
+                            .padding(.leading)
                             .id(category)
                         }
                     }
-                    .padding(.horizontal)
+                    .padding(.trailing)
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .padding(.vertical, 10)
+                .frame(height: 40)
                 .onChange(of: viewModel.selectedMenuCategory, initial: true) { oldValue, newValue in
                     withAnimation {
                         scrollProxy2.scrollTo(newValue, anchor: .top)

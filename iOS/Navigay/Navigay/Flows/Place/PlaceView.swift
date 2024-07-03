@@ -80,10 +80,10 @@ struct PlaceView: View {
                         if let user = authenticationManager.appUser, (user.status == .admin || user.status == .moderator) {
                             Menu {
                                 NavigationLink("Edit Place") {
-                                    EditPlaceView(viewModel: EditPlaceViewModel(id: viewModel.place.id, place: viewModel.place, user: user, networkManager: EditPlaceNetworkManager(networkMonitorManager: authenticationManager.networkMonitorManager), errorManager: viewModel.errorManager))
+                                    EditPlaceView(viewModel: EditPlaceViewModel(id: viewModel.place.id, place: viewModel.place, user: user, networkManager: EditPlaceNetworkManager(networkManager: authenticationManager.networkManager), errorManager: viewModel.errorManager))
                                 }
                                 NavigationLink("Add Event") {
-                                    NewEventView(viewModel: NewEventViewModel(user: user, place: viewModel.place, copy: nil, networkManager: EditEventNetworkManager(networkMonitorManager: authenticationManager.networkMonitorManager), errorManager: viewModel.errorManager))
+                                    NewEventView(viewModel: NewEventViewModel(user: user, place: viewModel.place, copy: nil, networkManager: EditEventNetworkManager(networkManager: authenticationManager.networkManager), errorManager: viewModel.errorManager))
                                 }
                             } label: {
                                 AppImages.iconSettings
@@ -95,7 +95,6 @@ struct PlaceView: View {
                 }
             }
             .onAppear() {
-                viewModel.allPhotos = viewModel.place.getAllPhotos()
                 viewModel.getEventsFromDB()
             }
             .onChange(of: viewModel.selectedDate, initial: false) { oldValue, newValue in
@@ -112,8 +111,17 @@ struct PlaceView: View {
                     .presentationDragIndicator(.hidden)
                     .presentationCornerRadius(25)
             }
+            .sheet(isPresented: $viewModel.showAddCommentView) {
+                AddCommentView(viewModel: AddCommentViewModel(placeId: viewModel.place.id, networkManager: viewModel.commentsNetworkManager, errorManager: viewModel.errorManager))
+            }
             .fullScreenCover(item: $viewModel.selectedEvent) { event in
-                EventView(viewModel: EventView.EventViewModel.init(event: event, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, commentsNetworkManager: viewModel.commentsNetworkManager))
+                EventView(viewModel: EventView.EventViewModel.init(event: event, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, commentsNetworkManager: viewModel.commentsNetworkManager, notificationsManager: viewModel.notificationsManager))
+            }
+            .fullScreenCover(isPresented: $viewModel.showLoginView) {
+                LoginView(viewModel: LoginViewModel(isPresented: $viewModel.showLoginView))
+            }
+            .fullScreenCover(isPresented: $viewModel.showRegistrationView) {
+                RegistrationView(viewModel: RegistrationViewModel(isPresented: $viewModel.showRegistrationView))
             }
         }
     }
@@ -179,7 +187,7 @@ struct PlaceView: View {
                         .listRowSeparator(.hidden)
                         .listRowInsets(EdgeInsets(top: 50, leading: 0, bottom: 50, trailing: 0))
                     }
-                    CommentsView(viewModel: CommentsViewModel(commentsNetworkManager: viewModel.commentsNetworkManager, errorManager: viewModel.errorManager, size: proxy.size, place: viewModel.place))
+                    CommentsView(viewModel: CommentsViewModel(comments: $viewModel.comments, isLoading: $viewModel.isCommentsLoading, showAddReviewView: $viewModel.showAddCommentView, showRegistrationView: $viewModel.showRegistrationView, showLoginView: $viewModel.showLoginView, commentsNetworkManager: viewModel.commentsNetworkManager, errorManager: viewModel.errorManager, size: proxy.size, place: viewModel.place))
                         .listRowSeparator(.hidden)
                         .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
 
@@ -201,9 +209,9 @@ struct PlaceView: View {
     
     private var headerView: some View {
         HStack(spacing: 20) {
-            if let url = viewModel.place.avatar {
+            if let url = viewModel.place.avatarUrl {
                 ImageLoadingView(url: url, width: 60, height: 60, contentMode: .fill) {
-                    Color.orange
+                    ImageFetchingView()
                 }
                 .clipShape(Circle())
                 .overlay(Circle().stroke(AppColors.lightGray5, lineWidth: 1))

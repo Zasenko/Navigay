@@ -77,10 +77,10 @@ struct EventView: View {
             if let user = authenticationManager.appUser, user.status == .admin {
                 Menu {
                     NavigationLink("Edit Event") {
-                        EditEventView(viewModel: EditEventViewModel(eventID: viewModel.event.id, user: user, event: viewModel.event, networkManager: EditEventNetworkManager(networkMonitorManager: authenticationManager.networkMonitorManager), errorManager: viewModel.errorManager))
+                        EditEventView(viewModel: EditEventViewModel(eventID: viewModel.event.id, user: user, event: viewModel.event, networkManager: EditEventNetworkManager(networkManager: authenticationManager.networkManager), errorManager: viewModel.errorManager))
                     }
                     NavigationLink("Clone Event") {
-                        NewEventView(viewModel: NewEventViewModel(user: user, place: nil, copy: viewModel.event, networkManager: EditEventNetworkManager(networkMonitorManager: authenticationManager.networkMonitorManager), errorManager: viewModel.errorManager))
+                        NewEventView(viewModel: NewEventViewModel(user: user, place: nil, copy: viewModel.event, networkManager: EditEventNetworkManager(networkManager: authenticationManager.networkManager), errorManager: viewModel.errorManager))
                     }
                 } label: {
                     AppImages.iconSettings
@@ -100,11 +100,12 @@ struct EventView: View {
             }
         }
     }
-    
+   // @State private var img: Image? = nil
     private func listView(size: CGSize) -> some View {
         List {
             Section {
                 VStack {
+//                    img
                     if viewModel.event.isFree {
                         Text("free event")
                             .font(.footnote)
@@ -116,10 +117,16 @@ struct EventView: View {
                             .clipShape(RoundedRectangle(cornerRadius: 10))
                             .padding(.bottom)
                     }
+                    
                 }
                 .frame(maxWidth: .infinity)
                 .onAppear {
                     viewModel.showInfo = false
+                    
+//                    if let i = FileManager.default.loadImgfromDisk(event: viewModel.event) {
+//                        img = Image(uiImage: i)
+//                    }
+                    
                 }
                 .onDisappear {
                     viewModel.showInfo = true
@@ -254,7 +261,7 @@ struct EventView: View {
                 HStack(spacing: 10) {
                     Button {
                         // douplicate button - to do function
-                        viewModel.event.isLiked.toggle()
+                        viewModel.likeButtonTapped()
                         guard let user = authenticationManager.appUser else { return }
                         if user.likedEvents.contains(where: {$0 == viewModel.event.id} ) {
                             user.likedEvents.removeAll(where: {$0 == viewModel.event.id})
@@ -416,7 +423,7 @@ struct EventView: View {
                     VStack(alignment: .leading, spacing: 10) {
                         if let owner = viewModel.event.owner {
                             HStack(spacing: 20) {
-                                if let url = owner.photo {
+                                if let url = owner.photoUrl {
                                     ImageLoadingView(url: url, width: 50, height: 50, contentMode: .fill) {
                                         AppColors.lightGray6
                                     }
@@ -446,10 +453,10 @@ struct EventView: View {
                         }
                         if let place = viewModel.event.place {
                             NavigationLink {
-                                PlaceView(viewModel: PlaceView.PlaceViewModel(place: place, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, commentsNetworkManager: viewModel.commentsNetworkManager, showOpenInfo: false))
+                                PlaceView(viewModel: PlaceView.PlaceViewModel(place: place, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, commentsNetworkManager: viewModel.commentsNetworkManager, notificationsManager: viewModel.notificationsManager, showOpenInfo: false))
                             } label: {
                                 HStack(spacing: 20) {
-                                    if let url = place.avatar {
+                                    if let url = place.avatarUrl {
                                         ImageLoadingView(url: url, width: 50, height: 50, contentMode: .fill) {
                                             AppColors.lightGray6
                                         }

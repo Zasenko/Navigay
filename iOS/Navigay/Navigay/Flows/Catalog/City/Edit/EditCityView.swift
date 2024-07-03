@@ -191,15 +191,15 @@ struct EditCityView: View {
     }
 }
 
-#Preview {
-    let errorManager = ErrorManager()
-    let networkMonitorManager = NetworkMonitorManager(errorManager: errorManager)
-    let appSettingsManager = AppSettingsManager()
-    let networkManager = AdminNetworkManager(networkMonitorManager: networkMonitorManager, appSettingsManager: appSettingsManager)
-    let user = AppUser(decodedUser: DecodedAppUser(id: 0, name: "", email: "", status: .admin, sessionKey: "", bio: nil, photo: nil))
-    let editCityNetworkManager = EditCityNetworkManager(networkMonitorManager: networkMonitorManager)
-    return EditCityView(viewModel: EditCityViewModel(id: 0, city: nil, user: user, errorManager: errorManager, networkManager: editCityNetworkManager))
-}
+//#Preview {
+//    let errorManager = ErrorManager()
+//    let networkMonitorManager = NetworkMonitorManager(errorManager: errorManager)
+//    let appSettingsManager = AppSettingsManager()
+//    let networkManager = AdminNetworkManager(networkMonitorManager: networkMonitorManager, appSettingsManager: appSettingsManager)
+//    let user = AppUser(decodedUser: DecodedAppUser(id: 0, name: "", email: "", status: .admin, sessionKey: "", bio: nil, photo: nil))
+//    let editCityNetworkManager = EditCityNetworkManager(networkMonitorManager: networkMonitorManager)
+//    return EditCityView(viewModel: EditCityViewModel(id: 0, city: nil, user: user, errorManager: errorManager, networkManager: editCityNetworkManager))
+//}
 
 struct Location {
     let isoCountryCode: String

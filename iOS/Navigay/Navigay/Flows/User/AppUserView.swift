@@ -28,8 +28,9 @@ struct AppUserView: View {
          errorManager: ErrorManagerProtocol,
          placeDataManager: PlaceDataManagerProtocol,
          eventDataManager: EventDataManagerProtocol,
-         commentsNetworkManager: CommentsNetworkManagerProtocol) {
-        let viewModel = AppUserViewModel(modelContext: modelContext, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, userNetworkManager: userNetworkManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, commentsNetworkManager: commentsNetworkManager)
+         commentsNetworkManager: CommentsNetworkManagerProtocol,
+         notificationsManager: NotificationsManagerProtocol) {
+        let viewModel = AppUserViewModel(modelContext: modelContext, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, userNetworkManager: userNetworkManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, commentsNetworkManager: commentsNetworkManager, notificationsManager: notificationsManager)
         _viewModel = State(initialValue: viewModel)
     }
 
@@ -145,12 +146,10 @@ struct AppUserView: View {
                     }
                 }
                 .fullScreenCover(isPresented: $viewModel.showLoginView) {
-                    LoginView(viewModel: LoginViewModel()) {
-                        viewModel.showLoginView = false
-                    }
+                    LoginView(viewModel: LoginViewModel(isPresented: $viewModel.showLoginView))
                 }
                 .fullScreenCover(item: $viewModel.selectedEvent) { event in
-                    EventView(viewModel: EventView.EventViewModel.init(event: event, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, commentsNetworkManager: viewModel.commentsNetworkManager))
+                    EventView(viewModel: EventView.EventViewModel.init(event: event, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, commentsNetworkManager: viewModel.commentsNetworkManager, notificationsManager: viewModel.notificationsManager))
                 }
             }
         }
@@ -159,7 +158,7 @@ struct AppUserView: View {
     @ViewBuilder private func userView(user: AppUser) -> some View {
         Section {
             HStack(spacing: 20) {
-                PhotoEditView(canDelete: user.photo == nil ? false : true, canAddFromUrl: false) {
+                PhotoEditView(canDelete: user.photoUrl == nil ? false : true, canAddFromUrl: false) {
                     ZStack {
                         if let image = viewModel.userImage {
                             image
@@ -170,7 +169,7 @@ struct AppUserView: View {
                                 .overlay(Circle().stroke(AppColors.lightGray5, lineWidth: 1))
                                 .opacity(viewModel.isLoadingPhoto ? 0.2 : 1)
                         } else {
-                            if let url = user.photo {
+                            if let url = user.photoUrl {
                                 ImageLoadingView(url: url, width: 100, height: 100, contentMode: .fill) {
                                     Color.red
                                 }
@@ -312,9 +311,7 @@ struct AppUserView: View {
                     .clipShape(Capsule())
             }
             .fullScreenCover(isPresented: $viewModel.showRegistrationView) {
-                RegistrationView(viewModel: RegistrationViewModel(), authenticationManager: authenticationManager, errorManager: authenticationManager.errorManager) {
-                    viewModel.showRegistrationView = false
-                }
+                RegistrationView(viewModel: RegistrationViewModel(isPresented: $viewModel.showRegistrationView))
             }
             
 //            Button {
@@ -355,7 +352,7 @@ struct AppUserView: View {
             .offset(x: 70)
             ForEach(likedPlaces.sorted(by: { $0.name < $1.name})) { place in
                 NavigationLink {
-                    PlaceView(viewModel: PlaceView.PlaceViewModel(place: place, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, commentsNetworkManager: viewModel.commentsNetworkManager, showOpenInfo: false))
+                    PlaceView(viewModel: PlaceView.PlaceViewModel(place: place, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, commentsNetworkManager: viewModel.commentsNetworkManager, notificationsManager: viewModel.notificationsManager, showOpenInfo: false))
                 } label: {
                     PlaceCell(place: place, showOpenInfo: false, showDistance: false, showCountryCity: true, showLike: false)
                 }

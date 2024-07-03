@@ -12,8 +12,8 @@ struct CityCell: View {
     private let city: City
     private let showCountryRegion: Bool
     private let showLocationsCount: Bool
+    @State private var image: Image? = nil
 
-    
     init(city: City, showCountryRegion: Bool, showLocationsCount: Bool) {
         self.city = city
         self.showCountryRegion = showCountryRegion
@@ -23,16 +23,16 @@ struct CityCell: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 20) {
-                if let url = city.smallPhoto {
-                    ImageLoadingView(url: url, width: 50, height: 50, contentMode: .fill) {
-                        AppColors.lightGray6
-                    }
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                    .overlay(RoundedRectangle(cornerRadius: 10).stroke(AppColors.lightGray5, lineWidth: 1))
-                } else {
-                    Color.clear
+                VStack {
+                    image?
+                        .resizable()
+                        .scaledToFill()
                         .frame(width: 50, height: 50)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .overlay(RoundedRectangle(cornerRadius: 10).stroke(AppColors.lightGray5, lineWidth: 1))
+
                 }
+                .frame(width: 50, height: 50)
                 HStack(spacing: 10) {
                     VStack(alignment: .leading, spacing: 4) {
                         Text(city.name)
@@ -87,6 +87,33 @@ struct CityCell: View {
             .padding(.vertical, 10)
             Divider()
                 .offset(x: 70)
+        }
+        .onAppear() {
+            Task(priority: .high) {
+                if let photo = city.smallPhoto {
+                    await MainActor.run {
+                        self.image = photo
+                    }
+                } else {
+                    guard let url = city.smallPhotoUrl,
+                          let image = await ImageLoader.shared.loadImage(urlString: url)
+                    else { return }
+                    await MainActor.run {
+                        self.image = image
+                        self.city.smallPhoto = image
+                    }
+                }
+            }
+        }
+        .onChange(of: city.smallPhotoUrl) { _, newValue in
+            Task {
+                guard let url = newValue,
+                      let image = await ImageLoader.shared.loadImage(urlString: url)
+                else { return }
+                await MainActor.run {
+                    self.image = image
+                }
+            }
         }
     }
 }

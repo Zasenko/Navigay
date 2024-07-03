@@ -10,6 +10,8 @@ import SwiftData
 
 struct CitiesView: View {
     
+    @EnvironmentObject private var authenticationManager: AuthenticationManager
+
     private var cities: [City]
     private let showCountryRegion: Bool
     
@@ -22,9 +24,8 @@ struct CitiesView: View {
     private let eventDataManager: EventDataManagerProtocol
     private let catalogDataManager: CatalogDataManagerProtocol
     private let commentsNetworkManager: CommentsNetworkManagerProtocol
-
-    @ObservedObject var authenticationManager: AuthenticationManager
-    
+    private let notificationsManager: NotificationsManagerProtocol
+        
     init(modelContext: ModelContext,
          cities: [City],
          showCountryRegion: Bool,
@@ -32,11 +33,11 @@ struct CitiesView: View {
          eventNetworkManager: EventNetworkManagerProtocol,
          placeNetworkManager: PlaceNetworkManagerProtocol,
          errorManager: ErrorManagerProtocol,
-         authenticationManager: AuthenticationManager,
          placeDataManager: PlaceDataManagerProtocol,
          eventDataManager: EventDataManagerProtocol,
          catalogDataManager: CatalogDataManagerProtocol,
-         commentsNetworkManager: CommentsNetworkManagerProtocol) {
+         commentsNetworkManager: CommentsNetworkManagerProtocol,
+         notificationsManager: NotificationsManagerProtocol) {
         self.modelContext = modelContext
         self.cities = cities
         self.showCountryRegion = showCountryRegion
@@ -49,8 +50,7 @@ struct CitiesView: View {
         self.eventDataManager = eventDataManager
         self.catalogDataManager = catalogDataManager
         self.commentsNetworkManager = commentsNetworkManager
-
-        _authenticationManager = ObservedObject(wrappedValue: authenticationManager)
+        self.notificationsManager = notificationsManager
     }
     
     var body: some View {
@@ -58,7 +58,7 @@ struct CitiesView: View {
             Section {
                 ForEach(cities) { city in
                     NavigationLink {
-                        CityView(viewModel: CityView.CityViewModel(modelContext: modelContext, city: city, catalogNetworkManager: catalogNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, catalogDataManager: catalogDataManager, commentsNetworkManager: commentsNetworkManager))
+                        CityView(viewModel: CityView.CityViewModel(modelContext: modelContext, city: city, catalogNetworkManager: catalogNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, catalogDataManager: catalogDataManager, commentsNetworkManager: commentsNetworkManager, notificationsManager: notificationsManager))
                     } label: {
                         CityCell(city: city, showCountryRegion: showCountryRegion, showLocationsCount: true)
                     }

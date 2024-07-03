@@ -33,7 +33,7 @@ struct CommentsView: View {
                         AppImages.iconInfoBubble
                             .font(.title)
                             .foregroundStyle(.secondary)
-                        Text(viewModel.firstReviewPrompts.randomElement() ?? viewModel.firstReviewPrompt)
+                        Text(viewModel.noReviewsText)
                             .font(.subheadline)
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }
@@ -68,9 +68,6 @@ struct CommentsView: View {
             .background(AppColors.lightGray6)
             .clipShape(Capsule(style: .continuous))
         }
-        .sheet(isPresented: $viewModel.showAddReviewView) {
-            AddCommentView(viewModel: AddCommentViewModel(placeId: viewModel.place.id, networkManager: viewModel.commentsNetworkManager, errorManager: viewModel.errorManager))
-        }
     }
     
     private var authButtons: some View {
@@ -89,11 +86,6 @@ struct CommentsView: View {
                         .background(AppColors.lightGray6)
                         .clipShape(Capsule(style: .continuous))
                 }
-                .fullScreenCover(isPresented: $viewModel.showLoginView) {
-                    LoginView(viewModel: LoginViewModel(email: nil)) {
-                        viewModel.showLoginView = false
-                    }
-                }
                 Button {
                     viewModel.showRegistrationView = true
                 } label: {
@@ -104,11 +96,6 @@ struct CommentsView: View {
                         .padding()
                         .background(AppColors.lightGray6)
                         .clipShape(Capsule(style: .continuous))
-                }
-                .fullScreenCover(isPresented: $viewModel.showRegistrationView) {
-                    RegistrationView(authenticationManager: authenticationManager, errorManager: authenticationManager.errorManager) {
-                        viewModel.showRegistrationView = false
-                    }
                 }
             }
             .frame(maxWidth: .infinity)
@@ -169,7 +156,7 @@ struct CommentsView: View {
                 
                 Menu {
                     NavigationLink("Report") {
-                        ReportView(viewModel: ReportViewModel(item: .comment, itemId: comment.id, reasons: [.inappropriateContent, .misleadingInformation, .spam, .other], user: authenticationManager.appUser, networkManager: ReportNetworkManager(networkMonitorManager: authenticationManager.networkMonitorManager), errorManager: viewModel.errorManager)) {
+                        ReportView(viewModel: ReportViewModel(item: .comment, itemId: comment.id, reasons: [.inappropriateContent, .misleadingInformation, .spam, .other], user: authenticationManager.appUser, networkManager: ReportNetworkManager(networkManager: authenticationManager.networkManager), errorManager: viewModel.errorManager)) {
                             viewModel.deleteComment(id: comment.id)
                         }
                     }

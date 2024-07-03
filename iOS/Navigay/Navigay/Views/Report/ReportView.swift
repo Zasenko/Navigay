@@ -160,17 +160,17 @@ struct ReportView: View {
     }
 }
 
-#Preview {
-    let errorManager = ErrorManager()
-    let networkMonitorManager = NetworkMonitorManager(errorManager: errorManager)
-    let networkManager = ReportNetworkManager(networkMonitorManager: networkMonitorManager)
-    
-    let viewModel = ReportViewModel(item: .comment, itemId: 1, reasons: [.inappropriateContent, .misleadingInformation, .spam, .other], user: nil, networkManager: networkManager, errorManager: errorManager)
-   // viewModel.isAdded = true
-   // viewModel.isLoading = true
-    return ReportView(viewModel: viewModel, onSave: {
-        
-    })
-}
+//#Preview {
+//    let errorManager = ErrorManager()
+//    let networkMonitorManager = NetworkMonitorManager(errorManager: errorManager)
+//    let networkManager = ReportNetworkManager(networkMonitorManager: networkMonitorManager)
+//    
+//    let viewModel = ReportViewModel(item: .comment, itemId: 1, reasons: [.inappropriateContent, .misleadingInformation, .spam, .other], user: nil, networkManager: networkManager, errorManager: errorManager)
+//   // viewModel.isAdded = true
+//   // viewModel.isLoading = true
+//    return ReportView(viewModel: viewModel, onSave: {
+//        
+//    })
+//}
 
 

@@ -9,27 +9,32 @@ import SwiftUI
 
 final class CommentsViewModel: ObservableObject {
     
-    @Published var comments: [DecodedComment] = []
-    @Published var isLoading = true
-    @Published var showAddReviewView: Bool = false
-    @Published var showRegistrationView: Bool = false
-    @Published var showLoginView: Bool = false
+    @Binding var comments: [DecodedComment]
+    @Binding var isLoading: Bool
+    @Binding var showAddReviewView: Bool
+    @Binding var showRegistrationView: Bool
+    @Binding var showLoginView: Bool
     
     let commentsNetworkManager: CommentsNetworkManagerProtocol
     let errorManager: ErrorManagerProtocol
     let size: CGSize
     let place: Place
-        
-    let firstReviewPrompt = "Hey there! Looks like this place is waiting to be discovered. Share your thoughts and be the first to leave a review!"
-    let firstReviewPrompts = [
-        "Hey there! Looks like this place is waiting to be discovered. Share your thoughts and be the first to leave a review!",
-        "Be the trailblazer! Drop a review for this place and let others know about your experience.",
-        "Psst... the review section is feeling lonely. Care to share your thoughts and help others with your feedback?",
-        "Ready to be a trendsetter? Leave the first review and pave the way for others!",
-        "Silence is golden, but reviews are priceless! Be the first to break the silence and share your thoughts about this place."
-    ]
+    let noReviewsText = "Hey there! Looks like this place is waiting to be discovered. Share your thoughts and be the first to leave a review!"
     
-    init(commentsNetworkManager: CommentsNetworkManagerProtocol, errorManager: ErrorManagerProtocol, size: CGSize, place: Place) {
+    init(comments: Binding<[DecodedComment]>,
+         isLoading: Binding<Bool>,
+         showAddReviewView: Binding<Bool>,
+         showRegistrationView: Binding<Bool>,
+         showLoginView: Binding<Bool>,
+         commentsNetworkManager: CommentsNetworkManagerProtocol,
+         errorManager: ErrorManagerProtocol,
+         size: CGSize,
+         place: Place) {
+        _comments = comments
+        _isLoading = isLoading
+        _showAddReviewView = showAddReviewView
+        _showRegistrationView = showRegistrationView
+        _showLoginView = showLoginView
         self.commentsNetworkManager = commentsNetworkManager
         self.errorManager = errorManager
         self.size = size

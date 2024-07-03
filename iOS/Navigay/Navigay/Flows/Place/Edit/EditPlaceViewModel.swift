@@ -275,7 +275,8 @@ extension EditPlaceViewModel {
                     } else {
                         avatar = AdminPhoto(id: UUID().uuidString, image: Image(uiImage: uiImage), url: url)
                     }
-                    place?.avatar = url
+                    place?.avatarUrl = url
+                    place?.avatar = Image(uiImage: uiImage)
                 }
             } catch NetworkErrors.noConnection {
                 errorManager.showNetworkNoConnected()
@@ -303,7 +304,8 @@ extension EditPlaceViewModel {
                 } else {
                     mainPhoto = AdminPhoto(id: UUID().uuidString, image: Image(uiImage: uiImage), url: url)
                 }
-                place?.mainPhoto = url
+                place?.mainPhotoUrl = url
+                place?.mainPhoto = Image(uiImage: uiImage)
             }
         } catch NetworkErrors.noConnection {
             errorManager.showNetworkNoConnected()
