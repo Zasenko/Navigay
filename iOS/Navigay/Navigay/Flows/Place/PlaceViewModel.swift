@@ -17,6 +17,7 @@ extension PlaceView {
     class PlaceViewModel {
         
         //MARK: - Properties
+        
         var isLoading: Bool = false
         
         var showHeaderTitle: Bool = false
@@ -89,6 +90,7 @@ extension PlaceView {
         //MARK: - Functions
         
         func getEventsFromDB() {
+            allPhotos = place.getAllPhotos()
             if place.lastUpdateComplite == nil {
                 isLoading = true
                 Task {
@@ -97,11 +99,9 @@ extension PlaceView {
             } else {
                 Task {
                     let events = place.events.sorted(by: { $0.id < $1.id })
-                    
                     let actualEvents = eventDataManager.getActualEvents(for: events)
                     let todayEvents = eventDataManager.getTodayEvents(from: actualEvents)
                     let upcomingEvents = eventDataManager.getUpcomingEvents(from: actualEvents)
-                   // let eventsDatesWithoutToday = await eventDataManager.getActiveDates(for: actualEvents)
                     await MainActor.run {
                         self.upcomingEvents = upcomingEvents
                         self.eventsDates = place.eventsDates
@@ -145,6 +145,7 @@ extension PlaceView {
                 await MainActor.run {
                     updateFetchedResult(decodedPlace: decodedPlace)
                 }
+                return
             } catch NetworkErrors.noConnection {
             } catch NetworkErrors.apiError(let apiError) {
                 errorManager.showApiError(apiError: apiError, or: errorManager.updateMessage, img: nil, color: nil)
@@ -158,29 +159,23 @@ extension PlaceView {
         
         private func updateFetchedResult(decodedPlace: DecodedPlace) {
             placeDataManager.update(place: place, decodedPlace: decodedPlace, modelContext: modelContext)
-            /// чтобы фотографии не загружались несколько раз
-            /// todo! проверить и изменить логику
-            let newPhotosLinks = place.getAllPhotos()
-            for links in newPhotosLinks {
-                if !allPhotos.contains(where:  { $0 == links } ) {
-                    allPhotos.append(links)
+            allPhotos = place.getAllPhotos()
+            let eventsItems = eventDataManager.update(decodedEvents: decodedPlace.events, for: place, modelContext: modelContext)
+            Task {
+                let todayEventsSorted = eventsItems.today.sorted(by: { $0.id < $1.id })
+                let upcomingEventsSorted = eventsItems.upcoming.sorted(by: { $0.id < $1.id }).sorted(by: { $0.startDate < $1.startDate })
+                let activeDates = decodedPlace.events?.calendarDates?.compactMap( { $0.dateFromString(format: "yyyy-MM-dd") }) ?? []
+                await MainActor.run {
+                    self.upcomingEvents = upcomingEventsSorted
+                    self.eventsDates = activeDates
+                    self.todayEvents = todayEventsSorted
+                    self.displayedEvents = upcomingEventsSorted
+                    self.eventsCount = decodedPlace.events?.eventsCount ?? 0
+                    self.place.eventsCount = decodedPlace.events?.eventsCount ?? 0
+                    self.place.eventsDates = activeDates
+                    self.isLoading = false
                 }
             }
-            
-            let todayEvents = eventDataManager.updateEvents(decodedEvents: decodedPlace.events?.today, for: place, modelContext: modelContext)
-            let upcomingEvents = eventDataManager.updateEvents(decodedEvents: decodedPlace.events?.upcoming, for: place, modelContext: modelContext)
-            
-            let todayEventsSorted = todayEvents.sorted(by: { $0.id < $1.id })
-            let upcomingEventsSorted = upcomingEvents.sorted(by: { $0.id < $1.id }).sorted(by: { $0.startDate < $1.startDate })
-            let activeDates = decodedPlace.events?.calendarDates?.compactMap( { $0.dateFromString(format: "yyyy-MM-dd") }) ?? []
-            
-            self.upcomingEvents = upcomingEventsSorted
-            self.eventsDates = activeDates
-            self.todayEvents = todayEventsSorted
-            self.displayedEvents = upcomingEventsSorted
-            self.eventsCount = decodedPlace.events?.eventsCount ?? 0
-            self.place.eventsCount = decodedPlace.events?.eventsCount ?? 0
-            self.place.eventsDates = activeDates
         }
         
         private func fetchEvents(for date: Date) async {
@@ -188,7 +183,7 @@ extension PlaceView {
             do {
                 let events = try await eventNetworkManager.fetchEvents(placeId: place.id, date: date)
                 await MainActor.run {
-                    let events = eventDataManager.updateEvents(decodedEvents: events, for: place, modelContext: modelContext)
+                    let events = eventDataManager.update(decodedEvents: events, for: place, on: date, modelContext: modelContext)
                     self.displayedEvents = events
                 }
             } catch NetworkErrors.apiError(let error) {
@@ -201,33 +196,5 @@ extension PlaceView {
                 errorManager.showError(model: ErrorModel(error: error, message: message))
             }
         }
-//        private func updateEvents(events: [Event]) {
-//            Task {
-//                let actualEvents = await eventDataManager.getActualEvents(for: events.sorted(by: { $0.id < $1.id}))
-//                let todayEvents = await eventDataManager.getTodayEvents(from: actualEvents)
-//                let upcomingEvents = await eventDataManager.getUpcomingEvents(from: actualEvents)
-//
-//                let eventsDatesWithoutToday = await eventDataManager.getActiveDates(for: actualEvents)
-//                
-//                let eventsIDs = actualEvents.map( { $0.id } )
-//                var eventsToDelete: [Event] = []
-//                self.actualEvents.forEach { event in
-//                    if !eventsIDs.contains(event.id) {
-//                        eventsToDelete.append(event)
-//                    }
-//                }
-//                
-//                await MainActor.run { [eventsToDelete] in
-//                    eventsToDelete.forEach( { modelContext.delete($0) } )
-//                    self.actualEvents = actualEvents
-//                    self.upcomingEvents = upcomingEvents
-//                    self.eventsDates = eventsDatesWithoutToday
-//                    self.todayEvents = todayEvents
-//                    self.displayedEvents = upcomingEvents
-//                    self.eventsCount = actualEvents.count
-//                }
-//            }
-//        }
-
     }
 }

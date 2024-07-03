@@ -95,7 +95,6 @@ struct PlaceView: View {
                 }
             }
             .onAppear() {
-                viewModel.allPhotos = viewModel.place.getAllPhotos()
                 viewModel.getEventsFromDB()
             }
             .onChange(of: viewModel.selectedDate, initial: false) { oldValue, newValue in
