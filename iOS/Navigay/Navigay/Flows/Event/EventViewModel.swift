@@ -174,7 +174,7 @@ extension EventView {
             }
         }
         
-        //TOD double
+        //TODO double есть в PlaceDataManager
         private func updateTimeTable(timetable: [PlaceWorkDay]?, for place: Place) {
             let oldTimetable = place.timetable
             place.timetable.removeAll()

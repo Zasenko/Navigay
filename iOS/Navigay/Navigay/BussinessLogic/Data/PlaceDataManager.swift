@@ -10,6 +10,10 @@ import SwiftData
 import CoreLocation
 
 protocol PlaceDataManagerProtocol {
+    
+    var comments: [Place:[DecodedComment]] { get set }
+    func addComments(_ comments: [DecodedComment], for place: Place)
+    
     ///Sorted by name
     func getAllPlaces(modelContext: ModelContext) -> [Place]
     
@@ -32,6 +36,12 @@ protocol PlaceDataManagerProtocol {
 }
 
 final class PlaceDataManager: PlaceDataManagerProtocol {
+    
+    var comments: [Place : [DecodedComment]] = [:]
+    
+    func addComments(_ comments: [DecodedComment], for place: Place) {
+        self.comments[place] = comments
+    }
     
     //ok
     func update(decodedPlaces: [DecodedPlace]?, modelContext: ModelContext) -> [Place] {

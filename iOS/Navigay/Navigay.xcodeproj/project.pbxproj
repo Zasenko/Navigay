@@ -748,6 +748,7 @@
 				0F4997052B36F216003E4E2B /* PhotosTabView.swift */,
 				0F198EBC2B67CCD8005D3E12 /* ContactInfoView.swift */,
 				0F198EBE2B67CD28005D3E12 /* TimetableView.swift */,
+				0FFB3A3C2AF12596001CF946 /* TagsView.swift */,
 				0F7E97FE2BA58FD8001A1550 /* ImageLoadingView.swift */,
 			);
 			path = Views;
@@ -925,7 +926,6 @@
 			isa = PBXGroup;
 			children = (
 				0F79B2552AF2608100FCAED2 /* EditTagsView.swift */,
-				0FFB3A3C2AF12596001CF946 /* TagsView.swift */,
 			);
 			path = Tags;
 			sourceTree = "<group>";

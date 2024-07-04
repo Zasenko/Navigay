@@ -43,9 +43,6 @@ protocol CatalogDataManagerProtocol {
     func updateRegions(decodedRegions: [DecodedRegion]?, country: Country, modelContext: ModelContext)
     
     func updateCities(decodedCities: [DecodedCity]?, region: Region, modelContext: ModelContext)
-    
-   // func updateEvents(decodedEvents: [DecodedEvent]?, cities: [City], modelContext: ModelContext) -> [Event]
-   // func updatePlaces(decodedPlaces: [DecodedPlace]?, cities: [City], modelContext: ModelContext) -> [Place]
 }
 
 final class CatalogDataManager: CatalogDataManagerProtocol {
@@ -353,103 +350,4 @@ final class CatalogDataManager: CatalogDataManagerProtocol {
             debugPrint(error)
         }
     }
-    
-//    func updateEvents(decodedEvents: [DecodedEvent]?, cities: [City], modelContext: ModelContext) -> [Event] {
-//        guard let decodedEvents, !decodedEvents.isEmpty else {
-//            return []
-//        }
-//        do {
-//            let descriptor = FetchDescriptor<Event>()
-//            let allEvents = try modelContext.fetch(descriptor)
-//            
-//            var events: [Event] = []
-//            for decodedEvent in decodedEvents {
-//                if let event = allEvents.first(where: { $0.id == decodedEvent.id} ) {
-//                    event.updateEventIncomplete(decodedEvent: decodedEvent)
-//                    if let city = cities.first(where: { $0.id == decodedEvent.cityId}) {
-//                        event.city = city
-//                        if !city.events.contains(where: { $0.id == event.id} ) {
-//                            city.events.append(event)
-//                        }
-//                    }
-//                    events.append(event)
-//                } else {
-//                    let event = Event(decodedEvent: decodedEvent)
-//                    modelContext.insert(event)
-//                    if let city = cities.first(where: { $0.id == decodedEvent.cityId}) {
-//                        event.city = city
-//                        city.events.append(event)
-//                    }
-//                    events.append(event)
-//                }
-//            }
-//            try modelContext.save()
-//            return events.sorted(by: { $0.startDate < $1.startDate})
-//        } catch {
-//            debugPrint(error)
-//            return []
-//        }
-////
-////        for decodedCity in decodedCities {
-////
-////            if let city = region.cities.first(where: { $0.id == decodedCity.id} ) {
-////                city.updateCityIncomplete(decodedCity: decodedCity)
-////            } else {
-////                let city = City(decodedCity: decodedCity)
-////                region.cities.append(city)
-////                city.region = region
-////            }
-////        }
-//
-//    }
-//    
-//    func updatePlaces(decodedPlaces: [DecodedPlace]?, cities: [City], modelContext: ModelContext) -> [Place] {
-//        guard let decodedPlaces, !decodedPlaces.isEmpty else {
-//            return []
-//        }
-//        do {
-//            let descriptor = FetchDescriptor<Place>()
-//            let allPlaces = try modelContext.fetch(descriptor)
-//            
-//            var places: [Place] = []
-//            for decodedPlace in decodedPlaces {
-//                if let place = allPlaces.first(where: { $0.id == decodedPlace.id} ) {
-//                    place.updatePlaceIncomplete(decodedPlace: decodedPlace)
-//                    if let city = cities.first(where: { $0.id == decodedPlace.cityId}) {
-//                        place.city = city
-//                        if !city.places.contains(where: { $0.id == place.id} ) {
-//                            city.places.append(place)
-//                        }
-//                    }
-//                    places.append(place)
-//                } else {
-//                    let place = Place(decodedPlace: decodedPlace)
-//                    modelContext.insert(place)
-//                    if let city = cities.first(where: { $0.id == decodedPlace.cityId}) {
-//                        place.city = city
-//                        city.places.append(place)
-//                    }
-//                    places.append(place)
-//                }
-//            }
-//            try modelContext.save()
-//            return places.sorted(by: { $0.name < $1.name})
-//        } catch {
-//            debugPrint(error)
-//            return []
-//        }
-////
-////        for decodedCity in decodedCities {
-////
-////            if let city = region.cities.first(where: { $0.id == decodedCity.id} ) {
-////                city.updateCityIncomplete(decodedCity: decodedCity)
-////            } else {
-////                let city = City(decodedCity: decodedCity)
-////                region.cities.append(city)
-////                city.region = region
-////            }
-////        }
-//
-//    }
-
 }

@@ -35,8 +35,8 @@ struct EventsView: View {
                     .font(.title2)
                     .bold()
                     .foregroundStyle(.primary)
-                    .frame(maxWidth: .infinity, alignment: .center)
                     .padding(.vertical)
+                    .frame(maxWidth: .infinity, alignment: .center)
                 if todayEvents.count == 1 {
                     ForEach(todayEvents) { event in
                         Button {
@@ -67,10 +67,9 @@ struct EventsView: View {
                         .font(.title2)
                         .bold()
                         .foregroundStyle(.primary)
-                        .frame(maxWidth: .infinity)
-                        .id("UpcomingEvents")
                         .padding()
                         .frame(maxWidth: .infinity)
+                        .id("UpcomingEvents")
                 if selectedDate != nil {
                     Text(selectedDate?.formatted(date: .long, time: .omitted) ?? "")
                         .font(.title3).bold()

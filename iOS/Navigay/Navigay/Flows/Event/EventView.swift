@@ -100,7 +100,9 @@ struct EventView: View {
             }
         }
     }
+    
    // @State private var img: Image? = nil
+    
     private func listView(size: CGSize) -> some View {
         List {
             Section {

@@ -107,7 +107,7 @@ extension PlaceView {
                         self.todayEvents = todayEvents
                         self.displayedEvents = upcomingEvents
                     }
-                    await fetchPlace()
+                   await fetchPlace()
                 }
             }
         }
@@ -129,6 +129,40 @@ extension PlaceView {
             Task {
                 await fetchEvents(for: date)
             }
+        }
+        
+        func fetchComments() {
+            print("--------------------")
+            print(placeDataManager.comments)
+            print("----------------")
+
+            if let comments = placeDataManager.comments[place] {
+                self.comments = comments
+                isCommentsLoading = false
+            } else {
+                Task {
+                    let message = "Oops! Looks like the comments failed to load. Don't worry, we're actively working to resolve the issue."
+                    do {
+                        let decodedComments = try await commentsNetworkManager.fetchComments(placeID: place.id)
+                        let activeComments = decodedComments.filter( { $0.isActive } )
+                        placeDataManager.addComments(activeComments, for: place)
+                        await MainActor.run {
+                            comments = activeComments
+                            isCommentsLoading = false
+                        }
+                    } catch NetworkErrors.noConnection {
+                    } catch NetworkErrors.apiError(let apiError) {
+                        errorManager.showApiError(apiError: apiError, or: message, img: nil, color: nil)
+                    } catch {
+                        errorManager.showError(model: ErrorModel(error: error, message: message))
+                    }
+                }
+            }
+        }
+        
+        func deleteComment(id: Int) {
+            comments.removeAll(where: { $0.id == id})
+            //commentsNetworkManager.
         }
         
         private func fetchPlace() async {

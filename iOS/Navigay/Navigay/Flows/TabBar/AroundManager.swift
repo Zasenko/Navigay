@@ -50,7 +50,7 @@ final class AroundManager: ObservableObject {
     let errorManager: ErrorManagerProtocol
     let notificationsManager: NotificationsManagerProtocol
     
-    //MARK: - Init
+    // MARK: - Init
     
     init(aroundNetworkManager: AroundNetworkManagerProtocol,
          placeNetworkManager: PlaceNetworkManagerProtocol,
@@ -74,7 +74,12 @@ final class AroundManager: ObservableObject {
         self.notificationsManager = notificationsManager
     }
     
-    //MARK: - Functions
+}
+
+extension AroundManager {
+    
+    
+    // MARK: - Functions
         
     func fetch(userLocation: CLLocation) async throws -> AroundItemsResult {
         let decodedResult = try await aroundNetworkManager.fetchAround(location: userLocation)
@@ -122,4 +127,5 @@ final class AroundManager: ObservableObject {
     func fetchEvents(for date: Date, ids: [Int]) async throws -> DecodedSearchItems {
         return try await eventNetworkManager.fetchEvents(ids: ids) 
     }
+    
 }
