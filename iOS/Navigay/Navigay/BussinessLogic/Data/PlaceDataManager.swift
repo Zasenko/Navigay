@@ -13,6 +13,7 @@ protocol PlaceDataManagerProtocol {
     
     var comments: [Place:[DecodedComment]] { get set }
     func addComments(_ comments: [DecodedComment], for place: Place)
+    func deleteComment(id: Int, for place: Place)
     
     ///Sorted by name
     func getAllPlaces(modelContext: ModelContext) -> [Place]
@@ -39,9 +40,18 @@ final class PlaceDataManager: PlaceDataManagerProtocol {
     
     var comments: [Place : [DecodedComment]] = [:]
     
+    //ok
     func addComments(_ comments: [DecodedComment], for place: Place) {
         self.comments[place] = comments
     }
+    
+    //ok
+    func deleteComment(id: Int, for place: Place) {
+            if var placeComments = comments[place] {
+                placeComments.removeAll { $0.id == id }
+                comments[place] = placeComments
+            }
+        }
     
     //ok
     func update(decodedPlaces: [DecodedPlace]?, modelContext: ModelContext) -> [Place] {

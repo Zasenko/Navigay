@@ -132,10 +132,6 @@ extension PlaceView {
         }
         
         func fetchComments() {
-            print("--------------------")
-            print(placeDataManager.comments)
-            print("----------------")
-
             if let comments = placeDataManager.comments[place] {
                 self.comments = comments
                 isCommentsLoading = false
@@ -162,7 +158,7 @@ extension PlaceView {
         
         func deleteComment(id: Int) {
             comments.removeAll(where: { $0.id == id})
-            //commentsNetworkManager.
+            placeDataManager.deleteComment(id: id, for: place)
         }
         
         private func fetchPlace() async {
