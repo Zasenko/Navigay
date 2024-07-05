@@ -54,7 +54,7 @@ extension CountryView {
         
         func fetch() {
             Task {
-                guard !catalogNetworkManager.loadedCountries.contains(where: { $0 == country.id}) else {
+                guard !catalogDataManager.loadedCountries.contains(where: { $0.id == country.id}) else {
                     return
                 }
                 do {
@@ -62,6 +62,7 @@ extension CountryView {
                     await MainActor.run {
                         updateCountry(decodedCountry: decodedCountry)
                     }
+                    catalogDataManager.addLoadedCountry(country)
                 } catch NetworkErrors.noConnection {
                 } catch NetworkErrors.apiError(let apiError) {
                     errorManager.showApiError(apiError: apiError, or: errorManager.updateMessage, img: nil, color: nil)
@@ -74,7 +75,7 @@ extension CountryView {
         private func updateCountry(decodedCountry: DecodedCountry) {
             country.updateCountryComplite(decodedCountry: decodedCountry)
             catalogDataManager.updateRegions(decodedRegions: decodedCountry.regions, country: country, modelContext: modelContext)
-            try? modelContext.save()
+           // try? modelContext.save()
         }
     }
 }

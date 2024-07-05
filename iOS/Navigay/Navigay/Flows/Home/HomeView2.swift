@@ -36,7 +36,7 @@ struct HomeView: View {
                             
                             MapView(viewModel: MapViewModel(events: aroundManager.todayEvents, 
                                                             places: aroundManager.aroundPlaces,
-                                                            categories: aroundManager.sortingMapCategories,
+                                                            categories: aroundManager.mapCategories,
                                                             modelContext: modelContext,
                                                             placeNetworkManager: aroundManager.placeNetworkManager,
                                                             eventNetworkManager: aroundManager.eventNetworkManager,
@@ -75,8 +75,8 @@ struct HomeView: View {
             .onAppear {
                 if !isPresented {
                     isPresented = true
-                    let selectedCategory = aroundManager.selectedHomeSortingCategory
-                    aroundManager.selectedHomeSortingCategory = aroundManager.sortingHomeCategories.first ?? selectedCategory
+                    let selectedCategory = aroundManager.selectedHomeCategory
+                    aroundManager.selectedHomeCategory = aroundManager.homeCategories.first ?? selectedCategory
                 }
             }
             .sheet(isPresented:  $aroundManager.showCalendar) {} content: {
@@ -111,7 +111,7 @@ struct HomeView: View {
                     if aroundManager.isLocationsAround20Found {
                         menuView
                         Divider()
-                        if aroundManager.sortingHomeCategories.count > 0 {
+                        if aroundManager.homeCategories.count > 0 {
                             tabView(size: geomentry.size)
                         }
                     } else {
@@ -127,10 +127,10 @@ struct HomeView: View {
             ScrollViewReader { scrollProxy in
                 ScrollView(.horizontal, showsIndicators: false) {
                     LazyHGrid(rows: [GridItem()], alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/, spacing: 0) {
-                        ForEach(aroundManager.sortingHomeCategories, id: \.self) { category in
+                        ForEach(aroundManager.homeCategories, id: \.self) { category in
                             Button {
                                 withAnimation(.easeIn) {
-                                    aroundManager.selectedHomeSortingCategory = category
+                                    aroundManager.selectedHomeCategory = category
                                 }
                             } label: {
                                 Text(category.getName())
@@ -139,7 +139,7 @@ struct HomeView: View {
                                     .foregroundStyle(.primary)
                                     .padding(5)
                                     .padding(.horizontal, 5)
-                                    .background(aroundManager.selectedHomeSortingCategory == category ? AppColors.lightGray6 : .clear)
+                                    .background(aroundManager.selectedHomeCategory == category ? AppColors.lightGray6 : .clear)
                                     .clipShape(.capsule)
                             }
                             .padding(.leading)
@@ -149,7 +149,7 @@ struct HomeView: View {
                     .padding(.trailing)
                 }
                 .frame(height: 40)
-                .onChange(of: aroundManager.selectedHomeSortingCategory, initial: true) { oldValue, newValue in
+                .onChange(of: aroundManager.selectedHomeCategory, initial: true) { oldValue, newValue in
                     withAnimation {
                         scrollProxy.scrollTo(newValue, anchor: .leading)
                     }
@@ -159,8 +159,8 @@ struct HomeView: View {
     }
 
     private func tabView(size: CGSize) -> some View {
-        TabView(selection: $aroundManager.selectedHomeSortingCategory) {
-            ForEach(aroundManager.sortingHomeCategories, id: \.self) { category in
+        TabView(selection: $aroundManager.selectedHomeCategory) {
+            ForEach(aroundManager.homeCategories, id: \.self) { category in
                 categoryView(category: category, size: size)
                     .tag(category)
             }

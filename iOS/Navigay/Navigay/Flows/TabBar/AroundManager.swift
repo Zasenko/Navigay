@@ -33,10 +33,10 @@ final class AroundManager: ObservableObject {
     
     @Published var showMap: Bool = false
     
-    @Published var sortingHomeCategories: [SortingCategory] = []
-    @Published var selectedHomeSortingCategory: SortingCategory = .all
+    @Published var homeCategories: [SortingCategory] = []
+    @Published var selectedHomeCategory: SortingCategory = .all
     
-    @Published var sortingMapCategories: [SortingCategory] = []
+    @Published var mapCategories: [SortingCategory] = []
     
     let placeDataManager: PlaceDataManagerProtocol
     var eventDataManager: EventDataManagerProtocol
@@ -118,12 +118,12 @@ extension AroundManager {
         }
         
         await MainActor.run { [sortedMapCategories, sortedHomeCategories, selectedCategory] in
-            withAnimation {
-                sortingMapCategories = sortedMapCategories
-                sortingHomeCategories = sortedHomeCategories
-                selectedHomeSortingCategory = selectedCategory
-                isLoading = false
-            }
+                // withAnimation {
+                self.mapCategories = sortedMapCategories
+                self.homeCategories = sortedHomeCategories
+                self.selectedHomeCategory = selectedCategory
+                self.isLoading = false
+            //}
         }
     }
     

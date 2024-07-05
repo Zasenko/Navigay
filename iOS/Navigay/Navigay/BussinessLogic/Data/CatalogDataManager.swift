@@ -11,9 +11,14 @@ import CoreLocation
 
 protocol CatalogDataManagerProtocol {
     
-//    var isCountriesLoaded: Bool { get }// TODO
-//    var loadedCountries: [Int] { get }// TODO
-//    var loadedCities: [Int] { get }// TODO
+    var isCountriesLoaded: Bool { get }
+    var loadedCountries: [Country] { get }
+    var loadedCities: [City:CityItems] { get }
+    
+    func changeCountriesLoadStatus()
+    func addLoadedCountry(_ country: Country)
+    func addLoadedCity(_ city: City, with items: CityItems)
+
     
     /// return  -> sorted by name
     func getAllCountries(modelContext: ModelContext) -> [Country]
@@ -46,6 +51,26 @@ protocol CatalogDataManagerProtocol {
 }
 
 final class CatalogDataManager: CatalogDataManagerProtocol {
+    
+    // MARK: - Properties
+    
+    var isCountriesLoaded: Bool = false
+    var loadedCountries: [Country] = []
+    var loadedCities: [City:CityItems] = [:]
+}
+
+extension CatalogDataManager {
+    
+    func changeCountriesLoadStatus() {
+        isCountriesLoaded = true
+    }
+    
+    func addLoadedCountry(_ country: Country) {
+        loadedCountries.append(country)
+    }
+    func addLoadedCity(_ city: City, with items: CityItems) {
+        loadedCities[city] = items
+    }
     
     func getAllCountries(modelContext: ModelContext) -> [Country] {
         do {

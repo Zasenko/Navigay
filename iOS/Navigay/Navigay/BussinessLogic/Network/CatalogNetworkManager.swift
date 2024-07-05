@@ -63,12 +63,7 @@ extension CatalogEndPoint: EndPoint {
     }
 }
 
-
 protocol CatalogNetworkManagerProtocol {
-    var isCountriesLoaded: Bool { get }// TODO
-    var loadedCountries: [Int] { get }// TODO
-    var loadedCities: [Int] { get }// TODO
-    
     func fetchCountries() async throws -> [DecodedCountry]
     func fetchCountry(id: Int) async throws -> DecodedCountry
     func fetchCity(id: Int) async throws -> DecodedCity
@@ -76,14 +71,7 @@ protocol CatalogNetworkManagerProtocol {
 }
 
 final class CatalogNetworkManager {
-    
-    // MARK: - Properties
-        
-    // TODO
-    var isCountriesLoaded: Bool = false
-    var loadedCountries: [Int] = []
-    var loadedCities: [Int] = []
-    
+
     // MARK: - Private Properties
     
     private let networkManager: NetworkManagerProtocol
@@ -106,7 +94,6 @@ extension CatalogNetworkManager: CatalogNetworkManagerProtocol {
         guard decodedResult.result, let decodedCountries = decodedResult.countries else {
             throw NetworkErrors.apiError(decodedResult.error)
         }
-        isCountriesLoaded = true
         return decodedCountries
     }
     
@@ -117,7 +104,6 @@ extension CatalogNetworkManager: CatalogNetworkManagerProtocol {
         guard decodedResult.result, let decodedCountry = decodedResult.country else {
             throw NetworkErrors.apiError(decodedResult.error)
         }
-        loadedCountries.append(decodedCountry.id)
         return decodedCountry
     }
     
@@ -128,7 +114,6 @@ extension CatalogNetworkManager: CatalogNetworkManagerProtocol {
         guard decodedResult.result, let decodedCity = decodedResult.city else {
             throw NetworkErrors.apiError(decodedResult.error)
         }
-        loadedCities.append(decodedCity.id)
         return decodedCity
     }
     

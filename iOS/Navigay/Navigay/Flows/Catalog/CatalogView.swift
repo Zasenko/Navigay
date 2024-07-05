@@ -19,8 +19,8 @@ struct CatalogView: View {
     
     init(viewModel: CatalogViewModel) {
         _viewModel = State(initialValue: viewModel)
-        viewModel.getCountriesFromDB()
-        viewModel.fetchCountries()
+        self.viewModel.getCountriesFromDB()
+        self.viewModel.fetchCountries()
     }
     
     // MARK: - Body

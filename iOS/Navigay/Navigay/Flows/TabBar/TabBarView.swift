@@ -197,6 +197,10 @@ struct TabBarView: View {
                 let eventsDatesWithoutToday = aroundManager.eventDataManager.getActiveDates(for: actualEvents)
                 let activeDates = aroundManager.eventDataManager.dateEvents?.keys.sorted().filter( { $0.isFutureDay } )
                 await MainActor.run {
+                    aroundManager.todayEvents = todayEvents
+                    aroundManager.displayedEvents = upcomingEvents
+                    aroundManager.eventsCount = aroundManager.eventDataManager.aroundEventsCount ?? actualEvents.count
+                    aroundManager.groupedPlaces = groupedPlaces
                     aroundManager.upcomingEvents = upcomingEvents
                     aroundManager.aroundPlaces = aroundPlaces
                     aroundManager.eventsDates = activeDates ?? eventsDatesWithoutToday
@@ -204,10 +208,6 @@ struct TabBarView: View {
                         let distance = userLocation.distance(from: CLLocation(latitude: place.latitude, longitude: place.longitude))
                         place.getDistanceText(distance: distance, inKm: true)
                     }
-                    aroundManager.todayEvents = todayEvents
-                    aroundManager.displayedEvents = upcomingEvents
-                    aroundManager.eventsCount = aroundManager.eventDataManager.aroundEventsCount ?? actualEvents.count
-                    aroundManager.groupedPlaces = groupedPlaces
                 }
                 await aroundManager.updateCategories()
             } else {
@@ -267,13 +267,13 @@ struct TabBarView: View {
                 }
             }
             await MainActor.run {
-                aroundManager.upcomingEvents = upcomingEvents
-                aroundManager.aroundPlaces = places
-                aroundManager.eventsDates = activeDates
                 aroundManager.todayEvents = todayEvents
                 aroundManager.displayedEvents = upcomingEvents
-                aroundManager.groupedPlaces = groupedPlaces
                 aroundManager.eventsCount = events.count
+                aroundManager.eventsDates = activeDates
+                aroundManager.groupedPlaces = groupedPlaces
+                aroundManager.upcomingEvents = upcomingEvents
+                aroundManager.aroundPlaces = places
                 aroundManager.dateEvents = events.allDates
                 aroundManager.eventDataManager.aroundEventsCount = events.count
                 aroundManager.eventDataManager.dateEvents = events.allDates

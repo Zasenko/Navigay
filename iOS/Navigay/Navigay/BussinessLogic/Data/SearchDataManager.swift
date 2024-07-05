@@ -10,7 +10,7 @@ import Foundation
 protocol SearchDataManagerProtocol {
     var loadedSearchText: [String:SearchItems] { get }
     func addToLoadedSearchItems(result: SearchItems, for text: String)
-//    func search(text: String) async throws -> DecodedSearchItems
+//    func search(text: String) async throws -> DecodedSearchItems // ?? no need now
 }
 
 final class SearchDataManager: SearchDataManagerProtocol {

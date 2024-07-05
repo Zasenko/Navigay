@@ -8,10 +8,24 @@
 import SwiftUI
 import SwiftData
 
+struct CityItems {
+    let allPlaces: [Place]
+    let groupedPlaces: [CityPlacesItem]
+    let todayEvents: [Event]
+    let upcomingEvents: [Event]
+    let citySortingItems: CitySortingItems
+}
+
 struct CityPlacesItem: Identifiable {
     let id: UUID
     let category: SortingCategory
     var places: [Place]
+}
+
+struct CitySortingItems {
+    let homeCategories: [SortingCategory]
+    let mapCategories: [SortingCategory]
+    let selectedCategory: SortingCategory
 }
 
 extension CityView {
@@ -42,13 +56,15 @@ extension CityView {
         
         var gridLayout: [GridItem] = Array(repeating: GridItem(.flexible(), spacing: 20), count: 2)
         
-        var sortingHomeCategories: [SortingCategory] = []
+        var homeCategories: [SortingCategory] = []
+        var selectedHomeCategory: SortingCategory? = nil
         var selectedMenuCategory: SortingCategory = .all
-        var selectedHomeSortingCategory: SortingCategory? = nil
+
+        var mapCategories: [SortingCategory] = []
+        var selectedMapCategory: SortingCategory = .all
         
         var showMap: Bool = false
-        var sortingMapCategories: [SortingCategory] = []
-        var selectedMapSortingCategory: SortingCategory = .all
+
         
         let catalogNetworkManager: CatalogNetworkManagerProtocol
         let placeNetworkManager: PlaceNetworkManagerProtocol
@@ -89,27 +105,47 @@ extension CityView {
         
         func getPlacesAndEventsFromDB() {
             isPresented = true
-            debugPrint("-CityViewModel- getPlacesAndEventsFromDB()")
-            Task {
-                let places = city.places.sorted(by: { $0.name < $1.name })
-                let events = city.events.sorted(by: { $0.id < $1.id })
-                
-                let groupedPlaces = await self.placeDataManager.createHomeGroupedPlaces(places: places.sorted(by: { $0.name < $1.name}))
-                let cityPlacesItem = groupedPlaces.map( { CityPlacesItem(id: UUID(), category: $0.key, places: $0.value) } )
-                let actualEvents = eventDataManager.getActualEvents(for: events)
-                let todayEvents = eventDataManager.getTodayEvents(from: actualEvents)
-                let upcomingEvents = eventDataManager.getUpcomingEvents(from: actualEvents)
-                await MainActor.run {
-                    self.allPlaces = places
-                    self.groupedPlaces = cityPlacesItem
-                    self.upcomingEvents = upcomingEvents
-                    self.todayEvents = todayEvents
-                    self.displayedEvents = upcomingEvents
-                    self.eventsDates = city.eventsDates
-                    self.eventsCount = city.eventsCount
+            if let result = catalogDataManager.loadedCities[city] {
+                self.homeCategories = result.citySortingItems.homeCategories
+                self.mapCategories = result.citySortingItems.mapCategories
+                self.selectedMenuCategory = result.citySortingItems.selectedCategory
+                self.selectedHomeCategory = result.citySortingItems.selectedCategory
+                self.todayEvents = result.todayEvents
+                self.displayedEvents = result.upcomingEvents
+                self.groupedPlaces = result.groupedPlaces
+                self.allPlaces = result.allPlaces
+                self.upcomingEvents = result.upcomingEvents
+                self.eventsDates = city.eventsDates
+                self.eventsCount = city.eventsCount
+            } else {
+                Task {
+                    let places = city.places.sorted(by: { $0.name < $1.name })
+                    let events = city.events.sorted(by: { $0.id < $1.id })
+                    
+                    let groupedPlaces = await self.placeDataManager.createHomeGroupedPlaces(places: places.sorted(by: { $0.name < $1.name}))
+                    let cityPlacesItems = groupedPlaces.map( { CityPlacesItem(id: UUID(), category: $0.key, places: $0.value) } )
+                    let actualEvents = eventDataManager.getActualEvents(for: events)
+                    let todayEvents = eventDataManager.getTodayEvents(from: actualEvents)
+                    let upcomingEvents = eventDataManager.getUpcomingEvents(from: actualEvents)
+                    
+                    let citySortingItems = await updateCategories(eventsCount: city.eventsCount, todayEventsCount: todayEvents.count, placesTypes: cityPlacesItems.map({ $0.category }))
+
+                    await MainActor.run {
+                        self.homeCategories = citySortingItems.homeCategories
+                        self.mapCategories = citySortingItems.mapCategories
+                        self.selectedMenuCategory = citySortingItems.selectedCategory
+                        self.selectedHomeCategory = citySortingItems.selectedCategory
+                        self.todayEvents = todayEvents
+                        self.displayedEvents = upcomingEvents
+                        self.groupedPlaces = cityPlacesItems
+                        self.allPlaces = places
+                        self.upcomingEvents = upcomingEvents
+                        self.eventsDates = city.eventsDates
+                        self.eventsCount = city.eventsCount
+                    }
+                    await fetch()
                 }
-                await updateCategories()
-                await fetch()
+
             }
         }
         
@@ -126,10 +162,6 @@ extension CityView {
         }
 
         private func fetch() async {
-            guard !catalogNetworkManager.loadedCities.contains(where: { $0 == city.id})
-            else {
-                return
-            }
             await MainActor.run {
                 isLoading = true
             }
@@ -138,6 +170,7 @@ extension CityView {
                 await MainActor.run {
                     updateFetchedResult(decodedCity: decodedCity)
                 }
+                return
             } catch NetworkErrors.noConnection {
             } catch NetworkErrors.apiError(let apiError) {
                 errorManager.showApiError(apiError: apiError, or: errorManager.updateMessage, img: nil, color: nil)
@@ -175,26 +208,34 @@ extension CityView {
             let events = eventDataManager.update(decodedEvents: decodedCity.events, for: city, modelContext: modelContext)
             Task {
                 let groupedPlaces = await self.placeDataManager.createHomeGroupedPlaces(places: places.sorted(by: { $0.name < $1.name}))
-                let cityPlacesItem = groupedPlaces.map( { CityPlacesItem(id: UUID(), category: $0.key, places: $0.value) } )
+                let cityPlacesItems = groupedPlaces.map( { CityPlacesItem(id: UUID(), category: $0.key, places: $0.value) } )
                 let todayEvents = events.today.sorted(by: { $0.id < $1.id })
                 let upcomingEvents = events.upcoming.sorted(by: { $0.id < $1.id }).sorted(by: { $0.startDate < $1.startDate })
                 let activeDates = decodedCity.events?.calendarDates?.compactMap( { $0.dateFromString(format: "yyyy-MM-dd") }) ?? []
+                
+                let citySortingItems = await updateCategories(eventsCount: events.count, todayEventsCount: todayEvents.count, placesTypes: cityPlacesItems.map({ $0.category }))
+                
                 await MainActor.run {
-                    self.upcomingEvents = upcomingEvents
-                    self.allPlaces = places
-                    self.eventsDates = activeDates
+                    self.homeCategories = citySortingItems.homeCategories
+                    self.mapCategories = citySortingItems.mapCategories
+                    self.selectedMenuCategory = citySortingItems.selectedCategory
+                    self.selectedHomeCategory = citySortingItems.selectedCategory
                     self.todayEvents = todayEvents
                     self.displayedEvents = upcomingEvents
-                    self.groupedPlaces = cityPlacesItem
+                    self.groupedPlaces = cityPlacesItems
+                    self.upcomingEvents = upcomingEvents
+                    self.eventsDates = activeDates
                     self.eventsCount = events.count
+                    self.allPlaces = places
                     self.city.eventsCount = events.count
                     self.city.eventsDates = activeDates
+                    self.isLoading = false
                 }
-                await updateCategories()
+                catalogDataManager.addLoadedCity(city, with: CityItems(allPlaces: places, groupedPlaces: cityPlacesItems, todayEvents: todayEvents, upcomingEvents: upcomingEvents, citySortingItems: citySortingItems))
             }
         }
 
-        private func updateCategories() async {
+        private func updateCategories(eventsCount: Int, todayEventsCount: Int, placesTypes: [SortingCategory]) async -> CitySortingItems {
             var mapCategories: [SortingCategory] = []
             var homeCategories: [SortingCategory] = []
             var selectedCategory: SortingCategory = .all
@@ -202,10 +243,10 @@ extension CityView {
             if eventsCount > 0 {
                 homeCategories.append(.events)
             }
-            let placesTypes = groupedPlaces.map({ $0.category })
+            let placesTypes = placesTypes
             placesTypes.forEach { mapCategories.append($0) }
             placesTypes.forEach { homeCategories.append($0) }
-            if !todayEvents.isEmpty {
+            if todayEventsCount > 0 {
                 mapCategories.append(.events)
             }
             if mapCategories.count > 1 {
@@ -218,15 +259,8 @@ extension CityView {
             if selectedCategory != .events, let firstPlacesCategory = sortedHomeCategories.first {
                 selectedCategory = firstPlacesCategory
             }
-            
-            await MainActor.run { [selectedCategory] in
-                withAnimation {
-                    sortingMapCategories = sortedMapCategories
-                    sortingHomeCategories = sortedHomeCategories
-                    selectedMenuCategory = selectedCategory
-                    selectedHomeSortingCategory = selectedCategory
-                }
-            }
+            return CitySortingItems(homeCategories: sortedHomeCategories, mapCategories: sortedMapCategories, selectedCategory: selectedCategory)
         }
     }
 }
+

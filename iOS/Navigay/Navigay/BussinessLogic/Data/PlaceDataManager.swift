@@ -10,10 +10,11 @@ import SwiftData
 import CoreLocation
 
 protocol PlaceDataManagerProtocol {
-    
-    var comments: [Place:[DecodedComment]] { get }
-    func addComments(_ comments: [DecodedComment], for place: Place)
-    func deleteComment(id: Int, for place: Place)
+    var loadedPlaces: [Place:PlaceItems] { get }
+    var loadedComments: [Place:[DecodedComment]] { get }
+    func addLoadedPlace(_ place: Place, with items: PlaceItems)
+    func addLoadedComments(_ comments: [DecodedComment], for place: Place)
+    func deleteLoadedComment(id: Int, for place: Place)
     
     ///Sorted by name
     func getAllPlaces(modelContext: ModelContext) -> [Place]
@@ -38,18 +39,29 @@ protocol PlaceDataManagerProtocol {
 
 final class PlaceDataManager: PlaceDataManagerProtocol {
     
-    var comments: [Place : [DecodedComment]] = [:]
+    // MARK: - Properties
+
+    var loadedPlaces: [Place:PlaceItems] = [:]
+    var loadedComments: [Place : [DecodedComment]] = [:]
     
-    //ok
-    func addComments(_ comments: [DecodedComment], for place: Place) {
-        self.comments[place] = comments
+}
+
+extension PlaceDataManager {
+    
+    func addLoadedPlace(_ place: Place, with items: PlaceItems) {
+        loadedPlaces[place] = items
     }
     
     //ok
-    func deleteComment(id: Int, for place: Place) {
-            if var placeComments = comments[place] {
+    func addLoadedComments(_ comments: [DecodedComment], for place: Place) {
+        self.loadedComments[place] = comments
+    }
+    
+    //ok
+    func deleteLoadedComment(id: Int, for place: Place) {
+            if var placeComments = loadedComments[place] {
                 placeComments.removeAll { $0.id == id }
-                comments[place] = placeComments
+                loadedComments[place] = placeComments
             }
         }
     

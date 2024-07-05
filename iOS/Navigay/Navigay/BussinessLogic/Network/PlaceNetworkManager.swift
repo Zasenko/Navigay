@@ -41,16 +41,10 @@ extension PlaceEndPoints: EndPoint {
 }
 
 protocol PlaceNetworkManagerProtocol {
-    var loadedPlaces: [Int] { get }    // TODO!!!!!!!!!
     func fetchPlace(id: Int) async throws -> DecodedPlace
 }
 
 final class PlaceNetworkManager {
-    
-    // MARK: - Properties
-    
-    var loadedPlaces: [Int] = []
-    private var loadedComments: [Int:[DecodedComment]] = [:]
     
     // MARK: - Private Properties
     
@@ -74,7 +68,6 @@ extension PlaceNetworkManager: PlaceNetworkManagerProtocol {
         guard decodedResult.result, let decodedPlace = decodedResult.place else {
             throw NetworkErrors.apiError(decodedResult.error)
         }
-        loadedPlaces.append(id) // TODO!!!!!!!!!
         return decodedPlace
     }
 }

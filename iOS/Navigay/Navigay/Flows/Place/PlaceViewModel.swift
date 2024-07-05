@@ -9,6 +9,11 @@ import SwiftUI
 import SwiftData
 import MapKit
 
+struct PlaceItems {
+    let todayEvents: [Event]
+    let upcomingEvents: [Event]
+}
+
 extension PlaceView {
     
     @Observable
@@ -89,11 +94,12 @@ extension PlaceView {
         
         func getEventsFromDB() {
             allPhotos = place.getAllPhotos()
-            if place.lastUpdateComplite == nil {
-                isLoading = true
-                Task {
-                    await fetchPlace()
-                }
+            if let result = placeDataManager.loadedPlaces[place] {
+                self.todayEvents = result.todayEvents
+                self.displayedEvents = result.upcomingEvents
+                self.upcomingEvents = result.upcomingEvents
+                self.eventsDates = place.eventsDates
+                self.eventsCount = place.eventsCount
             } else {
                 Task {
                     let events = place.events.sorted(by: { $0.id < $1.id })
@@ -110,6 +116,27 @@ extension PlaceView {
                    await fetchPlace()
                 }
             }
+//            if place.lastUpdateComplite == nil {
+//                isLoading = true
+//                Task {
+//                    await fetchPlace()
+//                }
+//            } else {
+//                Task {
+//                    let events = place.events.sorted(by: { $0.id < $1.id })
+//                    let actualEvents = eventDataManager.getActualEvents(for: events)
+//                    let todayEvents = eventDataManager.getTodayEvents(from: actualEvents)
+//                    let upcomingEvents = eventDataManager.getUpcomingEvents(from: actualEvents)
+//                    await MainActor.run {
+//                        self.upcomingEvents = upcomingEvents
+//                        self.eventsDates = place.eventsDates
+//                        self.eventsCount = place.eventsCount
+//                        self.todayEvents = todayEvents
+//                        self.displayedEvents = upcomingEvents
+//                    }
+//                   await fetchPlace()
+//                }
+//            }
         }
         
         func goToMaps() {
@@ -132,7 +159,7 @@ extension PlaceView {
         }
         
         func fetchComments() {
-            if let comments = placeDataManager.comments[place] {
+            if let comments = placeDataManager.loadedComments[place] {
                 self.comments = comments
                 isCommentsLoading = false
             } else {
@@ -141,7 +168,7 @@ extension PlaceView {
                     do {
                         let decodedComments = try await commentsNetworkManager.fetchComments(placeID: place.id)
                         let activeComments = decodedComments.filter( { $0.isActive } )
-                        placeDataManager.addComments(activeComments, for: place)
+                        placeDataManager.addLoadedComments(activeComments, for: place)
                         await MainActor.run {
                             comments = activeComments
                             isCommentsLoading = false
@@ -159,15 +186,12 @@ extension PlaceView {
         // when reporting
         func deleteComment(id: Int) {
             comments.removeAll(where: { $0.id == id})
-            placeDataManager.deleteComment(id: id, for: place)
+            placeDataManager.deleteLoadedComment(id: id, for: place)
         }
         
         //todo deleteComment + api
         
         private func fetchPlace() async {
-            guard !placeNetworkManager.loadedPlaces.contains(where: { $0 ==  place.id } ) else {
-                return
-            }
             await MainActor.run {
                 isLoading = true
             }
@@ -197,15 +221,16 @@ extension PlaceView {
                 let upcomingEventsSorted = eventsItems.upcoming.sorted(by: { $0.id < $1.id }).sorted(by: { $0.startDate < $1.startDate })
                 let activeDates = decodedPlace.events?.calendarDates?.compactMap( { $0.dateFromString(format: "yyyy-MM-dd") }) ?? []
                 await MainActor.run {
-                    self.upcomingEvents = upcomingEventsSorted
-                    self.eventsDates = activeDates
                     self.todayEvents = todayEventsSorted
                     self.displayedEvents = upcomingEventsSorted
-                    self.eventsCount = decodedPlace.events?.eventsCount ?? 0
                     self.place.eventsCount = decodedPlace.events?.eventsCount ?? 0
                     self.place.eventsDates = activeDates
+                    self.eventsCount = decodedPlace.events?.eventsCount ?? 0
+                    self.eventsDates = activeDates
+                    self.upcomingEvents = upcomingEventsSorted
                     self.isLoading = false
                 }
+                placeDataManager.addLoadedPlace(place, with: PlaceItems(todayEvents: todayEventsSorted, upcomingEvents: upcomingEventsSorted))
             }
         }
         

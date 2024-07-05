@@ -74,6 +74,11 @@ struct CityView: View {
                     }
                 }
             }
+            .onAppear() {
+                if !viewModel.isPresented {
+                    viewModel.getPlacesAndEventsFromDB()
+                }
+            }
             .onChange(of: viewModel.selectedDate, initial: false) { oldValue, newValue in
                 viewModel.showCalendar = false
                 if let date = newValue {
@@ -113,7 +118,7 @@ struct CityView: View {
                         eventsSection(size: geometry.size)
                         placesSection()
                     } header: {
-                        if viewModel.sortingHomeCategories.count > 1 {
+                        if viewModel.homeCategories.count > 1 {
                             menuView
                         }
                     }
@@ -157,17 +162,12 @@ struct CityView: View {
                 .listStyle(.plain)
                 .scrollIndicators(.hidden)
                 .buttonStyle(PlainButtonStyle())
-                .onAppear() {
-                    if !viewModel.isPresented {
-                        viewModel.getPlacesAndEventsFromDB()
-                    }
-                }
-                .onChange(of: viewModel.selectedDate, initial: false) { oldValue, newValue in
+                .onChange(of: viewModel.selectedDate, initial: false) {
                     withAnimation {
                         scrollProxy.scrollTo("UpcomingEvents", anchor: .top)
                     }
                 }
-                .onChange(of: viewModel.selectedHomeSortingCategory, initial: false) { oldValue, newValue in
+                .onChange(of: viewModel.selectedHomeCategory, initial: false) { _, newValue in
                     if isScrolled {
                         withAnimation {
                             scrollProxy.scrollTo(newValue, anchor: .top)
@@ -190,7 +190,7 @@ struct CityView: View {
                 }
             }
             .onDisappear {
-                if let scrollUp, scrollUp, let category = viewModel.sortingHomeCategories.first(where:  { $0.getSortPreority() > SortingCategory.events.getSortPreority()} )  {
+                if let scrollUp, scrollUp, let category = viewModel.homeCategories.first(where:  { $0.getSortPreority() > SortingCategory.events.getSortPreority()} )  {
                     viewModel.selectedMenuCategory = category
                 }
             }
@@ -223,7 +223,7 @@ struct CityView: View {
                 }
             }
             .onDisappear {
-                if let scrollUp, scrollUp, let category = viewModel.sortingHomeCategories.first(where:  { $0.getSortPreority() > groupedPlace.category.getSortPreority()} )  {
+                if let scrollUp, scrollUp, let category = viewModel.homeCategories.first(where:  { $0.getSortPreority() > groupedPlace.category.getSortPreority()} )  {
                     viewModel.selectedMenuCategory = category
                 }
             }
@@ -234,13 +234,11 @@ struct CityView: View {
             ScrollViewReader { scrollProxy2 in
                 ScrollView(.horizontal, showsIndicators: false) {
                     LazyHGrid(rows: [GridItem()], alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/, spacing: 0) {
-                        ForEach(viewModel.sortingHomeCategories, id: \.self) { category in
+                        ForEach(viewModel.homeCategories, id: \.self) { category in
                             Button {
-                                withAnimation(.easeIn) {
-                                    scrollUp = nil
-                                    viewModel.selectedMenuCategory = category
-                                    viewModel.selectedHomeSortingCategory = category
-                                }
+                                viewModel.selectedMenuCategory = category
+                                viewModel.selectedHomeCategory = category
+                                scrollUp = nil
                             } label: {
                                 Text(category.getName())
                                     .font(.caption)
