@@ -52,6 +52,7 @@ extension SearchView {
         var selectedEvent: Event?
 
         var searchedKeys: [String] = []
+        
         var last10SearchResults: [LastSearchItem] {
             get {
                 if let data = UserDefaults.standard.data(forKey: "last10SearchResults"),
@@ -81,6 +82,8 @@ extension SearchView {
         let placeDataManager: PlaceDataManagerProtocol
         let eventDataManager: EventDataManagerProtocol
         let catalogDataManager: CatalogDataManagerProtocol
+        let searchDataManager: SearchDataManagerProtocol
+
         let notificationsManager: NotificationsManagerProtocol
         let textSubject = PassthroughSubject<String, Never>()
         
@@ -103,6 +106,7 @@ extension SearchView {
              eventDataManager: EventDataManagerProtocol,
              catalogDataManager: CatalogDataManagerProtocol,
              commentsNetworkManager: CommentsNetworkManagerProtocol,
+             searchDataManager: SearchDataManagerProtocol,
              notificationsManager: NotificationsManagerProtocol) {
             self.modelContext = modelContext
             self.catalogNetworkManager = catalogNetworkManager
@@ -113,8 +117,9 @@ extension SearchView {
             self.eventDataManager = eventDataManager
             self.catalogDataManager = catalogDataManager
             self.commentsNetworkManager = commentsNetworkManager
+            self.searchDataManager = searchDataManager
             self.notificationsManager = notificationsManager
-            searchedKeys = catalogNetworkManager.loadedSearchText.keys.uniqued()
+            searchedKeys = searchDataManager.loadedSearchText.keys.uniqued()
             
             cancellable = textSubject
              //   .debounce(for: .seconds(0), scheduler: DispatchQueue.main)
@@ -127,12 +132,12 @@ extension SearchView {
                                 self?.categories = []
                                 self?.searchEvents = []
                                 self?.searchPlaces = []
-                                self?.searchedKeys = catalogNetworkManager.loadedSearchText.keys.uniqued()
+                                self?.searchedKeys = searchDataManager.loadedSearchText.keys.uniqued()
                             }
                         }
                         return
                     }
-                    self?.searchedKeys = catalogNetworkManager.loadedSearchText.keys.uniqued().filter( { $0.contains(searchText)} )
+                    self?.searchedKeys = searchDataManager.loadedSearchText.keys.uniqued().filter( { $0.contains(searchText)} )
                 }
         }
         
@@ -145,7 +150,7 @@ extension SearchView {
         
         func getSearchedResult(key: String) {
             searchText = key
-            if let result = catalogNetworkManager.loadedSearchText[searchText] {
+            if let result = searchDataManager.loadedSearchText[searchText] {
                 selectedCategory = result.categories.first ?? .all
                 categories = result.categories
                 searchEvents = result.events
@@ -159,7 +164,7 @@ extension SearchView {
         func search() {
             guard searchText.count > 2 else {
                 errorManager.showError(model: ErrorModel(error: SearchError.searchTextLessThan3, message: "Search text must be at least 3 characters long."))
-                searchedKeys = catalogNetworkManager.loadedSearchText.keys.uniqued()
+                searchedKeys = searchDataManager.loadedSearchText.keys.uniqued()
                 selectedCategory = .all
                 categories = []
                 searchEvents = []
@@ -236,7 +241,7 @@ extension SearchView {
                 let searchPlaces = await transformPlaces(places: places)
                 let categories = await getCategories(events: events, places: places)
                 let items = SearchItems(places: searchPlaces, events: searchEvents, categories: categories, eventsCount: events.count, placeCount: places.count)
-                catalogNetworkManager.addToLoadedSearchItems(result: items, for: text)
+                searchDataManager.addToLoadedSearchItems(result: items, for: text)
                 await MainActor.run {
                     self.selectedCategory = categories.first ?? .all
                     self.categories = categories
@@ -264,7 +269,7 @@ extension SearchView {
         }
         
         private func searchInDB(text: String) async {
-            if let result = catalogNetworkManager.loadedSearchText[searchText] {
+            if let result = searchDataManager.loadedSearchText[searchText] {
                 await MainActor.run {
                     selectedCategory = result.categories.first ?? .all
                     categories = result.categories

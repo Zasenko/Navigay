@@ -156,10 +156,13 @@ extension PlaceView {
             }
         }
         
+        // when reporting
         func deleteComment(id: Int) {
             comments.removeAll(where: { $0.id == id})
             placeDataManager.deleteComment(id: id, for: place)
         }
+        
+        //todo deleteComment + api
         
         private func fetchPlace() async {
             guard !placeNetworkManager.loadedPlaces.contains(where: { $0 ==  place.id } ) else {

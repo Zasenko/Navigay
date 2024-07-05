@@ -191,7 +191,7 @@ struct SearchView: View {
                                 .bold()
                                 .foregroundStyle(.primary)
                                 .frame(maxWidth: .infinity, alignment: .leading)
-                            if let result = viewModel.catalogNetworkManager.loadedSearchText[key] {
+                            if let result = viewModel.searchDataManager.loadedSearchText[key] {
                                 HStack {
                                     if result.eventsCount == 0 && result.placeCount == 0 {
                                         Text("No results found")

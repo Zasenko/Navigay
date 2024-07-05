@@ -47,6 +47,7 @@ final class AroundManager: ObservableObject {
     let aroundNetworkManager: AroundNetworkManagerProtocol
     let eventNetworkManager: EventNetworkManagerProtocol
     let placeNetworkManager: PlaceNetworkManagerProtocol
+    let searchDataManager: SearchDataManagerProtocol
     let errorManager: ErrorManagerProtocol
     let notificationsManager: NotificationsManagerProtocol
     
@@ -61,6 +62,7 @@ final class AroundManager: ObservableObject {
          eventDataManager: EventDataManagerProtocol,
          catalogDataManager: CatalogDataManagerProtocol,
          commentsNetworkManager: CommentsNetworkManagerProtocol,
+         searchDataManager: SearchDataManagerProtocol,
          notificationsManager: NotificationsManagerProtocol) {
         self.aroundNetworkManager = aroundNetworkManager
         self.eventNetworkManager = eventNetworkManager
@@ -71,6 +73,7 @@ final class AroundManager: ObservableObject {
         self.catalogDataManager = catalogDataManager
         self.catalogNetworkManager = catalogNetworkManager
         self.commentsNetworkManager = commentsNetworkManager
+        self.searchDataManager = searchDataManager
         self.notificationsManager = notificationsManager
     }
     

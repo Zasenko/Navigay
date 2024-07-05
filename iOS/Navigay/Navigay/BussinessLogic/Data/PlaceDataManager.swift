@@ -11,7 +11,7 @@ import CoreLocation
 
 protocol PlaceDataManagerProtocol {
     
-    var comments: [Place:[DecodedComment]] { get set }
+    var comments: [Place:[DecodedComment]] { get }
     func addComments(_ comments: [DecodedComment], for place: Place)
     func deleteComment(id: Int, for place: Place)
     

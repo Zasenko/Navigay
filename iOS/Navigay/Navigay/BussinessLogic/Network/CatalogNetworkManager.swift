@@ -69,14 +69,10 @@ protocol CatalogNetworkManagerProtocol {
     var loadedCountries: [Int] { get }// TODO
     var loadedCities: [Int] { get }// TODO
     
-    
-    var loadedSearchText: [String:SearchItems] { get }// TODO
-    func addToLoadedSearchItems(result: SearchItems, for text: String)// TODO
-    
     func fetchCountries() async throws -> [DecodedCountry]
     func fetchCountry(id: Int) async throws -> DecodedCountry
     func fetchCity(id: Int) async throws -> DecodedCity
-    func search(text: String) async throws -> DecodedSearchItems
+    func search(text: String) async throws -> DecodedSearchItems //TODO?
 }
 
 final class CatalogNetworkManager {
@@ -87,7 +83,6 @@ final class CatalogNetworkManager {
     var isCountriesLoaded: Bool = false
     var loadedCountries: [Int] = []
     var loadedCities: [Int] = []
-    var loadedSearchText: [String:SearchItems] = [:]
     
     // MARK: - Private Properties
     
@@ -103,10 +98,6 @@ final class CatalogNetworkManager {
 // MARK: - AuthNetworkManagerProtocol
 
 extension CatalogNetworkManager: CatalogNetworkManagerProtocol {
-    
-    func addToLoadedSearchItems(result: SearchItems, for text: String) {
-        loadedSearchText[text] = result
-    }
     
     func fetchCountries() async throws -> [DecodedCountry] {
         debugPrint("--- fetchCountries()")

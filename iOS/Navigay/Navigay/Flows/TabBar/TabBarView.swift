@@ -43,6 +43,7 @@ struct TabBarView: View {
                                           eventDataManager: EventDataManager(),
                                           catalogDataManager: CatalogDataManager(),
                                           commentsNetworkManager: CommentsNetworkManager(networkManager: networkManager),
+                                          searchDataManager: SearchDataManager(),
                                           notificationsManager: notificationsManager)
         _locationManager = StateObject(wrappedValue: LocationManager())
         _aroundManager = StateObject(wrappedValue: aroundManager)
@@ -64,7 +65,7 @@ struct TabBarView: View {
                     eventNetworkManager: aroundManager.eventNetworkManager,
                     errorManager: aroundManager.errorManager, placeDataManager: aroundManager.placeDataManager, eventDataManager: aroundManager.eventDataManager, catalogDataManager: aroundManager.catalogDataManager, commentsNetworkManager: aroundManager.commentsNetworkManager, notificationsManager: aroundManager.notificationsManager))
             case .search:
-                SearchView(viewModel: SearchView.SearchViewModel(modelContext: modelContext, catalogNetworkManager: aroundManager.catalogNetworkManager, placeNetworkManager: aroundManager.placeNetworkManager, eventNetworkManager: aroundManager.eventNetworkManager, errorManager: aroundManager.errorManager, placeDataManager: aroundManager.placeDataManager, eventDataManager: aroundManager.eventDataManager, catalogDataManager: aroundManager.catalogDataManager, commentsNetworkManager: aroundManager.commentsNetworkManager, notificationsManager: aroundManager.notificationsManager))
+                SearchView(viewModel: SearchView.SearchViewModel(modelContext: modelContext, catalogNetworkManager: aroundManager.catalogNetworkManager, placeNetworkManager: aroundManager.placeNetworkManager, eventNetworkManager: aroundManager.eventNetworkManager, errorManager: aroundManager.errorManager, placeDataManager: aroundManager.placeDataManager, eventDataManager: aroundManager.eventDataManager, catalogDataManager: aroundManager.catalogDataManager, commentsNetworkManager: aroundManager.commentsNetworkManager, searchDataManager: aroundManager.searchDataManager, notificationsManager: aroundManager.notificationsManager))
             case .user:
                 AppUserView(modelContext: modelContext, userNetworkManager: UserNetworkManager(networkManager: authenticationManager.networkManager), placeNetworkManager: aroundManager.placeNetworkManager, eventNetworkManager: aroundManager.eventNetworkManager, errorManager: aroundManager.errorManager, placeDataManager: aroundManager.placeDataManager, eventDataManager: aroundManager.eventDataManager, commentsNetworkManager: aroundManager.commentsNetworkManager, notificationsManager: aroundManager.notificationsManager)
             case .admin:

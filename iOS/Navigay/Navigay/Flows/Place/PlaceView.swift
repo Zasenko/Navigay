@@ -139,10 +139,12 @@ struct PlaceView: View {
                     headerView
                     headerSection(width: proxy.size.width)
                     
-                    TagsView(tags: viewModel.place.tags)
-                        .padding(.bottom)
-                        .listRowSeparator(.hidden)
-                        .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
+                    if !viewModel.place.tags.isEmpty {
+                        TagsView(tags: viewModel.place.tags)
+                            .padding(.bottom)
+                            .listRowSeparator(.hidden)
+                            .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
+                    }
                     
                     createMap(size: proxy.size)
                     
@@ -209,7 +211,6 @@ struct PlaceView: View {
                         .onAppear {
                             viewModel.fetchComments()
                         }
-
                     Color.clear
                         .frame(height: 50)
                         .listRowSeparator(.hidden)
