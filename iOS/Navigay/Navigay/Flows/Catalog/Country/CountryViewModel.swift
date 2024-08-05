@@ -8,12 +8,19 @@
 import SwiftUI
 import SwiftData
 
+struct CountryRegion: Identifiable {
+    let id: Int
+    let region: Region
+    let cities: [City]
+}
+
 extension CountryView {
     @Observable
     class CountryViewModel {
         
         var modelContext: ModelContext
         let country: Country
+        var regions: [CountryRegion] = []
         
         let catalogNetworkManager: CatalogNetworkManagerProtocol
         let placeNetworkManager: PlaceNetworkManagerProtocol
@@ -50,6 +57,7 @@ extension CountryView {
             self.catalogDataManager = catalogDataManager
             self.commentsNetworkManager = commentsNetworkManager
             self.notificationsManager = notificationsManager
+            country.regions.forEach( { regions.append(CountryRegion(id: $0.id, region: $0, cities: $0.cities)) })
         }
         
         func fetch() {
@@ -75,6 +83,9 @@ extension CountryView {
         private func updateCountry(decodedCountry: DecodedCountry) {
             country.updateCountryComplite(decodedCountry: decodedCountry)
             catalogDataManager.updateRegions(decodedRegions: decodedCountry.regions, country: country, modelContext: modelContext)
+            // todo удалять красиво!
+            regions = []
+            country.regions.forEach( { regions.append(CountryRegion(id: $0.id, region: $0, cities: $0.cities)) })
            // try? modelContext.save()
         }
     }

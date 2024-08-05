@@ -238,7 +238,17 @@ struct HomeView: View {
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical)
-                CitiesView(modelContext: modelContext, cities: aroundManager.citiesAround, showCountryRegion: true, catalogNetworkManager: aroundManager.catalogNetworkManager, eventNetworkManager: aroundManager.eventNetworkManager, placeNetworkManager: aroundManager.placeNetworkManager, errorManager: aroundManager.errorManager, placeDataManager: aroundManager.placeDataManager, eventDataManager: aroundManager.eventDataManager, catalogDataManager: aroundManager.catalogDataManager, commentsNetworkManager: aroundManager.commentsNetworkManager, notificationsManager: aroundManager.notificationsManager)
+                
+                ForEach(aroundManager.citiesAround) { city in
+                    NavigationLink {
+                        CityView(viewModel: CityView.CityViewModel(modelContext: modelContext, city: city, catalogNetworkManager: aroundManager.catalogNetworkManager, placeNetworkManager: aroundManager.placeNetworkManager, eventNetworkManager: aroundManager.eventNetworkManager, errorManager: aroundManager.errorManager, placeDataManager: aroundManager.placeDataManager, eventDataManager: aroundManager.eventDataManager, catalogDataManager: aroundManager.catalogDataManager, commentsNetworkManager: aroundManager.commentsNetworkManager, notificationsManager: aroundManager.notificationsManager))
+                                 
+                    } label: {
+                        CityCell(city: city, showCountryRegion: true, showLocationsCount: true)
+                    }
+                }
+                
+//                CitiesView(modelContext: modelContext, cities: aroundManager.citiesAround, showCountryRegion: true, catalogNetworkManager: aroundManager.catalogNetworkManager, eventNetworkManager: aroundManager.eventNetworkManager, placeNetworkManager: aroundManager.placeNetworkManager, errorManager: aroundManager.errorManager, placeDataManager: aroundManager.placeDataManager, eventDataManager: aroundManager.eventDataManager, catalogDataManager: aroundManager.catalogDataManager, commentsNetworkManager: aroundManager.commentsNetworkManager, notificationsManager: aroundManager.notificationsManager)
                 
             }
             .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))

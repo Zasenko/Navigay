@@ -18,7 +18,7 @@ struct TabBarView: View {
     // MARK: - Private Properties
     
     @State private var selectedPage: TabBarRouter = TabBarRouter.home
-    @State private var userImage: Image? = nil
+    @State private var userImage: Image = AppImages.iconPerson
     @StateObject private var locationManager: LocationManager
     @StateObject private var aroundManager: AroundManager
     @EnvironmentObject private var authenticationManager: AuthenticationManager
@@ -80,7 +80,7 @@ struct TabBarView: View {
         .ignoresSafeArea(.keyboard, edges: .bottom)
         .onChange(of: authenticationManager.appUser?.photoUrl, initial: true) { _, newValue in
             guard let url = newValue else {
-                self.userImage = nil
+                self.userImage = AppImages.iconPerson
                 return
             }
             Task {
@@ -106,45 +106,53 @@ struct TabBarView: View {
     
     // MARK: - Views
     
+    @State private var homeButtonAnimation = false
+    @State private var userButtonAnimation = false
+    
     private var tabBar: some View {
         VStack(spacing: 0) {
             Divider()
             HStack(spacing: 40) {
-                TabBarButtonView(selectedPage: $selectedPage, button: homeButton)
+                Button {
+                    selectedPage = .home
+                    homeButtonAnimation.toggle()
+                    if let category = aroundManager.homeCategories.first {
+                        aroundManager.selectedHomeCategory = category
+                    }
+                } label: {
+                    AppImages.iconHome
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 25, height: 25)
+                        .symbolEffect(.bounce.up.byLayer, value: homeButtonAnimation == true)
+                        .tint(selectedPage == .home ? .blue : .primary)
+                      // .fontWeight(selectedPage == .home ? .bold : .regular)
+                        .bold()
+                }
                 TabBarButtonView(selectedPage: $selectedPage, button: catalogButton)
                 TabBarButtonView(selectedPage: $selectedPage, button: searchButton)
-                if let img = userImage {
+                if authenticationManager.appUser != nil {
                     Button {
                         selectedPage = .user
+                        userButtonAnimation.toggle()
                     } label: {
-                        img
+                        Image(systemName: "circle")
                             .resizable()
                             .scaledToFit()
-                            .frame(width: 22, height: 22)
-                            .clipShape(Circle())
-                            .padding(3)
+                            .frame(width: 28, height: 28)
+                            .tint(selectedPage != .user ? Color.primary : authenticationManager.isUserOnline ? .green : .red)
+                            .symbolEffect(.bounce.up.byLayer, value: userButtonAnimation == true)
                             .overlay(
-                                Circle()
-                                    .stroke(selectedPage == .user ? authenticationManager.isUserOnline ? .green : .red : AppColors.lightGray5, lineWidth: selectedPage == .user ? 3 : 2)
+                                    userImage
+                                        .resizable()
+                                        .scaledToFit()
+                                        .tint(selectedPage == .user ? .blue : .primary)
+                                        .clipShape(Circle())
+                                        .padding(4)
                             )
                     }
                 } else {
-                    Button {
-                        selectedPage = .user
-                    } label: {
-                        userButton.img
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: authenticationManager.appUser == nil ? 25 : 22, height: authenticationManager.appUser == nil ? 25 : 22)
-                            .clipShape(Circle())
-                            .foregroundColor(selectedPage == .user ? .primary : AppColors.lightGray5)
-                            .bold()
-                            .padding(authenticationManager.appUser == nil ? 0 : 3)
-                            .overlay(
-                                Circle()
-                                    .stroke(authenticationManager.appUser == nil ? .clear : selectedPage == .user ? authenticationManager.isUserOnline ? .green : .red : AppColors.lightGray5, lineWidth: selectedPage == .user ? 3 : 2)
-                            )
-                    }
+                    TabBarButtonView(selectedPage: $selectedPage, button: userButton)
                 }
                 if let user = authenticationManager.appUser, (user.status == .admin || user.status == .moderator) {
                     TabBarButtonView(selectedPage: $selectedPage, button: adminButton)
@@ -155,7 +163,6 @@ struct TabBarView: View {
             .padding(.bottom, 10)
         }
     }
-    
     
     // MARK: - Private Functions
     

@@ -21,6 +21,7 @@ extension EventView {
         var image: Image?
         var showInfo: Bool = false
         var position: MapCameraPosition = .automatic
+        var selectedTag: UUID? = nil /// for Map (big Pin)
         let placeNetworkManager: PlaceNetworkManagerProtocol //?????????
         let eventNetworkManager: EventNetworkManagerProtocol
         let placeDataManager: PlaceDataManagerProtocol
@@ -42,11 +43,16 @@ extension EventView {
             self.eventDataManager = eventDataManager
             self.commentsNetworkManager = commentsNetworkManager
             self.notificationsManager = notificationsManager
-            position = .camera(MapCamera(centerCoordinate: event.coordinate, distance: 2000))
+            self.selectedTag = event.tag
+            centerMapPin()
             loadEvent()
         }
         
         //MARK: - Functions
+        
+        func centerMapPin() {
+            position = .camera(MapCamera(centerCoordinate: event.coordinate, distance: 1500))
+        }
         
         func likeButtonTapped() {
             event.isLiked.toggle()

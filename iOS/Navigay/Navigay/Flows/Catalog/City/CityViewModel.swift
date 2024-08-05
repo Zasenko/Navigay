@@ -56,9 +56,9 @@ extension CityView {
         
         var gridLayout: [GridItem] = Array(repeating: GridItem(.flexible(), spacing: 20), count: 2)
         
-        var homeCategories: [SortingCategory] = []
-        var selectedHomeCategory: SortingCategory? = nil
-        var selectedMenuCategory: SortingCategory = .all
+        //var homeCategories: [SortingCategory] = []
+        //var selectedHomeCategory: SortingCategory? = nil
+        //var selectedMenuCategory: SortingCategory = .all
 
         var mapCategories: [SortingCategory] = []
         var selectedMapCategory: SortingCategory = .all
@@ -106,10 +106,10 @@ extension CityView {
         func getPlacesAndEventsFromDB() {
             isPresented = true
             if let result = catalogDataManager.loadedCities[city] {
-                self.homeCategories = result.citySortingItems.homeCategories
+              //  self.homeCategories = result.citySortingItems.homeCategories
                 self.mapCategories = result.citySortingItems.mapCategories
-                self.selectedMenuCategory = result.citySortingItems.selectedCategory
-                self.selectedHomeCategory = result.citySortingItems.selectedCategory
+              //  self.selectedMenuCategory = result.citySortingItems.selectedCategory
+              //  self.selectedHomeCategory = result.citySortingItems.selectedCategory
                 self.todayEvents = result.todayEvents
                 self.displayedEvents = result.upcomingEvents
                 self.groupedPlaces = result.groupedPlaces
@@ -131,10 +131,10 @@ extension CityView {
                     let citySortingItems = await updateCategories(eventsCount: city.eventsCount, todayEventsCount: todayEvents.count, placesTypes: cityPlacesItems.map({ $0.category }))
 
                     await MainActor.run {
-                        self.homeCategories = citySortingItems.homeCategories
+                      //  self.homeCategories = citySortingItems.homeCategories
                         self.mapCategories = citySortingItems.mapCategories
-                        self.selectedMenuCategory = citySortingItems.selectedCategory
-                        self.selectedHomeCategory = citySortingItems.selectedCategory
+                      //  self.selectedMenuCategory = citySortingItems.selectedCategory
+                      //  self.selectedHomeCategory = citySortingItems.selectedCategory
                         self.todayEvents = todayEvents
                         self.displayedEvents = upcomingEvents
                         self.groupedPlaces = cityPlacesItems
@@ -216,10 +216,10 @@ extension CityView {
                 let citySortingItems = await updateCategories(eventsCount: events.count, todayEventsCount: todayEvents.count, placesTypes: cityPlacesItems.map({ $0.category }))
                 
                 await MainActor.run {
-                    self.homeCategories = citySortingItems.homeCategories
+                 //   self.homeCategories = citySortingItems.homeCategories
                     self.mapCategories = citySortingItems.mapCategories
-                    self.selectedMenuCategory = citySortingItems.selectedCategory
-                    self.selectedHomeCategory = citySortingItems.selectedCategory
+                 //   self.selectedMenuCategory = citySortingItems.selectedCategory
+                 //   self.selectedHomeCategory = citySortingItems.selectedCategory
                     self.todayEvents = todayEvents
                     self.displayedEvents = upcomingEvents
                     self.groupedPlaces = cityPlacesItems

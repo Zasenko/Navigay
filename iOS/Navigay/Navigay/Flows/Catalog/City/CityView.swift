@@ -14,8 +14,8 @@ struct CityView: View {
     @State private var viewModel: CityViewModel
     @EnvironmentObject private var authenticationManager: AuthenticationManager
     @Environment(\.colorScheme) private var deviceColorScheme
-    @State private var isScrolled: Bool = false
-    @State private var scrollUp: Bool? = nil
+  //  @State private var isScrolled: Bool = false
+ //   @State private var scrollUp: Bool? = nil
     init(viewModel: CityViewModel) {
         _viewModel = State(initialValue: viewModel)
     }
@@ -25,16 +25,16 @@ struct CityView: View {
             VStack(spacing: 0) {
                 Divider()
                 listView
-                    .gesture(
-                       DragGesture().onChanged { value in
-                           isScrolled = true
-                          if value.translation.height > 0 {
-                              scrollUp = false
-                          } else {
-                              scrollUp = true
-                          }
-                       }
-                    )
+//                    .gesture(
+//                       DragGesture().onChanged { value in
+//                           isScrolled = true
+//                          if value.translation.height > 0 {
+//                              scrollUp = false
+//                          } else {
+//                              scrollUp = true
+//                          }
+//                       }
+//                    )
             }
             .toolbarTitleDisplayMode(.inline)
             .toolbarBackground(AppColors.background)
@@ -117,11 +117,12 @@ struct CityView: View {
                     Section {
                         eventsSection(size: geometry.size)
                         placesSection()
-                    } header: {
-                        if viewModel.homeCategories.count > 1 {
-                            menuView
-                        }
                     }
+//                    header: {
+//                        if viewModel.homeCategories.count > 1 {
+//                            menuView
+//                        }
+//                    }
                     .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                     .listRowSeparator(.hidden)
 
@@ -167,13 +168,13 @@ struct CityView: View {
                         scrollProxy.scrollTo("UpcomingEvents", anchor: .top)
                     }
                 }
-                .onChange(of: viewModel.selectedHomeCategory, initial: false) { _, newValue in
-                    if isScrolled {
-                        withAnimation {
-                            scrollProxy.scrollTo(newValue, anchor: .top)
-                        }
-                    }
-                }
+//                .onChange(of: viewModel.selectedHomeCategory, initial: false) { _, newValue in
+//                    if isScrolled {
+//                        withAnimation {
+//                            scrollProxy.scrollTo(newValue, anchor: .top)
+//                        }
+//                    }
+//                }
             }
         }
     }
@@ -184,16 +185,16 @@ struct CityView: View {
             .listRowSeparator(.hidden)
             .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
             .id(SortingCategory.events)
-            .onAppear() {
-                if let scrollUp, !scrollUp {
-                    viewModel.selectedMenuCategory = .events
-                }
-            }
-            .onDisappear {
-                if let scrollUp, scrollUp, let category = viewModel.homeCategories.first(where:  { $0.getSortPreority() > SortingCategory.events.getSortPreority()} )  {
-                    viewModel.selectedMenuCategory = category
-                }
-            }
+//            .onAppear() {
+//                if let scrollUp, !scrollUp {
+//                    viewModel.selectedMenuCategory = .events
+//                }
+//            }
+//            .onDisappear {
+//                if let scrollUp, scrollUp, let category = viewModel.homeCategories.first(where:  { $0.getSortPreority() > SortingCategory.events.getSortPreority()} )  {
+//                    viewModel.selectedMenuCategory = category
+//                }
+//            }
     }
     
     private func placesSection() -> some View {
@@ -204,7 +205,7 @@ struct CityView: View {
                     .bold()
                     .foregroundStyle(.primary)
                     .offset(x: 70)
-                    .padding(.top, 50)
+                    .padding(.top, 80)
                     .padding(.bottom, 10)
                 ForEach(groupedPlace.places) { place in
                     NavigationLink {
@@ -217,52 +218,52 @@ struct CityView: View {
             .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
             .listRowSeparator(.hidden)
             .id(groupedPlace.category)
-            .onAppear {
-                if let scrollUp, !scrollUp {
-                    viewModel.selectedMenuCategory = groupedPlace.category
-                }
-            }
-            .onDisappear {
-                if let scrollUp, scrollUp, let category = viewModel.homeCategories.first(where:  { $0.getSortPreority() > groupedPlace.category.getSortPreority()} )  {
-                    viewModel.selectedMenuCategory = category
-                }
-            }
+//            .onAppear {
+//                if let scrollUp, !scrollUp {
+//                    viewModel.selectedMenuCategory = groupedPlace.category
+//                }
+//            }
+//            .onDisappear {
+//                if let scrollUp, scrollUp, let category = viewModel.homeCategories.first(where:  { $0.getSortPreority() > groupedPlace.category.getSortPreority()} )  {
+//                    viewModel.selectedMenuCategory = category
+//                }
+//            }
         }
     }
     
-    private var menuView: some View {
-            ScrollViewReader { scrollProxy2 in
-                ScrollView(.horizontal, showsIndicators: false) {
-                    LazyHGrid(rows: [GridItem()], alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/, spacing: 0) {
-                        ForEach(viewModel.homeCategories, id: \.self) { category in
-                            Button {
-                                viewModel.selectedMenuCategory = category
-                                viewModel.selectedHomeCategory = category
-                                scrollUp = nil
-                            } label: {
-                                Text(category.getName())
-                                    .font(.caption)
-                                    .bold()
-                                    .foregroundStyle(.blue)
-                                    .padding(5)
-                                    .padding(.horizontal, 5)
-                                    .background(AppColors.background)
-                                    .clipShape(.capsule)
-                            }
-                            .padding(.leading)
-                            .id(category)
-                        }
-                    }
-                    .padding(.trailing)
-                }
-                .frame(height: 40)
-                .onChange(of: viewModel.selectedMenuCategory, initial: true) { oldValue, newValue in
-                    withAnimation {
-                        scrollProxy2.scrollTo(newValue, anchor: .top)
-                    }
-                }
-        }
-    }
+//    private var menuView: some View {
+//            ScrollViewReader { scrollProxy2 in
+//                ScrollView(.horizontal, showsIndicators: false) {
+//                    LazyHGrid(rows: [GridItem()], alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/, spacing: 0) {
+//                        ForEach(viewModel.homeCategories, id: \.self) { category in
+//                            Button {
+//                                viewModel.selectedMenuCategory = category
+//                                viewModel.selectedHomeCategory = category
+//                                scrollUp = nil
+//                            } label: {
+//                                Text(category.getName())
+//                                    .font(.caption)
+//                                    .bold()
+//                                    .foregroundStyle(.blue)
+//                                    .padding(5)
+//                                    .padding(.horizontal, 5)
+//                                    .background(AppColors.background)
+//                                    .clipShape(.capsule)
+//                            }
+//                            .padding(.leading)
+//                            .id(category)
+//                        }
+//                    }
+//                    .padding(.trailing)
+//                }
+//                .frame(height: 40)
+//                .onChange(of: viewModel.selectedMenuCategory, initial: true) { oldValue, newValue in
+//                    withAnimation {
+//                        scrollProxy2.scrollTo(newValue, anchor: .top)
+//                    }
+//                }
+//        }
+//    }
 }
 
 

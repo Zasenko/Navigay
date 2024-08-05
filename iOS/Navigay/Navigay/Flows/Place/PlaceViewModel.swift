@@ -88,9 +88,14 @@ extension PlaceView {
             self.eventDataManager = eventDataManager
             self.commentsNetworkManager = commentsNetworkManager
             self.notificationsManager = notificationsManager
+            centerMapPin()
         }
         
         //MARK: - Functions
+        
+        func centerMapPin() {
+            position = .camera(MapCamera(centerCoordinate: place.coordinate, distance: 1500))
+        }
         
         func getEventsFromDB() {
             allPhotos = place.getAllPhotos()

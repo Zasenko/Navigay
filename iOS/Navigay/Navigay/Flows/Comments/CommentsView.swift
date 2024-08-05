@@ -64,6 +64,7 @@ struct CommentsView: View {
                             .foregroundStyle(.secondary)
                         Text(noReviewsText)
                             .font(.subheadline)
+                            .foregroundStyle(.secondary)
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }
                     .padding()
@@ -104,7 +105,7 @@ struct CommentsView: View {
     private var authButtons: some View {
         VStack(spacing: 0) {
             Text("To add a review, please log in or sign up.")
-                .font(.caption)
+                .font(.callout)
             HStack {
                 Button {
                     showLoginView = true
@@ -131,8 +132,9 @@ struct CommentsView: View {
             }
             .frame(maxWidth: .infinity)
             .padding()
-            .padding(.bottom)
         }
+        .padding()
+        .padding(.bottom)
     }
     
     private func commentView(comment: DecodedComment) -> some View {
@@ -148,8 +150,8 @@ struct CommentsView: View {
             }
             if let comment = comment.comment {
                 Text(comment)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .font(.callout)
+                    .foregroundStyle(.primary)
                     .multilineTextAlignment(.leading)
                     .frame(maxWidth: .infinity)
             }

@@ -13,7 +13,7 @@ struct AppImages {
     static let logoFull = Image("full-logo")
     
     static let iconPlus = Image(systemName: "plus")
-    static let iconHome = Image(systemName: "house.fill")
+    static let iconHome = Image(systemName: "house")
     static let iconMap = Image(systemName: "map.fill")
     static let iconSearch = Image(systemName: "magnifyingglass")
     static let iconCatalog = Image(systemName: "list.bullet")

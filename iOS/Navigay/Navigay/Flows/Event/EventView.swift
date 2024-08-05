@@ -124,11 +124,6 @@ struct EventView: View {
                 .frame(maxWidth: .infinity)
                 .onAppear {
                     viewModel.showInfo = false
-                    
-//                    if let i = FileManager.default.loadImgfromDisk(event: viewModel.event) {
-//                        img = Image(uiImage: i)
-//                    }
-                    
                 }
                 .onDisappear {
                     viewModel.showInfo = true
@@ -415,12 +410,13 @@ struct EventView: View {
                     .padding(.top)
                 
                 if (viewModel.event.owner != nil || viewModel.event.place != nil) {
-                    Text(viewModel.event.owner != nil && viewModel.event.place != nil ? "Organizers:" : "Organizer:")
+                    Text(viewModel.event.owner != nil && viewModel.event.place != nil ? "Organizers" : "Organizer")
+                        .font(.title2)
                         .bold()
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.primary)
                         .padding()
                         .frame(maxWidth: .infinity)
-                        .padding(.top)
+                        .padding(.top, 40)
                     
                     VStack(alignment: .leading, spacing: 10) {
                         if let owner = viewModel.event.owner {
@@ -465,7 +461,6 @@ struct EventView: View {
                                         .background(.regularMaterial)
                                         .clipShape(Circle())
                                         .overlay(Circle().stroke(.ultraThinMaterial, lineWidth: 1))
-                                        
                                     } else {
                                         if viewModel.event.owner != nil {
                                             Color.clear
@@ -522,43 +517,64 @@ struct EventView: View {
     
     @ViewBuilder
     private func map(size: CGSize) -> some View {
-        Map(position: $viewModel.position, interactionModes: []) {
-            Marker("", monogram: Text(viewModel.event.address), coordinate: viewModel.event.coordinate)
-                .tint(.red)
-        }
-        .mapStyle(.standard(elevation: .flat, pointsOfInterest: .including([.publicTransport])))
-        .mapControlVisibility(.hidden)
-        .frame(maxWidth: .infinity)
-        .frame(height: size.height / 2)
-        .padding(.vertical)
-        
-        HStack {
-            Text(viewModel.event.address)
-                .font(.callout)
-                .foregroundColor(.secondary)
+        VStack {
+            Text("Location")
+                .font(.title2)
                 .bold()
-                .multilineTextAlignment(.leading)
-                .frame(maxWidth: .infinity)
-            Button {
-                viewModel.goToMaps()
-            } label: {
-                HStack {
-                    AppImages.iconLocation
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 25, height: 25, alignment: .leading)
-                    Text("Open in Maps")
-                        .font(.caption)
-                        .bold()
+                .foregroundStyle(.primary)
+            Map(position: $viewModel.position, interactionModes: [.zoom], selection: $viewModel.selectedTag) {
+                Marker(viewModel.event.location ?? viewModel.event.address, coordinate: viewModel.event.coordinate)
+                    .tint(.primary)
+                    .tag(viewModel.event.tag)
+            }
+            .mapStyle(.standard(elevation: .flat, pointsOfInterest: .including([.publicTransport])))
+            .mapControlVisibility(.hidden)
+            .frame(maxWidth: .infinity)
+            .frame(height: (size.width / 4) * 5)
+            .onChange(of: viewModel.selectedTag) { _, newValue in
+                if newValue != nil {
+                    withAnimation {
+                        viewModel.centerMapPin()
+                    }
                 }
             }
-            .padding()
-            .foregroundStyle(.primary)
-            .background(.ultraThickMaterial)
-            .clipShape(Capsule(style: .continuous))
+
+            HStack(spacing: 10) {
+                HStack(alignment: .firstTextBaseline, spacing: 4) {
+                    AppImages.iconLocationFill
+                    VStack(alignment: .leading, spacing: 0) {
+                        Text(viewModel.event.address).bold().foregroundStyle(.primary)
+                        Text("\(viewModel.event.city?.name ?? "") • \(viewModel.event.city?.region?.country?.name ?? "")")
+                    }
+                }
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+                .baselineOffset(0)
+                .frame(maxWidth: .infinity)
+                Button {
+                    viewModel.goToMaps()
+                } label: {
+                    HStack {
+                        AppImages.iconLocation
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 25, height: 25, alignment: .leading)
+                        Text("Open in Maps")
+                            .font(.caption)
+                            .bold()
+                    }
+                }
+                .padding()
+                .foregroundColor(.primary)
+                .background(AppColors.lightGray6)
+                .clipShape(Capsule(style: .continuous))
+                .buttonStyle(.borderless)
+            }
+            .padding(.top)
+            .padding(.horizontal)
         }
-        .padding(.horizontal)
-        .padding(.bottom)
+        .listRowSeparator(.hidden)
+        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
     }
 }
 

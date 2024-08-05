@@ -68,13 +68,8 @@ struct CountryView: View {
                         .offset(x: 70)
                         .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
                         .listRowSeparator(.hidden)
-                        if viewModel.country.showRegions {
-                            ForEach(viewModel.country.regions.sorted(by: { $0.id < $1.id } )) { region in
-                                CoutryRegionView(modelContext: viewModel.modelContext, region: region, catalogNetworkManager: viewModel.catalogNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, catalogDataManager: viewModel.catalogDataManager, commentsNetworkManager: viewModel.commentsNetworkManager, notificationsManager: viewModel.notificationsManager)
-                            }
-                        } else {
-                            CitiesView(modelContext: viewModel.modelContext, cities: viewModel.country.regions.flatMap( { $0.cities } ).sorted(by: { $0.id < $1.id } ), showCountryRegion: false, catalogNetworkManager: viewModel.catalogNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, catalogDataManager: viewModel.catalogDataManager, commentsNetworkManager: viewModel.commentsNetworkManager, notificationsManager: viewModel.notificationsManager)
-                        }
+                        regionsView
+                        
                         Section {
                             Text(viewModel.country.about ?? "")
                                 .font(.callout)
@@ -128,78 +123,34 @@ struct CountryView: View {
             }
         }
     }
-}
-
-import _MapKit_SwiftUI
-struct CitiesMapView: View {
     
-    let cities: [City]
-    
-    @State private var position: MapCameraPosition = .automatic
-    @Environment(\.dismiss) private var dismiss
-    
-    let colors: [Color] = [.blue, .yellow, .orange, .green, AppColors.background]
-    
-    var body: some View {
-        NavigationStack {
-            GeometryReader { geometry in
-                Map(position: $position, interactionModes: [.zoom, .pan]) {
-                    ForEach(cities) { city in
-                        Annotation(city.name, coordinate: CLLocationCoordinate2D(latitude: city.latitude, longitude: city.longitude), anchor: .bottom) {
-                            annotationView(city: city, size: geometry.size)
-                        }
-                        .annotationTitles(.hidden)
-                    }
-                }
-                .mapStyle(.standard(elevation: .flat))
-                .mapControlVisibility(.hidden)
-                .onAppear {
-                    position = .automatic
-                }
-            }
-            .toolbarBackground(.hidden, for: .navigationBar)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        dismiss()
-                    } label: {
-                        AppImages.iconXCircle
+    var regionsView: some View {
+        Section {
+            ForEach(viewModel.regions) { region in
+                if viewModel.country.showRegions {
+                    HStack {
+                        AppImages.iconRegion
                             .resizable()
                             .scaledToFit()
-                            .frame(width: 30, height: 30)
-                            .tint(.primary)
+                            .frame(width: 20)
+                        Text(region.region.name ?? "").bold()
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    .padding(.top, 40)
+                    .offset(x: 70)
+                }
+                ForEach(region.cities) { city in
+                    NavigationLink {
+                        CityView(viewModel: CityView.CityViewModel(modelContext: viewModel.modelContext, city: city, catalogNetworkManager: viewModel.catalogNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, catalogDataManager: viewModel.catalogDataManager, commentsNetworkManager: viewModel.commentsNetworkManager, notificationsManager: viewModel.notificationsManager))
+                    } label: {
+                        CityCell(city: city, showCountryRegion: false, showLocationsCount: true)
                     }
                 }
             }
         }
-    }
-    
-    private func annotationView(city: City, size: CGSize) -> some View {
-        let color = colors.randomElement() ?? AppColors.background
-        return HStack(spacing: 4) {
-            Text(city.name)
-                .bold()
-            if city.isCapital {
-                Text("⭐️")
-            }
-            if city.isParadise {
-                Text("🏳️‍🌈")
-            }
-        }
-        .font(.caption2)
-        .padding(10)
-        .background(color)
-        .clipShape(.capsule)
-        .padding(8)
-        .overlay(alignment: .bottom) {
-            Image(systemName: "arrowtriangle.left.fill")
-                .resizable()
-                .scaledToFit()
-                .rotationEffect (Angle(degrees: 270))
-                .foregroundColor(color)
-                .frame(width: 10, height: 10)
-        }
-        .frame(maxWidth: size.width / 2)
+        .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
+        .listRowSeparator(.hidden)
     }
 }
 

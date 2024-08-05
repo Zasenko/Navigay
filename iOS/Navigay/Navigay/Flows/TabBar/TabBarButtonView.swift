@@ -13,19 +13,23 @@ struct TabBarButtonView : View {
     
     @Binding var selectedPage: TabBarRouter
     let button: TabBarButton
+    @State private var animation = false
     
     // MARK: - Body
     
     var body: some View{
         Button {
             selectedPage = button.page
+            animation.toggle()
         } label: {
             button.img
                 .resizable()
                 .scaledToFit()
-                .frame(width: 25, height: 25)
-                .foregroundColor(selectedPage == button.page ? .primary : AppColors.lightGray5)
                 .bold()
+                .symbolEffect(.bounce.up.byLayer, value: animation)
+                .frame(width: 25, height: 25)
+              //  .fontWeight(selectedPage == button.page ? .bold : .regular)
+                .tint(selectedPage == button.page ? .blue : .primary)
         }
     }
 }

@@ -235,6 +235,7 @@ struct PlaceView: View {
                 }
                 .clipShape(Circle())
                 .overlay(Circle().stroke(AppColors.lightGray5, lineWidth: 1))
+                .padding(8)
             }
             Text(viewModel.place.name)
                 .font(.title2).bold()
@@ -245,9 +246,10 @@ struct PlaceView: View {
 //                .foregroundColor(.secondary)
 //                .baselineOffset(0)
         }
+        .padding(.horizontal)
         .frame(maxWidth: .infinity)
         .listRowSeparator(.hidden)
-        .listRowInsets(EdgeInsets(top: 10, leading: 20, bottom: 10, trailing: 20))
+        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
         .onAppear {
             viewModel.showHeaderTitle = false
         }
@@ -276,23 +278,26 @@ struct PlaceView: View {
                 .bold()
                 .foregroundStyle(.primary)
             Map(position: $viewModel.position, interactionModes: [.zoom], selection: $viewModel.selectedTag) {
-                Marker(viewModel.place.address, monogram: Text(viewModel.place.type.getImage()), coordinate: viewModel.place.coordinate)
-                    .tint(colorScheme == .light ? .black : .white)
+                Marker(viewModel.place.name, coordinate: viewModel.place.coordinate)
+                    .tint(.primary)
                     .tag(viewModel.place.tag)
-                    .annotationTitles(.hidden)
             }
             .mapStyle(.standard(elevation: .flat, pointsOfInterest: .including([.publicTransport])))
             .mapControlVisibility(.hidden)
-            .frame(height: size.width)
-            .clipShape(RoundedRectangle(cornerRadius: 0))
-            .onAppear {
-                viewModel.position = .camera(MapCamera(centerCoordinate: viewModel.place.coordinate, distance: 1500))
+            .frame(height: (size.width / 4) * 5)
+            .onChange(of: viewModel.selectedTag) { _, newValue in
+                if newValue != nil {
+                    withAnimation {
+                        viewModel.centerMapPin()
+                    }
+                }
             }
+
             HStack(spacing: 10) {
                 HStack(alignment: .firstTextBaseline, spacing: 4) {
                     AppImages.iconLocationFill
                     VStack(alignment: .leading, spacing: 0) {
-                        Text(viewModel.place.address).bold()
+                        Text(viewModel.place.address).bold().foregroundStyle(.primary)
                         Text("\(viewModel.place.city?.name ?? "") • \(viewModel.place.city?.region?.country?.name ?? "")")
                     }
                 }
