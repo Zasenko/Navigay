@@ -20,6 +20,7 @@ extension EventView {
         let event: Event
         var image: Image?
         var showInfo: Bool = false
+        var showTitle: Bool = false
         var position: MapCameraPosition = .automatic
         var selectedTag: UUID? = nil /// for Map (big Pin)
         let placeNetworkManager: PlaceNetworkManagerProtocol //?????????

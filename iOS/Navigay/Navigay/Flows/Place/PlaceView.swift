@@ -80,7 +80,7 @@ struct PlaceView: View {
                                 .bold()
                                 .frame(width: 30, height: 30, alignment: .leading)
                         }
-                        .tint(viewModel.place.isLiked ? .red :  .secondary)
+                        .tint(.red)
                         if let user = authenticationManager.appUser, (user.status == .admin || user.status == .moderator) {
                             Menu {
                                 NavigationLink("Edit Place") {
