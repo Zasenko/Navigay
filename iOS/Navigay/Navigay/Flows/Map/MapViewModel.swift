@@ -54,57 +54,58 @@ final class MapViewModel: ObservableObject {
 extension MapViewModel {
     
     func filterLocations(category: SortingCategory) {
-        selectedPlace = nil
-        selectedEvent = nil
-        selectedTag = nil
-        switch category {
-        case .bar:
-            getPlaces(type: .bar)
-        case .cafe:
-            getPlaces(type: .cafe)
-        case .restaurant:
-            getPlaces(type: .restaurant)
-        case .club:
-            getPlaces(type: .club)
-        case .hotel:
-            getPlaces(type: .hotel)
-        case .sauna:
-            getPlaces(type: .sauna)
-        case .cruiseBar:
-            getPlaces(type: .cruiseBar)
-        case .cruiseClub:
-            getPlaces(type: .cruiseClub)
-        case .beach:
-            getPlaces(type: .beach)
-        case .shop:
-            getPlaces(type: .shop)
-        case .gym:
-            getPlaces(type: .gym)
-        case .culture:
-            getPlaces(type: .culture)
-        case .community:
-            getPlaces(type: .community)
-        case .hostel:
-            getPlaces(type: .hostel)
-        case .medicine:
-            getPlaces(type: .medicine)
-        case .other:
-            getPlaces(type: .other)
-        case .events:
-            filteredPlaces = []
-            filteredEvents = events
-        case .all:
-            filteredPlaces = places
-            filteredEvents = events
-        case .rights:
-            getPlaces(type: .rights)
-        case .like:
-            filteredPlaces = places.filter( { $0.isLiked } )
-            filteredEvents = events.filter( { $0.isLiked } )
-        }
         withAnimation {
-            position  = .automatic
+            selectedPlace = nil
+            selectedEvent = nil
+            selectedTag = nil
+            
+            switch category {
+            case .bar:
+                getPlaces(type: .bar)
+            case .cafe:
+                getPlaces(type: .cafe)
+            case .restaurant:
+                getPlaces(type: .restaurant)
+            case .club:
+                getPlaces(type: .club)
+            case .hotel:
+                getPlaces(type: .hotel)
+            case .sauna:
+                getPlaces(type: .sauna)
+            case .cruiseBar:
+                getPlaces(type: .cruiseBar)
+            case .cruiseClub:
+                getPlaces(type: .cruiseClub)
+            case .beach:
+                getPlaces(type: .beach)
+            case .shop:
+                getPlaces(type: .shop)
+            case .gym:
+                getPlaces(type: .gym)
+            case .culture:
+                getPlaces(type: .culture)
+            case .community:
+                getPlaces(type: .community)
+            case .hostel:
+                getPlaces(type: .hostel)
+            case .medicine:
+                getPlaces(type: .medicine)
+            case .other:
+                getPlaces(type: .other)
+            case .events:
+                filteredPlaces = []
+                filteredEvents = events
+            case .all:
+                filteredPlaces = places
+                filteredEvents = events
+            case .rights:
+                getPlaces(type: .rights)
+            case .like:
+                filteredPlaces = places.filter( { $0.isLiked } )
+                filteredEvents = events.filter( { $0.isLiked } )
+            }
             showInfo = false
+            position  = .automatic
         }
     }
     

@@ -512,7 +512,16 @@ struct EventView: View {
         .listStyle(.plain)
         .listSectionSeparator(.hidden)
         .scrollIndicators(.hidden)
-        
+        .onChange(of: viewModel.event.poster) { _, newValue in
+            Task {
+                guard let url = newValue,
+                      let image = await ImageLoader.shared.loadImage(urlString: url)
+                else { return }
+                await MainActor.run {
+                    viewModel.image = image
+                }
+            }
+        }
     }
     
     @ViewBuilder
