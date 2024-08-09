@@ -112,7 +112,8 @@ extension Date {
     }
     
     /// Checking if the date is Same Day with other Date
-    func isSameDayWithOtherDate(_ date: Date) -> Bool {
+    func isSameDayWithOtherDate(_ date: Date?) -> Bool {
+        guard let date else { return false }
         return Calendar.current.isDate(self, inSameDayAs: date)
     }
     

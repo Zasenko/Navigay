@@ -26,7 +26,7 @@ extension PlaceView {
         var showHeaderTitle: Bool = false
         
         var modelContext: ModelContext
-        let place: Place
+        var place: Place
         var showOpenInfo: Bool
         
         var allPhotos: [String] = []

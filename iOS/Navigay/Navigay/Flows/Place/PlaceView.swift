@@ -172,7 +172,7 @@ struct PlaceView: View {
                             .listSectionSeparator(.hidden)
                     }
                     
-                    ContactInfoView(phone: viewModel.place.phone, www: viewModel.place.www, facebook: viewModel.place.facebook, instagram: viewModel.place.instagram)
+                    ContactInfoView(phone: $viewModel.place.phone, www: $viewModel.place.www, facebook: $viewModel.place.facebook, instagram: $viewModel.place.instagram, tickets: .constant(nil))
                         .listRowInsets(EdgeInsets(top: 50, leading: 20, bottom: 50, trailing: 20))
                         .listSectionSeparator(.hidden)
                     

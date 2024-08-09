@@ -113,4 +113,16 @@ final class Event {
         
         lastUpdateComplite = lastUpdate
     }
+    
+//    func getLocationText() -> String {
+//        var string = ""
+//        if let location {
+//            string.append("\(location)  •  ")
+//        }
+//        string.append(address)
+//        if let city = city?.name {
+//            string.append("  •  \(city)")
+//        }
+//        return string
+//    }
 }

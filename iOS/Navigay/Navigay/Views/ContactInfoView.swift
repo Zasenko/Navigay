@@ -9,11 +9,12 @@ import SwiftUI
 
 struct ContactInfoView: View {
     
-    let phone: String?
-    let www: String?
-    let facebook: String?
-    let instagram: String?
-    
+    @Binding var phone: String?
+    @Binding var www: String?
+    @Binding var facebook: String?
+    @Binding var instagram: String?
+    @Binding var tickets: String?
+
     var body: some View {
         
         Section {
@@ -39,6 +40,26 @@ struct ContactInfoView: View {
                     .buttonStyle(.borderless)
                 }
                 HStack {
+                    if let tickets {
+                        Button {
+                            goToWebSite(url: tickets)
+                        } label: {
+                            HStack {
+                                AppImages.iconWallet
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 25, height: 25, alignment: .leading)
+                                Text("Tickets")
+                                    .font(.caption)
+                                    .bold()
+                            }
+                        }
+                        .buttonStyle(.borderless)
+                        .foregroundColor(.primary)
+                        .padding()
+                        .background(AppColors.lightGray6)
+                        .clipShape(Capsule(style: .continuous))
+                    }
                     if let www {
                         Button {
                             goToWebSite(url: www)

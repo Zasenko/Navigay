@@ -36,9 +36,7 @@ struct EventView: View {
                     ErrorView(viewModel: ErrorViewModel(errorManager: viewModel.errorManager), moveFrom: .bottom, alignment: .bottom)
                 }
                 .background {
-                    if viewModel.showInfo {
-                        AppColors.background
-                    } else {
+                    
                         ZStack(alignment: .center) {
                             viewModel.image?
                                 .resizable()
@@ -50,10 +48,13 @@ struct EventView: View {
                             Rectangle()
                                 .fill(.ultraThinMaterial)
                                 .ignoresSafeArea()
+                            if viewModel.showInfo {
+                                AppColors.background
+                            }
                         }
                         .ignoresSafeArea(.container, edges: .bottom)
                         .frame(width: proxy.size.width, height: proxy.size.height, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
-                    }
+                    
                 }
                 .mask {
                     Rectangle()
@@ -61,7 +62,7 @@ struct EventView: View {
                 }
                 .animation(.snappy, value: viewModel.showInfo)
             }
-            .toolbarBackground(viewModel.showTitle ? .visible :.hidden, for: .navigationBar)
+            .toolbarBackground(!viewModel.showTitle ? .hidden : .visible, for: .navigationBar)
             .toolbarBackground(AppColors.background)
             .toolbarTitleDisplayMode(.inline)
             .toolbar {
