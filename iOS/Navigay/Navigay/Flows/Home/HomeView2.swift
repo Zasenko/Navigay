@@ -86,7 +86,7 @@ struct HomeView: View {
                     .presentationCornerRadius(25)
             }
             .fullScreenCover(item: $aroundManager.selectedEvent) { event in
-                EventView2(viewModel: EventView2.EventViewModel2.init(event: event, modelContext: modelContext, placeNetworkManager: aroundManager.placeNetworkManager, eventNetworkManager: aroundManager.eventNetworkManager, errorManager: aroundManager.errorManager, placeDataManager: aroundManager.placeDataManager, eventDataManager: aroundManager.eventDataManager, commentsNetworkManager: aroundManager.commentsNetworkManager, notificationsManager: aroundManager.notificationsManager))
+                EventView(viewModel: EventView.EventViewModel.init(event: event, modelContext: modelContext, placeNetworkManager: aroundManager.placeNetworkManager, eventNetworkManager: aroundManager.eventNetworkManager, errorManager: aroundManager.errorManager, placeDataManager: aroundManager.placeDataManager, eventDataManager: aroundManager.eventDataManager, commentsNetworkManager: aroundManager.commentsNetworkManager, notificationsManager: aroundManager.notificationsManager))
             }
             .onChange(of: aroundManager.selectedDate, initial: false) { _, newValue in
                 aroundManager.showCalendar = false

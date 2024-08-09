@@ -114,6 +114,7 @@ struct ContactInfoView: View {
                 }
             }
             .frame(maxWidth: .infinity, alignment: .center)
+            .padding()
         }
     }
     

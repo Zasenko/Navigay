@@ -8,8 +8,9 @@
 import SwiftUI
 import SwiftData
 import MapKit
+import AudioToolbox
 
-struct EventView2: View {
+struct EventView: View {
     
     // MARK: - Properties
     
@@ -18,10 +19,10 @@ struct EventView2: View {
     // MARK: - Private Properties
     
     @Environment(\.dismiss) private var dismiss
-    @State private var viewModel: EventViewModel2
+    @State private var viewModel: EventViewModel
     // MARK: - Init
     
-    init(viewModel: EventViewModel2) {
+    init(viewModel: EventViewModel) {
         _viewModel = State(wrappedValue: viewModel)
     }
     
@@ -39,7 +40,6 @@ struct EventView2: View {
                     VStack(spacing: 0) {
                         if show {
                             coverSmall(size: proxy.size)
-                                .padding(.bottom)
                         } else {
                             cover(geometryProxy: proxy)
                                 .frame(height: proxy.size.height + proxy.safeAreaInsets.bottom + (coverOffset.height * 0.5))
@@ -54,10 +54,13 @@ struct EventView2: View {
                 }
                 .background {
                     EventBackgroundView(show: $show, image: $viewModel.image)
-                        .onTapGesture { withAnimation { show.toggle() } }
+                        .onTapGesture {
+                            show.toggle()
+                            AudioServicesPlaySystemSound(1104)
+                        }
                         .gesture(dragGesture)
                 }
-                .animation(.snappy, value: viewModel.showInfo)
+                .animation(.interactiveSpring, value: show)
             }
             .toolbarBackground(.hidden, for: .navigationBar)
             .toolbarTitleDisplayMode(.inline)
@@ -141,45 +144,56 @@ struct EventView2: View {
         
     private func listView(size: CGSize) -> some View {
         List {
-            Section {
-                Text("Information")
-                .font(.title2).bold()
-                .frame(maxWidth: .infinity)
-                .padding()
-                if let about = viewModel.event.about {
-                    Text(about)
-                        .font(.callout)
-                        .foregroundStyle(.primary)
-                        .lineSpacing(9)
-                        .frame(maxWidth: .infinity, alignment: .center)
+            if viewModel.event.about != nil || !viewModel.event.tags.isEmpty {
+                Section {
+                    Text("Information")
+                        .font(.title2).bold()
+                        .frame(maxWidth: .infinity)
                         .padding()
+                    VStack {
+                        if let about = viewModel.event.about {
+                            Text(about)
+                                .font(.callout)
+                                .foregroundStyle(.primary)
+                                .lineSpacing(9)
+                                .frame(maxWidth: .infinity, alignment: .center)
+                                .padding()
+                        }
+                        if !viewModel.event.tags.isEmpty {
+                            TagsView(tags: viewModel.event.tags)
+                                .padding()
+                        }
+                    }
+                    .padding(.bottom, 50)
                 }
-                if !viewModel.event.tags.isEmpty {
-                    TagsView(tags: viewModel.event.tags)
-                        .padding()
-                }
+                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                .listRowSeparator(.hidden)
             }
-            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-            .listRowSeparator(.hidden)
-            Section {
-                ContactInfoView(phone: $viewModel.event.phone, www: $viewModel.event.www, facebook: $viewModel.event.facebook, instagram: $viewModel.event.instagram, tickets: $viewModel.event.tickets)
-            }
-            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-            .listRowSeparator(.hidden)
             Section {
                 map(size: size)
-                    .padding(.top)
-                    .padding(.top)
-                
-                if (viewModel.event.owner != nil || viewModel.event.place != nil) {
-                    Text(viewModel.event.owner != nil && viewModel.event.place != nil ? "Organizers" : "Organizer")
-                        .font(.title2)
-                        .bold()
-                        .foregroundStyle(.primary)
-                        .padding()
+                    .padding(.bottom, 50)
+            }
+            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+            .listRowSeparator(.hidden)
+            if viewModel.event.phone != nil || viewModel.event.www != nil || viewModel.event.facebook != nil || viewModel.event.instagram != nil || viewModel.event.tickets != nil {
+                Section {
+                    Text("Event details")
+                        .font(.title2).bold()
                         .frame(maxWidth: .infinity)
-                        .padding(.top, 40)
-                    
+                        .padding()
+                    ContactInfoView(phone: $viewModel.event.phone, www: $viewModel.event.www, facebook: $viewModel.event.facebook, instagram: $viewModel.event.instagram, tickets: $viewModel.event.tickets)
+                        .padding(.bottom, 50)
+                        .padding(.top, 20)
+                }
+                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                .listRowSeparator(.hidden)
+            }
+            if (viewModel.event.owner != nil || viewModel.event.place != nil) {
+                Section {
+                    Text(viewModel.event.owner != nil && viewModel.event.place != nil ? "Organizers" : "Organizer")
+                        .font(.title2).bold()
+                        .frame(maxWidth: .infinity)
+                        .padding()
                     VStack(alignment: .leading, spacing: 10) {
                         if let owner = viewModel.event.owner {
                             HStack(spacing: 20) {
@@ -249,25 +263,27 @@ struct EventView2: View {
                             }
                         }
                     }
-                    .padding(.horizontal)
+                    .padding()
+                    .padding(.bottom, 50)
                     .frame(maxWidth: .infinity, alignment: .center)
                 }
-                    //TODO: - upcoming events from organizers
-                // TODO:
-                //                Section {
-                //                    Button {
-                //                        EventNetworkManager.sendComplaint(eventId: Int, user: AppUser, reason: String) async throws
-                //                    } label: {
-                //                        Text("Пожаловаться")
-                //                    }
-                //
-                //                }
-                
-                Color.clear
-                    .frame(height: 50)
+                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                .listRowSeparator(.hidden)
             }
-            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-            .listRowSeparator(.hidden)
+            //TODO: - upcoming events from organizers
+            // TODO:
+            //                Section {
+            //                    Button {
+            //                        EventNetworkManager.sendComplaint(eventId: Int, user: AppUser, reason: String) async throws
+            //                    } label: {
+            //                        Text("Пожаловаться")
+            //                    }
+            //
+            //                }
+            //
+            //
+            //            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+            //            .listRowSeparator(.hidden)
         }
         .listStyle(.plain)
         .listSectionSeparator(.hidden)
@@ -280,6 +296,7 @@ struct EventView2: View {
                 .font(.title2)
                 .bold()
                 .foregroundStyle(.primary)
+                .padding(.top)
             Map(position: $viewModel.position, interactionModes: [.zoom], selection: $viewModel.selectedTag) {
                 Marker(viewModel.event.location ?? viewModel.event.address, coordinate: viewModel.event.coordinate)
                     .tint(.primary)
@@ -336,24 +353,29 @@ struct EventView2: View {
     }
     
     private func coverSmall(size: CGSize) -> some View {
-        HStack(spacing: 20) {
-            viewModel.image?
-                .resizable()
-                .scaledToFit()
-                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-                .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous).stroke(.ultraThinMaterial, lineWidth: 1))
-                .shadow(color: .black.opacity(0.2), radius: 0, x: 0, y: 0)
-                .matchedGeometryEffect(id: "img", in: namespace)
-                .frame(maxHeight: smallCoverSize)
-            compactTimeView
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.horizontal)
-        .onTapGesture {
-            withAnimation {
-                show.toggle()
+        VStack(spacing: 0) {
+            Divider()
+                .padding(.bottom, 10)
+            HStack(spacing: 20) {
+                viewModel.image?
+                    .resizable()
+                    .scaledToFit()
+                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                    .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous).stroke(.ultraThinMaterial, lineWidth: 1))
+                    .shadow(color: .black.opacity(0.2), radius: 0, x: 0, y: 0)
+                    .matchedGeometryEffect(id: "img", in: namespace)
+                    .frame(maxHeight: smallCoverSize)
+                compactTimeView
             }
+            .frame(maxWidth: .infinity)
+            .padding(.horizontal)
+            .onTapGesture {
+                show.toggle()
+                AudioServicesPlaySystemSound(1104)
+            }
+            
         }
+        .padding(.bottom, 10)
     }
     
     private func cover(geometryProxy: GeometryProxy) -> some View {
@@ -456,7 +478,6 @@ struct EventView2: View {
                 }
             }
             Spacer()
-
             Image(systemName: "chevron.compact.up")
                 .font(.largeTitle)
                 .foregroundStyle(.ultraThinMaterial)
@@ -466,9 +487,8 @@ struct EventView2: View {
         }
         .frame(maxWidth: .infinity)
         .onTapGesture {
-            withAnimation {
                 show.toggle()
-            }
+            AudioServicesPlaySystemSound(1104)
         }
     }
     
@@ -481,9 +501,11 @@ struct EventView2: View {
             }
             .onEnded { gesture in
                 if !show && gesture.translation.height < -100 {
-                    withAnimation { show.toggle(); coverOffset.height = .zero }
+                    show.toggle()
+                    coverOffset.height = .zero
+                    AudioServicesPlaySystemSound(1104)
                 } else {
-                    withAnimation { coverOffset.height = .zero }
+                    coverOffset.height = .zero
                 }
             }
     }
@@ -633,14 +655,15 @@ struct EventBackgroundView: View {
                                     poster: "https://i.pinimg.com/originals/39/1e/a9/391ea9e2bb4de87e578d10cb2dd8c347.jpg",
                                     smallPoster: "https://i.pinimg.com/originals/39/1e/a9/391ea9e2bb4de87e578d10cb2dd8c347.jpg",
                                     isFree: true,
-                                    tags: [.bar, .pool, .dj, .dragShow, .adultsOnly, .gayFriendly],
+                                    tags: nil,
                                     location: "Cafe Savoy",
                                     lastUpdate: "2023-11-16 17:26:12",
                                     about: nil, fee: nil, tickets: nil, www: nil, facebook: nil, instagram: nil, phone: nil, place: nil, owner: nil, city: nil, cityId: nil)
     let event = Event(decodedEvent: decodedEvent)
     event.isLiked = true
     event.poster = "https://papik.pro/grafic/uploads/posts/2023-03/1680269471_papik-pro-p-tarantino-poster-1.jpg"//https://i.pinimg.com/originals/39/1e/a9/391ea9e2bb4de87e578d10cb2dd8c347.jpg"
-    event.about = "It hides successfully, but I cannot get it to re-enable it when the user navigates back to the parent. I think this is because when the user goes backwards in the navigation the parent view does not get refreshed. How did you solve this issue?"
+//    event.about = "It hides successfully, but I cannot get it to re-enable it when the user navigates back to the parent. I think this is because when the user goes backwards in the navigation the parent view does not get refreshed. How did you solve this issue?"
+//    event.tags = [.bar, .pool, .dj, .dragShow, .adultsOnly, .gayFriendly]
     event.www = "www.google.com"
     event.fee = "fee information"
     event.tickets = "fee information"
@@ -650,21 +673,20 @@ struct EventBackgroundView: View {
     event.phone = "+4565566898"
     
     var authenticationManager = AuthenticationManager(keychainManager: keychainManager, networkMonitorManager: networkMonitorManager, networkManager: networkManager, authNetworkManager: authNetworkManager, errorManager: errorManager)
-    return EventView2(viewModel: EventView2.EventViewModel2.init(event: event, modelContext: sharedModelContainer.mainContext, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, commentsNetworkManager: commentsNetworkManager, notificationsManager: notificationsManager))
+    return EventView(viewModel: EventView.EventViewModel.init(event: event, modelContext: sharedModelContainer.mainContext, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, commentsNetworkManager: commentsNetworkManager, notificationsManager: notificationsManager))
         .environmentObject(authenticationManager)
 }
 
-extension EventView2 {
+extension EventView {
     
     @Observable
-    final class EventViewModel2 {
+    final class EventViewModel {
         
         // MARK: - Properties
         
         var modelContext: ModelContext
         var event: Event
         var image: Image?
-        var showInfo: Bool = false
         var position: MapCameraPosition = .automatic
         var selectedTag: UUID? = nil /// for Map (big Pin)
         let placeNetworkManager: PlaceNetworkManagerProtocol //?????????
