@@ -8,23 +8,17 @@
 import SwiftUI
 import SwiftData
 
-enum EntryViewRouter {
-    case tabView
-    case welcomeView
-}
-
 struct EntryView: View {
     
     // MARK: - Private Properties
     
-    @Query private var appUsers: [AppUser]
+    @Environment(\.modelContext) private var modelContext
     @AppStorage("firstTimeInApp") private var firstTimeInApp: Bool = true
-    @State private var router: EntryViewRouter = .welcomeView
+    @Query private var appUsers: [AppUser]
     @StateObject private var authenticationManager: AuthenticationManager
-    
-    private let appSettingsManager: AppSettingsManagerProtocol
     private let errorManager: ErrorManagerProtocol
-    private let networkMonitor: NetworkMonitorManagerProtocol
+    private let networkManager: NetworkManagerProtocol
+    private let notificationsManager: NotificationsManagerProtocol
     
     // MARK: - Init
     
@@ -33,48 +27,33 @@ struct EntryView: View {
         let errorManager = ErrorManager()
         let keychainManager = KeychainManager()
         let networkMonitorManager = NetworkMonitorManager(errorManager: errorManager)
-        let authNetworkManager = AuthNetworkManager(networkMonitorManager: networkMonitorManager, appSettingsManager: appSettingsManager)
-        let authenticationManager = AuthenticationManager(keychainManager: keychainManager, networkMonitorManager: networkMonitorManager, networkManager: authNetworkManager, errorManager: errorManager)
-        
-        self.networkMonitor = networkMonitorManager
-        self.appSettingsManager = appSettingsManager
+        let networkManager = NetworkManager(session: URLSession(configuration: .default), networkMonitorManager: networkMonitorManager, appSettingsManager: appSettingsManager, keychainManager: keychainManager)
+        let authNetworkManager = AuthNetworkManager(networkManager: networkManager)
+        let authenticationManager = AuthenticationManager(keychainManager: keychainManager, networkMonitorManager: networkMonitorManager, networkManager: networkManager, authNetworkManager: authNetworkManager, errorManager: errorManager)
         self.errorManager = errorManager
-
+        self.networkManager = networkManager
+        self.notificationsManager = NotificationsManager()
         _authenticationManager = StateObject(wrappedValue: authenticationManager)
-        _router = State(wrappedValue: EntryViewRouter.welcomeView)
     }
     
     // MARK: - Body
     
     var body: some View {
         ZStack {
-            switch router {
-            case .welcomeView:
-                WelcomeView {
-                    firstTimeInApp = false
-                    router = .tabView
-                }
-            case .tabView:
-                TabBarView(appSettingsManager: appSettingsManager, errorManager: errorManager, networkMonitor: networkMonitor)
+            if firstTimeInApp {
+                WelcomeView(firstTimeInApp: $firstTimeInApp)
+            } else {
+                TabBarView(errorManager: errorManager, networkManager: networkManager, notificationsManager: notificationsManager)
+                    .onAppear {
+                        authentificate()
+                    }
             }
-            ErrorView(viewModel: ErrorViewModel(errorManager: errorManager), moveFrom: .bottom, alignment: .bottom)
-        }
-        .onAppear() {
-            setRouter()
+            ErrorView(viewModel: ErrorViewModel(errorManager: errorManager), moveFrom: .top, alignment: .top)
         }
         .environmentObject(authenticationManager)
     }
     
     // MARK: - Private Functions
-    
-    private func setRouter() {
-        if firstTimeInApp {
-            router = .welcomeView
-        } else {
-            router = .tabView
-            authentificate()
-        }
-    }
     
     private func authentificate() {
         guard let appUser = appUsers.first(where: { $0.id == authenticationManager.lastLoginnedUserId }),
@@ -85,6 +64,6 @@ struct EntryView: View {
     }
 }
 
-#Preview {
-    EntryView()
-}
+//#Preview {
+//    EntryView()
+//}

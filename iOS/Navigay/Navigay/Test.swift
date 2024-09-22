@@ -14,7 +14,6 @@ struct Test: View {
     @State private var image = Image("16")
     @State private var scrollPosition: CGPoint = .zero
 
-    let n = AroundNetworkManager(networkMonitorManager: NetworkMonitorManager(errorManager: ErrorManager()), appSettingsManager: AppSettingsManager())
     private let firstReviewPrompt = "Hey there! Looks like this place is waiting to be discovered. Share your thoughts and be the first to leave a review!"
     
     init() {
@@ -32,26 +31,28 @@ struct Test: View {
 //        }
 //        .padding()
             
-//            Text("Hello world")
-//                .font(.largeTitle)
-//            Text("Hello world")
-//                .font(.title)
-//            Text("Hello world")
-//                .font(.title2)
-//            Text("Hello world")
-//                .font(.title3)
-//            Text("Hello world")
-//                .font(.body)
-//            Text("Hello world")
-//                .font(.callout)
-//            Text("Hello world")
-//                .font(.subheadline)
-//            Text("Hello world")
-//                .font(.footnote)
-//            Text("Hello world")
-//                .font(.caption)
-//            Text("Hello world")
-//                .font(.caption2)
+            Text("Hello world")
+                .font(.largeTitle)
+            Text("Hello world")
+                .font(.title)
+            Text("Hello world")
+                .font(.title2)
+            Text("Hello world")
+                .font(.title3)
+        Text("Hello world")
+            .font(.headline)
+            Text("Hello world")
+                .font(.body)
+            Text("Hello world")
+                .font(.callout)
+            Text("Hello world")
+                .font(.subheadline)
+            Text("Hello world")
+                .font(.footnote)
+            Text("Hello world")
+                .font(.caption)
+            Text("Hello world")
+                .font(.caption2)
         
         
 //        Button {
@@ -69,37 +70,29 @@ struct Test: View {
 //            .tint(.blue)
 //        }
 //
-//             
-//       
-        VStack {
-            HStack {
-                Image(systemName: "heart.fill")
-                    .foregroundColor(.red)
-                Text("0.5")
-                
-            }
-            .padding (10)
-            .background(Color.white)
-            .clipShape(RoundedRectangle(cornerRadius: 25.0, style: .continuous))
-            .overlay(alignment: .bottom) {
-                Image(systemName: "arrowtriangle.left.fill")
-                    .rotationEffect (Angle(degrees: 270))
-                    .foregroundColor(.white)
-                    .offset(y: 10)
-                
-            }
-            
-        }
-        .ignoresSafeArea()
-        .background(.black)
-        .task {
-            do {
-                let a = try await n.fetchAround(location: CLLocation(latitude: 48.259218725960174, longitude: 16.447639677728187))
-                print(a)
-            } catch {
-                print(error)
-            }
-        }
+
+        
+//        VStack {
+//            HStack {
+//                Image(systemName: "heart.fill")
+//                    .foregroundColor(.red)
+//                Text("0.5")
+//                
+//            }
+//            .padding (10)
+//            .background(Color.white)
+//            .clipShape(RoundedRectangle(cornerRadius: 25.0, style: .continuous))
+//            .overlay(alignment: .bottom) {
+//                Image(systemName: "arrowtriangle.left.fill")
+//                    .rotationEffect (Angle(degrees: 270))
+//                    .foregroundColor(.white)
+//                    .offset(y: 10)
+//                
+//            }
+//            
+//        }
+//        .ignoresSafeArea()
+//        .background(.black)
     }
 }
 

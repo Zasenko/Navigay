@@ -9,11 +9,11 @@ import SwiftUI
 
 struct ContactInfoView: View {
     
-    let phone: String?
-    let www: String?
-    let facebook: String?
-    let instagram: String?
-    
+    @Binding var phone: String?
+    @Binding var www: String?
+    @Binding var facebook: String?
+    @Binding var instagram: String?
+
     var body: some View {
         
         Section {
@@ -93,6 +93,7 @@ struct ContactInfoView: View {
                 }
             }
             .frame(maxWidth: .infinity, alignment: .center)
+            .padding()
         }
     }
     

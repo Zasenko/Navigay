@@ -170,9 +170,9 @@ struct EditPlaceTimetableView: View {
     }
 }
 
-#Preview {
-    let errorManager: ErrorManagerProtocol = ErrorManager()
-    let decodetUser = DecodedAppUser(id: 0, name: "", email: "", status: .admin, sessionKey: "", bio: "", photo: "")
-    let user = AppUser(decodedUser: decodetUser)
-    return EditPlaceTimetableView(viewModel: EditPlaceViewModel(id: 122, place: nil, user: user, networkManager: EditPlaceNetworkManager(networkMonitorManager: NetworkMonitorManager(errorManager: errorManager)), errorManager: errorManager))
-}
+//#Preview {
+//    let errorManager: ErrorManagerProtocol = ErrorManager()
+//    let decodetUser = DecodedAppUser(id: 0, name: "", email: "", status: .admin, sessionKey: "", bio: "", photo: "")
+//    let user = AppUser(decodedUser: decodetUser)
+//    return EditPlaceTimetableView(viewModel: EditPlaceViewModel(id: 122, place: nil, user: user, networkManager: EditPlaceNetworkManager(networkMonitorManager: NetworkMonitorManager(errorManager: errorManager)), errorManager: errorManager))
+//}

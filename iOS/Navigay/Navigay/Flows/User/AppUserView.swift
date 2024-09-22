@@ -18,6 +18,8 @@ struct AppUserView: View {
     
     @State private var viewModel: AppUserViewModel
     @EnvironmentObject private var authenticationManager: AuthenticationManager
+    @Namespace private var animation
+
     
     init(modelContext: ModelContext,
          userNetworkManager: UserNetworkManagerProtocol,
@@ -26,8 +28,9 @@ struct AppUserView: View {
          errorManager: ErrorManagerProtocol,
          placeDataManager: PlaceDataManagerProtocol,
          eventDataManager: EventDataManagerProtocol,
-         commentsNetworkManager: CommentsNetworkManagerProtocol) {
-        let viewModel = AppUserViewModel(modelContext: modelContext, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, userNetworkManager: userNetworkManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, commentsNetworkManager: commentsNetworkManager)
+         commentsNetworkManager: CommentsNetworkManagerProtocol,
+         notificationsManager: NotificationsManagerProtocol) {
+        let viewModel = AppUserViewModel(modelContext: modelContext, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, userNetworkManager: userNetworkManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, commentsNetworkManager: commentsNetworkManager, notificationsManager: notificationsManager)
         _viewModel = State(initialValue: viewModel)
     }
 
@@ -143,9 +146,10 @@ struct AppUserView: View {
                     }
                 }
                 .fullScreenCover(isPresented: $viewModel.showLoginView) {
-                    LoginView(viewModel: LoginViewModel()) {
-                        viewModel.showLoginView = false
-                    }
+                    LoginView(viewModel: LoginViewModel(isPresented: $viewModel.showLoginView))
+                }
+                .fullScreenCover(item: $viewModel.selectedEvent) { event in
+                    EventView(viewModel: EventView.EventViewModel.init(event: event, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, commentsNetworkManager: viewModel.commentsNetworkManager, notificationsManager: viewModel.notificationsManager))
                 }
             }
         }
@@ -154,7 +158,7 @@ struct AppUserView: View {
     @ViewBuilder private func userView(user: AppUser) -> some View {
         Section {
             HStack(spacing: 20) {
-                PhotoEditView(canDelete: user.photo == nil ? false : true, canAddFromUrl: false) {
+                PhotoEditView(canDelete: user.photoUrl == nil ? false : true, canAddFromUrl: false) {
                     ZStack {
                         if let image = viewModel.userImage {
                             image
@@ -165,7 +169,7 @@ struct AppUserView: View {
                                 .overlay(Circle().stroke(AppColors.lightGray5, lineWidth: 1))
                                 .opacity(viewModel.isLoadingPhoto ? 0.2 : 1)
                         } else {
-                            if let url = user.photo {
+                            if let url = user.photoUrl {
                                 ImageLoadingView(url: url, width: 100, height: 100, contentMode: .fill) {
                                     Color.red
                                 }
@@ -307,9 +311,7 @@ struct AppUserView: View {
                     .clipShape(Capsule())
             }
             .fullScreenCover(isPresented: $viewModel.showRegistrationView) {
-                RegistrationView(viewModel: RegistrationViewModel(), authenticationManager: authenticationManager, errorManager: authenticationManager.errorManager) {
-                    viewModel.showRegistrationView = false
-                }
+                RegistrationView(viewModel: RegistrationViewModel(isPresented: $viewModel.showRegistrationView))
             }
             
 //            Button {
@@ -350,7 +352,7 @@ struct AppUserView: View {
             .offset(x: 70)
             ForEach(likedPlaces.sorted(by: { $0.name < $1.name})) { place in
                 NavigationLink {
-                    PlaceView(viewModel: PlaceView.PlaceViewModel(place: place, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, commentsNetworkManager: viewModel.commentsNetworkManager, showOpenInfo: false))
+                    PlaceView(viewModel: PlaceView.PlaceViewModel(place: place, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, commentsNetworkManager: viewModel.commentsNetworkManager, notificationsManager: viewModel.notificationsManager, showOpenInfo: false))
                 } label: {
                     PlaceCell(place: place, showOpenInfo: false, showDistance: false, showCountryCity: true, showLike: false)
                 }
@@ -377,14 +379,38 @@ struct AppUserView: View {
             .padding(.top, 50)
             .padding(.bottom, 10)
             .offset(x: 90)
-            LazyVGrid(columns: viewModel.gridLayout, spacing: 20) {
+//            LazyVGrid(columns: viewModel.gridLayout, spacing: 20) {
+//                ForEach(likedEvents) { event in
+//                    EventCell(event: event, showCountryCity: true, showStartDayInfo: true, showStartTimeInfo: false)//, width: (width / 2) - 30)
+//                    
+//                 //   EventCell(event: event, width: (width / 2) - 30, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, showCountryCity: true, authenticationManager: authenticationManager, showStartDayInfo: true, showStartTimeInfo: false)
+//                }
+//            }
+//            .padding(.horizontal, 20)
+            if likedEvents.count == 1 {
                 ForEach(likedEvents) { event in
-                    EventCell(event: event, showCountryCity: true, showStartDayInfo: true, showStartTimeInfo: false)//, width: (width / 2) - 30)
-                    
-                 //   EventCell(event: event, width: (width / 2) - 30, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, showCountryCity: true, authenticationManager: authenticationManager, showStartDayInfo: true, showStartTimeInfo: false)
+                    Button {
+                        viewModel.selectedEvent = event
+                    } label: {
+                        EventCell(event: event, showCountryCity: true, showStartDayInfo: true, showStartTimeInfo: true, showLike: false, showLocation: true)
+                            .matchedGeometryEffect(id: "DisplayedEv\(event.id)", in: animation)
+                    }
+                    .frame(maxWidth: width / 2)
+                    .frame(maxWidth: .infinity)
+                    .padding(.bottom)
                 }
+            } else {
+                StaggeredGrid(columns: 2, showsIndicators: false, spacing: 10, list: likedEvents) { event in
+                    Button {
+                        viewModel.selectedEvent = event
+                    } label: {
+                        EventCell(event: event, showCountryCity: true, showStartDayInfo: true, showStartTimeInfo: true, showLike: false, showLocation: true)
+                            .matchedGeometryEffect(id: "DisplayedEv\(event.id)", in: animation)
+                    }
+                }
+                .padding(.horizontal, 10)
+                .padding(.bottom)
             }
-            .padding(.horizontal, 20)
         }
         .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
         .listRowSeparator(.hidden)

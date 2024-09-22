@@ -56,14 +56,12 @@ extension AddNewPlaceViewModel {
     //MARK: - Functions
     
     func addNewPlace(from user: AppUser) {
+        guard let tocken = try? networkManager.networkManager.getTocken(email: user.email) else {
+            return
+        }
         isLoading = true
         Task {
-            guard let sessionKey = user.sessionKey else {
-                await MainActor.run {
-                    isLoading = false
-                }
-                return
-            }
+            
             let errorMessage = "Something went wrong. The place didn't load. Please try again later."
             guard !name.isEmpty else { return }
             guard let type = type?.rawValue else { return }
@@ -93,7 +91,7 @@ extension AddNewPlaceViewModel {
                                               instagram: instagram.isEmpty ? nil : instagram,
                                               ownderId: isOwned ? user.id : nil,
                                               addedBy: user.id,
-                                              sessionKey: sessionKey,
+                                              tocken: tocken,
                                               isActive: isActive,
                                               isChecked: isChecked,
                                               adminNotes: adminNotes.isEmpty ? nil : adminNotes,

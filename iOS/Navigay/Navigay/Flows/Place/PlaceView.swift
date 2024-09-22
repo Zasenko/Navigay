@@ -18,12 +18,17 @@ struct PlaceView: View {
     
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel: PlaceViewModel
-    @EnvironmentObject private var authenticationManager: AuthenticationManager
+  //  @StateObject var commentsViewModel: CommentsViewModel
+
     
+    @EnvironmentObject private var authenticationManager: AuthenticationManager
+    @Environment(\.colorScheme) private var colorScheme
+
     // MARK: - Init
     
     init(viewModel: PlaceViewModel) {
         _viewModel = State(initialValue: viewModel)
+      //  _commentsViewModel = StateObject(wrappedValue: commentsViewModel)
     }
         
     // MARK: - Body
@@ -76,14 +81,14 @@ struct PlaceView: View {
                                 .bold()
                                 .frame(width: 30, height: 30, alignment: .leading)
                         }
-                        .tint(viewModel.place.isLiked ? .red :  .secondary)
+                        .tint(.red)
                         if let user = authenticationManager.appUser, (user.status == .admin || user.status == .moderator) {
                             Menu {
                                 NavigationLink("Edit Place") {
-                                    EditPlaceView(viewModel: EditPlaceViewModel(id: viewModel.place.id, place: viewModel.place, user: user, networkManager: EditPlaceNetworkManager(networkMonitorManager: authenticationManager.networkMonitorManager), errorManager: viewModel.errorManager))
+                                    EditPlaceView(viewModel: EditPlaceViewModel(id: viewModel.place.id, place: viewModel.place, user: user, networkManager: EditPlaceNetworkManager(networkManager: authenticationManager.networkManager), errorManager: viewModel.errorManager))
                                 }
                                 NavigationLink("Add Event") {
-                                    NewEventView(viewModel: NewEventViewModel(user: user, place: viewModel.place, copy: nil, networkManager: EditEventNetworkManager(networkMonitorManager: authenticationManager.networkMonitorManager), errorManager: viewModel.errorManager))
+                                    NewEventView(viewModel: NewEventViewModel(user: user, place: viewModel.place, copy: nil, networkManager: EditEventNetworkManager(networkManager: authenticationManager.networkManager), errorManager: viewModel.errorManager))
                                 }
                             } label: {
                                 AppImages.iconSettings
@@ -95,15 +100,14 @@ struct PlaceView: View {
                 }
             }
             .onAppear() {
-                viewModel.allPhotos = viewModel.place.getAllPhotos()
                 viewModel.getEventsFromDB()
             }
             .onChange(of: viewModel.selectedDate, initial: false) { oldValue, newValue in
                 viewModel.showCalendar = false
                 if let date = newValue {
-                    //getEvents(for: date)
+                    viewModel.getEvents(for: date)
                 } else {
-                    showUpcomingEvents()
+                    viewModel.showUpcomingEvents()
                 }
             }
             .sheet(isPresented:  $viewModel.showCalendar) {} content: {
@@ -112,8 +116,17 @@ struct PlaceView: View {
                     .presentationDragIndicator(.hidden)
                     .presentationCornerRadius(25)
             }
+            .sheet(isPresented: $viewModel.showAddCommentView) {
+                AddCommentView(viewModel: AddCommentViewModel(placeId: viewModel.place.id, networkManager: viewModel.commentsNetworkManager, errorManager: viewModel.errorManager))
+            }
             .fullScreenCover(item: $viewModel.selectedEvent) { event in
-                EventView(viewModel: EventView.EventViewModel.init(event: event, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, commentsNetworkManager: viewModel.commentsNetworkManager))
+                EventView(viewModel: EventView.EventViewModel.init(event: event, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, commentsNetworkManager: viewModel.commentsNetworkManager, notificationsManager: viewModel.notificationsManager))
+            }
+            .fullScreenCover(isPresented: $viewModel.showLoginView) {
+                LoginView(viewModel: LoginViewModel(isPresented: $viewModel.showLoginView))
+            }
+            .fullScreenCover(isPresented: $viewModel.showRegistrationView) {
+                RegistrationView(viewModel: RegistrationViewModel(isPresented: $viewModel.showRegistrationView))
             }
         }
     }
@@ -127,10 +140,12 @@ struct PlaceView: View {
                     headerView
                     headerSection(width: proxy.size.width)
                     
-                    TagsView(tags: viewModel.place.tags)
-                        .padding(.bottom)
-                        .listRowSeparator(.hidden)
-                        .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
+                    if !viewModel.place.tags.isEmpty {
+                        TagsView(tags: viewModel.place.tags)
+                            .padding(.bottom)
+                            .listRowSeparator(.hidden)
+                            .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
+                    }
                     
                     createMap(size: proxy.size)
                     
@@ -138,22 +153,30 @@ struct PlaceView: View {
                         TimetableView(place: viewModel.place, showOpenInfo: viewModel.showOpenInfo)
                     }
                     
+                    Text("Information")
+                    .font(.title2)
+                    .bold()
+                    .foregroundStyle(.primary)
+                    .frame(maxWidth: .infinity)
+                    .padding(.top, 50)
+                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                    .listRowSeparator(.hidden)
                     
                     if let otherInfo = viewModel.place.otherInfo {
                         Text(otherInfo)
-                        //.font(.caption)
                             .foregroundStyle(.secondary)
+                            .padding()
+                            .frame(maxWidth: .infinity)
                             .listRowInsets(EdgeInsets(top: 20, leading: 20, bottom: 50, trailing: 20))
                             .listSectionSeparator(.hidden)
                     }
                     
-                    
-                    ContactInfoView(phone: viewModel.place.phone, www: viewModel.place.www, facebook: viewModel.place.facebook, instagram: viewModel.place.instagram)
+                    ContactInfoView(phone: $viewModel.place.phone, www: $viewModel.place.www, facebook: $viewModel.place.facebook, instagram: $viewModel.place.instagram)
                         .listRowInsets(EdgeInsets(top: 50, leading: 20, bottom: 50, trailing: 20))
                         .listSectionSeparator(.hidden)
                     
-                    if viewModel.actualEvents.count > 0 {
-                        EventsView(modelContext: viewModel.modelContext, selectedDate: $viewModel.selectedDate, displayedEvents: $viewModel.displayedEvents, eventsCount: $viewModel.eventsCount, todayEvents: $viewModel.todayEvents, upcomingEvents: $viewModel.upcomingEvents, eventsDates: $viewModel.eventsDates, selectedEvent: $viewModel.selectedEvent, showCalendar: $viewModel.showCalendar, size: proxy.size)
+                    if viewModel.eventsCount > 0 {
+                        EventsView(modelContext: viewModel.modelContext, selectedDate: $viewModel.selectedDate, displayedEvents: $viewModel.displayedEvents, eventsCount: $viewModel.eventsCount, todayEvents: $viewModel.todayEvents, upcomingEvents: $viewModel.upcomingEvents, eventsDates: $viewModel.eventsDates, selectedEvent: $viewModel.selectedEvent, showCalendar: $viewModel.showCalendar, size: proxy.size, showLocation: false)
                             .listRowSeparator(.hidden)
                             .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                     }
@@ -179,12 +202,14 @@ struct PlaceView: View {
                         .listRowSeparator(.hidden)
                         .listRowInsets(EdgeInsets(top: 50, leading: 0, bottom: 50, trailing: 0))
                     }
-                    CommentsView(viewModel: CommentsViewModel(commentsNetworkManager: viewModel.commentsNetworkManager, errorManager: viewModel.errorManager, size: proxy.size, place: viewModel.place))
+                    CommentsView(comments: $viewModel.comments, isLoading: $viewModel.isCommentsLoading, showAddReviewView: $viewModel.showAddCommentView, showRegistrationView: $viewModel.showRegistrationView, showLoginView: $viewModel.showLoginView, size: proxy.size, place: viewModel.place, errorManager: viewModel.errorManager, deleteComment: { id in
+                        viewModel.deleteComment(id: id)
+                    })
                         .listRowSeparator(.hidden)
                         .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-//                        .onAppear {
-//                            viewModel.fetchComments()
-//                        }
+                        .onAppear {
+                            viewModel.fetchComments()
+                        }
                     Color.clear
                         .frame(height: 50)
                         .listRowSeparator(.hidden)
@@ -203,25 +228,27 @@ struct PlaceView: View {
     
     private var headerView: some View {
         HStack(spacing: 20) {
-            if let url = viewModel.place.avatar {
-                ImageLoadingView(url: url, width: 60, height: 60, contentMode: .fill) {
-                    Color.orange
+            if let url = viewModel.place.avatarUrl {
+                ImageLoadingView(url: url, width: 50, height: 50, contentMode: .fill) {
+                    ImageFetchingView()
                 }
                 .clipShape(Circle())
                 .overlay(Circle().stroke(AppColors.lightGray5, lineWidth: 1))
+                .padding(8)
             }
-            VStack(alignment: .leading, spacing: 4) {
-                Text(viewModel.place.name)
-                    .font(.title2).bold()
-                    .foregroundColor(.primary)
-                Text(viewModel.place.address)
-                    .font(.body)
-                    .foregroundColor(.secondary)
-            }
+            Text(viewModel.place.name)
+                .font(.title2).bold()
+                .foregroundColor(.primary)
+                .baselineOffset(0)
+//            + Text(viewModel.place.type.getName().uppercased())
+//                .font(.caption).bold()
+//                .foregroundColor(.secondary)
+//                .baselineOffset(0)
         }
+        .padding(.horizontal)
         .frame(maxWidth: .infinity)
         .listRowSeparator(.hidden)
-        .listRowInsets(EdgeInsets(top: 10, leading: 20, bottom: 10, trailing: 20))
+        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
         .onAppear {
             viewModel.showHeaderTitle = false
         }
@@ -245,73 +272,80 @@ struct PlaceView: View {
     @ViewBuilder
     private func createMap(size: CGSize) -> some View {
         VStack {
-            Map(position: $viewModel.position, interactionModes: [], selection: $viewModel.selectedTag) {
-                Marker(viewModel.place.address, monogram: Text(viewModel.place.type.getImage()), coordinate: viewModel.place.coordinate)
-                    .tint(viewModel.place.type.getColor())
+            Text("Location")
+                .font(.title2)
+                .bold()
+                .foregroundStyle(.primary)
+            Map(position: $viewModel.position, interactionModes: [.zoom], selection: $viewModel.selectedTag) {
+                Marker(viewModel.place.name, coordinate: viewModel.place.coordinate)
+                    .tint(.primary)
                     .tag(viewModel.place.tag)
-                    .annotationTitles(.hidden)
             }
             .mapStyle(.standard(elevation: .flat, pointsOfInterest: .including([.publicTransport])))
             .mapControlVisibility(.hidden)
-            .frame(height: size.width)
-            .clipShape(RoundedRectangle(cornerRadius: 0))
-            .onAppear {
-                viewModel.position = .camera(MapCamera(centerCoordinate: viewModel.place.coordinate, distance: 1500))
-            }
-//            Text(viewModel.place.address)
-//                .font(.callout)
-//                .foregroundColor(.secondary)
-//                .padding()
-            Button {
-                viewModel.goToMaps()
-            } label: {
-                HStack {
-                    AppImages.iconLocation
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 25, height: 25, alignment: .leading)
-                    Text("Open in Maps")
-                        .font(.caption)
-                        .bold()
+            .frame(height: (size.width / 4) * 5)
+            .onChange(of: viewModel.selectedTag) { _, newValue in
+                if newValue != nil {
+                    withAnimation {
+                        viewModel.centerMapPin()
+                    }
                 }
             }
-            .padding()
-            .foregroundColor(.primary)
-            .background(AppColors.lightGray6)
-            .clipShape(Capsule(style: .continuous))
-            .buttonStyle(.borderless)
-            .padding(.bottom, 40)
+
+            HStack(spacing: 10) {
+                HStack(alignment: .firstTextBaseline, spacing: 4) {
+                    AppImages.iconLocationFill
+                    VStack(alignment: .leading, spacing: 0) {
+                        Text(viewModel.place.address).bold().foregroundStyle(.primary)
+                        Text("\(viewModel.place.city?.name ?? "") • \(viewModel.place.city?.region?.country?.name ?? "")")
+                    }
+                }
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+                .baselineOffset(0)
+                .frame(maxWidth: .infinity)
+                Button {
+                    viewModel.goToMaps()
+                } label: {
+                    HStack {
+                        AppImages.iconLocation
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 25, height: 25, alignment: .leading)
+                        Text("Open in Maps")
+                            .font(.caption)
+                            .bold()
+                    }
+                }
+                .padding()
+                .foregroundColor(.primary)
+                .background(AppColors.lightGray6)
+                .clipShape(Capsule(style: .continuous))
+                .buttonStyle(.borderless)
+            }
+            .padding(.top)
+            .padding(.horizontal)
+            //.padding(.bottom, 40)
         }
         .listRowSeparator(.hidden)
         .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
     }
-    
-//    private func getEvents(for date: Date) {
-//        Task {
-//            let events = await viewModel.eventDataManager.getEvents(for: date, events: viewModel.actualEvents )
-//            await MainActor.run {
-//                viewModel.displayedEvents = events
-//            }
-//        }
-//    }
-    
-    private func showUpcomingEvents() {
-        viewModel.displayedEvents = viewModel.upcomingEvents
-    }
 }
 
 //#Preview {
-//    let decodedPlace = DecodedPlace(id: 0, name: "HardOn", type: .bar, address: "bla bla", latitude: 48.19611791448819, longitude: 16.357055501725107, lastUpdate: "2023-11-19 08:00:45", avatar: nil, mainPhoto: nil, photos: nil, tags: nil, timetable: nil, otherInfo: nil, about: nil, www: nil, facebook: nil, instagram: nil, phone: nil, city: nil, cityId: nil, events: nil)
+//    let decodedPlace = DecodedPlace(id: 0, name: "HardOn", type: .bar, address: "Seyringer Strasse, 13", latitude: 48.19611791448819, longitude: 16.357055501725107, lastUpdate: "2023-11-19 08:00:45", avatar: "https://esx.bigo.sg/eu_live/2u4/1D4hHo.jpg", mainPhoto: nil, photos: nil, tags: nil, timetable: nil, otherInfo: nil, about: nil, www: nil, facebook: nil, instagram: nil, phone: nil, city: nil, cityId: nil, events: nil)
+//    let place = Place(decodedPlace: decodedPlace)
+//    place.mainPhotoUrl = "https://i0.wp.com/avatars.dzeninfra.ru/get-zen_doc/758638/pub_5de772c30a451800b17484b0_5de7747416ef9000ae6548f6/scale_1200?resize=768%2C1024&ssl=1"
 //    let appSettingsManager = AppSettingsManager()
 //    let errorManager = ErrorManager()
+//    let keychainManager = KeychainManager()
 //    let networkMonitorManager = NetworkMonitorManager(errorManager: errorManager)
-//    let placeNetworkManager = PlaceNetworkManager(networkMonitorManager: networkMonitorManager, appSettingsManager: appSettingsManager)
-//    let eventNetworkManager = EventNetworkManager(networkMonitorManager: networkMonitorManager, appSettingsManager: appSettingsManager)
-//    let commentsNetworkManager = CommentsNetworkManager(networkMonitorManager: networkMonitorManager, appSettingsManager: appSettingsManager)
-//    
+//    let networkManager = NetworkManager(session: URLSession.shared, networkMonitorManager: networkMonitorManager, appSettingsManager: appSettingsManager, keychainManager: keychainManager)
+//    let placeNetworkManager = PlaceNetworkManager(networkManager: networkManager)
+//    let eventNetworkManager = EventNetworkManager(networkManager: networkManager)
+//    let commentsNetworkManager = CommentsNetworkManager(networkManager: networkManager)
 //    let placeDataManager = PlaceDataManager()
 //    let eventDataManager = EventDataManager()
-//    let place = Place(decodedPlace: decodedPlace)
 //    var sharedModelContainer: ModelContainer = {
 //        let schema = Schema([
 //            AppUser.self, Country.self, Region.self, City.self, Event.self, Place.self, User.self
@@ -324,101 +358,16 @@ struct PlaceView: View {
 //            fatalError("Could not create ModelContainer: \(error)")
 //        }
 //    }()
-//    let authNetworkManager = AuthNetworkManager(networkMonitorManager: networkMonitorManager, appSettingsManager: appSettingsManager)
-//    let keychainManager = KeychainManager()
-//    let authenticationManager = AuthenticationManager(keychainManager: keychainManager, networkMonitorManager: networkMonitorManager, networkManager: authNetworkManager, errorManager: errorManager)
+//    let authNetworkManager = AuthNetworkManager(networkManager: networkManager)
+//    let authenticationManager = AuthenticationManager(keychainManager: keychainManager, networkMonitorManager: networkMonitorManager, networkManager: networkManager, authNetworkManager: authNetworkManager, errorManager: errorManager)
+//    let notificationsManager = NotificationsManager()
 //    return PlaceView(viewModel: PlaceView.PlaceViewModel(place: place,
 //                                                         modelContext: ModelContext(sharedModelContainer),
 //                                                         placeNetworkManager: placeNetworkManager,
 //                                                         eventNetworkManager: eventNetworkManager,
 //                                                         errorManager: errorManager,
 //                                                         placeDataManager: placeDataManager,
-//                                                         eventDataManager: eventDataManager, commentsNetworkManager: commentsNetworkManager,
+//                                                         eventDataManager: eventDataManager, commentsNetworkManager: commentsNetworkManager, notificationsManager: notificationsManager,
 //                                                         showOpenInfo: false))
 //    .environmentObject(authenticationManager)
 //}
-
-struct TagsView: View {
-    
-    //MARK: - Properties
-    
-    //MARK: - Private Properties
-    
-    let tags: [Tag]
-    
-    @State private var totalHeight: CGFloat = .zero
-    
-    @Environment(\.dismiss) private var dismiss
-    
-    //MARK: - Inits
-    
-    init(tags: [Tag]) {
-        self.tags = tags
-    }
-    
-    //MARK: - Body
-    
-    var body: some View {
-        VStack(spacing: 0) {
-            VStack {
-                GeometryReader { geometry in
-                    self.generateContent(for: tags, color: .secondary, in: geometry, totalHeight: $totalHeight)
-                }
-            }
-            .frame(height: totalHeight)
-            .padding(.vertical)
-        }
-    }
-    
-    //MARK: - Private functions
-    
-    private func generateContent(for tags: [Tag], color: Color, in g: GeometryProxy, totalHeight: Binding<CGFloat>) -> some View {
-        var width = CGFloat.zero
-        var height = CGFloat.zero
-        
-        return ZStack(alignment: .topLeading) {
-            ForEach(tags, id: \.self) { tag in
-                item(tag: tag, color: color)
-                    .padding([.horizontal, .vertical], 4)
-                    .alignmentGuide(.leading, computeValue: { d in
-                        if (abs(width - d.width) > g.size.width) {
-                            width = 0
-                            height -= d.height
-                        }
-                        let result = width
-                        if tag == tags.last! {
-                            width = 0 //last item
-                        } else {
-                            width -= d.width
-                        }
-                        return result
-                    })
-                    .alignmentGuide(.top, computeValue: {d in
-                        let result = height
-                        if tag == tags.last! {
-                            height = 0 // last item
-                        }
-                        return result
-                    })
-            }
-        }.background(viewHeightReader(totalHeight))
-    }
-    
-    private func item(tag: Tag, color: Color) -> some View {
-        Text(tag.getString())
-            .font(.caption)
-            .bold()
-            .foregroundStyle(color)
-            .modifier(CapsuleSmall(foreground: .primary))
-    }
-    
-    private func viewHeightReader(_ binding: Binding<CGFloat>) -> some View {
-        return GeometryReader { geometry -> Color in
-            let rect = geometry.frame(in: .local)
-            DispatchQueue.main.async {
-                binding.wrappedValue = rect.size.height
-            }
-            return .clear
-        }
-    }
-}

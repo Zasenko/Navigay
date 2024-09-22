@@ -11,20 +11,14 @@ struct WelcomeView: View {
     
     // MARK: - Properties
     
-    @EnvironmentObject private var authenticationManager: AuthenticationManager
-    @Environment(\.colorScheme) private var deviceColorScheme
-    let onFinish: () -> Void
+    @Binding var firstTimeInApp: Bool
     
     // MARK: - Private Properties
     
+    @EnvironmentObject private var authenticationManager: AuthenticationManager
+    @Environment(\.colorScheme) private var deviceColorScheme
     @State private var showLoginView = false
     @State private var showRegistrationView = false
-    
-    // MARK: - Init
-    
-    init(onFinish: @escaping () -> Void) {
-        self.onFinish = onFinish
-    }
     
     // MARK: - Body
     
@@ -46,7 +40,7 @@ struct WelcomeView: View {
             Spacer()
             
             Button {
-                onFinish()
+                firstTimeInApp = false
             } label: {
                 HStack(spacing: 0) {
                     AppImages.iconX
@@ -93,9 +87,7 @@ struct WelcomeView: View {
             }
             
             .fullScreenCover(isPresented: $showLoginView) {
-                LoginView(viewModel: LoginViewModel()) {
-                    onFinish()
-                }
+                LoginView(viewModel: LoginViewModel(isPresented: $firstTimeInApp))
             }
             
             Button {
@@ -111,29 +103,27 @@ struct WelcomeView: View {
                     .foregroundStyle(deviceColorScheme == .light ? .blue : .white)
             }
             .fullScreenCover(isPresented: $showRegistrationView) {
-                RegistrationView(viewModel: RegistrationViewModel(), authenticationManager: authenticationManager, errorManager: authenticationManager.errorManager) {
-                    onFinish()
-                }
+                RegistrationView(viewModel: RegistrationViewModel(isPresented: $firstTimeInApp))
             }
         }
     }
 }
 
-#Preview {
-    let errorManager: ErrorManagerProtocol = ErrorManager()
-    let appSettingsManager: AppSettingsManagerProtocol = AppSettingsManager()
-    let networkMonitorManager: NetworkMonitorManagerProtocol = NetworkMonitorManager(errorManager: errorManager)
-    
-    let keychainManager: KeychainManagerProtocol = KeychainManager()
-    
-    let authNetworkManager = AuthNetworkManager(networkMonitorManager: networkMonitorManager, appSettingsManager: appSettingsManager)
-    
-    let authenticationManager = AuthenticationManager(keychainManager: keychainManager, networkMonitorManager: networkMonitorManager, networkManager: authNetworkManager, errorManager: errorManager)
-   return WelcomeView(onFinish: {
-       print("on Finish")
-    })
-   .environmentObject(authenticationManager)
-}
+//#Preview {
+//    let errorManager: ErrorManagerProtocol = ErrorManager()
+//    let appSettingsManager: AppSettingsManagerProtocol = AppSettingsManager()
+//    let networkMonitorManager: NetworkMonitorManagerProtocol = NetworkMonitorManager(errorManager: errorManager)
+//    
+//    let keychainManager: KeychainManagerProtocol = KeychainManager()
+//    
+//    let authNetworkManager = AuthNetworkManager(networkMonitorManager: networkMonitorManager, appSettingsManager: appSettingsManager)
+//    
+//    let authenticationManager = AuthenticationManager(keychainManager: keychainManager, networkMonitorManager: networkMonitorManager, networkManager: authNetworkManager, errorManager: errorManager)
+//   return WelcomeView(onFinish: {
+//       print("on Finish")
+//    })
+//   .environmentObject(authenticationManager)
+//}
 
 /// Google button
 //            Button {

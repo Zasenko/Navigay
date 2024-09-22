@@ -8,12 +8,19 @@
 import SwiftUI
 import SwiftData
 
+struct CountryRegion: Identifiable {
+    let id: Int
+    let region: Region
+    let cities: [City]
+}
+
 extension CountryView {
     @Observable
     class CountryViewModel {
         
         var modelContext: ModelContext
         let country: Country
+        var regions: [CountryRegion] = []
         
         let catalogNetworkManager: CatalogNetworkManagerProtocol
         let placeNetworkManager: PlaceNetworkManagerProtocol
@@ -23,6 +30,7 @@ extension CountryView {
         let eventDataManager: EventDataManagerProtocol
         let catalogDataManager: CatalogDataManagerProtocol
         let commentsNetworkManager: CommentsNetworkManagerProtocol
+        let notificationsManager: NotificationsManagerProtocol
         var showMap: Bool = false
                 
         // MARK: - Init
@@ -36,7 +44,8 @@ extension CountryView {
              placeDataManager: PlaceDataManagerProtocol,
              eventDataManager: EventDataManagerProtocol,
              catalogDataManager: CatalogDataManagerProtocol,
-             commentsNetworkManager: CommentsNetworkManagerProtocol) {
+             commentsNetworkManager: CommentsNetworkManagerProtocol,
+             notificationsManager: NotificationsManagerProtocol) {
             self.modelContext = modelContext
             self.country = country
             self.catalogNetworkManager = catalogNetworkManager
@@ -47,11 +56,13 @@ extension CountryView {
             self.eventDataManager = eventDataManager
             self.catalogDataManager = catalogDataManager
             self.commentsNetworkManager = commentsNetworkManager
+            self.notificationsManager = notificationsManager
+            country.regions.forEach( { regions.append(CountryRegion(id: $0.id, region: $0, cities: $0.cities)) })
         }
         
         func fetch() {
             Task {
-                guard !catalogNetworkManager.loadedCountries.contains(where: { $0 == country.id}) else {
+                guard !catalogDataManager.loadedCountries.contains(where: { $0.id == country.id}) else {
                     return
                 }
                 do {
@@ -59,6 +70,7 @@ extension CountryView {
                     await MainActor.run {
                         updateCountry(decodedCountry: decodedCountry)
                     }
+                    catalogDataManager.addLoadedCountry(country)
                 } catch NetworkErrors.noConnection {
                 } catch NetworkErrors.apiError(let apiError) {
                     errorManager.showApiError(apiError: apiError, or: errorManager.updateMessage, img: nil, color: nil)
@@ -67,73 +79,14 @@ extension CountryView {
                 }
             }
         }
-        
+    
         private func updateCountry(decodedCountry: DecodedCountry) {
             country.updateCountryComplite(decodedCountry: decodedCountry)
-            let regions = updateRegions(decodedRegions: decodedCountry.regions)
-            country.regions = regions
-            try? modelContext.save()
-        }
-        
-        func updateRegions(decodedRegions: [DecodedRegion]?) -> [Region] {
-            guard let decodedRegions = decodedRegions, !decodedRegions.isEmpty else {
-                country.regions.forEach( { modelContext.delete($0) } )
-                return []
-            }
-            let ids = decodedRegions.map( { $0.id } )
-            var regionsToDelete: [Region] = []
-            country.regions.forEach { region in
-                if !ids.contains(region.id) {
-                    regionsToDelete.append(region)
-                }
-            }
-            regionsToDelete.forEach( { modelContext.delete($0) } )
-            var regions: [Region] = []
-            for decodedRegion in decodedRegions {
-                if let region = country.regions.first(where: { $0.id == decodedRegion.id} ) {
-                    region.updateIncomplete(decodedRegion: decodedRegion)
-                    updateCities(decodedCities: decodedRegion.cities, for: region)
-                    regions.append(region)
-                } else {
-                    let region = Region(decodedRegion: decodedRegion)
-                    country.regions.append(region)
-                    region.country = country
-                    updateCities(decodedCities: decodedRegion.cities, for: region)
-                    regions.append(region)
-                }
-            }
-            return regions
-        }
-        
-        func updateCities(decodedCities: [DecodedCity]?, for region: Region) {
-            guard let decodedCities = decodedCities, !decodedCities.isEmpty else {
-                region.cities.forEach( { modelContext.delete($0) } )
-                region.cities = []
-                return
-            }
-                
-                let ids = decodedCities.map( { $0.id } )
-                var citiesToDelete: [City] = []
-                region.cities.forEach { city in
-                    if !ids.contains(city.id) {
-                        citiesToDelete.append(city)
-                    }
-                }
-                citiesToDelete.forEach( { modelContext.delete($0) } )
-                
-                var cities: [City] = []
-                for decodedCity in decodedCities {
-                    if let city = region.cities.first(where: { $0.id == decodedCity.id} ) {
-                        city.updateCityIncomplete(decodedCity: decodedCity)
-                        city.region = region
-                        cities.append(city)
-                    } else {
-                        let city = City(decodedCity: decodedCity)
-                        city.region = region
-                        cities.append(city)
-                    }
-                }
-                region.cities = cities
+            catalogDataManager.updateRegions(decodedRegions: decodedCountry.regions, country: country, modelContext: modelContext)
+            // todo удалять красиво!
+            regions = []
+            country.regions.forEach( { regions.append(CountryRegion(id: $0.id, region: $0, cities: $0.cities)) })
+           // try? modelContext.save()
         }
     }
 }

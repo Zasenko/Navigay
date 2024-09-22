@@ -69,7 +69,7 @@ struct NewPlaceView: View {
             .disabled(viewModel.isLoading)
             .navigationDestination(item: $viewModel.id) { id in
                 if let user = authenticationManager.appUser {
-                    EditPlaceView(viewModel: EditPlaceViewModel(id: id, place: nil, user: user, networkManager: EditPlaceNetworkManager(networkMonitorManager: authenticationManager.networkMonitorManager), errorManager: viewModel.errorManager))
+                    EditPlaceView(viewModel: EditPlaceViewModel(id: id, place: nil, user: user, networkManager: EditPlaceNetworkManager(networkManager: authenticationManager.networkManager), errorManager: viewModel.errorManager))
                 }
             }
             

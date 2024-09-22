@@ -15,8 +15,13 @@ struct TimetableView: View {
     var body: some View {
         Section {
             Text("Timetable")
-            .font(.title)
-            .foregroundStyle(.secondary)
+            .font(.title2)
+            .bold()
+            .foregroundStyle(.primary)
+            .frame(maxWidth: .infinity)
+            .padding(.top, 50)
+            .listRowSeparator(.hidden)
+            
             ForEach(place.timetable.sorted(by: { $0.day.rawValue < $1.day.rawValue } )) { day in
                 let dayOfWeek = Date().dayOfWeek
                 HStack {
@@ -41,6 +46,7 @@ struct TimetableView: View {
         }
         .listRowInsets(EdgeInsets(top: 10, leading: 20, bottom: 10, trailing: 20))
         .listSectionSeparator(.hidden)
+        
     }
 }
 //#Preview {

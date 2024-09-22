@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import CoreLocation
+import SwiftData
 
 enum TabBarRouter {
     case home, catalog, search, user, admin
@@ -13,9 +15,14 @@ enum TabBarRouter {
 
 struct TabBarView: View {
     
-    @Environment(\.modelContext) var modelContext
+    // MARK: - Private Properties
     
     @State private var selectedPage: TabBarRouter = TabBarRouter.home
+    @State private var userImage: Image = AppImages.iconPerson
+    @StateObject private var locationManager: LocationManager
+    @StateObject private var aroundManager: AroundManager
+    @EnvironmentObject private var authenticationManager: AuthenticationManager
+    @Environment(\.modelContext) private var modelContext
     
     private let homeButton = TabBarButton(title: "Around Me", img: AppImages.iconHome, page: .home)
     private let catalogButton = TabBarButton(title: "Catalog", img: AppImages.iconCatalog, page: .catalog)
@@ -23,57 +30,47 @@ struct TabBarView: View {
     private let userButton = TabBarButton(title: "Around Me", img: AppImages.iconPerson, page: .user)
     private let adminButton = TabBarButton(title: "Admin Panel", img: AppImages.iconAdmin, page: .admin)
     
-    @State private var userImage: Image? = nil
-
-    @StateObject private var locationManager = LocationManager()
-    @EnvironmentObject private var authenticationManager: AuthenticationManager
-
-    private let appSettingsManager: AppSettingsManagerProtocol
-    private let errorManager: ErrorManagerProtocol
-    private let networkMonitor: NetworkMonitorManagerProtocol
+    // MARK: - Init
     
-    private let aroundNetworkManager: AroundNetworkManagerProtocol
-    private let catalogNetworkManager: CatalogNetworkManagerProtocol
-    private let placeNetworkManager: PlaceNetworkManagerProtocol
-    private let eventNetworkManager: EventNetworkManagerProtocol
-    private let commentsNetworkManager: CommentsNetworkManagerProtocol
+    init(errorManager: ErrorManagerProtocol, networkManager: NetworkManagerProtocol, notificationsManager: NotificationsManagerProtocol) {
 
-    private let placeDataManager: PlaceDataManagerProtocol
-    private let eventDataManager: EventDataManagerProtocol
-    private let catalogDataManager: CatalogDataManagerProtocol
-    
-    //MARK: - Init
-    
-    init(appSettingsManager: AppSettingsManagerProtocol,
-         errorManager: ErrorManagerProtocol, networkMonitor: NetworkMonitorManagerProtocol) {
-        self.errorManager = errorManager
-        self.appSettingsManager = appSettingsManager
-        self.networkMonitor = networkMonitor
-        self.aroundNetworkManager = AroundNetworkManager(networkMonitorManager: networkMonitor, appSettingsManager: appSettingsManager)
-        self.catalogNetworkManager = CatalogNetworkManager(networkMonitorManager: networkMonitor, appSettingsManager: appSettingsManager)
-        self.eventNetworkManager = EventNetworkManager(networkMonitorManager: networkMonitor, appSettingsManager: appSettingsManager)
-        self.placeNetworkManager = PlaceNetworkManager(networkMonitorManager: networkMonitor, appSettingsManager: appSettingsManager)
-        self.commentsNetworkManager = CommentsNetworkManager(networkMonitorManager: networkMonitor, appSettingsManager: appSettingsManager)
-        self.placeDataManager = PlaceDataManager()
-        self.eventDataManager = EventDataManager()
-        self.catalogDataManager = CatalogDataManager()
+        let aroundManager = AroundManager(aroundNetworkManager: AroundNetworkManager(networkManager: networkManager),
+                                          placeNetworkManager: PlaceNetworkManager(networkManager: networkManager),
+                                          eventNetworkManager: EventNetworkManager(networkManager: networkManager),
+                                          catalogNetworkManager: CatalogNetworkManager(networkManager: networkManager),
+                                          errorManager: errorManager,
+                                          placeDataManager: PlaceDataManager(),
+                                          eventDataManager: EventDataManager(),
+                                          catalogDataManager: CatalogDataManager(),
+                                          commentsNetworkManager: CommentsNetworkManager(networkManager: networkManager),
+                                          searchDataManager: SearchDataManager(),
+                                          notificationsManager: notificationsManager)
+        _locationManager = StateObject(wrappedValue: LocationManager())
+        _aroundManager = StateObject(wrappedValue: aroundManager)
     }
+    
+    // MARK: - Body
     
     var body: some View {
         VStack(spacing: 0) {
             switch selectedPage {
             case .home:
-                HomeView2(modelContext: modelContext, aroundNetworkManager: aroundNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, catalogNetworkManager: catalogNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, catalogDataManager: catalogDataManager, commentsNetworkManager: commentsNetworkManager)
+                HomeView(aroundManager: aroundManager)
                     .environmentObject(locationManager)
             case .catalog:
-                CatalogView(viewModel: CatalogView.CatalogViewModel(modelContext: modelContext, catalogNetworkManager: catalogNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, catalogDataManager: catalogDataManager, commentsNetworkManager: commentsNetworkManager))
+                CatalogView(viewModel: CatalogView.CatalogViewModel(
+                    modelContext: modelContext,
+                    catalogNetworkManager: aroundManager.catalogNetworkManager,
+                    placeNetworkManager: aroundManager.placeNetworkManager,
+                    eventNetworkManager: aroundManager.eventNetworkManager,
+                    errorManager: aroundManager.errorManager, placeDataManager: aroundManager.placeDataManager, eventDataManager: aroundManager.eventDataManager, catalogDataManager: aroundManager.catalogDataManager, commentsNetworkManager: aroundManager.commentsNetworkManager, notificationsManager: aroundManager.notificationsManager))
             case .search:
-                SearchView(viewModel: SearchView.SearchViewModel(modelContext: modelContext, catalogNetworkManager: catalogNetworkManager, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, catalogDataManager: catalogDataManager, commentsNetworkManager: commentsNetworkManager))
+                SearchView(viewModel: SearchView.SearchViewModel(modelContext: modelContext, catalogNetworkManager: aroundManager.catalogNetworkManager, placeNetworkManager: aroundManager.placeNetworkManager, eventNetworkManager: aroundManager.eventNetworkManager, errorManager: aroundManager.errorManager, placeDataManager: aroundManager.placeDataManager, eventDataManager: aroundManager.eventDataManager, catalogDataManager: aroundManager.catalogDataManager, commentsNetworkManager: aroundManager.commentsNetworkManager, searchDataManager: aroundManager.searchDataManager, notificationsManager: aroundManager.notificationsManager))
             case .user:
-                AppUserView(modelContext: modelContext, userNetworkManager: UserNetworkManager(networkMonitorManager: networkMonitor, appSettingsManager: appSettingsManager), placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, commentsNetworkManager: commentsNetworkManager)
+                AppUserView(modelContext: modelContext, userNetworkManager: UserNetworkManager(networkManager: authenticationManager.networkManager), placeNetworkManager: aroundManager.placeNetworkManager, eventNetworkManager: aroundManager.eventNetworkManager, errorManager: aroundManager.errorManager, placeDataManager: aroundManager.placeDataManager, eventDataManager: aroundManager.eventDataManager, commentsNetworkManager: aroundManager.commentsNetworkManager, notificationsManager: aroundManager.notificationsManager)
             case .admin:
                 if let user = authenticationManager.appUser, (user.status == .admin || user.status == .moderator) {
-                    AdminView(viewModel: AdminViewModel(user: user, errorManager: errorManager, networkManager: AdminNetworkManager(networkMonitorManager: networkMonitor, appSettingsManager: appSettingsManager)))
+                    AdminView(viewModel: AdminViewModel(user: user, errorManager: aroundManager.errorManager, networkManager: AdminNetworkManager(networkManager: authenticationManager.networkManager)))
                 } else {
                     EmptyView()
                 }
@@ -81,31 +78,9 @@ struct TabBarView: View {
             tabBar
         }
         .ignoresSafeArea(.keyboard, edges: .bottom)
-//        .alert(isPresented: $locationManager.isAlertIfLocationDeniedDisplayed) {
-//            Alert(title: Text("Location Access"),
-//                  message: Text("To provide accurate search results, this app needs access to your location. Would you like to go to Settings to enable location access?"),
-//                  primaryButton: .default(Text("Settings"), action: {
-//                selectedPage = .search
-//                guard let url = URL(string: UIApplication.openSettingsURLString) else {
-//                    return
-//                }
-//                UIApplication.shared.open(url)
-//            }),
-//                  secondaryButton: .default(Text("Cancel"), action: {
-//                selectedPage = .search
-//            }))
-//        }
-//        .onChange(of: locationManager.authorizationStatus) { oldValue, newValue in
-//            switch newValue {
-//            case .loading, .authorized:
-//                selectedPage = .home
-//            case .denied:
-//                selectedPage = .search
-//            }
-//        }
-        .onChange(of: authenticationManager.appUser?.photo, initial: true) { oldValue, newValue in
+        .onChange(of: authenticationManager.appUser?.photoUrl, initial: true) { _, newValue in
             guard let url = newValue else {
-                self.userImage = nil
+                self.userImage = AppImages.iconPerson
                 return
             }
             Task {
@@ -116,47 +91,68 @@ struct TabBarView: View {
                 }
             }
         }
+        .onChange(of: locationManager.userLocation, initial: true) { _, newValue in
+            if let userLocation = newValue {
+                getFromDb(userLocation: userLocation)
+                fetch(userLocation: userLocation)
+            } else {
+                if locationManager.lastLatitude != 0 && locationManager.lastLongitude != 0 {
+                    let userLocation = CLLocation(latitude: locationManager.lastLatitude, longitude: locationManager.lastLongitude)
+                    getFromDb(userLocation: userLocation)
+                }
+            }
+        }
     }
-
+    
+    // MARK: - Views
+    
+    @State private var homeButtonAnimation = false
+    @State private var userButtonAnimation = false
+    
     private var tabBar: some View {
         VStack(spacing: 0) {
             Divider()
             HStack(spacing: 40) {
-                TabBarButtonView(selectedPage: $selectedPage, button: homeButton)
+                Button {
+                    selectedPage = .home
+                    homeButtonAnimation.toggle()
+                    if let category = aroundManager.homeCategories.first {
+                        aroundManager.selectedHomeCategory = category
+                    }
+                } label: {
+                    AppImages.iconHome
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 25, height: 25)
+                        .symbolEffect(.bounce.up.byLayer, value: homeButtonAnimation == true)
+                        .tint(selectedPage == .home ? .blue : .primary)
+                      // .fontWeight(selectedPage == .home ? .bold : .regular)
+                        .bold()
+                }
                 TabBarButtonView(selectedPage: $selectedPage, button: catalogButton)
                 TabBarButtonView(selectedPage: $selectedPage, button: searchButton)
-                if let img = userImage {
+                if authenticationManager.appUser != nil {
                     Button {
                         selectedPage = .user
+                        userButtonAnimation.toggle()
                     } label: {
-                        img
+                        Image(systemName: "circle")
                             .resizable()
                             .scaledToFit()
-                            .frame(width: 22, height: 22)
-                            .clipShape(Circle())
-                            .padding(3)
+                            .frame(width: 28, height: 28)
+                            .tint(selectedPage != .user ? Color.primary : authenticationManager.isUserOnline ? .green : .red)
+                            .symbolEffect(.bounce.up.byLayer, value: userButtonAnimation == true)
                             .overlay(
-                                Circle()
-                                    .stroke(selectedPage == .user ? authenticationManager.isUserOnline ? .green : .red : AppColors.lightGray5, lineWidth: selectedPage == .user ? 3 : 2)
+                                    userImage
+                                        .resizable()
+                                        .scaledToFit()
+                                        .tint(selectedPage == .user ? .blue : .primary)
+                                        .clipShape(Circle())
+                                        .padding(4)
                             )
                     }
                 } else {
-                    Button {
-                        selectedPage = .user
-                    } label: {
-                        userButton.img
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: authenticationManager.appUser == nil ? 25 : 22, height: authenticationManager.appUser == nil ? 25 : 22)
-                            .clipShape(Circle())
-                            .foregroundColor(selectedPage == .user ? .primary : AppColors.lightGray5)
-                            .bold()
-                            .padding(authenticationManager.appUser == nil ? 0 : 3)
-                            .overlay(
-                                Circle()
-                                    .stroke(authenticationManager.appUser == nil ? .clear : selectedPage == .user ? authenticationManager.isUserOnline ? .green : .red : AppColors.lightGray5, lineWidth: selectedPage == .user ? 3 : 2)
-                            )
-                    }
+                    TabBarButtonView(selectedPage: $selectedPage, button: userButton)
                 }
                 if let user = authenticationManager.appUser, (user.status == .admin || user.status == .moderator) {
                     TabBarButtonView(selectedPage: $selectedPage, button: adminButton)
@@ -165,6 +161,154 @@ struct TabBarView: View {
             .padding(.top, 10)
             .padding(.horizontal)
             .padding(.bottom, 10)
+        }
+    }
+    
+    // MARK: - Private Functions
+    
+    private func fetch(userLocation: CLLocation) {
+        Task {
+            let message = "Something went wrong. The information didn't update. Please try again later."
+            do {
+                let result = try await aroundManager.fetch(userLocation: userLocation)
+                await MainActor.run {
+                    update(decodedResult: result, userLocation: userLocation)
+                }
+            } catch NetworkErrors.apiError(let error) {
+                if let error, error.show {
+                    aroundManager.errorManager.showError(model: ErrorModel(error: NetworkErrors.api, message: error.message))
+                } else {
+                    aroundManager.errorManager.showError(model: ErrorModel(error: NetworkErrors.api, message: message))
+                }
+            } catch {
+                aroundManager.errorManager.showError(model: ErrorModel(error: error, message: message))
+            }
+        }
+    }
+    
+    private func getFromDb(userLocation: CLLocation) {
+        Task {
+            let radius: Double = 30000
+            
+            let allPlaces = aroundManager.placeDataManager.getAllPlaces(modelContext: modelContext)
+            let allEvents = aroundManager.eventDataManager.getAllEvents(modelContext: modelContext)
+            
+            let aroundPlaces = await aroundManager.placeDataManager.getAroundPlaces(radius: radius, allPlaces: allPlaces, userLocation: userLocation)
+            let aroundEvents = await aroundManager.eventDataManager.getAroundEvents(radius: radius, allEvents: allEvents, userLocation: userLocation)
+            
+            if !aroundPlaces.isEmpty || !aroundEvents.isEmpty {
+                let groupedPlaces = await aroundManager.placeDataManager.createHomeGroupedPlaces(places: aroundPlaces)
+                let actualEvents = aroundManager.eventDataManager.getActualEvents(for: aroundEvents)
+                let todayEvents = aroundManager.eventDataManager.getTodayEvents(from: actualEvents)
+                let upcomingEvents = aroundManager.eventDataManager.getUpcomingEvents(from: actualEvents)
+                let eventsDatesWithoutToday = aroundManager.eventDataManager.getActiveDates(for: actualEvents)
+                let activeDates = aroundManager.eventDataManager.aroundDateEvents?.keys.sorted().filter( { $0.isFutureDay } )
+                await MainActor.run {
+                    aroundManager.todayEvents = todayEvents
+                    aroundManager.displayedEvents = upcomingEvents
+                    aroundManager.eventsCount = aroundManager.eventDataManager.aroundEventsCount ?? actualEvents.count
+                    aroundManager.groupedPlaces = groupedPlaces
+                    aroundManager.upcomingEvents = upcomingEvents
+                    aroundManager.aroundPlaces = aroundPlaces
+                    aroundManager.eventsDates = activeDates ?? eventsDatesWithoutToday
+                    aroundPlaces.forEach { place in
+                        let distance = userLocation.distance(from: CLLocation(latitude: place.latitude, longitude: place.longitude))
+                        place.getDistanceText(distance: distance, inKm: true)
+                    }
+                }
+                await aroundManager.updateCategories()
+            } else {
+                await MainActor.run {
+                    let cities = getCitiesAround(userLocation)
+                    aroundManager.citiesAround = cities
+                    aroundManager.isLocationsAround20Found = false
+                    if !cities.isEmpty {
+                        aroundManager.isLoading = false
+                    }
+                }
+            }
+        }
+    }
+    
+    private func getCitiesAround(_ location: CLLocation) -> [City] {
+        return aroundManager.catalogDataManager.getCitiesAround(count: 3, userLocation: location, modelContext: modelContext)
+    }
+    
+    private func update(decodedResult: AroundItemsResult, userLocation: CLLocation) {
+        if decodedResult.foundAround {
+            aroundManager.isLocationsAround20Found = true
+            let countries = aroundManager.catalogDataManager.updateCountries(decodedCountries: decodedResult.countries, modelContext: modelContext)
+            let regions = aroundManager.catalogDataManager.updateRegions(decodedRegions: decodedResult.regions, countries: countries, modelContext: modelContext)
+            let cities = aroundManager.catalogDataManager.updateCities(decodedCities: decodedResult.cities, regions: regions, modelContext: modelContext)
+            let places = aroundManager.placeDataManager.updatePlaces(decodedPlaces: decodedResult.places, for: cities, modelContext: modelContext)
+            let eventsItems = aroundManager.eventDataManager.updateEvents(decodedEvents: decodedResult.events, for: cities, modelContext: modelContext)
+            aroundManager.eventDataManager.aroundEventsCount = eventsItems.count
+            places.forEach { place in
+                let distance = userLocation.distance(from: CLLocation(latitude: place.latitude, longitude: place.longitude))
+                place.getDistanceText(distance: distance, inKm: true)
+            }
+            updateFetchedResult(places: places.sorted(by: { $0.name < $1.name }), events: eventsItems, userLocation: userLocation)
+        } else {
+            aroundManager.isLocationsAround20Found = false
+            let countries = aroundManager.catalogDataManager.updateCountries(decodedCountries: decodedResult.countries, modelContext: modelContext)
+            let regions = aroundManager.catalogDataManager.updateRegions(decodedRegions: decodedResult.regions, countries: countries, modelContext: modelContext)
+            let cities = aroundManager.catalogDataManager.updateCities(decodedCities: decodedResult.cities, regions: regions, modelContext: modelContext)
+            aroundManager.citiesAround = cities
+            aroundManager.isLoading = false
+        }
+    }
+    
+    private func updateFetchedResult(places: [Place], events: EventsItems, userLocation: CLLocation) {
+        Task {
+            let groupedPlaces = await aroundManager.placeDataManager.createHomeGroupedPlaces(places: places)
+            let todayEvents = events.today.sorted(by: { $0.id < $1.id })
+            let upcomingEvents = events.upcoming.sorted(by: { $0.id < $1.id }).sorted(by: { $0.startDate < $1.startDate })
+            let activeDates = events.allDates.keys.sorted().filter { date -> Bool in
+                if date.isFutureDay {
+                    return true
+                } else if date.isToday {/// this for Notifications
+                    let hour = Calendar.current.component(.hour, from: date)
+                    return hour < 6
+                } else {
+                    return false
+                }
+            }
+            await MainActor.run {
+                aroundManager.todayEvents = todayEvents
+                aroundManager.displayedEvents = upcomingEvents
+                aroundManager.eventsCount = events.count
+                aroundManager.eventsDates = activeDates
+                aroundManager.groupedPlaces = groupedPlaces
+                aroundManager.upcomingEvents = upcomingEvents
+                aroundManager.aroundPlaces = places
+                aroundManager.dateEvents = events.allDates
+                aroundManager.eventDataManager.aroundEventsCount = events.count
+                aroundManager.eventDataManager.aroundDateEvents = events.allDates
+            }
+            await aroundManager.updateCategories()
+            await MainActor.run {
+                aroundManager.isLoading = false
+            }
+            
+            let allPlaces = aroundManager.placeDataManager.getAllPlaces(modelContext: modelContext)
+            let allEvents = aroundManager.eventDataManager.getAllEvents(modelContext: modelContext)
+            
+            let aroundEvents = await aroundManager.eventDataManager.getAroundEvents(radius: 30000, allEvents: allEvents, userLocation: userLocation)
+            let oldEvents = aroundManager.eventDataManager.getActualEvents(for: aroundEvents)
+            let oldPlaces = await aroundManager.placeDataManager.getAroundPlaces(radius: 30000, allPlaces: allPlaces, userLocation: userLocation)
+            
+            let placesIDs = Set(places.map { $0.id })
+            let placesToDelete = oldPlaces.filter { !placesIDs.contains($0.id) }
+            
+            let eventsIDs = Set(events.allDates.values.flatMap { $0 })
+            let eventsToDelete = oldEvents.filter { !eventsIDs.contains($0.id) }
+            
+            await MainActor.run {
+                eventsToDelete.forEach( { print("---deleted event: ", $0.id)})
+                eventsToDelete.forEach( { modelContext.delete($0) } )
+                placesToDelete.forEach( { modelContext.delete($0) } )
+            }
+            aroundManager.notificationsManager.addAroundNotification(dates: activeDates)
         }
     }
 }

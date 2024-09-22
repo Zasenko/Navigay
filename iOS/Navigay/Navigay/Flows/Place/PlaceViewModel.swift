@@ -6,10 +6,13 @@
 //
 
 import SwiftUI
-
-import SwiftUI
 import SwiftData
 import MapKit
+
+struct PlaceItems {
+    let todayEvents: [Event]
+    let upcomingEvents: [Event]
+}
 
 extension PlaceView {
     
@@ -17,20 +20,25 @@ extension PlaceView {
     class PlaceViewModel {
         
         //MARK: - Properties
+        
         var isLoading: Bool = false
         
         var showHeaderTitle: Bool = false
         
         var modelContext: ModelContext
-        let place: Place
+        var place: Place
         var showOpenInfo: Bool
         
         var allPhotos: [String] = []
-        var showAddCommentButton: Bool = false
+        
         var comments: [DecodedComment] = []
-        var selectedTag: UUID? = nil /// for Map (big Pin) 
+        var isCommentsLoading = true
+        var showAddCommentView: Bool = false
+        var showRegistrationView: Bool = false
+        var showLoginView: Bool = false
 
-        var actualEvents: [Event] = []
+        var selectedTag: UUID? = nil /// for Map (big Pin)
+
         var todayEvents: [Event] = []
         var upcomingEvents: [Event] = []
         var displayedEvents: [Event] = []
@@ -52,9 +60,8 @@ extension PlaceView {
         
         let placeDataManager: PlaceDataManagerProtocol
         let eventDataManager: EventDataManagerProtocol
+        let notificationsManager: NotificationsManagerProtocol
         
-        
-        var showRegistrationView: Bool = false
         var showAddEventView: Bool = false
         var showEditView: Bool = false
         
@@ -68,6 +75,7 @@ extension PlaceView {
              placeDataManager: PlaceDataManagerProtocol,
              eventDataManager: EventDataManagerProtocol,
              commentsNetworkManager: CommentsNetworkManagerProtocol,
+             notificationsManager: NotificationsManagerProtocol,
              showOpenInfo: Bool) {
             self.place = place
             self.showOpenInfo = showOpenInfo
@@ -79,41 +87,116 @@ extension PlaceView {
             self.placeDataManager = placeDataManager
             self.eventDataManager = eventDataManager
             self.commentsNetworkManager = commentsNetworkManager
+            self.notificationsManager = notificationsManager
+            centerMapPin()
         }
         
         //MARK: - Functions
         
+        func centerMapPin() {
+            position = .camera(MapCamera(centerCoordinate: place.coordinate, distance: 1500))
+        }
+        
         func getEventsFromDB() {
-            if place.lastUpdateComplite == nil {
-                isLoading = true
-                Task {
-                    await fetchPlace()
-                }
+            allPhotos = place.getAllPhotos()
+            if let result = placeDataManager.loadedPlaces[place] {
+                self.todayEvents = result.todayEvents
+                self.displayedEvents = result.upcomingEvents
+                self.upcomingEvents = result.upcomingEvents
+                self.eventsDates = place.eventsDates
+                self.eventsCount = place.eventsCount
             } else {
                 Task {
                     let events = place.events.sorted(by: { $0.id < $1.id })
-                    
-                    let actualEvents = await self.eventDataManager.getActualEvents(for: events)
-                    let todayEvents = await eventDataManager.getTodayEvents(from: actualEvents)
-                    let upcomingEvents = await eventDataManager.getUpcomingEvents(from: actualEvents)
-                    let eventsDatesWithoutToday = await eventDataManager.getActiveDates(for: actualEvents)
-                    
+                    let actualEvents = eventDataManager.getActualEvents(for: events)
+                    let todayEvents = eventDataManager.getTodayEvents(from: actualEvents)
+                    let upcomingEvents = eventDataManager.getUpcomingEvents(from: actualEvents)
                     await MainActor.run {
-                        self.actualEvents = actualEvents
                         self.upcomingEvents = upcomingEvents
-                        self.eventsDates = eventsDatesWithoutToday
+                        self.eventsDates = place.eventsDates
+                        self.eventsCount = place.eventsCount
                         self.todayEvents = todayEvents
                         self.displayedEvents = upcomingEvents
                     }
-                    await fetchPlace()
+                   await fetchPlace()
+                }
+            }
+//            if place.lastUpdateComplite == nil {
+//                isLoading = true
+//                Task {
+//                    await fetchPlace()
+//                }
+//            } else {
+//                Task {
+//                    let events = place.events.sorted(by: { $0.id < $1.id })
+//                    let actualEvents = eventDataManager.getActualEvents(for: events)
+//                    let todayEvents = eventDataManager.getTodayEvents(from: actualEvents)
+//                    let upcomingEvents = eventDataManager.getUpcomingEvents(from: actualEvents)
+//                    await MainActor.run {
+//                        self.upcomingEvents = upcomingEvents
+//                        self.eventsDates = place.eventsDates
+//                        self.eventsCount = place.eventsCount
+//                        self.todayEvents = todayEvents
+//                        self.displayedEvents = upcomingEvents
+//                    }
+//                   await fetchPlace()
+//                }
+//            }
+        }
+        
+        func goToMaps() {
+            let coordinate = place.coordinate
+            let stringUrl = "maps://?saddr=&daddr=\(coordinate.latitude),\(coordinate.longitude)"
+            guard let url = URL(string: stringUrl) else { return }
+            UIApplication.shared.open(url)
+        }
+        
+        func showUpcomingEvents() {
+            displayedEvents = upcomingEvents
+        }
+        
+        func getEvents(for date: Date) {
+            let events = eventDataManager.getEvents(for: date, events: place.events)
+            displayedEvents = events
+            Task {
+                await fetchEvents(for: date)
+            }
+        }
+        
+        func fetchComments() {
+            if let comments = placeDataManager.loadedComments[place] {
+                self.comments = comments
+                isCommentsLoading = false
+            } else {
+                Task {
+                    let message = "Oops! Looks like the comments failed to load. Don't worry, we're actively working to resolve the issue."
+                    do {
+                        let decodedComments = try await commentsNetworkManager.fetchComments(placeID: place.id)
+                        let activeComments = decodedComments.filter( { $0.isActive } )
+                        placeDataManager.addLoadedComments(activeComments, for: place)
+                        await MainActor.run {
+                            comments = activeComments
+                            isCommentsLoading = false
+                        }
+                    } catch NetworkErrors.noConnection {
+                    } catch NetworkErrors.apiError(let apiError) {
+                        errorManager.showApiError(apiError: apiError, or: message, img: nil, color: nil)
+                    } catch {
+                        errorManager.showError(model: ErrorModel(error: error, message: message))
+                    }
                 }
             }
         }
         
+        // when reporting
+        func deleteComment(id: Int) {
+            comments.removeAll(where: { $0.id == id})
+            placeDataManager.deleteLoadedComment(id: id, for: place)
+        }
+        
+        //todo deleteComment + api
+        
         private func fetchPlace() async {
-            guard !placeNetworkManager.loadedPlaces.contains(where: { $0 ==  place.id } ) else {
-                return
-            }
             await MainActor.run {
                 isLoading = true
             }
@@ -122,6 +205,7 @@ extension PlaceView {
                 await MainActor.run {
                     updateFetchedResult(decodedPlace: decodedPlace)
                 }
+                return
             } catch NetworkErrors.noConnection {
             } catch NetworkErrors.apiError(let apiError) {
                 errorManager.showApiError(apiError: apiError, or: errorManager.updateMessage, img: nil, color: nil)
@@ -135,51 +219,44 @@ extension PlaceView {
         
         private func updateFetchedResult(decodedPlace: DecodedPlace) {
             placeDataManager.update(place: place, decodedPlace: decodedPlace, modelContext: modelContext)
-            /// чтобы фотографии не загружались несколько раз
-            /// todo! проверить и изменить логику
-            let newPhotosLinks = place.getAllPhotos()
-            for links in newPhotosLinks {
-                if !allPhotos.contains(where:  { $0 == links } ) {
-                    allPhotos.append(links)
+            allPhotos = place.getAllPhotos()
+            let eventsItems = eventDataManager.update(decodedEvents: decodedPlace.events, for: place, modelContext: modelContext)
+            Task {
+                let todayEventsSorted = eventsItems.today.sorted(by: { $0.id < $1.id })
+                let upcomingEventsSorted = eventsItems.upcoming.sorted(by: { $0.id < $1.id }).sorted(by: { $0.startDate < $1.startDate })
+                let activeDates = decodedPlace.events?.calendarDates?.compactMap( { $0.dateFromString(format: "yyyy-MM-dd") }) ?? []
+                await MainActor.run {
+                    self.todayEvents = todayEventsSorted
+                    self.displayedEvents = upcomingEventsSorted
+                    self.place.eventsCount = decodedPlace.events?.eventsCount ?? 0
+                    self.place.eventsDates = activeDates
+                    self.eventsCount = decodedPlace.events?.eventsCount ?? 0
+                    self.eventsDates = activeDates
+                    self.upcomingEvents = upcomingEventsSorted
+                    self.isLoading = false
                 }
+                placeDataManager.addLoadedPlace(place, with: PlaceItems(todayEvents: todayEventsSorted, upcomingEvents: upcomingEventsSorted))
             }
-            let events = eventDataManager.updateEvents(decodedEvents: decodedPlace.events, for: place, modelContext: modelContext)
-            updateEvents(events: events)
         }
         
-        private func updateEvents(events: [Event]) {
-            Task {
-                let actualEvents = await eventDataManager.getActualEvents(for: events.sorted(by: { $0.id < $1.id}))
-                let todayEvents = await eventDataManager.getTodayEvents(from: actualEvents)
-                let upcomingEvents = await eventDataManager.getUpcomingEvents(from: actualEvents)
-
-                let eventsDatesWithoutToday = await eventDataManager.getActiveDates(for: actualEvents)
-                
-                let eventsIDs = actualEvents.map( { $0.id } )
-                var eventsToDelete: [Event] = []
-                self.actualEvents.forEach { event in
-                    if !eventsIDs.contains(event.id) {
-                        eventsToDelete.append(event)
-                    }
+        private func fetchEvents(for date: Date) async {
+            let message = "Something went wrong. The information didn't update. Please try again later."
+            do {
+                let events = try await eventNetworkManager.fetchEvents(placeId: place.id, date: date)
+                await MainActor.run {
+                    let events = eventDataManager.update(decodedEvents: events, for: place, on: date, modelContext: modelContext)
+                    events.forEach( { eventDataManager.addLoadedCalendarEvents($0) } )
+                    self.displayedEvents = events
                 }
-                
-                await MainActor.run { [eventsToDelete] in
-                    eventsToDelete.forEach( { modelContext.delete($0) } )
-                    self.actualEvents = actualEvents
-                    self.upcomingEvents = upcomingEvents
-                    self.eventsDates = eventsDatesWithoutToday
-                    self.todayEvents = todayEvents
-                    self.displayedEvents = upcomingEvents
-                    self.eventsCount = actualEvents.count
+            } catch NetworkErrors.apiError(let error) {
+                if let error, error.show {
+                    errorManager.showError(model: ErrorModel(error: NetworkErrors.api, message: error.message))
+                } else {
+                    errorManager.showError(model: ErrorModel(error: NetworkErrors.api, message: message))
                 }
+            } catch {
+                errorManager.showError(model: ErrorModel(error: error, message: message))
             }
-        }
-
-        func goToMaps() {
-            let coordinate = place.coordinate
-            let stringUrl = "maps://?saddr=&daddr=\(coordinate.latitude),\(coordinate.longitude)"
-            guard let url = URL(string: stringUrl) else { return }
-            UIApplication.shared.open(url)
         }
     }
 }

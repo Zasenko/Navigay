@@ -14,22 +14,24 @@ extension EventView {
     @Observable
     final class EventViewModel {
         
-        //MARK: - Properties
+        // MARK: - Properties
         
         var modelContext: ModelContext
-        let event: Event
+        var event: Event
         var image: Image?
-        var showInfo: Bool = false
         var position: MapCameraPosition = .automatic
+        var selectedTag: UUID? = nil /// for Map (big Pin)
         let placeNetworkManager: PlaceNetworkManagerProtocol //?????????
         let eventNetworkManager: EventNetworkManagerProtocol
         let placeDataManager: PlaceDataManagerProtocol
         let eventDataManager: EventDataManagerProtocol
         let errorManager: ErrorManagerProtocol
         let commentsNetworkManager: CommentsNetworkManagerProtocol
+        let notificationsManager: NotificationsManagerProtocol
+        
         //MARK: - Inits
         
-        init(event: Event, modelContext: ModelContext, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol, placeDataManager: PlaceDataManagerProtocol, eventDataManager: EventDataManagerProtocol, commentsNetworkManager: CommentsNetworkManagerProtocol) {
+        init(event: Event, modelContext: ModelContext, placeNetworkManager: PlaceNetworkManagerProtocol, eventNetworkManager: EventNetworkManagerProtocol, errorManager: ErrorManagerProtocol, placeDataManager: PlaceDataManagerProtocol, eventDataManager: EventDataManagerProtocol, commentsNetworkManager: CommentsNetworkManagerProtocol, notificationsManager: NotificationsManagerProtocol) {
             self.event = event
             self.modelContext = modelContext
             self.eventNetworkManager = eventNetworkManager
@@ -38,17 +40,32 @@ extension EventView {
             self.placeDataManager = placeDataManager
             self.eventDataManager = eventDataManager
             self.commentsNetworkManager = commentsNetworkManager
-            position = .camera(MapCamera(centerCoordinate: event.coordinate, distance: 2000))
+            self.notificationsManager = notificationsManager
+            self.selectedTag = event.tag
+            centerMapPin()
             loadEvent()
         }
         
         //MARK: - Functions
         
+        func centerMapPin() {
+            position = .camera(MapCamera(centerCoordinate: event.coordinate, distance: 1500))
+        }
+        
+        func likeButtonTapped() {
+            event.isLiked.toggle()
+            if event.isLiked {
+                notificationsManager.addEventNotification(event: event)
+            } else {
+                notificationsManager.removeEventNotification(event: event)
+            }
+        }
+        
         func loadEvent() {
             debugPrint("loadEvent()")
             loadPoster()
             Task {
-                guard !eventNetworkManager.loadedEvents.contains(where: { $0 == event.id}) else {
+                guard !eventDataManager.loadedEvents.contains(where: { $0.id == event.id}) else {
                     return
                 }
                 do {
@@ -103,9 +120,10 @@ extension EventView {
                 }
             }
         }
-
+        
         private func updateEvent(decodedEvent: DecodedEvent) {
             event.updateEventComplete(decodedEvent: decodedEvent)
+            eventDataManager.addLoadedEvents(event)
             Task(priority: .high) {
                 if let url = event.poster {
                     if let image = await ImageLoader.shared.loadImage(urlString: url) {
@@ -124,23 +142,23 @@ extension EventView {
             }
         }
         private func updatePlace(decodedPlace: DecodedPlace) {
-                do {
-                    let descriptor = FetchDescriptor<Place>()
-                    let allPlaces = try modelContext.fetch(descriptor)
-                    var eventPlace: Place?
-                    if let place = allPlaces.first(where: { $0.id == decodedPlace.id} ) {
-                        place.updatePlaceIncomplete(decodedPlace: decodedPlace)
-                        updateTimeTable(timetable: decodedPlace.timetable, for: place)
-                        eventPlace = place
-                    } else {
-                        let place = Place(decodedPlace: decodedPlace)
-                        updateTimeTable(timetable: decodedPlace.timetable, for: place)
-                        eventPlace = place
-                    }
-                    event.place = eventPlace
-                } catch {
-                    debugPrint("ERROR - EventViewModel updatePlace id \(decodedPlace.id): ", error)
+            do {
+                let descriptor = FetchDescriptor<Place>()
+                let allPlaces = try modelContext.fetch(descriptor)
+                var eventPlace: Place?
+                if let place = allPlaces.first(where: { $0.id == decodedPlace.id} ) {
+                    place.updatePlaceIncomplete(decodedPlace: decodedPlace)
+                    placeDataManager.updateTimeTable(timetable: decodedPlace.timetable, for: place, modelContext: modelContext)
+                    eventPlace = place
+                } else {
+                    let place = Place(decodedPlace: decodedPlace)
+                    placeDataManager.updateTimeTable(timetable: decodedPlace.timetable, for: place, modelContext: modelContext)
+                    eventPlace = place
                 }
+                event.place = eventPlace
+            } catch {
+                debugPrint("ERROR - EventViewModel updatePlace id \(decodedPlace.id): ", error)
+            }
         }
         
         private func updateOwner(decodedUser: DecodedUser) {
@@ -158,19 +176,6 @@ extension EventView {
                 event.owner = eventOwner
             } catch {
                 debugPrint("ERROR - EventViewModel updateOwner id \(decodedUser.id): ", error)
-            }
-        }
-        
-        //TOD double
-        private func updateTimeTable(timetable: [PlaceWorkDay]?, for place: Place) {
-            let oldTimetable = place.timetable
-            place.timetable.removeAll()
-            oldTimetable.forEach( { modelContext.delete($0) })
-            if let timetable {
-                for day in timetable {
-                    let workingDay = WorkDay(workDay: day)
-                    place.timetable.append(workingDay)
-                }
             }
         }
     }

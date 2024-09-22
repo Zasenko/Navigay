@@ -12,7 +12,7 @@ import CoreLocation
 @Model
 final class Event {
     
-    let id: Int
+    private(set) var id: Int
     var name: String = ""
     var about: String? = nil
     
@@ -45,16 +45,10 @@ final class Event {
     
     var isLiked: Bool = false
     
-    @Transient
-    lazy var coordinate: CLLocationCoordinate2D = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
-    
-    @Transient
-    var tag: UUID = UUID()
-    
-    @Transient
-    var posterImg: Image?
-    @Transient
-    var smallPosterImg: Image?
+    @Transient lazy var coordinate: CLLocationCoordinate2D = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+    @Transient var tag: UUID = UUID()
+    @Transient var posterImg: Image?
+    @Transient var smallPosterImg: Image?
     
     init(decodedEvent: DecodedEvent) {
         self.id = decodedEvent.id
@@ -119,4 +113,16 @@ final class Event {
         
         lastUpdateComplite = lastUpdate
     }
+    
+//    func getLocationText() -> String {
+//        var string = ""
+//        if let location {
+//            string.append("\(location)  •  ")
+//        }
+//        string.append(address)
+//        if let city = city?.name {
+//            string.append("  •  \(city)")
+//        }
+//        return string
+//    }
 }

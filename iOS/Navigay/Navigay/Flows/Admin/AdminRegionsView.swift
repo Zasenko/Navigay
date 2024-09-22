@@ -63,7 +63,7 @@ struct AdminRegionsView: View {
                 ForEach(viewModel.regions) { region in
                     Section {
                         NavigationLink {
-                            EditRegionView(viewModel: EditRegionViewModel(id: region.id, countryId: viewModel.country.id, region: nil, user: viewModel.user, errorManager: viewModel.errorManager, networkManager: EditRegionNetworkManager(networkMonitorManager: authManager.networkMonitorManager)))
+                            EditRegionView(viewModel: EditRegionViewModel(id: region.id, countryId: viewModel.country.id, region: nil, user: viewModel.user, errorManager: viewModel.errorManager, networkManager: EditRegionNetworkManager(networkManager: authManager.networkManager)))
                         } label: {
                             HStack {
                                 VStack(alignment: .leading, spacing: 10) {

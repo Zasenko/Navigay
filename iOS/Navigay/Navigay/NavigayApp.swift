@@ -10,13 +10,13 @@ import SwiftData
 
 @main
 struct NavigayApp: App {
+    @Environment(\.scenePhase) private var scenePhase
     
-    var sharedModelContainer: ModelContainer = {
+    private var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             AppUser.self, Country.self, Region.self, City.self, Event.self, Place.self, User.self
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-
         do {
             return try ModelContainer(for: schema, configurations: [modelConfiguration])
         } catch {
@@ -29,5 +29,10 @@ struct NavigayApp: App {
             EntryView()
         }
         .modelContainer(sharedModelContainer)
+        .onChange(of: scenePhase) { _, newValue in
+            if newValue == .background {
+                try? sharedModelContainer.mainContext.save()
+            }
+        }
     }
 }

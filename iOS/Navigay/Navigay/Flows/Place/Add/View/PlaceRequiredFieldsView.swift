@@ -157,12 +157,12 @@ struct PlaceRequiredFieldsView: View {
     }
 }
 
-#Preview {
-    let decodetUser = DecodedAppUser(id: 0, name: "Test", email: "test@test.com", status: .admin, sessionKey: "000", bio: nil, photo: nil)
-    let user = AppUser(decodedUser: decodetUser)
-    let errorManager = ErrorManager()
-    let appSettingsManager = AppSettingsManager()
-    let networkMonitorManager = NetworkMonitorManager(errorManager: errorManager)
-    let networkManager = EditPlaceNetworkManager(networkMonitorManager: networkMonitorManager)
-    return PlaceRequiredFieldsView(viewModel: AddNewPlaceViewModel(networkManager: networkManager, errorManager: errorManager))
-}
+//#Preview {
+//    let decodetUser = DecodedAppUser(id: 0, name: "Test", email: "test@test.com", status: .admin, sessionKey: "000", bio: nil, photo: nil)
+//    let user = AppUser(decodedUser: decodetUser)
+//    let errorManager = ErrorManager()
+//    let appSettingsManager = AppSettingsManager()
+//    let networkMonitorManager = NetworkMonitorManager(errorManager: errorManager)
+//    let networkManager = EditPlaceNetworkManager(networkMonitorManager: networkMonitorManager)
+//    return PlaceRequiredFieldsView(viewModel: AddNewPlaceViewModel(networkManager: networkManager, errorManager: errorManager))
+//}

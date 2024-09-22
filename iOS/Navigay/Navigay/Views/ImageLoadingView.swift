@@ -42,9 +42,11 @@ struct ImageLoadingView<Content: View>: View {
             } else {
                 loadView()
                     .onAppear() {
-                        Task(priority: .high) {
+                        Task(priority: .userInitiated) {
                             if let image = await ImageLoader.shared.loadImage(urlString: url) {
-                                self.image = image
+                                await MainActor.run {
+                                    self.image = image
+                                }
                             }
                         }
                     }
@@ -54,9 +56,73 @@ struct ImageLoadingView<Content: View>: View {
     }
 }
 
+struct ImageFetchingView: View {
+    var body: some View {
+        AppColors.lightGray6
+    }
+}
+
+
+#Preview {
+    ImageFetchingView()
+}
+
 
 //#Preview {
 //    ImageLoadingView(url: "", width: .infinity, height: .infinity, contentMode: .fill) {
 //        Color.red
 //    }
 //}
+
+struct TabBarImageLoadingView<Content: View>: View {
+    
+    // MARK: - Properties
+    
+    let loadView: () -> Content  //todo change name and name in init LoadingView
+    
+    // MARK: - Private Properties
+    
+    @State private var image: Image?
+    @Binding private var url: String
+    let width: CGFloat?
+    let height: CGFloat?
+    let contentMode: ContentMode
+    
+    // MARK: - Init
+    
+    init(url: Binding<String>, width: CGFloat?, height: CGFloat?, contentMode: ContentMode, @ViewBuilder content: @escaping () -> Content) {
+        self.loadView = content
+        _url = url
+        self.width = width
+        self.height = height
+        self.contentMode = contentMode
+    }
+    
+    // MARK: - Body
+    
+    var body: some View {
+        ZStack {
+            loadView()
+            image?
+                .resizable()
+                .aspectRatio(contentMode: contentMode)
+        }
+        .frame(width: width, height: height)
+        .task(priority: .high) {
+            guard let image = await ImageLoader.shared.loadImage(urlString: url) else { return }
+            await MainActor.run {
+                self.image = image
+
+            }
+        }
+        .onChange(of: url) { _, newValue in
+            Task {
+                guard let image = await ImageLoader.shared.loadImage(urlString: newValue) else { return }
+                await MainActor.run {
+                    self.image = image
+
+                }
+            }
+        }
+    }
+}

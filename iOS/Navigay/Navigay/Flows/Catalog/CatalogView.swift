@@ -19,8 +19,8 @@ struct CatalogView: View {
     
     init(viewModel: CatalogViewModel) {
         _viewModel = State(initialValue: viewModel)
-        viewModel.getCountriesFromDB()
-        viewModel.fetchCountries()
+        self.viewModel.getCountriesFromDB()
+        self.viewModel.fetchCountries()
     }
     
     // MARK: - Body
@@ -59,7 +59,7 @@ struct CatalogView: View {
     private var allCountriesView: some View {
         ForEach(viewModel.countries) { country in
             NavigationLink {
-                CountryView(viewModel: CountryView.CountryViewModel(modelContext: viewModel.modelContext, country: country, catalogNetworkManager: viewModel.catalogNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, catalogDataManager: viewModel.catalogDataManager, commentsNetworkManager: viewModel.commentsNetworkManager))
+                CountryView(viewModel: CountryView.CountryViewModel(modelContext: viewModel.modelContext, country: country, catalogNetworkManager: viewModel.catalogNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, catalogDataManager: viewModel.catalogDataManager, commentsNetworkManager: viewModel.commentsNetworkManager, notificationsManager: viewModel.notificationsManager))
             } label: {
                 countryCell(country: country)
             }
@@ -78,16 +78,15 @@ struct CatalogView: View {
                         .font(.title2)
                         .frame(maxWidth: .infinity, alignment: .leading)
                     HStack {
-                        if country.eventsCount ?? 0 > 0 {
-                            Text(String(country.eventsCount ?? 0))
-                            + Text(country.eventsCount ?? 0 > 1 ? " events" : " event")
+                        if country.eventsCount > 0 {
+                            Text(String(country.eventsCount))
+                            + Text(country.eventsCount > 1 ? " events" : " event")
                         }
-                        if ((country.eventsCount ?? 0 > 0) && (country.placesCount ?? 0 > 0)) {
+                        if ((country.eventsCount > 0) && (country.placesCount > 0)) {
                             Text("•")
                         }
-                        if country.placesCount ?? 0 > 0 {
-                            Text(String(country.placesCount ?? 0))
-                            + Text(country.placesCount ?? 0 > 1 ? " places" : " place")
+                        if country.placesCount > 0 {
+                            Text(String(country.placesCount)) + Text(country.placesCount > 1 ? " places" : " place")
                         }
                     }
                     .font(.footnote)

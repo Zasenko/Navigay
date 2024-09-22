@@ -11,8 +11,6 @@ import SwiftData
 struct EventsView: View {
     
     var modelContext: ModelContext
-    
-    @EnvironmentObject private var authenticationManager: AuthenticationManager
     @Binding var selectedDate: Date?
     @Binding var displayedEvents: [Event]
   //  @Binding var actualEvents: [Event]
@@ -22,13 +20,14 @@ struct EventsView: View {
     @Binding var eventsDates: [Date]
     @Binding var selectedEvent: Event?
     
-    @State private var gridLayout: [GridItem] = Array(repeating: GridItem(.flexible(), spacing: 20, alignment: .top), count: 2)
+   // @State private var gridLayout: [GridItem] = Array(repeating: GridItem(.flexible(), spacing: 20, alignment: .top), count: 2)
     @Binding var showCalendar: Bool
     @Namespace private var animation
     
     let size: CGSize
     @State private var columns: Int = 2
-    
+    let showLocation: Bool
+
     var body: some View {
         Section {
             if todayEvents.count > 0 {
@@ -36,14 +35,14 @@ struct EventsView: View {
                     .font(.title2)
                     .bold()
                     .foregroundStyle(.primary)
-                    .frame(maxWidth: .infinity, alignment: .center)
                     .padding(.vertical)
+                    .frame(maxWidth: .infinity, alignment: .center)
                 if todayEvents.count == 1 {
                     ForEach(todayEvents) { event in
                         Button {
                             selectedEvent = event
                         } label: {
-                            EventCell(event: event, showCountryCity: false, showStartDayInfo: false, showStartTimeInfo: true)
+                            EventCell(event: event, showCountryCity: false, showStartDayInfo: false, showStartTimeInfo: true, showLike: true, showLocation: showLocation)
                                 .matchedGeometryEffect(id: "TodayEv\(event.id)", in: animation)
                         }
                         .frame(maxWidth: size.width / 2)
@@ -55,7 +54,7 @@ struct EventsView: View {
                         Button {
                             selectedEvent = event
                         } label: {
-                            EventCell(event: event, showCountryCity: false, showStartDayInfo: false, showStartTimeInfo: true)
+                            EventCell(event: event, showCountryCity: false, showStartDayInfo: false, showStartTimeInfo: true, showLike: true, showLocation: showLocation)
                                 .matchedGeometryEffect(id: "TodayEv\(event.id)", in: animation)
                         }
                     }
@@ -68,10 +67,9 @@ struct EventsView: View {
                         .font(.title2)
                         .bold()
                         .foregroundStyle(.primary)
-                        .frame(maxWidth: .infinity)
-                        .id("UpcomingEvents")
                         .padding()
                         .frame(maxWidth: .infinity)
+                        .id("UpcomingEvents")
                 if selectedDate != nil {
                     Text(selectedDate?.formatted(date: .long, time: .omitted) ?? "")
                         .font(.title3).bold()
@@ -84,7 +82,7 @@ struct EventsView: View {
                         Button {
                             selectedEvent = event
                         } label: {
-                            EventCell(event: event, showCountryCity: false, showStartDayInfo: true, showStartTimeInfo: false)
+                            EventCell(event: event, showCountryCity: false, showStartDayInfo: true, showStartTimeInfo: false, showLike: true, showLocation: showLocation)
                                 .matchedGeometryEffect(id: "DisplayedEv\(event.id)", in: animation)
                         }
                         .frame(maxWidth: size.width / 2)
@@ -96,7 +94,7 @@ struct EventsView: View {
                         Button {
                             selectedEvent = event
                         } label: {
-                            EventCell(event: event, showCountryCity: false, showStartDayInfo: true, showStartTimeInfo: false)
+                            EventCell(event: event, showCountryCity: false, showStartDayInfo: true, showStartTimeInfo: false, showLike: true, showLocation: showLocation)
                                 .matchedGeometryEffect(id: "DisplayedEv\(event.id)", in: animation)
                         }
                     }

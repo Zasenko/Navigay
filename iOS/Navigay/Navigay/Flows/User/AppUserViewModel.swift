@@ -16,7 +16,9 @@ extension AppUserView {
         var userImage: Image? = nil
         var isLoadingPhoto: Bool = false
         
-        var gridLayout: [GridItem] = Array(repeating: GridItem(.flexible(), spacing: 20), count: 2)
+        //var gridLayout: [GridItem] = Array(repeating: GridItem(.flexible(), spacing: 20), count: 2)
+        
+        var selectedEvent: Event? = nil
         
         var showTitle: Bool = false
         
@@ -37,6 +39,7 @@ extension AppUserView {
         let eventDataManager: EventDataManagerProtocol
         let errorManager: ErrorManagerProtocol
         let commentsNetworkManager: CommentsNetworkManagerProtocol
+        let notificationsManager: NotificationsManagerProtocol
         
         //MARK: - Init
         
@@ -47,7 +50,8 @@ extension AppUserView {
              userNetworkManager: UserNetworkManagerProtocol,
              placeDataManager: PlaceDataManagerProtocol,
              eventDataManager: EventDataManagerProtocol,
-             commentsNetworkManager: CommentsNetworkManagerProtocol) {
+             commentsNetworkManager: CommentsNetworkManagerProtocol,
+             notificationsManager: NotificationsManagerProtocol) {
             self.modelContext = modelContext
             self.eventNetworkManager = eventNetworkManager
             self.placeNetworkManager = placeNetworkManager
@@ -56,6 +60,7 @@ extension AppUserView {
             self.placeDataManager = placeDataManager
             self.eventDataManager = eventDataManager
             self.commentsNetworkManager = commentsNetworkManager
+            self.notificationsManager = notificationsManager
         }
         
         func deleteAccountButtonTapped(for user: AppUser) {
@@ -105,7 +110,7 @@ extension AppUserView {
                 do {
                     let url = try await userNetworkManager.updatePhoto(for: user, uiImage: scaledImage)
                     await MainActor.run {
-                        user.photo = url
+                        user.photoUrl = url
                         userImage = Image(uiImage: scaledImage)
                     }
                 } catch NetworkErrors.noConnection {
@@ -128,7 +133,7 @@ extension AppUserView {
                 do {
                     try await userNetworkManager.deletePhoto(for: user)
                     await MainActor.run {
-                        user.photo = nil
+                        user.photoUrl = nil
                         userImage = nil
                     }
                 } catch NetworkErrors.noConnection {

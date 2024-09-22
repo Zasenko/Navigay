@@ -19,7 +19,7 @@ struct CalendarView: View {
     
     @Environment(\.colorScheme) private var deviceColorScheme
 
-    private let days: [String] = ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"] //TODO!!!!!!!!!!!!!!!!!!!!!!
+    private let days: [String] = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
     
     init(selectedDate: Binding<Date?>, eventsDates: Binding<[Date]>) {
         _selectedDate = selectedDate
@@ -158,14 +158,14 @@ struct CalendarView: View {
     
     //TODO переименовать и поправить
     func extraDate() -> String {
-        let formatter = DateFormatter()
-        let phoneLanguage = NSLocale.preferredLanguages.first
-        let language = phoneLanguage ?? "en"
-        formatter.locale = Locale(identifier: language)
+//        let formatter = DateFormatter()
+//        let phoneLanguage = NSLocale.preferredLanguages.first
+//        let language = phoneLanguage ?? "en"
+//        formatter.locale = Locale(identifier: language)
         // formatter.dateFormat = "MM yyyy"
         
-        var calendar = Calendar.current
-        calendar.locale = Locale(identifier: language)
+        let calendar = Calendar.current
+       // calendar.locale = Locale(identifier: language)
         let components = calendar.dateComponents([.month, .year], from: currentDate)
         guard let month = components.month, let year = components.year else {
             return ""
@@ -210,16 +210,15 @@ struct RainbowBG: View {
 
 #Preview {
     let dateStrings = [
-        "2023-12-21 23:00:00 +0000",
-        "2023-12-22 23:00:00 +0000",
-
-        "2023-12-29 23:00:00 +0000",
-        "2023-12-30 23:00:00 +0000",
-        "2023-12-31 23:00:00 +0000",
-        "2024-06-04 23:00:00 +0000",
-        "2024-05-05 23:00:00 +0000",
-        "2024-05-06 23:00:00 +0000",
-        "2024-06-02 23:00:00 +0000"
+        "2024-12-21 23:00:00 +0000",
+        "2024-12-22 23:00:00 +0000",
+        "2024-12-29 23:00:00 +0000",
+        "2024-12-30 23:00:00 +0000",
+        "2024-12-31 23:00:00 +0000",
+        "2024-07-04 23:00:00 +0000",
+        "2024-07-05 23:00:00 +0000",
+        "2024-08-06 23:00:00 +0000",
+        "2024-07-02 23:00:00 +0000"
     ]
     let dateFormatter = DateFormatter()
     dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss Z"

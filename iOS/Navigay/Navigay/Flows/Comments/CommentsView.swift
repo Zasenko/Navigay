@@ -8,74 +8,85 @@
 import SwiftUI
 
 struct CommentsView: View {
-    
-    @StateObject var viewModel: CommentsViewModel
+        
+    @Binding var comments: [DecodedComment]
+    @Binding var isLoading: Bool
+    @Binding var showAddReviewView: Bool
+    @Binding var showRegistrationView: Bool
+    @Binding var showLoginView: Bool
+    var deleteComment: (Int) -> Void
 
+    private let size: CGSize
+    private let place: Place
+    private let noReviewsText = "Hey there! Looks like this place is waiting to be discovered. Share your thoughts and be the first to leave a review!"
+    private let errorManager: ErrorManagerProtocol
     @EnvironmentObject private var authenticationManager: AuthenticationManager
-//    let placeNetworkManager: PlaceNetworkManagerProtocol
-//    let errorManager: ErrorManagerProtocol
-//    
-//    let size: CGSize
-//    let place: Place
-//    
-//    @Binding var comments: [DecodedComment]
-//    
-//    private let firstReviewPrompt = "Hey there! Looks like this place is waiting to be discovered. Share your thoughts and be the first to leave a review!"
-//    private let firstReviewPrompts = [
-//        "Hey there! Looks like this place is waiting to be discovered. Share your thoughts and be the first to leave a review!",
-//        "Be the trailblazer! Drop a review for this place and let others know about your experience.",
-//        "Psst... the review section is feeling lonely. Care to share your thoughts and help others with your feedback?",
-//        "Ready to be a trendsetter? Leave the first review and pave the way for others!",
-//        "Silence is golden, but reviews are priceless! Be the first to break the silence and share your thoughts about this place."
-//    ]
-//    
-//    @State private var showAddReviewView: Bool = false
-//    @State private var showRegistrationView: Bool = false
-//    @State private var showLoginView: Bool = false
-    
+        
+    init(comments: Binding<[DecodedComment]>,
+         isLoading: Binding<Bool>,
+         showAddReviewView: Binding<Bool>,
+         showRegistrationView: Binding<Bool>,
+         showLoginView: Binding<Bool>,
+         size: CGSize,
+         place: Place, errorManager: ErrorManagerProtocol,
+         deleteComment: @escaping (Int) -> Void) {
+        _comments = comments
+        _isLoading = isLoading
+        _showAddReviewView = showAddReviewView
+        _showRegistrationView = showRegistrationView
+        _showLoginView = showLoginView
+        self.size = size
+        self.place = place
+        self.errorManager = errorManager
+        self.deleteComment = deleteComment
+    }
+
     var body: some View {
             Section {
                 HStack {
                     Text("Reviews")
-                        .font(.title)
-                        .foregroundStyle(.secondary)
+                        .font(.title2)
+                        .bold()
+                        .foregroundStyle(.primary)
                         .frame(maxWidth: .infinity, alignment: .leading)
                     if let user = authenticationManager.appUser, user.status != .blocked {
                         addReviewButton
-                        
                     }
                 }
                 .padding(.top, 50)
                 .padding(.bottom, 10)
                 .padding(.horizontal)
                 .frame(maxWidth: .infinity)
-                if viewModel.comments.isEmpty {
+                if comments.isEmpty {
                     HStack(alignment: .top, spacing: 10) {
                         AppImages.iconInfoBubble
                             .font(.title)
                             .foregroundStyle(.secondary)
-                        Text(viewModel.firstReviewPrompts.randomElement() ?? viewModel.firstReviewPrompt)
+                        Text(noReviewsText)
                             .font(.subheadline)
+                            .foregroundStyle(.secondary)
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }
                     .padding()
                 }
-                
                 if authenticationManager.appUser == nil {
                     authButtons
                 }
-                ForEach(viewModel.comments) { comment in
-                    commentView(comment: comment)
+                if isLoading {
+                   ProgressView()
+                        .frame(height: 50)
+                        .frame(maxWidth: .infinity)
+                } else {
+                    ForEach(comments) { comment in
+                        commentView(comment: comment)
+                    }
                 }
-            }
-            .onAppear {
-                viewModel.fetchComments()
             }
     }
     
     private var addReviewButton: some View {
         Button {
-            viewModel.showAddReviewView.toggle()
+            showAddReviewView.toggle()
         } label: {
             HStack(spacing: 4) {
                 AppImages.iconPlus
@@ -89,47 +100,39 @@ struct CommentsView: View {
             .background(AppColors.lightGray6)
             .clipShape(Capsule(style: .continuous))
         }
-        .sheet(isPresented: $viewModel.showAddReviewView) {
-            AddCommentView(viewModel: AddCommentViewModel(placeId: viewModel.place.id, networkManager: viewModel.commentsNetworkManager, errorManager: viewModel.errorManager))
-        }
     }
     
     private var authButtons: some View {
-        HStack {
-            Button {
-                viewModel.showLoginView = true
-            } label: {
-                Text("Log In")
-                    .font(.caption)
-                    .bold()
-                    .foregroundStyle(.blue)
-                    .padding()
-                    .background(AppColors.lightGray6)
-                    .clipShape(Capsule(style: .continuous))
-            }
-            .fullScreenCover(isPresented: $viewModel.showLoginView) {
-                LoginView(viewModel: LoginViewModel(email: nil)) {
-                    viewModel.showLoginView = false
+        VStack(spacing: 0) {
+            Text("To add a review, please log in or sign up.")
+                .font(.callout)
+            HStack {
+                Button {
+                    showLoginView = true
+                } label: {
+                    Text("Log In")
+                        .font(.caption)
+                        .bold()
+                        .foregroundStyle(.blue)
+                        .padding()
+                        .background(AppColors.lightGray6)
+                        .clipShape(Capsule(style: .continuous))
+                }
+                Button {
+                    showRegistrationView = true
+                } label: {
+                    Text("Sign up")
+                        .font(.caption)
+                        .bold()
+                        .foregroundStyle(.blue)
+                        .padding()
+                        .background(AppColors.lightGray6)
+                        .clipShape(Capsule(style: .continuous))
                 }
             }
-            Button {
-                viewModel.showRegistrationView = true
-            } label: {
-                Text("Registation")
-                    .font(.caption)
-                    .bold()
-                    .foregroundStyle(.blue)
-                    .padding()
-                    .background(AppColors.lightGray6)
-                    .clipShape(Capsule(style: .continuous))
-            }
-            .fullScreenCover(isPresented: $viewModel.showRegistrationView) {
-                RegistrationView(authenticationManager: authenticationManager, errorManager: authenticationManager.errorManager) {
-                    viewModel.showRegistrationView = false
-                }
-            }
+            .frame(maxWidth: .infinity)
+            .padding()
         }
-        .frame(maxWidth: .infinity)
         .padding()
         .padding(.bottom)
     }
@@ -147,15 +150,15 @@ struct CommentsView: View {
             }
             if let comment = comment.comment {
                 Text(comment)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .font(.callout)
+                    .foregroundStyle(.primary)
                     .multilineTextAlignment(.leading)
                     .frame(maxWidth: .infinity)
             }
             if let photos = comment.photos {
                 HStack {
                     ForEach(photos, id: \.self) { photo in
-                        ImageLoadingView(url: photo, width: viewModel.size.width / 4, height: viewModel.size.width / 4, contentMode: .fill) {
+                        ImageLoadingView(url: photo, width: size.width / 4, height: size.width / 4, contentMode: .fill) {
                             Color.orange
                         }
                         .clipShape(RoundedRectangle(cornerRadius: 20))
@@ -186,15 +189,10 @@ struct CommentsView: View {
                 
                 Menu {
                     NavigationLink("Report") {
-                        ReportView(viewModel: ReportViewModel(item: .comment, itemId: comment.id, reasons: [.inappropriateContent, .misleadingInformation, .spam, .other], user: authenticationManager.appUser, networkManager: ReportNetworkManager(networkMonitorManager: authenticationManager.networkMonitorManager), errorManager: viewModel.errorManager)) {
-                            viewModel.deleteComment(id: comment.id)
+                        ReportView(viewModel: ReportViewModel(item: .comment, itemId: comment.id, reasons: [.inappropriateContent, .misleadingInformation, .spam, .other], user: authenticationManager.appUser, networkManager: ReportNetworkManager(networkManager: authenticationManager.networkManager), errorManager: errorManager)) {
+                            deleteComment(comment.id)
                         }
                     }
-//                    Button{
-//                        
-//                    } label: {
-//                        Text("Report")
-//                    }                    
                 } label: {
                     AppImages.iconEllipsisRectangle
                         .font(.callout)

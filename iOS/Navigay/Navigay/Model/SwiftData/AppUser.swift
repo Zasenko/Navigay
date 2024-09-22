@@ -10,13 +10,12 @@ import SwiftData
 
 @Model
 final class AppUser {
-    let id: Int
+    private(set) var id: Int
     var email: String
     var name: String
     var status: UserAccessRights
     var bio: String?
-    var photo: String?
-    var sessionKey: String?
+    var photoUrl: String?
     
     var isUserLoggedIn: Bool = false
     
@@ -29,8 +28,7 @@ final class AppUser {
         self.name = decodedUser.name
         self.status = decodedUser.status
         self.bio = decodedUser.bio
-        self.photo = decodedUser.photo
-        self.sessionKey = decodedUser.sessionKey
+        self.photoUrl = decodedUser.photo
     }
     
     func updateUser(decodedUser: DecodedAppUser) {
@@ -38,7 +36,6 @@ final class AppUser {
         email = decodedUser.email
         status = decodedUser.status
         bio = decodedUser.bio
-        photo = decodedUser.photo
-        sessionKey = decodedUser.sessionKey
+        photoUrl = decodedUser.photo
     }
 }

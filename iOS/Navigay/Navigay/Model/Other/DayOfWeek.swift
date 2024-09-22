@@ -17,11 +17,13 @@ enum DayOfWeek: Int, Codable, CaseIterable {
          sunday = 7
     
     func getString() -> String {
-        var calendar = Calendar.current
-        let phoneLanguage = NSLocale.preferredLanguages.first
-        let language = phoneLanguage?.components(separatedBy: "-").first  ?? "en"
-        calendar.locale = Locale(identifier: language)
+        let calendar = Calendar.current
+       // let phoneLanguage = NSLocale.preferredLanguages.first
+      //  let language = phoneLanguage?.components(separatedBy: "-").first  ?? "en"
+      //  calendar.locale = Locale(identifier: language)
         switch self {
+        case .sunday:
+            return calendar.standaloneWeekdaySymbols[0]
         case .monday:
             return calendar.standaloneWeekdaySymbols[1]
         case .tuesday:
@@ -34,8 +36,6 @@ enum DayOfWeek: Int, Codable, CaseIterable {
             return calendar.standaloneWeekdaySymbols[5]
         case .saturday:
             return calendar.standaloneWeekdaySymbols[6]
-        case .sunday:
-            return calendar.standaloneWeekdaySymbols[0]
         }
     }
     
