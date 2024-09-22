@@ -16,7 +16,7 @@ struct EventView: View {
 
     @EnvironmentObject private var authenticationManager: AuthenticationManager
     @State private var viewModel: EventViewModel
-    @State private var show: Bool = false
+    @State private var show: Bool = true
     @Namespace private var namespace
     @State private var coverOffset = CGSize.zero
     private let smallCoverSize: CGFloat = 60
@@ -194,7 +194,7 @@ struct EventView: View {
                         .font(.title2).bold()
                         .frame(maxWidth: .infinity)
                         .padding()
-                    VStack(alignment: .leading, spacing: 10) {
+                  //  VStack(alignment: .leading, spacing: 10) {
                         if let owner = viewModel.event.owner {
                             HStack(spacing: 20) {
                                 if let url = owner.photoUrl {
@@ -229,45 +229,15 @@ struct EventView: View {
                             NavigationLink {
                                 PlaceView(viewModel: PlaceView.PlaceViewModel(place: place, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, commentsNetworkManager: viewModel.commentsNetworkManager, notificationsManager: viewModel.notificationsManager, showOpenInfo: false))
                             } label: {
-                                HStack(spacing: 20) {
-                                    if let url = place.avatarUrl {
-                                        ImageLoadingView(url: url, width: 50, height: 50, contentMode: .fill) {
-                                            AppColors.lightGray6
-                                        }
-                                        .background(.regularMaterial)
-                                        .clipShape(Circle())
-                                        .overlay(Circle().stroke(.ultraThinMaterial, lineWidth: 1))
-                                    } else {
-                                        if viewModel.event.owner != nil {
-                                            Color.clear
-                                                .frame(width: 50, height: 50)
-                                        }
-                                    }
-                                    
-                                    VStack(alignment: .leading, spacing: 4) {
-                                        HStack(spacing: 10) {
-                                            Text(place.name)
-                                                .multilineTextAlignment(.leading)
-                                                .font(.body)
-                                                .bold()
-                                                .foregroundColor(.primary)
-                                            AppImages.iconHeartFill
-                                                .font(.body)
-                                                .foregroundColor(.red)
-                                        }
-                                        Text(place.type.getName())
-                                            .font(.footnote)
-                                            .foregroundColor(.secondary)
-                                    }
-                                }
+                                PlaceCell(place: place, showOpenInfo: false, showDistance: false, showCountryCity: false, showLike: true, showType: true, showAddress: false)
                             }
                         }
-                    }
-                    .padding()
-                    .padding(.bottom, 50)
-                    .frame(maxWidth: .infinity, alignment: .center)
+                //    }
+//                    .padding()
+//                    .padding(.bottom, 50)
+//                    .frame(maxWidth: .infinity, alignment: .center)
                 }
-                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
                 .listRowSeparator(.hidden)
             }
             //TODO: - upcoming events from organizers
@@ -284,6 +254,10 @@ struct EventView: View {
             //
             //            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
             //            .listRowSeparator(.hidden)
+            
+            Color.clear
+                .frame(height: 50)
+                .listSectionSeparator(.hidden)
         }
         .listStyle(.plain)
         .listSectionSeparator(.hidden)
@@ -653,6 +627,8 @@ struct EventView: View {
     event.facebook = "fee information"
     event.instagram = "fee information"
     event.phone = "+4565566898"
+    let decodedPlace = DecodedPlace(id: 0, name: "HardOn", type: .bar, address: "Seyringer Strasse, 13", latitude: 48.19611791448819, longitude: 16.357055501725107, lastUpdate: "2023-11-19 08:00:45", avatar: "https://esx.bigo.sg/eu_live/2u4/1D4hHo.jpg", mainPhoto: nil, photos: nil, tags: nil, timetable: nil, otherInfo: nil, about: nil, www: nil, facebook: nil, instagram: nil, phone: nil, city: nil, cityId: nil, events: nil)
+    event.place = Place(decodedPlace: decodedPlace)
     var authenticationManager = AuthenticationManager(keychainManager: keychainManager, networkMonitorManager: networkMonitorManager, networkManager: networkManager, authNetworkManager: authNetworkManager, errorManager: errorManager)
     return EventView(viewModel: EventView.EventViewModel.init(event: event, modelContext: sharedModelContainer.mainContext, placeNetworkManager: placeNetworkManager, eventNetworkManager: eventNetworkManager, errorManager: errorManager, placeDataManager: placeDataManager, eventDataManager: eventDataManager, commentsNetworkManager: commentsNetworkManager, notificationsManager: notificationsManager))
         .environmentObject(authenticationManager)

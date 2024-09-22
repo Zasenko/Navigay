@@ -438,7 +438,9 @@ struct SearchView: View {
                 showOpenInfo: false,
                 showDistance: false,
                 showCountryCity: true,
-                showLike: true
+                showLike: true,
+                showType: false,
+                showAddress: true
             )
         }
     }

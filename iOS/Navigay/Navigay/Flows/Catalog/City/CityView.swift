@@ -211,7 +211,7 @@ struct CityView: View {
                     NavigationLink {
                         PlaceView(viewModel: PlaceView.PlaceViewModel(place: place, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, commentsNetworkManager: viewModel.commentsNetworkManager, notificationsManager: viewModel.notificationsManager, showOpenInfo: false))
                     } label: {
-                        PlaceCell(place: place, showOpenInfo: false, showDistance: false, showCountryCity: false, showLike: true)
+                        PlaceCell(place: place, showOpenInfo: false, showDistance: false, showCountryCity: false, showLike: true, showType: false, showAddress: true)
                     }
                 }
             }

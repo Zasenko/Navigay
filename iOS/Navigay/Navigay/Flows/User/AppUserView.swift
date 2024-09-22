@@ -354,7 +354,7 @@ struct AppUserView: View {
                 NavigationLink {
                     PlaceView(viewModel: PlaceView.PlaceViewModel(place: place, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, commentsNetworkManager: viewModel.commentsNetworkManager, notificationsManager: viewModel.notificationsManager, showOpenInfo: false))
                 } label: {
-                    PlaceCell(place: place, showOpenInfo: false, showDistance: false, showCountryCity: true, showLike: false)
+                    PlaceCell(place: place, showOpenInfo: false, showDistance: false, showCountryCity: true, showLike: false, showType: true, showAddress: true)
                 }
             }
         }

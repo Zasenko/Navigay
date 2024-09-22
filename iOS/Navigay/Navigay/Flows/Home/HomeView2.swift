@@ -212,7 +212,7 @@ struct HomeView: View {
                 NavigationLink {
                     PlaceView(viewModel: PlaceView.PlaceViewModel(place: place, modelContext: modelContext, placeNetworkManager: aroundManager.placeNetworkManager, eventNetworkManager: aroundManager.eventNetworkManager, errorManager: aroundManager.errorManager, placeDataManager: aroundManager.placeDataManager, eventDataManager: aroundManager.eventDataManager, commentsNetworkManager: aroundManager.commentsNetworkManager, notificationsManager: aroundManager.notificationsManager, showOpenInfo: true))
                 } label: {
-                    PlaceCell(place: place, showOpenInfo: aroundManager.isLocationsAround20Found ? true : false, showDistance: true, showCountryCity: aroundManager.isLocationsAround20Found ? false : true, showLike: true)
+                    PlaceCell(place: place, showOpenInfo: aroundManager.isLocationsAround20Found ? true : false, showDistance: true, showCountryCity: aroundManager.isLocationsAround20Found ? false : true, showLike: true, showType: false, showAddress: true)
                 }
             }
         }

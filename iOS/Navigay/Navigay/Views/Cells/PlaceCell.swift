@@ -15,6 +15,8 @@ struct PlaceCell: View {
     let showDistance: Bool
     let showCountryCity: Bool
     let showLike: Bool
+    let showType: Bool
+    let showAddress: Bool
     
     @State private var image: Image? = nil
 
@@ -37,27 +39,32 @@ struct PlaceCell: View {
                             .font(.body)
                             .bold()
                             .foregroundColor(.primary)
+                    if showType {
+                        Text(place.type.getName())
+                    }
                     if showOpenInfo && place.isOpenNow() {
                         Text("open now")
                             .bold()
                             .foregroundColor(.green)
                     }
-                    HStack(alignment: .top, spacing: 5) {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(place.address)
-                            if showCountryCity {
-                                HStack(spacing: 5) {
-                                    Text(place.city?.name ?? "")
-                                        .bold()
-                                    Text("•")
-                                    Text(place.city?.region?.country?.name ?? "")
+                    if showAddress {
+                        HStack(alignment: .top, spacing: 5) {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(place.address)
+                                if showCountryCity {
+                                    HStack(spacing: 5) {
+                                        Text(place.city?.name ?? "")
+                                            .bold()
+                                        Text("•")
+                                        Text(place.city?.region?.country?.name ?? "")
+                                    }
                                 }
                             }
-                        }
-                        if showDistance {
-                            HStack(alignment: .top, spacing: 5) {
-                                Text("•")
-                                Text(place.distanceText)
+                            if showDistance {
+                                HStack(alignment: .top, spacing: 5) {
+                                    Text("•")
+                                    Text(place.distanceText)
+                                }
                             }
                         }
                     }
