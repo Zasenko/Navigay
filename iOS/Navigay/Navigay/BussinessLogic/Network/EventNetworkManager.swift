@@ -60,8 +60,8 @@ extension EventEndPoints: EndPoint {
 }
 
 protocol EventNetworkManagerProtocol {
-    var loadedEvents: [Int] { get } // TODO!!!
-    var loadedCalendarEventsId: [Int] { get } // TODO!!!
+//    var loadedEvents: [Int] { get } // TODO!!!
+//    var loadedCalendarEventsId: [Int] { get } // TODO!!!
     func fetchEvent(id: Int) async throws -> DecodedEvent
     func fetchEvents(ids: [Int]) async throws -> DecodedSearchItems
     func fetchEvents(cityId: Int, date: Date) async throws -> [DecodedEvent]
@@ -74,8 +74,8 @@ final class EventNetworkManager {
     // MARK: - Propertie
     
     // TODO!!!
-    var loadedEvents: [Int] = []
-    var loadedCalendarEventsId: [Int] = []
+//    var loadedEvents: [Int] = []
+//    var loadedCalendarEventsId: [Int] = []
 
     // MARK: - Private Properties
     
@@ -103,7 +103,6 @@ extension EventNetworkManager: EventNetworkManagerProtocol {
         guard decodedResult.result, let decodedEvent = decodedResult.event else {
             throw NetworkErrors.apiError(decodedResult.error)
         }
-        loadedEvents.append(decodedEvent.id) // TODO!!!
         return decodedEvent
     }
     
@@ -114,7 +113,7 @@ extension EventNetworkManager: EventNetworkManagerProtocol {
         guard decodedResult.result, let decodedItems = decodedResult.items else {
             throw NetworkErrors.apiError(decodedResult.error)
         }
-        decodedItems.events?.forEach( { loadedCalendarEventsId.append($0.id) } )  // TODO!!!
+       // decodedItems.events?.forEach( { loadedCalendarEventsId.append($0.id) } )  // TODO!!!
         return decodedItems
     }
     
@@ -125,7 +124,6 @@ extension EventNetworkManager: EventNetworkManagerProtocol {
         guard decodedResult.result, let decodedEvents = decodedResult.events else {
             throw NetworkErrors.apiError(decodedResult.error)
         }
-        decodedEvents.forEach( { loadedCalendarEventsId.append($0.id) } )  // TODO!!!
         return decodedEvents
     }
     
@@ -136,7 +134,6 @@ extension EventNetworkManager: EventNetworkManagerProtocol {
         guard decodedResult.result, let decodedEvents = decodedResult.events else {
             throw NetworkErrors.apiError(decodedResult.error)
         }
-        decodedEvents.forEach( { loadedCalendarEventsId.append($0.id) } )  // TODO!!!
         return decodedEvents
     }
 }

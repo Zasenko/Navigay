@@ -12,7 +12,7 @@ import CoreLocation
 @Model
 final class Place {
     
-    let id: Int
+    private(set) var id: Int
     var name: String = ""
     var type: PlaceType = PlaceType.other
     var avatarUrl: String? = nil
@@ -151,7 +151,7 @@ final class Place {
 
 @Model
 final class WorkDay {
-    let id = UUID()
+    private(set) var id = UUID()
     var day: DayOfWeek
     var open: Date
     var close: Date

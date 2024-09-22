@@ -10,7 +10,7 @@ import SwiftData
 
 @Model
 final class User {
-    let id: Int
+    var id: Int
     var name: String = ""
     var bio: String? = nil
     var photoUrl: String? = nil

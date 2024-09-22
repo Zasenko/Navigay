@@ -188,6 +188,7 @@ extension CityView {
                 let events = try await eventNetworkManager.fetchEvents(cityId: city.id, date: date)
                 await MainActor.run {
                     let events = eventDataManager.update(decodedEvents: events, for: city, on: date, modelContext: modelContext)
+                    events.forEach( { eventDataManager.addLoadedCalendarEvents($0) } )
                     self.displayedEvents = events
                 }
             } catch NetworkErrors.apiError(let error) {

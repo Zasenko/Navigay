@@ -10,7 +10,7 @@ import SwiftData
 
 @Model
 final class Region {
-    let id: Int
+    private(set) var id: Int
     var name: String? = nil
     var country: Country? = nil
     var photo: String?

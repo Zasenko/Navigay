@@ -25,56 +25,8 @@ struct MapView: View {
     var body: some View {
         NavigationStack {
             ZStack(alignment: .bottom) {
-                Map(position: $viewModel.position, selection: $viewModel.selectedTag) {
-                    ForEach(viewModel.filteredPlaces) {
-                        Marker($0.name, monogram: Text($0.type.getImage()), coordinate: $0.coordinate)
-                            .tint(.primary)
-                            .tag($0.tag)
-                    }
-                    .annotationTitles(.hidden)
-                    ForEach(viewModel.filteredEvents) { event in
-                        Annotation(event.name, coordinate: event.coordinate, anchor: .bottom) {
-                            MapEventPin(event: event, selectedTag: $viewModel.selectedTag)
-                        }
-                        .tag(event.tag)
-                    }
-                    .annotationTitles(.hidden)
-                    if let userLocation = locationManager.userLocation {
-                        Marker("", monogram: Text("👤"), coordinate: userLocation.coordinate)
-                            .tint(Color.black)
-                            .annotationTitles(.hidden)
-                    }
-                    //                if let route {
-                    //                    MapPolyline(route)
-                    //                        .stroke(.blue, lineWidth: 5)
-                    //                }
-                }
-                .mapStyle(.standard(elevation: .flat, pointsOfInterest: .including([.publicTransport])))
-                .mapControlVisibility(.hidden)
-                VStack {
-                    if viewModel.showInfo {
-                        if let selectedEvent = viewModel.selectedEvent {
-                            // eventCell(event: selectedEvent)
-                            // .transition(.move(edge: .bottom).combined(with: .opacity))
-                            Button {
-                                self.selectedEvent = selectedEvent
-                            } label: {
-                                EventMapCell(event: selectedEvent, showDistance: true, showCountryCity: false, showLike: true)
-                            }
-                        } else if let selectedPlace = viewModel.selectedPlace {
-                            NavigationLink {
-                                PlaceView(viewModel: PlaceView.PlaceViewModel(place: selectedPlace, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, commentsNetworkManager: viewModel.commentsNetworkManager, notificationsManager: viewModel.notificationsManager, showOpenInfo: true))
-                            } label: {
-                                PlaceMapCell(place: selectedPlace, showOpenInfo: true, showDistance: true, showCountryCity: false, showLike: true)
-                                //  .transition(.move(edge: .bottom).combined(with: .opacity))
-                            }
-                        }
-                    }
-                }
-                .transition(.move(edge: .bottom))
-                .fullScreenCover(item: $selectedEvent) { event in
-                    EventView(viewModel: EventView.EventViewModel(event: event, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, commentsNetworkManager: viewModel.commentsNetworkManager, notificationsManager: viewModel.notificationsManager))
-                }
+                mapView
+                infoView
             }
             .toolbarBackground(.hidden, for: .navigationBar)
             .toolbarTitleDisplayMode(.inline)
@@ -95,7 +47,7 @@ struct MapView: View {
                     }
                 }
             }
-            .onChange(of: viewModel.selectedCategory, initial: true) { _, newValue in
+            .onChange(of: viewModel.selectedCategory, initial: false) { _, newValue in
                 viewModel.filterLocations(category: newValue)
             }
             .onChange(of: viewModel.selectedTag) { _, newValue in
@@ -115,6 +67,62 @@ struct MapView: View {
                     }
                 }
             }
+        }
+    }
+    
+    private var mapView: some View {
+        Map(position: $viewModel.position, selection: $viewModel.selectedTag) {
+            ForEach(viewModel.filteredPlaces) {
+                Marker($0.name, monogram: Text($0.type.getImage()), coordinate: $0.coordinate)
+                    .tint(.primary)
+                    .tag($0.tag)
+            }
+            .annotationTitles(.hidden)
+            ForEach(viewModel.filteredEvents) { event in
+                Annotation(event.name, coordinate: event.coordinate, anchor: .bottom) {
+                    MapEventPin(event: event, selectedTag: $viewModel.selectedTag)
+                }
+                .tag(event.tag)
+            }
+            .annotationTitles(.hidden)
+            if let userLocation = locationManager.userLocation {
+                Marker("", monogram: Text("👤"), coordinate: userLocation.coordinate)
+                    .tint(Color.black)
+                    .annotationTitles(.hidden)
+            }
+            //                if let route {
+            //                    MapPolyline(route)
+            //                        .stroke(.blue, lineWidth: 5)
+            //                }
+        }
+        .mapStyle(.standard(elevation: .flat, pointsOfInterest: .including([.publicTransport])))
+        .mapControlVisibility(.hidden)
+    }
+    
+    private var infoView: some View {
+        VStack {
+            if viewModel.showInfo {
+                if let selectedEvent = viewModel.selectedEvent {
+                    // eventCell(event: selectedEvent)
+                    // .transition(.move(edge: .bottom).combined(with: .opacity))
+                    Button {
+                        self.selectedEvent = selectedEvent
+                    } label: {
+                        EventMapCell(event: selectedEvent, showDistance: true, showCountryCity: false, showLike: true)
+                    }
+                } else if let selectedPlace = viewModel.selectedPlace {
+                    NavigationLink {
+                        PlaceView(viewModel: PlaceView.PlaceViewModel(place: selectedPlace, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, commentsNetworkManager: viewModel.commentsNetworkManager, notificationsManager: viewModel.notificationsManager, showOpenInfo: true))
+                    } label: {
+                        PlaceMapCell(place: selectedPlace, showOpenInfo: true, showDistance: true, showCountryCity: false, showLike: true)
+                        //  .transition(.move(edge: .bottom).combined(with: .opacity))
+                    }
+                }
+            }
+        }
+        .transition(.move(edge: .bottom))
+        .fullScreenCover(item: $selectedEvent) { event in
+            EventView(viewModel: EventView.EventViewModel(event: event, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, commentsNetworkManager: viewModel.commentsNetworkManager, notificationsManager: viewModel.notificationsManager))
         }
     }
 

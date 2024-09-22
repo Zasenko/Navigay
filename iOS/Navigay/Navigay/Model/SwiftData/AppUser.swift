@@ -10,7 +10,7 @@ import SwiftData
 
 @Model
 final class AppUser {
-    let id: Int
+    private(set) var id: Int
     var email: String
     var name: String
     var status: UserAccessRights

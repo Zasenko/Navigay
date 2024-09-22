@@ -11,8 +11,8 @@ import SwiftData
 @Model
 final class Country {
     
-    let id: Int
-    let isoCountryCode: String
+    private(set) var id: Int
+    private(set) var isoCountryCode: String
     
     var name: String = ""
     var flagEmoji: String = "🏳️‍🌈"

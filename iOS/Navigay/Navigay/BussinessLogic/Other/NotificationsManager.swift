@@ -92,44 +92,44 @@ extension NotificationsManager: NotificationsManagerProtocol {
             dateComponents.hour = 10
             dateComponents.minute = 0
         }
-        if let eventDate = calendar.date(from: dateComponents),
-           let finalDate = calendar.date(byAdding: .hour, value: -2, to: eventDate) {
-            let finalDateComponents = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: finalDate)
-            if let url = event.smallPoster,
-               let directory {
-                Task {
-                    guard let data = await ImageLoader.shared.loadData(urlString: url),
-                        let _ = UIImage(data: data) else {
-                        createCalendarNotification(title: event.name, body: "Don't miss! The event starts soon.", attachments: nil, dateComponents: finalDateComponents, identifier: identifier)
-                        return
-                    }
-                    DispatchQueue.main.async {
-                        if let fileURL = self.fileManager.saveImage(data: data, directory: directory, identifier: identifier) {
-                            do {
-                                let newAttachment = try UNNotificationAttachment(identifier: identifier, url: fileURL, options: nil)
-                                self.createCalendarNotification(title: event.name, body: "Don't miss! The event starts soon.", attachments: [newAttachment], dateComponents: finalDateComponents, identifier: identifier)
-                            } catch {
-                                print("Error creating notification attachment: \(error.localizedDescription)")
-                                self.createCalendarNotification(title: event.name, body: "Don't miss! The event starts soon.", attachments: nil, dateComponents: finalDateComponents, identifier: identifier)
-                            }
-                        } else {
-                            self.createCalendarNotification(title: event.name, body: "Don't miss! The event starts soon.", attachments: nil, dateComponents: finalDateComponents, identifier: identifier)
-                        }
-                    }
-                }
-            } else {
-                createCalendarNotification(title: event.name, body: "Don't miss! The event starts soon.", attachments: nil, dateComponents: finalDateComponents, identifier: identifier)
-            }
-        } else {
+//        if let eventDate = calendar.date(from: dateComponents),
+//           let finalDate = calendar.date(byAdding: .hour, value: -2, to: eventDate) {
+//            let finalDateComponents = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: finalDate)
+//            if let url = event.smallPoster,
+//               let directory {
+//                Task {
+//                    guard let data = await ImageLoader.shared.loadData(urlString: url),
+//                        let _ = UIImage(data: data) else {
+//                        createCalendarNotification(title: event.name, body: "Don't miss! The event starts soon.", attachments: nil, dateComponents: finalDateComponents, identifier: identifier)
+//                        return
+//                    }
+//                    DispatchQueue.main.async {
+//                        if let fileURL = self.fileManager.saveImage(data: data, directory: directory, identifier: identifier) {
+//                            do {
+//                                let newAttachment = try UNNotificationAttachment(identifier: identifier, url: fileURL, options: nil)
+//                                self.createCalendarNotification(title: event.name, body: "Don't miss! The event starts soon.", attachments: [newAttachment], dateComponents: finalDateComponents, identifier: identifier)
+//                            } catch {
+//                                print("Error creating notification attachment: \(error.localizedDescription)")
+//                                self.createCalendarNotification(title: event.name, body: "Don't miss! The event starts soon.", attachments: nil, dateComponents: finalDateComponents, identifier: identifier)
+//                            }
+//                        } else {
+//                            self.createCalendarNotification(title: event.name, body: "Don't miss! The event starts soon.", attachments: nil, dateComponents: finalDateComponents, identifier: identifier)
+//                        }
+//                    }
+//                }
+//            } else {
+//                createCalendarNotification(title: event.name, body: "Don't miss! The event starts soon.", attachments: nil, dateComponents: finalDateComponents, identifier: identifier)
+//            }
+//        } else {
             createCalendarNotification(title: event.name, body: "Don't miss! The event starts soon.", attachments: nil, dateComponents: dateComponents, identifier: identifier)
-        }
+      //  }
     }
         
     func removeEventNotification(event: Event) {
         let identifier = "EventNotification\(event.id)"
-        if let directory {
-            fileManager.removeImageFromDisk(directory: directory, identifier: identifier)
-        }
+//        if let directory {
+//            fileManager.removeImageFromDisk(directory: directory, identifier: identifier)
+//        }
         center.removePendingNotificationRequests(withIdentifiers: [identifier])
     }
 }

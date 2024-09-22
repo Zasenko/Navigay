@@ -12,7 +12,7 @@ import CoreLocation
 @Model
 final class Event {
     
-    let id: Int
+    private(set) var id: Int
     var name: String = ""
     var about: String? = nil
     

@@ -245,6 +245,7 @@ extension PlaceView {
                 let events = try await eventNetworkManager.fetchEvents(placeId: place.id, date: date)
                 await MainActor.run {
                     let events = eventDataManager.update(decodedEvents: events, for: place, on: date, modelContext: modelContext)
+                    events.forEach( { eventDataManager.addLoadedCalendarEvents($0) } )
                     self.displayedEvents = events
                 }
             } catch NetworkErrors.apiError(let error) {

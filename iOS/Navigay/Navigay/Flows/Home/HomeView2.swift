@@ -304,12 +304,8 @@ struct HomeView: View {
         var savedEvents: [Event] = []
         var newIds: [Int] = []
         ids.forEach { id in
-            if aroundManager.eventNetworkManager.loadedCalendarEventsId.contains(where: { $0 == id }) {
-                if let event = aroundManager.eventDataManager.getEvent(id: id, modelContext: modelContext) {
-                    savedEvents.append(event)
-                } else {
-                    newIds.append(id)
-                }
+            if let event = aroundManager.eventDataManager.loadedCalendarEvents.first(where: { $0.id == id }) {
+                savedEvents.append(event)
             } else {
                 newIds.append(id)
             }

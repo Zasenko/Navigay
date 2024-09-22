@@ -202,7 +202,7 @@ struct TabBarView: View {
                 let todayEvents = aroundManager.eventDataManager.getTodayEvents(from: actualEvents)
                 let upcomingEvents = aroundManager.eventDataManager.getUpcomingEvents(from: actualEvents)
                 let eventsDatesWithoutToday = aroundManager.eventDataManager.getActiveDates(for: actualEvents)
-                let activeDates = aroundManager.eventDataManager.dateEvents?.keys.sorted().filter( { $0.isFutureDay } )
+                let activeDates = aroundManager.eventDataManager.aroundDateEvents?.keys.sorted().filter( { $0.isFutureDay } )
                 await MainActor.run {
                     aroundManager.todayEvents = todayEvents
                     aroundManager.displayedEvents = upcomingEvents
@@ -283,7 +283,7 @@ struct TabBarView: View {
                 aroundManager.aroundPlaces = places
                 aroundManager.dateEvents = events.allDates
                 aroundManager.eventDataManager.aroundEventsCount = events.count
-                aroundManager.eventDataManager.dateEvents = events.allDates
+                aroundManager.eventDataManager.aroundDateEvents = events.allDates
             }
             await aroundManager.updateCategories()
             await MainActor.run {

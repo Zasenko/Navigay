@@ -11,8 +11,14 @@ import CoreLocation
 
 protocol EventDataManagerProtocol {
     
-    var aroundEventsCount: Int? { get set }
-    var dateEvents: [Date: [Int]]? { get set }
+    var aroundEventsCount: Int? { get set } // set?
+    var aroundDateEvents: [Date: [Int]]? { get set } // set?
+    
+    var loadedEvents: [Event] { get }
+    var loadedCalendarEvents: [Event] { get }
+    
+    func addLoadedEvents(_ event: Event)
+    func addLoadedCalendarEvents(_ event: Event)
     
     ///Sorted by id
     func getAllEvents(modelContext: ModelContext) -> [Event]
@@ -51,10 +57,20 @@ protocol EventDataManagerProtocol {
 
 final class EventDataManager: EventDataManagerProtocol {
     var aroundEventsCount: Int? = nil
-    var dateEvents: [Date: [Int]]? = nil
+    var aroundDateEvents: [Date: [Int]]? = nil
+    var loadedEvents: [Event] = []
+    var loadedCalendarEvents: [Event] = []
 }
 
 extension EventDataManager {
+    
+    func addLoadedEvents(_ event: Event) {
+        loadedEvents.append(event)
+    }
+    
+    func addLoadedCalendarEvents(_ event: Event) {
+        loadedCalendarEvents.append(event)
+    }
     
     func getAllEvents(modelContext: ModelContext) -> [Event] {
         do {

@@ -11,6 +11,7 @@ import MapKit
 
 //TODO: сообщить об ошибке (место закрыто, неправильная информация)
 // рейтинг заведения
+
 struct PlaceView: View {
     
     // MARK: - Private Properties
@@ -152,7 +153,6 @@ struct PlaceView: View {
                         TimetableView(place: viewModel.place, showOpenInfo: viewModel.showOpenInfo)
                     }
                     
-                    
                     Text("Information")
                     .font(.title2)
                     .bold()
@@ -161,7 +161,6 @@ struct PlaceView: View {
                     .padding(.top, 50)
                     .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                     .listRowSeparator(.hidden)
-
                     
                     if let otherInfo = viewModel.place.otherInfo {
                         Text(otherInfo)
@@ -172,7 +171,7 @@ struct PlaceView: View {
                             .listSectionSeparator(.hidden)
                     }
                     
-                    ContactInfoView(phone: $viewModel.place.phone, www: $viewModel.place.www, facebook: $viewModel.place.facebook, instagram: $viewModel.place.instagram, tickets: .constant(nil))
+                    ContactInfoView(phone: $viewModel.place.phone, www: $viewModel.place.www, facebook: $viewModel.place.facebook, instagram: $viewModel.place.instagram)
                         .listRowInsets(EdgeInsets(top: 50, leading: 20, bottom: 50, trailing: 20))
                         .listSectionSeparator(.hidden)
                     

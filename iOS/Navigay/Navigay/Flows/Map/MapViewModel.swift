@@ -48,6 +48,8 @@ final class MapViewModel: ObservableObject {
         self.eventDataManager = eventDataManager
         self.commentsNetworkManager = commentsNetworkManager
         self.notificationsManager = notificationsManager
+        filteredPlaces = places
+        filteredEvents = events
     }
 }
 

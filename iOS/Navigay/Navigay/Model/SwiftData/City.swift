@@ -10,7 +10,7 @@ import SwiftData
 
 @Model
 final class City {
-    let id: Int
+    private(set) var id: Int
     var name: String = ""
     var smallPhotoUrl: String? = nil
     var photoUrl: String? = nil
