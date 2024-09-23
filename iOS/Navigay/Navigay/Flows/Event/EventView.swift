@@ -16,7 +16,7 @@ struct EventView: View {
 
     @EnvironmentObject private var authenticationManager: AuthenticationManager
     @State private var viewModel: EventViewModel
-    @State private var show: Bool = true
+    @State private var show: Bool = false
     @Namespace private var namespace
     @State private var coverOffset = CGSize.zero
     private let smallCoverSize: CGFloat = 60
@@ -188,41 +188,18 @@ struct EventView: View {
                 .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                 .listRowSeparator(.hidden)
             }
-            if (viewModel.event.owner != nil || viewModel.event.place != nil) {
+            if (viewModel.event.organizer != nil || viewModel.event.place != nil) {
                 Section {
-                    Text(viewModel.event.owner != nil && viewModel.event.place != nil ? "Organizers" : "Organizer")
+                    Text(viewModel.event.organizer != nil && viewModel.event.place != nil ? "Organizers" : "Organizer")
                         .font(.title2).bold()
                         .frame(maxWidth: .infinity)
                         .padding()
                   //  VStack(alignment: .leading, spacing: 10) {
-                        if let owner = viewModel.event.owner {
-                            HStack(spacing: 20) {
-                                if let url = owner.photoUrl {
-                                    ImageLoadingView(url: url, width: 50, height: 50, contentMode: .fill) {
-                                        AppColors.lightGray6
-                                    }
-                                    .background(.regularMaterial)
-                                    .clipShape(Circle())
-                                    .overlay(Circle().stroke(.ultraThinMaterial, lineWidth: 1))
-                                } else {
-                                    if viewModel.event.place != nil {
-                                        Color.clear
-                                            .frame(width: 50, height: 50)
-                                    }
-                                }
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(owner.name)
-                                        .multilineTextAlignment(.leading)
-                                        .font(.body)
-                                        .bold()
-                                        .foregroundStyle(.primary)
-                                    if let bio = owner.bio {
-                                        Text(bio)
-                                            .font(.footnote)
-                                            .foregroundStyle(.secondary)
-                                            .multilineTextAlignment(.leading)
-                                    }
-                                }
+                        if let organizer = viewModel.event.organizer {
+                            NavigationLink {
+                                EmptyView()
+                            } label: {
+                                OrganizerCell(organizer: organizer, showCountryCity: false)
                             }
                         }
                         if let place = viewModel.event.place {
@@ -614,7 +591,17 @@ struct EventView: View {
                                     tags: nil,
                                     location: "Cafe Savoy",
                                     lastUpdate: "2023-11-16 17:26:12",
-                                    about: nil, fee: nil, tickets: nil, www: nil, facebook: nil, instagram: nil, phone: nil, place: nil, owner: nil, city: nil, cityId: nil)
+                                    about: nil,
+                                    fee: nil,
+                                    tickets: nil,
+                                    www: nil,
+                                    facebook: nil,
+                                    instagram: nil,
+                                    phone: nil,
+                                    place: nil,
+                                    organizer: nil,
+                                    city: nil,
+                                    cityId: nil)
     let event = Event(decodedEvent: decodedEvent)
     event.isLiked = true
     event.poster = "https://papik.pro/grafic/uploads/posts/2023-03/1680269471_papik-pro-p-tarantino-poster-1.jpg"//https://i.pinimg.com/originals/39/1e/a9/391ea9e2bb4de87e578d10cb2dd8c347.jpg"
@@ -627,6 +614,8 @@ struct EventView: View {
     event.facebook = "fee information"
     event.instagram = "fee information"
     event.phone = "+4565566898"
+    let decodedOrganizer = DecodedOrganizer(id: 0, name: "LMC Vienna", lastUpdate: "2023-12-02 12:00:00", avatar: "https://i.pinimg.com/originals/39/1e/a9/391ea9e2bb4de87e578d10cb2dd8c347.jpg", mainPhoto: nil, photos: nil, otherInfo: nil, about: nil, www: nil, facebook: nil, instagram: nil, phone: nil, city: nil, cityId: nil, events: nil)
+    event.organizer = Organizer(decodedOrganizer: decodedOrganizer)
     let decodedPlace = DecodedPlace(id: 0, name: "HardOn", type: .bar, address: "Seyringer Strasse, 13", latitude: 48.19611791448819, longitude: 16.357055501725107, lastUpdate: "2023-11-19 08:00:45", avatar: "https://esx.bigo.sg/eu_live/2u4/1D4hHo.jpg", mainPhoto: nil, photos: nil, tags: nil, timetable: nil, otherInfo: nil, about: nil, www: nil, facebook: nil, instagram: nil, phone: nil, city: nil, cityId: nil, events: nil)
     event.place = Place(decodedPlace: decodedPlace)
     var authenticationManager = AuthenticationManager(keychainManager: keychainManager, networkMonitorManager: networkMonitorManager, networkManager: networkManager, authNetworkManager: authNetworkManager, errorManager: errorManager)

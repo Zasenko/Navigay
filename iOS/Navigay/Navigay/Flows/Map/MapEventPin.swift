@@ -122,7 +122,7 @@ struct MapEventPin: View {
                                     tags: nil,
                                     location: "Cafe Savoy",
                                     lastUpdate: "2023-11-16 17:26:12",
-                                    about: nil, fee: nil, tickets: nil, www: nil, facebook: nil, instagram: nil, phone: nil, place: nil, owner: nil, city: nil, cityId: nil)
+                                    about: nil, fee: nil, tickets: nil, www: nil, facebook: nil, instagram: nil, phone: nil, place: nil, organizer: nil, city: nil, cityId: nil)
     let event = Event(decodedEvent: decodedEvent)
     event.isLiked = true
     // event.smallPosterImg = Image("13")

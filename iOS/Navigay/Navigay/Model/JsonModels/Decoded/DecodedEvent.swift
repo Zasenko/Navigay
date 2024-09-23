@@ -33,7 +33,7 @@ struct DecodedEvent: Identifiable, Codable {
         case facebook
         case instagram
         case phone
-        case owner
+        case organizer
         case place
         case city
         case cityId = "city_id"
@@ -63,7 +63,7 @@ struct DecodedEvent: Identifiable, Codable {
     let instagram: String?
     let phone: String?
     let place: DecodedPlace?
-    let owner: DecodedUser?
+    let organizer: DecodedOrganizer?
     let city: DecodedCity?
     let cityId: Int?
 }

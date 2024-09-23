@@ -39,7 +39,7 @@ final class Event {
     
     var city: City? = nil
     var place: Place? = nil
-    var owner: User? = nil
+    var organizer: Organizer? = nil
     var lastUpdateIncomplete: Date? = nil
     var lastUpdateComplite: Date? = nil
     

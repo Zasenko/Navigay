@@ -137,8 +137,8 @@ extension EventView {
             if let decodedPlace = decodedEvent.place {
                 updatePlace(decodedPlace: decodedPlace)
             }
-            if let owner = decodedEvent.owner {
-                updateOwner(decodedUser: owner)
+            if let organizer = decodedEvent.organizer {
+                updateOrganizer(decodedOrganizer: organizer)
             }
         }
         private func updatePlace(decodedPlace: DecodedPlace) {
@@ -161,21 +161,21 @@ extension EventView {
             }
         }
         
-        private func updateOwner(decodedUser: DecodedUser) {
+        private func updateOrganizer(decodedOrganizer: DecodedOrganizer) {
             do {
-                let descriptor = FetchDescriptor<User>()
-                let allUsers = try modelContext.fetch(descriptor)
-                var eventOwner: User?
-                if let owner = allUsers.first(where: { $0.id == decodedUser.id} ) {
-                    owner.updateUser(decodedUser: decodedUser)
-                    eventOwner = owner
-                } else {
-                    let owner = User(decodedUser: decodedUser)
-                    eventOwner = owner
-                }
-                event.owner = eventOwner
+                let descriptor = FetchDescriptor<Organizer>()
+                let all = try modelContext.fetch(descriptor)
+                var eventOrganizer: Organizer?
+//                if let organizer = all.first(where: { $0.id == decodedOrganizer.id} ) {
+//                    owner.updateUser(decodedUser: decodedUser)
+//                    eventOwner = owner
+//                } else {
+//                    let owner = User(decodedUser: decodedUser)
+//                    eventOwner = owner
+//                }
+                event.organizer = eventOrganizer
             } catch {
-                debugPrint("ERROR - EventViewModel updateOwner id \(decodedUser.id): ", error)
+                debugPrint("ERROR - EventViewModel updateOrganizer id \(decodedOrganizer.id): ", error)
             }
         }
     }

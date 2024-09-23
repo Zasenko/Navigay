@@ -139,13 +139,13 @@ final class Place {
         }
     }
     
-    func getCountryCityText() -> String? {
-        let countryName = city?.region?.country?.name
-        let countryText = countryName ?? ""
-        let cityName = city?.name
-        let cityText = cityName == nil ? "" : "  •  \(cityName ?? "")"
-        return "\(countryText)\(cityText)"
-    }
+//    func getCountryCityText() -> String? {
+//        let countryName = city?.region?.country?.name
+//        let countryText = countryName ?? ""
+//        let cityName = city?.name
+//        let cityText = cityName == nil ? "" : "  •  \(cityName ?? "")"
+//        return "\(countryText)\(cityText)"
+//    }
 }
 
 
