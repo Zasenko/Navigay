@@ -32,6 +32,7 @@ final class Organizer {
     var eventsDates: [Date] = []
     
     @Transient var avatar: Image?
+    @Transient var mainPhoto: Image?
 
     init(decodedOrganizer: DecodedOrganizer) {
         self.id = decodedOrganizer.id

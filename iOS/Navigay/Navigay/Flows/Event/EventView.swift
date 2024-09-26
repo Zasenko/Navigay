@@ -20,6 +20,7 @@ struct EventView: View {
     @Namespace private var namespace
     @State private var coverOffset = CGSize.zero
     private let smallCoverSize: CGFloat = 60
+    private let bigCoverInfoHeight: CGFloat = 75
     @Environment(\.dismiss) private var dismiss
     
     // MARK: - Init
@@ -307,7 +308,7 @@ struct EventView: View {
         VStack(spacing: 0) {
             Divider()
                 .padding(.bottom, 10)
-            HStack(spacing: 20) {
+            HStack(spacing: 10) {
                 viewModel.image?
                     .resizable()
                     .scaledToFit()
@@ -316,7 +317,7 @@ struct EventView: View {
                     .shadow(color: .black.opacity(0.2), radius: 0, x: 0, y: 0)
                     .matchedGeometryEffect(id: "img", in: namespace)
                     .frame(maxHeight: smallCoverSize)
-                compactTimeView
+                compactTimeView(bigCover: false)
             }
             .frame(maxWidth: .infinity)
             .padding(.horizontal)
@@ -351,82 +352,83 @@ struct EventView: View {
                     .padding(.horizontal)
                     .padding(.bottom)
                     .layoutPriority(1)
-                if let finishDate = viewModel.event.finishDate {
-                    if finishDate.isSameDayWithOtherDate(viewModel.event.startDate) {
-                        Text(viewModel.event.startDate.formatted(date: .long, time: .omitted))
-                            .font(.subheadline)
-                            .bold()
-                        HStack {
-                            if let startTime = viewModel.event.startTime {
-                                HStack(spacing: 5) {
-                                    AppImages.iconClock
-                                        .font(.callout)
-                                    Text(startTime.formatted(date: .omitted, time: .shortened))
-                                        .font(.callout)
-                                }
-                                .foregroundStyle(.secondary)
-                            }
-                            if let finishTime = viewModel.event.finishTime {
-                                Text("—")
-                                    .foregroundStyle(.secondary)
-                                    .frame(width: 20, alignment: .center)
-                                HStack(spacing: 5) {
-                                    AppImages.iconClock
-                                        .font(.callout)
-                                    Text(finishTime.formatted(date: .omitted, time: .shortened))
-                                        .font(.callout)
-                                }
-                                .foregroundStyle(.secondary)
-                            }
-                        }
-                    } else {
-                        HStack(alignment: .top) {
-                            VStack(spacing: 5) {
-                                Text(viewModel.event.startDate.formatted(date: .long, time: .omitted))
-                                    .font(.subheadline)
-                                    .bold()
-                                if let startTime = viewModel.event.startTime {
-                                    HStack(spacing: 5) {
-                                        AppImages.iconClock
-                                            .font(.callout)
-                                        Text(startTime.formatted(date: .omitted, time: .shortened))
-                                            .font(.callout)
-                                    }
-                                    .foregroundStyle(.secondary)
-                                }
-                            }
-                            Text("—")
-                                .frame(width: 20, alignment: .center)
-                            VStack(spacing: 5) {
-                                Text(finishDate.formatted(date: .long, time: .omitted))
-                                    .font(.subheadline)
-                                    .bold()
-                                if let finishTime = viewModel.event.finishTime {
-                                    HStack(spacing: 5) {
-                                        AppImages.iconClock
-                                            .font(.callout)
-                                        Text(finishTime.formatted(date: .omitted, time: .shortened))
-                                            .font(.callout)
-                                    }
-                                    .foregroundStyle(.secondary)
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    Text(viewModel.event.startDate.formatted(date: .long, time: .omitted))
-                        .font(.subheadline)
-                        .bold()
-                    if let startTime = viewModel.event.startTime {
-                        HStack(spacing: 5) {
-                            AppImages.iconClock
-                                .font(.callout)
-                            Text(startTime.formatted(date: .omitted, time: .shortened))
-                                .font(.callout)
-                        }
-                        .foregroundStyle(.secondary)
-                    }
-                }
+//                if let finishDate = viewModel.event.finishDate {
+//                    if finishDate.isSameDayWithOtherDate(viewModel.event.startDate) {
+//                        Text(viewModel.event.startDate.formatted(date: .long, time: .omitted))
+//                            .font(.subheadline)
+//                            .bold()
+//                        HStack {
+//                            if let startTime = viewModel.event.startTime {
+//                                HStack(spacing: 5) {
+//                                    AppImages.iconClock
+//                                        .font(.callout)
+//                                    Text(startTime.formatted(date: .omitted, time: .shortened))
+//                                        .font(.callout)
+//                                }
+//                                .foregroundStyle(.secondary)
+//                            }
+//                            if let finishTime = viewModel.event.finishTime {
+//                                Text("—")
+//                                    .foregroundStyle(.secondary)
+//                                    .frame(width: 20, alignment: .center)
+//                                HStack(spacing: 5) {
+//                                    AppImages.iconClock
+//                                        .font(.callout)
+//                                    Text(finishTime.formatted(date: .omitted, time: .shortened))
+//                                        .font(.callout)
+//                                }
+//                                .foregroundStyle(.secondary)
+//                            }
+//                        }
+//                    } else {
+//                        HStack(alignment: .top) {
+//                            VStack(spacing: 5) {
+//                                Text(viewModel.event.startDate.formatted(date: .long, time: .omitted))
+//                                    .font(.subheadline)
+//                                    .bold()
+//                                if let startTime = viewModel.event.startTime {
+//                                    HStack(spacing: 5) {
+//                                        AppImages.iconClock
+//                                            .font(.callout)
+//                                        Text(startTime.formatted(date: .omitted, time: .shortened))
+//                                            .font(.callout)
+//                                    }
+//                                    .foregroundStyle(.secondary)
+//                                }
+//                            }
+//                            Text("—")
+//                                .frame(width: 20, alignment: .center)
+//                            VStack(spacing: 5) {
+//                                Text(finishDate.formatted(date: .long, time: .omitted))
+//                                    .font(.subheadline)
+//                                    .bold()
+//                                if let finishTime = viewModel.event.finishTime {
+//                                    HStack(spacing: 5) {
+//                                        AppImages.iconClock
+//                                            .font(.callout)
+//                                        Text(finishTime.formatted(date: .omitted, time: .shortened))
+//                                            .font(.callout)
+//                                    }
+//                                    .foregroundStyle(.secondary)
+//                                }
+//                            }
+//                        }
+//                    }
+//                } else {
+//                    Text(viewModel.event.startDate.formatted(date: .long, time: .omitted))
+//                        .font(.subheadline)
+//                        .bold()
+//                    if let startTime = viewModel.event.startTime {
+//                        HStack(spacing: 5) {
+//                            AppImages.iconClock
+//                                .font(.callout)
+//                            Text(startTime.formatted(date: .omitted, time: .shortened))
+//                                .font(.callout)
+//                        }
+//                        .foregroundStyle(.secondary)
+//                    }
+//                }
+                compactTimeView(bigCover: true)
             }
             Spacer()
             Image(systemName: "chevron.compact.up")
@@ -443,25 +445,25 @@ struct EventView: View {
         }
     }
         
-    private var compactTimeView: some View {
+    private func compactTimeView(bigCover: Bool) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             
             HStack(alignment: .top, spacing: 10) {
                 VStack(spacing: 0) {
                     AppImages.iconCalendar
-                        .frame(height: smallCoverSize / 3)
+                        .frame(height: (bigCover ? bigCoverInfoHeight : smallCoverSize) / 3)
                     if viewModel.event.startTime != nil {
                         AppImages.iconClock
-                            .frame(height: smallCoverSize / 3)
+                            .frame(height: (bigCover ? bigCoverInfoHeight : smallCoverSize) / 3)
                     }
                 }
-                HStack(alignment: .top, spacing: 20) {
+                HStack(alignment: .top, spacing: 10) {
                     if viewModel.event.finishDate == nil || viewModel.event.startDate.isSameDayWithOtherDate(viewModel.event.finishDate) {
                         VStack(alignment: .leading, spacing: 0) {
                             Text(viewModel.event.startDate.formatted(.dateTime.day().month(.wide)))
                                 .foregroundStyle(.primary)
                                 .bold()
-                                .frame(height: smallCoverSize / 3)
+                                .frame(height: (bigCover ? bigCoverInfoHeight : smallCoverSize) / 3)
                             if viewModel.event.startTime != nil || viewModel.event.finishTime != nil {
                                 HStack(spacing: 5) {
                                     Text(viewModel.event.startTime?.formatted(date: .omitted, time: .shortened) ?? "...")
@@ -470,7 +472,7 @@ struct EventView: View {
                                         Text(viewModel.event.finishTime?.formatted(date: .omitted, time: .shortened) ?? "")
                                     }
                                 }
-                                .frame(height: smallCoverSize / 3)
+                                .frame(height: (bigCover ? bigCoverInfoHeight : smallCoverSize) / 3)
                             }
                         }
                     } else {
@@ -478,31 +480,31 @@ struct EventView: View {
                             Text(viewModel.event.startDate.formatted(.dateTime.day().month(.wide)))
                                 .foregroundStyle(.primary)
                                 .bold()
-                                .frame(height: smallCoverSize / 3)
+                                .frame(height: (bigCover ? bigCoverInfoHeight : smallCoverSize) / 3)
                             
                             if viewModel.event.startTime != nil {
                                 Text(viewModel.event.startTime?.formatted(date: .omitted, time: .shortened) ?? "")
                                     .foregroundStyle(.primary).bold()
-                                    .frame(height: smallCoverSize / 3)
+                                    .frame(height: (bigCover ? bigCoverInfoHeight : smallCoverSize) / 3)
                             }
                         }
                         Divider()
-                            .frame(height: (viewModel.event.startTime != nil || viewModel.event.finishTime != nil) ? (smallCoverSize / 3) * 2 : smallCoverSize / 3)
+                            .frame(height: (viewModel.event.startTime != nil || viewModel.event.finishTime != nil) ? ((bigCover ? bigCoverInfoHeight : smallCoverSize) / 3) * 2 : (bigCover ? bigCoverInfoHeight : smallCoverSize) / 3)
                         HStack(alignment: .top, spacing: 10) {
                             VStack(spacing: 0) {
                                 AppImages.iconCalendar
-                                    .frame(height: smallCoverSize / 3)
+                                    .frame(height: (bigCover ? bigCoverInfoHeight : smallCoverSize) / 3)
                                 if viewModel.event.finishTime != nil {
                                     AppImages.iconClock
-                                        .frame(height: smallCoverSize / 3)
+                                        .frame(height: (bigCover ? bigCoverInfoHeight : smallCoverSize) / 3)
                                 }
                             }
                             VStack(alignment: .leading, spacing: 0) {
                                 Text(viewModel.event.finishDate?.formatted(.dateTime.day().month(.wide)) ?? "")
-                                    .frame(height: smallCoverSize / 3)
+                                    .frame(height: (bigCover ? bigCoverInfoHeight : smallCoverSize) / 3)
                                 if viewModel.event.finishTime != nil {
                                     Text(viewModel.event.finishTime?.formatted(date: .omitted, time: .shortened) ?? "")
-                                        .frame(height: smallCoverSize / 3)
+                                        .frame(height: (bigCover ? bigCoverInfoHeight : smallCoverSize) / 3)
                                 }
                             }
                         }
@@ -510,18 +512,20 @@ struct EventView: View {
                 }
             }
             .foregroundStyle(.secondary)
-            .font(.caption)
+           // .font(.caption)
             if viewModel.event.location != nil {
                 HStack(spacing: 10) {
                     AppImages.iconLocationFill
                     Text(viewModel.event.location ?? "")
+                        .foregroundStyle(.primary)
                         .lineLimit(1)
+                        .frame(width: bigCover ? .infinity : nil)
                 }
-                .frame(height: smallCoverSize / 3)
+                .frame(height: (bigCover ? bigCoverInfoHeight : smallCoverSize) / 3)
             }
         }
         .foregroundStyle(.secondary)
-        .font(.caption)
+        .font(bigCover ? .callout : .caption)
     }
     
     // MARK: - Gesture
@@ -578,9 +582,9 @@ struct EventView: View {
     let decodedEvent = DecodedEvent(id: 0,
                                     name: "HARD ON party this Saturday",
                                     type: .party,
-                                    startDate: "2024-04-23",
+                                    startDate: "2024-09-23",
                                     startTime: "13:34:00",
-                                    finishDate: "2024-04-24",
+                                    finishDate: "2024-09-24",
                                     finishTime: "19:20:00",
                                     address: "Kaertner Strasse, 47",
                                     latitude: 48.6,
@@ -604,7 +608,7 @@ struct EventView: View {
                                     cityId: nil)
     let event = Event(decodedEvent: decodedEvent)
     event.isLiked = true
-    event.poster = "https://papik.pro/grafic/uploads/posts/2023-03/1680269471_papik-pro-p-tarantino-poster-1.jpg"//https://i.pinimg.com/originals/39/1e/a9/391ea9e2bb4de87e578d10cb2dd8c347.jpg"
+    event.poster = "https://mir-s3-cdn-cf.behance.net/project_modules/hd/62804b18669443.562cd567cbcd8.jpg"//https://papik.pro/grafic/uploads/posts/2023-03/1680269471_papik-pro-p-tarantino-poster-1.jpg"//https://i.pinimg.com/originals/39/1e/a9/391ea9e2bb4de87e578d10cb2dd8c347.jpg"
     event.about = "It hides successfully, but I cannot get it to re-enable it when the user navigates back to the parent. I think this is because when the user goes backwards in the navigation the parent view does not get refreshed. How did you solve this issue?"
     event.tags = [.bar, .pool, .dj, .dragShow, .adultsOnly, .gayFriendly]
     event.www = "www.google.com"

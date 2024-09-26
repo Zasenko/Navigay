@@ -37,7 +37,7 @@ final class AddNewPlaceViewModel: ObservableObject {
     @Published var isChecked: Bool = false
     @Published var showMap: Bool = false
     @Published var isLoading: Bool = false
-    @Published var showEditView: Bool = false
+    @Published var showEditView: Bool = false // todo why?
     
     let errorManager: ErrorManagerProtocol
     let networkManager: EditPlaceNetworkManagerProtocol
@@ -141,6 +141,6 @@ extension AddNewPlaceViewModel {
         isChecked = false
         showMap = false
         isLoading = false
-        showEditView = false
+        showEditView = false // tod why?
     }
 }

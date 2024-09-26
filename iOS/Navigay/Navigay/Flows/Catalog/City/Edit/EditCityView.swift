@@ -203,10 +203,10 @@ struct EditCityView: View {
 
 struct Location {
     let isoCountryCode: String
-    let countryEnglish: String?
-    let regionEnglish: String?
-    let cityEnglish: String?
-    let addressOrigin: String?
+    let countryEnglish: String
+    let regionEnglish: String
+    let cityEnglish: String
+    let addressOrigin: String
     let latitude: Double
     let longitude: Double
 }
@@ -283,7 +283,7 @@ struct AddLocationView2: View {
                         if isoCountryCode != nil, latitude != nil, longitude != nil {
                             Button {
                                 guard let isoCountryCode, let latitude, let longitude else { return }
-                                let location = Location(isoCountryCode: isoCountryCode, countryEnglish: countryEnglish, regionEnglish: regionEnglish, cityEnglish: cityEnglish, addressOrigin: addressOrigin, latitude: latitude, longitude: longitude)
+                                let location = Location(isoCountryCode: isoCountryCode, countryEnglish: countryEnglish ?? "", regionEnglish: regionEnglish ?? "", cityEnglish: cityEnglish ?? "", addressOrigin: addressOrigin ?? "", latitude: latitude, longitude: longitude)
                                 onSave(location)
                             } label: {
                                 Text("Done")

@@ -70,8 +70,7 @@ extension OrganizerView {
              commentsNetworkManager: CommentsNetworkManagerProtocol,
              notificationsManager: NotificationsManagerProtocol,
              placeNetworkManager: PlaceNetworkManagerProtocol,
-             placeDataManager: PlaceDataManagerProtocol,
-             showOpenInfo: Bool) {
+             placeDataManager: PlaceDataManagerProtocol) {
             self.organizer = organizer
             self.modelContext = modelContext
             self.eventNetworkManager = eventNetworkManager
@@ -180,14 +179,14 @@ extension OrganizerView {
         //todo deleteComment + api
         
         private func fetchOrganizer() async {
-            await MainActor.run {
-                isLoading = true
-            }
+//            await MainActor.run {
+//                isLoading = true
+//            }
             do {
-                let decodedOrganizer = try await organizerNetworkManager.fetchOrganizer(id: organizer.id)
-                await MainActor.run {
+               // let decodedOrganizer = try await organizerNetworkManager.fetchOrganizer(id: organizer.id)
+              //  await MainActor.run {
                //     updateFetchedResult(decodedOrganizer: decodedOrganizer)
-                }
+              //  }
                 return
             } catch NetworkErrors.noConnection {
             } catch NetworkErrors.apiError(let apiError) {

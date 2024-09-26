@@ -78,6 +78,26 @@ struct TabBarView: View {
             tabBar
         }
         .ignoresSafeArea(.keyboard, edges: .bottom)
+        .onAppear {
+            let allEvents = aroundManager.eventDataManager.getAllEvents(modelContext: modelContext)
+            let pastEvents = allEvents.filter { event in
+                if let finishDate = event.finishDate, finishDate.isPastDate {
+                    return true
+                } else if event.startDate.isPastDate {
+                    return true
+                } else {
+                    return false
+                }
+            }
+            pastEvents.forEach( { modelContext.delete($0) } )
+                // AppUser.liked events delete
+            // event delete from Place?
+            // event delete from  ????????
+            // remove Event Notification?
+            
+            // remove city events if city in event
+            
+        }
         .onChange(of: authenticationManager.appUser?.photoUrl, initial: true) { _, newValue in
             guard let url = newValue else {
                 self.userImage = AppImages.iconPerson

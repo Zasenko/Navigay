@@ -1,23 +1,23 @@
 //
-//  AddNewPlaceView.swift
+//  AddOrganizerView.swift
 //  Navigay
 //
-//  Created by Dmitry Zasenko on 19.10.23.
+//  Created by Dmitry Zasenko on 23.09.24.
 //
 
 import SwiftUI
 
-struct NewPlaceView: View {
+struct AddOrganizerView: View {
     
     // MARK: - Private Properties
     
-    @StateObject private var viewModel: AddNewPlaceViewModel
+    @StateObject private var viewModel: AddOrganizerViewModel
     @EnvironmentObject private var authenticationManager: AuthenticationManager
     @Environment(\.dismiss) private var dismiss
     
     // MARK: - Init
     
-    init(viewModel: AddNewPlaceViewModel) {
+    init(viewModel: AddOrganizerViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel)
     }
     
@@ -34,7 +34,7 @@ struct NewPlaceView: View {
             .toolbarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .principal) {
-                    Text("New place")
+                    Text("New Organizer")
                         .font(.headline.bold())
                 }
                 ToolbarItem(placement: .topBarLeading) {
@@ -55,25 +55,19 @@ struct NewPlaceView: View {
                     } else {
                         Button("Add") {
                             guard let user = authenticationManager.appUser else { return }
-                            viewModel.addNewPlace(from: user)
+                            viewModel.add(from: user)
                         }
                         .bold()
                         .disabled(viewModel.name.isEmpty)
-                        .disabled(viewModel.addressOrigin.isEmpty == true)
-                        .disabled(viewModel.type == nil)
-                        .disabled(viewModel.longitude == nil)
-                        .disabled(viewModel.latitude == nil)
                     }
                 }
             }
             .disabled(viewModel.isLoading)
             .navigationDestination(item: $viewModel.id) { id in
                 if let user = authenticationManager.appUser {
-                    EditPlaceView(viewModel: EditPlaceViewModel(id: id, place: nil, user: user, networkManager: viewModel.networkManager, errorManager: viewModel.errorManager))
+                    EditOrganizerView(viewModel: EditOrganizerViewModel(id: id, organizer: nil, user: user, networkManager: viewModel.networkManager, errorManager: viewModel.errorManager))
                 }
             }
-            
-
         }
     }
     
@@ -83,12 +77,12 @@ struct NewPlaceView: View {
                 Text("Add required information:")
                     .foregroundStyle(.secondary)
                     .padding()
-                PlaceRequiredFieldsView(viewModel: viewModel)
+                OrganizerRequiredFieldsView(viewModel: viewModel)
                 Text("Add additional information:")
                     .foregroundStyle(.secondary)
                     .padding()
                     .padding(.top)
-                PlaceAdditionalFieldsView(isoCountryCode: $viewModel.isoCountryCode, email: $viewModel.email, phone: $viewModel.phone, www: $viewModel.www, facebook: $viewModel.facebook, instagram: $viewModel.instagram, about: $viewModel.about, timetable: $viewModel.timetable, otherInfo: $viewModel.otherInfo, tags: $viewModel.tags)
+                OrganizerAdditionalFieldsView(viewModel: viewModel)
                 
                 if authenticationManager.appUser?.status == .admin || authenticationManager.appUser?.status == .moderator {
                     VStack {
@@ -103,9 +97,6 @@ struct NewPlaceView: View {
                         }
                     }
                     .padding(.vertical, 40)
-                } else {
-                    EditToggleField(toggle: $viewModel.isOwned, text: "Are you an owner of this place?")
-                        .padding(.bottom, 40)
                 }
             }
         }
@@ -113,12 +104,15 @@ struct NewPlaceView: View {
     }
 }
 
-//#Preview {
-//    let decodetUser = DecodedAppUser(id: 0, name: "Test", email: "test@test.com", status: .admin, bio: nil, photo: nil, instagram: nil, likedPlacesId: nil)
-//    let user = AppUser(decodedUser: decodetUser)
-//    let errorManager = ErrorManager()
-//    let appSettingsManager = AppSettingsManager()
-//
-//    return NewPlaceView(viewModel: AddNewPlaceViewModel(user: user, networkManager: PlaceNetworkManager(appSettingsManager: appSettingsManager), errorManager: errorManager))
-//}
-
+#Preview {
+    let errorManager: ErrorManagerProtocol = ErrorManager()
+    let keychainManager: KeychainManagerProtocol = KeychainManager()
+    let appSettingsManager: AppSettingsManagerProtocol = AppSettingsManager()
+    let networkMonitorManager: NetworkMonitorManagerProtocol = NetworkMonitorManager(errorManager: errorManager)
+    let networkManager = NetworkManager(session: URLSession.shared, networkMonitorManager: networkMonitorManager, appSettingsManager: appSettingsManager, keychainManager: keychainManager)
+   let authNetworkManager = AuthNetworkManager(networkManager: networkManager)
+    var authenticationManager = AuthenticationManager(keychainManager: keychainManager, networkMonitorManager: networkMonitorManager, networkManager: networkManager, authNetworkManager: authNetworkManager, errorManager: errorManager)
+    let editNetworkManager = EditOrganizerNetworkManager(networkManager: networkManager)
+    return AddOrganizerView(viewModel: AddOrganizerViewModel(networkManager: editNetworkManager, errorManager: errorManager))
+        .environmentObject(authenticationManager)
+}

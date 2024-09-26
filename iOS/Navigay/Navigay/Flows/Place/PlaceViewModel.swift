@@ -63,7 +63,7 @@ extension PlaceView {
         let notificationsManager: NotificationsManagerProtocol
         
         var showAddEventView: Bool = false
-        var showEditView: Bool = false
+        var showEditView: Bool = false // todo why?
         
         //MARK: - Init
         

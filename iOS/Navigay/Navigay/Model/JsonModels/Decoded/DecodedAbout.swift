@@ -8,7 +8,7 @@
 import Foundation
 
 //todo: delete
-struct DecodedAbout: Codable {
-    let language: Language
-    let about: String
-}
+//struct DecodedAbout: Codable {
+//    let language: Language
+//    let about: String
+//}

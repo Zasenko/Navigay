@@ -18,19 +18,19 @@ struct PlaceView: View {
     
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel: PlaceViewModel
-  //  @StateObject var commentsViewModel: CommentsViewModel
-
+    //  @StateObject var commentsViewModel: CommentsViewModel
+    
     
     @EnvironmentObject private var authenticationManager: AuthenticationManager
     @Environment(\.colorScheme) private var colorScheme
-
+    
     // MARK: - Init
     
     init(viewModel: PlaceViewModel) {
         _viewModel = State(initialValue: viewModel)
-      //  _commentsViewModel = StateObject(wrappedValue: commentsViewModel)
+        //  _commentsViewModel = StateObject(wrappedValue: commentsViewModel)
     }
-        
+    
     // MARK: - Body
     
     var body: some View {
@@ -117,7 +117,7 @@ struct PlaceView: View {
                     .presentationCornerRadius(25)
             }
             .sheet(isPresented: $viewModel.showAddCommentView) {
-                AddCommentView(viewModel: AddCommentViewModel(placeId: viewModel.place.id, networkManager: viewModel.commentsNetworkManager, errorManager: viewModel.errorManager))
+                AddCommentView(viewModel: AddCommentViewModel(item: .place, id: viewModel.place.id, networkManager: viewModel.commentsNetworkManager, errorManager: viewModel.errorManager))
             }
             .fullScreenCover(item: $viewModel.selectedEvent) { event in
                 EventView(viewModel: EventView.EventViewModel.init(event: event, modelContext: viewModel.modelContext, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, commentsNetworkManager: viewModel.commentsNetworkManager, notificationsManager: viewModel.notificationsManager))
@@ -154,13 +154,13 @@ struct PlaceView: View {
                     }
                     
                     Text("Information")
-                    .font(.title2)
-                    .bold()
-                    .foregroundStyle(.primary)
-                    .frame(maxWidth: .infinity)
-                    .padding(.top, 50)
-                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                    .listRowSeparator(.hidden)
+                        .font(.title2)
+                        .bold()
+                        .foregroundStyle(.primary)
+                        .frame(maxWidth: .infinity)
+                        .padding(.top, 50)
+                        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                        .listRowSeparator(.hidden)
                     
                     if let otherInfo = viewModel.place.otherInfo {
                         Text(otherInfo)
@@ -202,14 +202,22 @@ struct PlaceView: View {
                         .listRowSeparator(.hidden)
                         .listRowInsets(EdgeInsets(top: 50, leading: 0, bottom: 50, trailing: 0))
                     }
-                    CommentsView(comments: $viewModel.comments, isLoading: $viewModel.isCommentsLoading, showAddReviewView: $viewModel.showAddCommentView, showRegistrationView: $viewModel.showRegistrationView, showLoginView: $viewModel.showLoginView, size: proxy.size, place: viewModel.place, errorManager: viewModel.errorManager, deleteComment: { id in
+                    CommentsView(comments: $viewModel.comments,
+                                 isLoading: $viewModel.isCommentsLoading,
+                                 showAddReviewView: $viewModel.showAddCommentView,
+                                 showRegistrationView: $viewModel.showRegistrationView,
+                                 showLoginView: $viewModel.showLoginView,
+                                 size: proxy.size,
+                                 // place: viewModel.place,
+                                 errorManager: viewModel.errorManager,
+                                 deleteComment:{ id in
                         viewModel.deleteComment(id: id)
                     })
-                        .listRowSeparator(.hidden)
-                        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                        .onAppear {
-                            viewModel.fetchComments()
-                        }
+                    .listRowSeparator(.hidden)
+                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                    .onAppear {
+                        viewModel.fetchComments()
+                    }
                     Color.clear
                         .frame(height: 50)
                         .listRowSeparator(.hidden)
@@ -240,10 +248,10 @@ struct PlaceView: View {
                 .font(.title2).bold()
                 .foregroundColor(.primary)
                 .baselineOffset(0)
-//            + Text(viewModel.place.type.getName().uppercased())
-//                .font(.caption).bold()
-//                .foregroundColor(.secondary)
-//                .baselineOffset(0)
+            //            + Text(viewModel.place.type.getName().uppercased())
+            //                .font(.caption).bold()
+            //                .foregroundColor(.secondary)
+            //                .baselineOffset(0)
         }
         .padding(.horizontal)
         .frame(maxWidth: .infinity)
@@ -291,7 +299,7 @@ struct PlaceView: View {
                     }
                 }
             }
-
+            
             HStack(spacing: 10) {
                 HStack(alignment: .firstTextBaseline, spacing: 4) {
                     AppImages.iconLocationFill

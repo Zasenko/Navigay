@@ -17,7 +17,7 @@ struct CommentsView: View {
     var deleteComment: (Int) -> Void
 
     private let size: CGSize
-    private let place: Place
+   // private let place: Place
     private let noReviewsText = "Hey there! Looks like this place is waiting to be discovered. Share your thoughts and be the first to leave a review!"
     private let errorManager: ErrorManagerProtocol
     @EnvironmentObject private var authenticationManager: AuthenticationManager
@@ -28,7 +28,8 @@ struct CommentsView: View {
          showRegistrationView: Binding<Bool>,
          showLoginView: Binding<Bool>,
          size: CGSize,
-         place: Place, errorManager: ErrorManagerProtocol,
+      //   place: Place,
+         errorManager: ErrorManagerProtocol,
          deleteComment: @escaping (Int) -> Void) {
         _comments = comments
         _isLoading = isLoading
@@ -36,7 +37,7 @@ struct CommentsView: View {
         _showRegistrationView = showRegistrationView
         _showLoginView = showLoginView
         self.size = size
-        self.place = place
+    //    self.place = place
         self.errorManager = errorManager
         self.deleteComment = deleteComment
     }

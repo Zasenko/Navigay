@@ -6,6 +6,7 @@
 //
 
 import Foundation
+
 struct DecodedPlace: Identifiable, Codable {
     enum CodingKeys: String, CodingKey {
         case id
@@ -57,7 +58,7 @@ struct PlaceWorkDay: Codable {
     let closing: String
 }
 
-struct About: Codable {
-    let language: Language
-    let about: String
-}
+//struct About: Codable {
+//    let language: Language
+//    let about: String
+//}

@@ -37,14 +37,19 @@ final class AddCommentViewModel: ObservableObject {
     
     var imagesToSend: [ImageToSend] = []
     
-    private let placeId: Int
+    private let item: CommentItem
+    private let id: Int
     private let networkManager: CommentsNetworkManagerProtocol
     private let errorManager: ErrorManagerProtocol
     
-    init(placeId: Int, networkManager: CommentsNetworkManagerProtocol, errorManager: ErrorManagerProtocol) {
-        self.placeId = placeId
+    init(item: CommentItem,
+         id: Int,
+         networkManager: CommentsNetworkManagerProtocol,
+         errorManager: ErrorManagerProtocol) {
         self.networkManager = networkManager
         self.errorManager = errorManager
+        self.item = item
+        self.id = id
     }
 }
 
@@ -71,11 +76,7 @@ extension AddCommentViewModel {
     func addComment(user: AppUser) {
         isLoading = true
         Task {
-            let comment = NewComment(placeId: placeId,
-                                     userId: user.id,
-                                     comment: text,
-                                     rating: rating != 0 ? rating : nil,
-                                     photos: imagesToSend.isEmpty ? nil : imagesToSend.compactMap { $0.image.toData() })
+            let comment = NewComment(item: item, id: id, userId: user.id, comment: text, rating: rating != 0 ? rating : nil, photos: imagesToSend.isEmpty ? nil : imagesToSend.compactMap { $0.image.toData() })
             do {
                 try await networkManager.addComment(comment: comment)
                 await MainActor.run {

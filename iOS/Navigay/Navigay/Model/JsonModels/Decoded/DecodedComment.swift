@@ -60,24 +60,32 @@ struct DecodedUser: Codable, Identifiable {
     let updatedAt: String?
 }
 
+enum CommentItem: Int, Codable {
+    case place = 1
+    case organizer = 2
+}
+
 struct NewComment: Codable {
     
     enum CodingKeys: String, CodingKey {
-        case placeId = "place_id"
+        case item
+        case id
         case userId = "user_id"
         case comment
         case rating
         case photos
     }
     
-    let placeId: Int
+    let item: CommentItem
+    let id: Int
     let userId: Int
     let comment: String?
     let rating: Int?
     var photos: [Data]?
     
-    init(placeId: Int, userId: Int, comment: String?, rating: Int?, photos: [Data]?) {
-        self.placeId = placeId
+    init(item: CommentItem, id: Int, userId: Int, comment: String?, rating: Int?, photos: [Data]?) {
+        self.item = item
+        self.id = id
         self.userId = userId
         self.comment = comment
         self.rating = rating
