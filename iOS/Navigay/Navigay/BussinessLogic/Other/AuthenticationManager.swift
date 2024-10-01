@@ -90,7 +90,6 @@ extension AuthenticationManager {
         return false
     }
     
-    
     private func auth(user: AppUser) {
         Task {
             let message = "Oops! Something went wrong. You're not logged in. Please try again later."

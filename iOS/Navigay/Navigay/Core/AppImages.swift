@@ -17,7 +17,10 @@ struct AppImages {
     static let iconMap = Image(systemName: "map.fill")
     static let iconSearch = Image(systemName: "magnifyingglass")
     static let iconCatalog = Image(systemName: "list.bullet")
-
+    static let iconLogIn = Image(systemName: "ipad.and.arrow.forward")
+    static let iconRegistrations = Image(systemName: "person.badge.plus")
+    static let iconPartnersRegistrations = Image(systemName: "person.2")
+    
     static let iconSearchLocation = Image(systemName: "location.magnifyingglass")
     static let iconPerson = Image(systemName: "person.fill")
     static let iconPersonError = Image(systemName: "person.fill.xmark")

@@ -1,13 +1,13 @@
 //
-//  RegistrationView.swift
+//  PartnerRegistrationView.swift
 //  Navigay
 //
-//  Created by Dmitry Zasenko on 03.10.23.
+//  Created by Dmitry Zasenko on 01.10.24.
 //
 
 import SwiftUI
 
-struct RegistrationView: View {
+struct PartnerRegistrationView: View {
     
     // MARK: - Private Properties
     
@@ -16,14 +16,15 @@ struct RegistrationView: View {
     }
     
     @FocusState private var focusedField: FocusField?
-    @StateObject private var viewModel: RegistrationViewModel
+    @StateObject private var viewModel: PartnerRegistrationViewModel
     @EnvironmentObject private var authenticationManager: AuthenticationManager
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
+    @Namespace private var namespace
 
     // MARK: - Init
     
-    init(viewModel: RegistrationViewModel) {
+    init(viewModel: PartnerRegistrationViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel)
     }
     
@@ -57,33 +58,103 @@ struct RegistrationView: View {
     // MARK: - Views
     
     private var listView: some View {
-        List {
-            Text("Create Account")
-                .font(.largeTitle)
-                .bold()
-                .frame(maxWidth: .infinity)
-                .padding(.bottom, 20)
-                .listRowSeparator(.hidden)
-            VStack {
-                VStack(spacing: 20) {
-                    emailView
-                    passwordView
-                        .padding(.bottom)
+        GeometryReader { proxy in
+            ScrollView {
+                Text("Partner Registration")
+                    .font(.largeTitle)
+                    .bold()
+                    .frame(maxWidth: .infinity)
+                    .padding(.bottom, 20)
+                    .listRowSeparator(.hidden)
+                VStack {
+                    VStack(spacing: 20) {
+                        emailView
+                        passwordView
+                        typeView(proxy: proxy)
+                            .padding(.bottom)
+                    }
+                    .frame(maxWidth: 400)
                 }
-                .frame(maxWidth: 400)
-            }
-            .frame(maxWidth: .infinity)
-            .listRowSeparator(.hidden)
-            registrationButtonView
+                .frame(maxWidth: .infinity)
                 .listRowSeparator(.hidden)
+                registrationButtonView
+                    .listRowSeparator(.hidden)
+            }
+            .padding()
+            //.listStyle(.plain)
+            // .buttonStyle(.plain)
+            .scrollIndicators(.hidden)
+            .onTapGesture {
+                focusedField = nil
+            }
+            .disabled(viewModel.allViewsDisabled)
         }
-        .listStyle(.plain)
-        .buttonStyle(.plain)
-        .scrollIndicators(.hidden)
-        .onTapGesture {
-            focusedField = nil
+    }
+    
+    private func typeView(proxy: GeometryProxy) -> some View {
+        VStack {
+            Text("Partner type")
+                .font(.caption)
+                .foregroundColor(.secondary)
+            Button {
+                focusedField = nil
+                if viewModel.type == .location {
+                    withAnimation {
+                        viewModel.type = .organizer
+                    }
+                } else {
+                    withAnimation {
+                        viewModel.type = .location
+                    }
+                }
+            } label: {
+                HStack {
+                    ZStack {
+                        if viewModel.type == .location {
+                            Color.green
+                                .frame(maxWidth: .infinity, maxHeight: 50)
+                                .clipShape(Capsule())
+                                .matchedGeometryEffect(id: "type", in: namespace)
+                            
+                        }
+                        Text("Location")
+                            .foregroundStyle(.secondary)
+                            .font(.body)
+                            .bold()
+                            .padding()
+                    }
+                    .frame(maxWidth: .infinity)
+                    ZStack {
+                        if viewModel.type == .organizer {
+                            Color.green
+                                .frame(maxWidth: .infinity, maxHeight: 50)
+                                .clipShape(Capsule())
+                                .matchedGeometryEffect(id: "type", in: namespace)
+                        }
+                        Text("Event Organizer")
+                            .foregroundStyle(.secondary)
+                            .font(.body)
+                            .bold()
+                            .padding()
+                    }
+                    .frame(maxWidth: .infinity)
+                }
+                .frame(maxWidth: .infinity)
+                .background(AppColors.lightGray6)
+                .clipShape(Capsule())
+            }
+            ZStack(alignment: .topLeading) {
+                Text("Create your unique page for your location. Provide the address, hours of operation, and other essential details. You will also have the option to add events hosted at your location.")
+                    .font(.callout)
+                    .padding(.vertical)
+                    .opacity(viewModel.type == .location ? 1 : 0)
+                Text("If you are an event organizer, create a page for your organization. Share information about events that you are organizing.")
+                    .font(.callout)
+                    .padding(.vertical)
+                    .opacity(viewModel.type == .organizer ? 1 : 0)
+            }
         }
-        .disabled(viewModel.allViewsDisabled)
+        .padding(.bottom)
     }
     
     private var emailView: some View {
@@ -162,7 +233,6 @@ struct RegistrationView: View {
                 HStack(alignment: .firstTextBaseline) {
                     AppImages.iconCheckmark
                         .opacity(viewModel.isPasswordCountValid ? 1 : 0)
-
                     Text("At least 8 characters")
                 }
                 .foregroundColor(viewModel.isPasswordCountValid ? .green : .secondary)
@@ -170,7 +240,6 @@ struct RegistrationView: View {
                 HStack(alignment: .firstTextBaseline) {
                     AppImages.iconCheckmark
                         .opacity(viewModel.isPasswordNumberValid ? 1 : 0)
-
                     Text("At least one number")
                 }
                 .foregroundColor(viewModel.isPasswordNumberValid ? .green : .secondary)
@@ -179,7 +248,6 @@ struct RegistrationView: View {
                     AppImages.iconCheckmark
                         .opacity(viewModel.isPasswordLetterValid ? 1 : 0)
                     Text("At least one letter")
-                    
                 }
                 .foregroundColor(viewModel.isPasswordLetterValid ? .green : .secondary)
 
@@ -256,18 +324,17 @@ struct RegistrationView: View {
         }
     }
 }
-//
-//#Preview {
-//    let viewModel = RegistrationViewModel(isPresented: .constant(true))
-//    
-//    let errorManager = ErrorManager()
-//    let keychainManager = KeychainManager()
-//    let appSettingsManager = AppSettingsManager()
-//    let networkMonitorManager = NetworkMonitorManager(errorManager: errorManager)
-//    let networkManager = NetworkManager(session: URLSession.shared, networkMonitorManager: networkMonitorManager, appSettingsManager: appSettingsManager, keychainManager: keychainManager)
-//    let authNetworkManager = AuthNetworkManager(networkManager: networkManager)
-//    let authenticationManager = AuthenticationManager(keychainManager: keychainManager, networkMonitorManager: networkMonitorManager, networkManager: networkManager, authNetworkManager: authNetworkManager, errorManager: errorManager)
-//    return RegistrationView(viewModel: viewModel)
-//        .environmentObject(authenticationManager)
-//        .modelContainer(sharedModelContainer)
-//}
+
+#Preview {
+    let errorManager: ErrorManagerProtocol = ErrorManager()
+    let keychainManager: KeychainManagerProtocol = KeychainManager()
+    let appSettingsManager: AppSettingsManagerProtocol = AppSettingsManager()
+    let networkMonitorManager: NetworkMonitorManagerProtocol = NetworkMonitorManager(errorManager: errorManager)
+    let notificationsManager = NotificationsManager()
+    let networkManager = NetworkManager(session: URLSession.shared, networkMonitorManager: networkMonitorManager, appSettingsManager: appSettingsManager, keychainManager: keychainManager)
+    let authNetworkManager = AuthNetworkManager(networkManager: networkManager)
+    var authenticationManager = AuthenticationManager(keychainManager: keychainManager, networkMonitorManager: networkMonitorManager, networkManager: networkManager, authNetworkManager: authNetworkManager, errorManager: errorManager)
+    let vm = PartnerRegistrationViewModel(isPresented: .constant(true))
+    return PartnerRegistrationView(viewModel: vm)
+        .environmentObject(authenticationManager)
+}

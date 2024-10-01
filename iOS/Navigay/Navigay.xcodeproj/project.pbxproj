@@ -15,6 +15,8 @@
 		0A1BB6AB2C2878510098C04F /* NotificationsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A1BB6AA2C2878510098C04F /* NotificationsManager.swift */; };
 		0A1BB6AD2C2998470098C04F /* Image+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A1BB6AC2C2998470098C04F /* Image+Ext.swift */; };
 		0A1BB6AF2C29ED900098C04F /* FileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A1BB6AE2C29ED900098C04F /* FileManager.swift */; };
+		0A239A6B2CAC439600B250D0 /* PartnerRegistrationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A239A6A2CAC439600B250D0 /* PartnerRegistrationView.swift */; };
+		0A239A6F2CAC43B100B250D0 /* PartnerRegistrationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A239A6E2CAC43B100B250D0 /* PartnerRegistrationViewModel.swift */; };
 		0A4F75F42CA0403800418BC6 /* OrganizerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A4F75F32CA0403800418BC6 /* OrganizerView.swift */; };
 		0A4F75F62CA0404D00418BC6 /* OrganizerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A4F75F52CA0404D00418BC6 /* OrganizerViewModel.swift */; };
 		0A4F75F82CA044DC00418BC6 /* OrganizerDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A4F75F72CA044DC00418BC6 /* OrganizerDataManager.swift */; };
@@ -271,6 +273,8 @@
 		0A1BB6AA2C2878510098C04F /* NotificationsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsManager.swift; sourceTree = "<group>"; };
 		0A1BB6AC2C2998470098C04F /* Image+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Image+Ext.swift"; sourceTree = "<group>"; };
 		0A1BB6AE2C29ED900098C04F /* FileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileManager.swift; sourceTree = "<group>"; };
+		0A239A6A2CAC439600B250D0 /* PartnerRegistrationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PartnerRegistrationView.swift; sourceTree = "<group>"; };
+		0A239A6E2CAC43B100B250D0 /* PartnerRegistrationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PartnerRegistrationViewModel.swift; sourceTree = "<group>"; };
 		0A4F75F32CA0403800418BC6 /* OrganizerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizerView.swift; sourceTree = "<group>"; };
 		0A4F75F52CA0404D00418BC6 /* OrganizerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizerViewModel.swift; sourceTree = "<group>"; };
 		0A4F75F72CA044DC00418BC6 /* OrganizerDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizerDataManager.swift; sourceTree = "<group>"; };
@@ -531,6 +535,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0A239A692CAC435400B250D0 /* Partners */ = {
+			isa = PBXGroup;
+			children = (
+				0A239A6E2CAC43B100B250D0 /* PartnerRegistrationViewModel.swift */,
+				0A239A6A2CAC439600B250D0 /* PartnerRegistrationView.swift */,
+			);
+			path = Partners;
+			sourceTree = "<group>";
+		};
 		0A39E4952BAC83EA000E38ED /* Add */ = {
 			isa = PBXGroup;
 			children = (
@@ -1348,6 +1361,7 @@
 		0FD617A92ACC3C4800877C70 /* Auth */ = {
 			isa = PBXGroup;
 			children = (
+				0A239A692CAC435400B250D0 /* Partners */,
 				0F6500BF2ACE9A7900A58E77 /* Registration */,
 				0FF5C7252B1F444200D9EA57 /* Login */,
 			);
@@ -1663,6 +1677,7 @@
 				0A4F75F62CA0404D00418BC6 /* OrganizerViewModel.swift in Sources */,
 				0FBABB8C2B2C5C9900A2B4FE /* MapSortingMenuView.swift in Sources */,
 				0FA8FFB72B15EDCC001886D0 /* HomeViewModel.swift in Sources */,
+				0A239A6F2CAC43B100B250D0 /* PartnerRegistrationViewModel.swift in Sources */,
 				0F80E9DF2B068499006ABBF0 /* AroundNetworkManager.swift in Sources */,
 				0F741A852ACDAACF00A7759E /* ImageLoader.swift in Sources */,
 				0AF761F32CA5C44A00C532FB /* EditOrganizerNetworkManager.swift in Sources */,
@@ -1716,6 +1731,7 @@
 				0FFB3A422AF14F66001CF946 /* PlaceRequiredFieldsView.swift in Sources */,
 				0F4997032B36DC5A003E4E2B /* PlaceViewModel.swift in Sources */,
 				0F69D5CC2B8E6FA0007C7D63 /* EditEventAdditionalView.swift in Sources */,
+				0A239A6B2CAC439600B250D0 /* PartnerRegistrationView.swift in Sources */,
 				0F3CD2BB2B91E60A00A50579 /* AdminEvent.swift in Sources */,
 				0F741A782ACD644D00A7759E /* DecodedRegion.swift in Sources */,
 				0A8656552CA1C5CC00D50FF5 /* AddOrganizerView.swift in Sources */,

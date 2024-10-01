@@ -19,7 +19,7 @@ struct WelcomeView: View {
     @Environment(\.colorScheme) private var deviceColorScheme
     @State private var showLoginView = false
     @State private var showRegistrationView = false
-    
+    @State private var showPartnerRegistrationView = false
     // MARK: - Body
     
     var body: some View {
@@ -34,24 +34,7 @@ struct WelcomeView: View {
                     .frame(width: 200)
             }
             .padding(.vertical, 100)
-            
             authButtonsView
-            
-            Spacer()
-            
-            Button {
-                firstTimeInApp = false
-            } label: {
-                HStack(spacing: 0) {
-                    AppImages.iconX
-                        .bold()
-                        .frame(width: 30, height: 30)
-                    Text("skip")
-                       
-                }
-            }
-            .foregroundStyle(deviceColorScheme == .light ? .primary : .primary)
-            .font(.subheadline)
         }
         .background {
             ZStack(alignment: .center) {
@@ -76,54 +59,75 @@ struct WelcomeView: View {
             Button {
                 showLoginView = true
             } label: {
-                Text("Log In")
-                    .font(.body)
-                    .bold()
-                    .padding(12)
-                    .padding(.horizontal)
-                    .background(.ultraThinMaterial)
-                    .clipShape(Capsule())
-                    .foregroundStyle(deviceColorScheme == .light ? .blue : .white)
+                authButton(img: AppImages.iconArrowRight, text: "Log In")
             }
-            
             .fullScreenCover(isPresented: $showLoginView) {
                 LoginView(viewModel: LoginViewModel(isPresented: $firstTimeInApp))
             }
-            
             Button {
                 showRegistrationView = true
             } label: {
-                Text("Registration")
-                    .font(.body)
-                    .bold()
-                    .padding(12)
-                    .padding(.horizontal)
-                    .background(.ultraThinMaterial)
-                    .clipShape(Capsule())
-                    .foregroundStyle(deviceColorScheme == .light ? .blue : .white)
+                authButton(img: AppImages.iconPlus, text: "Registration")
             }
             .fullScreenCover(isPresented: $showRegistrationView) {
                 RegistrationView(viewModel: RegistrationViewModel(isPresented: $firstTimeInApp))
             }
+            Spacer()
+            Button {
+                showPartnerRegistrationView = true
+            } label: {
+                authButton(img: AppImages.iconPartnersRegistrations, text: "For Partners")
+            }
+            .fullScreenCover(isPresented: $showPartnerRegistrationView) {
+                PartnerRegistrationView(viewModel: PartnerRegistrationViewModel(isPresented: $firstTimeInApp))
+            }
+            Spacer()
+            Button {
+                firstTimeInApp = false
+            } label: {
+                HStack(spacing: 0) {
+                    AppImages.iconX
+                        .bold()
+                        .frame(width: 30, height: 30)
+                    Text("skip")
+                       
+                }
+            }
+            .foregroundStyle(deviceColorScheme == .light ? .primary : .primary)
+            .font(.subheadline)
         }
+        .frame(maxWidth: 200)
+    }
+    
+    private func authButton(img: Image, text: String) -> some View {
+        HStack(spacing: 10) {
+            img
+                .foregroundStyle(.secondary)
+            Text(text)
+                .frame(maxWidth: .infinity)
+            
+        }
+        .font(.body)
+        .bold()
+        .padding()
+        .frame(maxWidth: .infinity)
+        .background(.ultraThinMaterial)
+        .clipShape(Capsule())
+        .foregroundStyle(deviceColorScheme == .light ? .blue : .white)
     }
 }
 
-//#Preview {
-//    let errorManager: ErrorManagerProtocol = ErrorManager()
-//    let appSettingsManager: AppSettingsManagerProtocol = AppSettingsManager()
-//    let networkMonitorManager: NetworkMonitorManagerProtocol = NetworkMonitorManager(errorManager: errorManager)
-//    
-//    let keychainManager: KeychainManagerProtocol = KeychainManager()
-//    
-//    let authNetworkManager = AuthNetworkManager(networkMonitorManager: networkMonitorManager, appSettingsManager: appSettingsManager)
-//    
-//    let authenticationManager = AuthenticationManager(keychainManager: keychainManager, networkMonitorManager: networkMonitorManager, networkManager: authNetworkManager, errorManager: errorManager)
-//   return WelcomeView(onFinish: {
-//       print("on Finish")
-//    })
-//   .environmentObject(authenticationManager)
-//}
+#Preview {
+    let errorManager: ErrorManagerProtocol = ErrorManager()
+    let keychainManager: KeychainManagerProtocol = KeychainManager()
+    let appSettingsManager: AppSettingsManagerProtocol = AppSettingsManager()
+    let networkMonitorManager: NetworkMonitorManagerProtocol = NetworkMonitorManager(errorManager: errorManager)
+    let networkManager = NetworkManager(session: URLSession.shared, networkMonitorManager: networkMonitorManager, appSettingsManager: appSettingsManager, keychainManager: keychainManager)
+    let authNetworkManager = AuthNetworkManager(networkManager: networkManager)
+    var authenticationManager = AuthenticationManager(keychainManager: keychainManager, networkMonitorManager: networkMonitorManager, networkManager: networkManager, authNetworkManager: authNetworkManager, errorManager: errorManager)
+    return WelcomeView(firstTimeInApp: .constant(true))
+        .environmentObject(authenticationManager)
+}
 
 /// Google button
 //            Button {
