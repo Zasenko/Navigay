@@ -55,28 +55,9 @@ extension SearchView {
         var selectedEvent: Event?
 
         var searchedKeys: [String] = []
+        var lastSearchResults: [LastSearchItem] = []
+        var last10SearchResults: [LastSearchItem] = []
         
-        var last10SearchResults: [LastSearchItem] {
-            get {
-                if let data = UserDefaults.standard.data(forKey: "last10SearchResults"),
-                   let results = try? PropertyListDecoder().decode([LastSearchItem].self, from: data) {
-                    let filteredResult = results.filter { LastSearchItem in
-                        if searchedKeys.contains(where: { $0 == LastSearchItem.text}) {
-                            return false
-                        } else {
-                            return true
-                        }
-                    }
-                    return filteredResult.sorted(by: { $0.date > $1.date})
-                }
-                return []
-            }
-            set {
-                let encodedResults = try? PropertyListEncoder().encode(Array(newValue.suffix(10)))
-                UserDefaults.standard.set(encodedResults, forKey: "last10SearchResults")
-            }
-        }
-                
         let catalogNetworkManager: CatalogNetworkManagerProtocol
         let placeNetworkManager: PlaceNetworkManagerProtocol
         let eventNetworkManager: EventNetworkManagerProtocol
@@ -123,32 +104,62 @@ extension SearchView {
             self.searchDataManager = searchDataManager
             self.notificationsManager = notificationsManager
             searchedKeys = searchDataManager.loadedSearchText.keys.uniqued()
-            
+            if let data = UserDefaults.standard.data(forKey: "last10SearchResults"),
+               let results = try? PropertyListDecoder().decode([LastSearchItem].self, from: data) {
+                last10SearchResults = results.sorted(by: { $0.date > $1.date})
+            }
+            lastSearchResults = last10SearchResults.filter { lastSearchItem in
+                if searchedKeys.contains(where: { $0 == lastSearchItem.text}) {
+                    return false
+                } else {
+                    return true
+                }
+            }
             getCountriesFromDB()
             fetchCountries()
             
             cancellable = textSubject
-             //   .debounce(for: .seconds(0), scheduler: DispatchQueue.main)
+            //   .debounce(for: .seconds(0), scheduler: DispatchQueue.main)
                 .sink { [weak self] searchText in
-                    self?.notFound = false
+                    guard let self else { return }
+                    self.notFound = false
                     guard !searchText.isEmpty else {
+                        let newSearchKeys = self.searchDataManager.loadedSearchText.keys.uniqued()
+                        let newRisentResults = self.last10SearchResults.filter { lastSearchItem in
+                            if self.searchedKeys.contains(where: { $0 == lastSearchItem.text}) {
+                                return false
+                            } else {
+                                return true
+                            }
+                        }
                         DispatchQueue.main.async {
                             withAnimation {
-                                self?.selectedCategory = .all
-                                self?.categories = []
-                                self?.searchEvents = []
-                                self?.searchPlaces = []
-                                self?.searchedKeys = searchDataManager.loadedSearchText.keys.uniqued()
-                                //todo last10SearchResults update
+                                self.selectedCategory = .all
+                                self.categories = []
+                                self.searchEvents = []
+                                self.searchPlaces = []
+                                self.searchedKeys = newSearchKeys
+                                self.lastSearchResults = newRisentResults
                             }
                         }
                         return
                     }
-                    self?.searchedKeys = searchDataManager.loadedSearchText.keys.uniqued().filter( { $0.contains(searchText)} )
-                    //todo last10SearchResults update
+                    let newSearchKeys = self.searchDataManager.loadedSearchText.keys.uniqued().filter( { $0.contains(searchText)} )
+                    let newRisentResults = self.last10SearchResults.filter { lastSearchItem in
+                        if !self.searchedKeys.contains(where: { $0 == lastSearchItem.text}) && lastSearchItem.text.contains(searchText) {
+                            return true
+                        } else {
+                            return false
+                        }
+                    }
+                    DispatchQueue.main.async {
+                        withAnimation {
+                            self.searchedKeys = newSearchKeys
+                            self.lastSearchResults = newRisentResults
+                        }
+                    }
                 }
         }
-        
         func getPlaces(category: SortingCategory) -> [SearchPlaces] {
             guard let result = searchPlaces.first(where: { $0.type == category} ) else {
                 return []
@@ -173,7 +184,7 @@ extension SearchView {
             guard searchText.count > 2 else {
                 errorManager.showError(model: ErrorModel(error: SearchError.searchTextLessThan3, message: "Search text must be at least 3 characters long."))
                 searchedKeys = searchDataManager.loadedSearchText.keys.uniqued()
-                //todo last10SearchResults update
+                lastSearchResults = last10SearchResults
                 selectedCategory = .all
                 categories = []
                 searchEvents = []
@@ -194,12 +205,11 @@ extension SearchView {
                 }
                 await MainActor.run {
                     isSearching = false
-                    if !last10SearchResults.contains(where: { $0.text == searchText}) {
-                        if last10SearchResults.count == 10 {
-                            last10SearchResults.removeFirst()
-                        }
-                        last10SearchResults.append(newItem)
-                    }
+                    var newResult = last10SearchResults
+                    newResult.append(newItem)
+                    newResult = newResult.sorted(by: {$0.date < $1.date}).suffix(10)
+                    let encodedResults = try? PropertyListEncoder().encode(Array(newResult))
+                    UserDefaults.standard.set(encodedResults, forKey: "last10SearchResults")
                 }
             }
         }

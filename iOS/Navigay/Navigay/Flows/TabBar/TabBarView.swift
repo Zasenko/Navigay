@@ -149,7 +149,7 @@ struct TabBarView: View {
                       // .fontWeight(selectedPage == .home ? .bold : .regular)
                         .bold()
                 }
-                TabBarButtonView(selectedPage: $selectedPage, button: catalogButton)
+             //   TabBarButtonView(selectedPage: $selectedPage, button: catalogButton)
                 TabBarButtonView(selectedPage: $selectedPage, button: searchButton)
                 if authenticationManager.appUser != nil {
                     Button {

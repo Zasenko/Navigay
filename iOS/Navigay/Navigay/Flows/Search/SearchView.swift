@@ -20,8 +20,6 @@ struct SearchView: View {
     
     init(viewModel: SearchViewModel) {
         _viewModel = State(initialValue: viewModel)
-        //   self.viewModel.getCountriesFromDB()
-        //   self.viewModel.fetchCountries()
     }
     
     // MARK: - Body
@@ -45,7 +43,6 @@ struct SearchView: View {
                 }
                 .ignoresSafeArea()
                 .opacity(focused ? 1 : 0)
-                
             }
             .toolbarTitleDisplayMode(.inline)
             .toolbar {
@@ -80,7 +77,6 @@ struct SearchView: View {
     
     private var mainView: some View {
         GeometryReader { proxy in
-            
             List {
                 if focused {
                     lastSearchResultsSection
@@ -165,51 +161,7 @@ struct SearchView: View {
             }
         }
     }
-    
-//    private var mainView: some View {
-//        GeometryReader { proxy in
-//            if focused || viewModel.searchText.count < 3 {
-//                List {
-//                    lastSearchResultsSection
-//                        .listRowBackground(Color.clear)
-//                    Color.clear
-//                        .frame(height: 50)
-//                        .listRowBackground(Color.clear)
-//                        .listSectionSeparator(.hidden)
-//                }
-//                .scrollContentBackground(.hidden)
-//                .background(Color.clear)
-//                .listSectionSeparator(.hidden)
-//                .listStyle(.plain)
-//                .scrollIndicators(.hidden)
-//                .buttonStyle(PlainButtonStyle())
-//                .onTapGesture {
-//                    focused = false
-//                }
-//                .transition(.move(edge: .bottom).combined(with: .opacity).animation(.default))
-//            } else {
-//                if viewModel.notFound {
-//                    List {
-//                        notFoundView
-//                        Color.clear
-//                            .frame(height: 50)
-//                            .listRowBackground(Color.clear)
-//                            .listSectionSeparator(.hidden)
-//                    }
-//                    .background(Color.clear)
-//                    .scrollContentBackground(.hidden)
-//                    .listSectionSeparator(.hidden)
-//                    .listStyle(.plain)
-//                    .scrollIndicators(.hidden)
-//                    .buttonStyle(PlainButtonStyle())
-//                }
-//                if !viewModel.categories.isEmpty {
-//                    tabView(size: proxy.size)
-//                }
-//            }
-//        }
-//    }
-    
+        
     private var lastSearchResultsSection: some View {
         Section {
             if !viewModel.searchedKeys.isEmpty {
@@ -267,11 +219,11 @@ struct SearchView: View {
                 Spacer(minLength: 20)
                     .listRowSeparator(.hidden)
             }
-            if !viewModel.last10SearchResults.isEmpty {
+            if !viewModel.lastSearchResults.isEmpty {
                 Text("Last search")
                     .foregroundStyle(.secondary).bold()
                     .padding()
-                ForEach(viewModel.last10SearchResults) { item in
+                ForEach(viewModel.lastSearchResults) { item in
                     Button {
                         hideKeyboard()
                         viewModel.searchText = item.text
