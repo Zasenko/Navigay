@@ -20,6 +20,8 @@ struct SearchView: View {
     
     init(viewModel: SearchViewModel) {
         _viewModel = State(initialValue: viewModel)
+        //   self.viewModel.getCountriesFromDB()
+        //   self.viewModel.fetchCountries()
     }
     
     // MARK: - Body
@@ -76,6 +78,41 @@ struct SearchView: View {
     
     // MARK: - Views
     
+    private var mainView: some View {
+        GeometryReader { proxy in
+            
+            List {
+                if focused {
+                    lastSearchResultsSection
+                        .listRowBackground(Color.clear)
+                } else if !viewModel.searchText.isEmpty && !focused {
+                    if viewModel.notFound {
+                        notFoundView
+                            .listRowBackground(Color.clear)
+                    } else {
+                        tabView(size: proxy.size)
+                            .listRowBackground(Color.clear)
+                    }
+                }
+                else {
+                    allCountriesView
+                        .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
+                        .listRowSeparator(.hidden)
+                        .listRowBackground(Color.clear)
+                }
+                Color.clear
+                    .frame(height: 50)
+                    .listRowSeparator(.hidden)
+                    .listRowBackground(focused ? Color.clear : AppColors.background)
+                
+            }
+            .listSectionSeparator(.hidden)
+            .listStyle(.plain)
+            .buttonStyle(.plain)
+            .scrollIndicators(.hidden)
+        }
+    }
+    
     private var header: some View {
         VStack(spacing: 0) {
             HStack(spacing: 0) {
@@ -129,121 +166,132 @@ struct SearchView: View {
         }
     }
     
-    private var mainView: some View {
-        GeometryReader { proxy in
-            if focused || viewModel.searchText.count < 3 {
-                List {
-                    lastSearchResultsSection
-                        .listRowBackground(Color.clear)
-                    Color.clear
-                        .frame(height: 50)
-                        .listRowBackground(Color.clear)
-                        .listSectionSeparator(.hidden)
-                }
-                .scrollContentBackground(.hidden)
-                .background(Color.clear)
-                .listSectionSeparator(.hidden)
-                .listStyle(.plain)
-                .scrollIndicators(.hidden)
-                .buttonStyle(PlainButtonStyle())
-                .onTapGesture {
-                    focused = false
-                }
-                .transition(.move(edge: .bottom).combined(with: .opacity).animation(.default))
-            } else {
-                if viewModel.notFound {
-                    List {
-                        notFoundView
-                        Color.clear
-                            .frame(height: 50)
-                            .listRowBackground(Color.clear)
-                            .listSectionSeparator(.hidden)
-                    }
-                    .background(Color.clear)
-                    .scrollContentBackground(.hidden)
-                    .listSectionSeparator(.hidden)
-                    .listStyle(.plain)
-                    .scrollIndicators(.hidden)
-                    .buttonStyle(PlainButtonStyle())
-                }
-                if !viewModel.categories.isEmpty {
-                    tabView(size: proxy.size)
-                }
-            }
-        }
-    }
+//    private var mainView: some View {
+//        GeometryReader { proxy in
+//            if focused || viewModel.searchText.count < 3 {
+//                List {
+//                    lastSearchResultsSection
+//                        .listRowBackground(Color.clear)
+//                    Color.clear
+//                        .frame(height: 50)
+//                        .listRowBackground(Color.clear)
+//                        .listSectionSeparator(.hidden)
+//                }
+//                .scrollContentBackground(.hidden)
+//                .background(Color.clear)
+//                .listSectionSeparator(.hidden)
+//                .listStyle(.plain)
+//                .scrollIndicators(.hidden)
+//                .buttonStyle(PlainButtonStyle())
+//                .onTapGesture {
+//                    focused = false
+//                }
+//                .transition(.move(edge: .bottom).combined(with: .opacity).animation(.default))
+//            } else {
+//                if viewModel.notFound {
+//                    List {
+//                        notFoundView
+//                        Color.clear
+//                            .frame(height: 50)
+//                            .listRowBackground(Color.clear)
+//                            .listSectionSeparator(.hidden)
+//                    }
+//                    .background(Color.clear)
+//                    .scrollContentBackground(.hidden)
+//                    .listSectionSeparator(.hidden)
+//                    .listStyle(.plain)
+//                    .scrollIndicators(.hidden)
+//                    .buttonStyle(PlainButtonStyle())
+//                }
+//                if !viewModel.categories.isEmpty {
+//                    tabView(size: proxy.size)
+//                }
+//            }
+//        }
+//    }
     
     private var lastSearchResultsSection: some View {
         Section {
-            ForEach(viewModel.searchedKeys, id: \.self) { key in
-                Button {
-                    hideKeyboard()
-                    viewModel.getSearchedResult(key: key)
-                } label: {
-                    HStack(alignment: .firstTextBaseline) {
-                        AppImages.iconClock
-                            .font(.caption)
-                            .bold()
-                            .foregroundStyle(.primary)
-                        VStack(alignment: .leading, spacing: 0) {
-                            Text(key)
-                                .font(.body)
+            if !viewModel.searchedKeys.isEmpty {
+                Text("Risent search")
+                    .foregroundStyle(.secondary).bold()
+                    .padding()
+                ForEach(viewModel.searchedKeys, id: \.self) { key in
+                    Button {
+                        hideKeyboard()
+                        viewModel.getSearchedResult(key: key)
+                    } label: {
+                        HStack(alignment: .firstTextBaseline) {
+                            AppImages.iconClock
+                                .font(.caption)
                                 .bold()
                                 .foregroundStyle(.primary)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                            if let result = viewModel.searchDataManager.loadedSearchText[key] {
-                                HStack {
-                                    if result.eventsCount == 0 && result.placeCount == 0 {
-                                        Text("No results found")
-                                    }  else {
-                                        if result.eventsCount > 0 {
-                                            Text(String(result.eventsCount))
-                                            + Text(result.eventsCount > 1 ? " events" : " event")
-                                        }
-                                        if ((result.eventsCount > 0) && (result.placeCount > 0)) {
-                                            Text("•")
-                                        }
-                                        if result.placeCount > 0 {
-                                            Text(String(result.placeCount)) + Text(result.placeCount > 1 ? " places" : " place")
+                            VStack(alignment: .leading, spacing: 0) {
+                                Text(key)
+                                    .font(.body)
+                                    .bold()
+                                    .foregroundStyle(.primary)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                if let result = viewModel.searchDataManager.loadedSearchText[key] {
+                                    HStack {
+                                        if result.eventsCount == 0 && result.placeCount == 0 {
+                                            Text("No results found")
+                                        }  else {
+                                            if result.eventsCount > 0 {
+                                                Text(String(result.eventsCount))
+                                                + Text(result.eventsCount > 1 ? " events" : " event")
+                                            }
+                                            if ((result.eventsCount > 0) && (result.placeCount > 0)) {
+                                                Text("•")
+                                            }
+                                            if result.placeCount > 0 {
+                                                Text(String(result.placeCount)) + Text(result.placeCount > 1 ? " places" : " place")
+                                            }
                                         }
                                     }
+                                    .font(.footnote)
+                                    .foregroundColor(.secondary)
+                                    .multilineTextAlignment(.leading)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
                                 }
-                                .font(.footnote)
-                                .foregroundColor(.secondary)
+                            }
+                            AppImages.iconArrowDownLeft
+                                .font(.caption)
+                                .bold()
+                                .foregroundStyle(.secondary)
+                        }
+                        .padding(.vertical, 10)
+                        .contentShape(Rectangle())
+                    }
+                }
+                Spacer(minLength: 20)
+                    .listRowSeparator(.hidden)
+            }
+            if !viewModel.last10SearchResults.isEmpty {
+                Text("Last search")
+                    .foregroundStyle(.secondary).bold()
+                    .padding()
+                ForEach(viewModel.last10SearchResults) { item in
+                    Button {
+                        hideKeyboard()
+                        viewModel.searchText = item.text
+                        viewModel.search()
+                    } label: {
+                        HStack(alignment: .firstTextBaseline) {
+                            AppImages.iconSearch
+                                .font(.caption)
+                                .bold()
+                            Text(item.text)
+                                .font(.body)
                                 .multilineTextAlignment(.leading)
                                 .frame(maxWidth: .infinity, alignment: .leading)
-                            }
                         }
-                        AppImages.iconArrowDownLeft
-                            .font(.caption)
-                            .bold()
-                            .foregroundStyle(.secondary)
+                        .foregroundStyle(.secondary)
+                        .padding(.vertical, 10)
+                        .contentShape(Rectangle())
                     }
-                    .padding(.vertical, 10)
-                    .contentShape(Rectangle())
                 }
             }
-            ForEach(viewModel.last10SearchResults) { item in
-                Button {
-                    hideKeyboard()
-                    viewModel.searchText = item.text
-                    viewModel.search()
-                } label: {
-                    HStack(alignment: .firstTextBaseline) {
-                        AppImages.iconSearch
-                            .font(.caption)
-                            .bold()
-                        Text(item.text)
-                            .font(.body)
-                            .multilineTextAlignment(.leading)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                    }
-                    .foregroundStyle(.secondary)
-                    .padding(.vertical, 10)
-                    .contentShape(Rectangle())
-                }
-            }
-
         }
         .listSectionSeparator(.hidden)
         .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
@@ -442,6 +490,50 @@ struct SearchView: View {
                 showType: false,
                 showAddress: true
             )
+        }
+    }
+    
+    private var allCountriesView: some View {
+        ForEach(viewModel.countries) { country in
+            NavigationLink {
+                CountryView(viewModel: CountryView.CountryViewModel(modelContext: viewModel.modelContext, country: country, catalogNetworkManager: viewModel.catalogNetworkManager, placeNetworkManager: viewModel.placeNetworkManager, eventNetworkManager: viewModel.eventNetworkManager, errorManager: viewModel.errorManager, placeDataManager: viewModel.placeDataManager, eventDataManager: viewModel.eventDataManager, catalogDataManager: viewModel.catalogDataManager, commentsNetworkManager: viewModel.commentsNetworkManager, notificationsManager: viewModel.notificationsManager))
+            } label: {
+                countryCell(country: country)
+            }
+        }
+    }
+    
+    private func countryCell(country: Country) -> some View {
+        VStack(spacing: 0) {
+            HStack(spacing: 20) {
+                Text(country.flagEmoji)
+                    .font(.title)
+                    .frame(width: 50, height: 50)
+                    .clipShape(Circle())
+                VStack(alignment: .leading, spacing: 0) {
+                    Text(country.name)
+                        .font(.title2)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    HStack {
+                        if country.eventsCount > 0 {
+                            Text(String(country.eventsCount))
+                            + Text(country.eventsCount > 1 ? " events" : " event")
+                        }
+                        if ((country.eventsCount > 0) && (country.placesCount > 0)) {
+                            Text("•")
+                        }
+                        if country.placesCount > 0 {
+                            Text(String(country.placesCount)) + Text(country.placesCount > 1 ? " places" : " place")
+                        }
+                    }
+                    .font(.footnote)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.leading)
+                }
+            }
+            .padding(.vertical, 10)
+            Divider()
+                .offset(x: 70)
         }
     }
 }

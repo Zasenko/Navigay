@@ -38,6 +38,9 @@ extension SearchView {
     @Observable
     class SearchViewModel {
         
+        var isLoading: Bool = false
+        var countries: [Country] = []
+        
         var modelContext: ModelContext
         
         var isSearching: Bool = false
@@ -121,6 +124,9 @@ extension SearchView {
             self.notificationsManager = notificationsManager
             searchedKeys = searchDataManager.loadedSearchText.keys.uniqued()
             
+            getCountriesFromDB()
+            fetchCountries()
+            
             cancellable = textSubject
              //   .debounce(for: .seconds(0), scheduler: DispatchQueue.main)
                 .sink { [weak self] searchText in
@@ -133,11 +139,13 @@ extension SearchView {
                                 self?.searchEvents = []
                                 self?.searchPlaces = []
                                 self?.searchedKeys = searchDataManager.loadedSearchText.keys.uniqued()
+                                //todo last10SearchResults update
                             }
                         }
                         return
                     }
                     self?.searchedKeys = searchDataManager.loadedSearchText.keys.uniqued().filter( { $0.contains(searchText)} )
+                    //todo last10SearchResults update
                 }
         }
         
@@ -165,6 +173,7 @@ extension SearchView {
             guard searchText.count > 2 else {
                 errorManager.showError(model: ErrorModel(error: SearchError.searchTextLessThan3, message: "Search text must be at least 3 characters long."))
                 searchedKeys = searchDataManager.loadedSearchText.keys.uniqued()
+                //todo last10SearchResults update
                 selectedCategory = .all
                 categories = []
                 searchEvents = []
@@ -308,6 +317,50 @@ extension SearchView {
                 } catch {
                     debugPrint("--- ERROR SearchViewModel --- searchInDB: ", error)
                 }
+            }
+        }
+        
+        func getCountriesFromDB() {
+            print("--- catalog  getCountriesFromDB()")
+            countries = catalogDataManager.getAllCountries(modelContext: modelContext)
+            if countries.isEmpty {
+                isLoading = true
+            }
+        }
+        
+        func fetchCountries() {
+            Task {
+                guard !catalogDataManager.isCountriesLoaded else {
+                    return
+                }
+                do {
+                    let decodedCountries = try await self.catalogNetworkManager.fetchCountries()
+                    await updateCoutries(decodedCountries: decodedCountries)
+                } catch NetworkErrors.noConnection {
+                } catch NetworkErrors.apiError(let apiError) {
+                    errorManager.showApiError(apiError: apiError, or: errorManager.updateMessage, img: nil, color: nil)
+                } catch {
+                    errorManager.showUpdateError(error: error)
+                }
+                await MainActor.run {
+                    isLoading = false
+                }
+            }
+        }
+        
+        private func updateCoutries(decodedCountries: [DecodedCountry]) async {
+            let ids = decodedCountries.map { $0.id }
+            var countriesToDelete: [Country] = []
+            countries.forEach { country in
+                if !ids.contains(country.id) {
+                    countriesToDelete.append(country)
+                }
+            }
+            await MainActor.run { [countriesToDelete] in
+                let newCountries = catalogDataManager.updateCountries(decodedCountries: decodedCountries, modelContext: modelContext)
+                countries = newCountries.sorted(by: { $0.name < $1.name})
+                catalogDataManager.changeCountriesLoadStatus()
+                countriesToDelete.forEach( { modelContext.delete($0) } )
             }
         }
     }
