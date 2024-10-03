@@ -76,7 +76,7 @@ struct WelcomeView: View {
             Button {
                 showPartnerRegistrationView = true
             } label: {
-                authButton(img: AppImages.iconPartnersRegistrations, text: "For Partners")
+                authButton(img: AppImages.iconPartnersRegistrations, text: "Partner Registration")
             }
             .fullScreenCover(isPresented: $showPartnerRegistrationView) {
                 PartnerRegistrationView(viewModel: PartnerRegistrationViewModel(isPresented: $firstTimeInApp))
@@ -96,7 +96,7 @@ struct WelcomeView: View {
             .foregroundStyle(deviceColorScheme == .light ? .primary : .primary)
             .font(.subheadline)
         }
-        .frame(maxWidth: 200)
+        .frame(maxWidth: 240)
     }
     
     private func authButton(img: Image, text: String) -> some View {

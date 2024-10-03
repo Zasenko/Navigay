@@ -21,7 +21,7 @@ struct PartnerRegistrationView: View {
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
     @Namespace private var namespace
-
+    
     // MARK: - Init
     
     init(viewModel: PartnerRegistrationViewModel) {
@@ -60,29 +60,26 @@ struct PartnerRegistrationView: View {
     private var listView: some View {
         GeometryReader { proxy in
             ScrollView {
-                Text("Partner Registration")
-                    .font(.largeTitle)
-                    .bold()
-                    .frame(maxWidth: .infinity)
-                    .padding(.bottom, 20)
-                    .listRowSeparator(.hidden)
-                VStack {
-                    VStack(spacing: 20) {
-                        emailView
-                        passwordView
-                        typeView(proxy: proxy)
-                            .padding(.bottom)
+                LazyVStack {
+                    Text("Partner Registration")
+                        .font(.largeTitle)
+                        .bold()
+                        .frame(maxWidth: .infinity)
+                        .padding(.bottom, 20)
+                    VStack {
+                        VStack(spacing: 20) {
+                            emailView
+                            passwordView
+                            typeView(proxy: proxy)
+                                .padding(.bottom)
+                        }
+                        .frame(maxWidth: 400)
                     }
-                    .frame(maxWidth: 400)
+                    .frame(maxWidth: .infinity)
+                    registrationButtonView
                 }
-                .frame(maxWidth: .infinity)
-                .listRowSeparator(.hidden)
-                registrationButtonView
-                    .listRowSeparator(.hidden)
+                .padding()
             }
-            .padding()
-            //.listStyle(.plain)
-            // .buttonStyle(.plain)
             .scrollIndicators(.hidden)
             .onTapGesture {
                 focusedField = nil
@@ -94,55 +91,68 @@ struct PartnerRegistrationView: View {
     private func typeView(proxy: GeometryProxy) -> some View {
         VStack {
             Text("Partner type")
-                .font(.caption)
+                .font(.caption).bold()
                 .foregroundColor(.secondary)
-            Button {
-                focusedField = nil
-                if viewModel.type == .location {
-                    withAnimation {
-                        viewModel.type = .organizer
+            HStack {
+                ZStack {
+                    if viewModel.type == .location {
+                        Color.green
+                            .frame(maxWidth: .infinity, maxHeight: 50)
+                            .clipShape(Capsule())
+                            .matchedGeometryEffect(id: "type", in: namespace)
                     }
-                } else {
-                    withAnimation {
-                        viewModel.type = .location
-                    }
-                }
-            } label: {
-                HStack {
-                    ZStack {
+                    Button {
+                        focusedField = nil
                         if viewModel.type == .location {
-                            Color.green
-                                .frame(maxWidth: .infinity, maxHeight: 50)
-                                .clipShape(Capsule())
-                                .matchedGeometryEffect(id: "type", in: namespace)
-                            
+                            withAnimation {
+                                viewModel.type = .organizer
+                            }
+                        } else {
+                            withAnimation {
+                                viewModel.type = .location
+                            }
                         }
+                    } label: {
                         Text("Location")
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(viewModel.type == .location ? .primary : .secondary)
                             .font(.body)
                             .bold()
                             .padding()
                     }
-                    .frame(maxWidth: .infinity)
-                    ZStack {
-                        if viewModel.type == .organizer {
-                            Color.green
-                                .frame(maxWidth: .infinity, maxHeight: 50)
-                                .clipShape(Capsule())
-                                .matchedGeometryEffect(id: "type", in: namespace)
-                        }
-                        Text("Event Organizer")
-                            .foregroundStyle(.secondary)
-                            .font(.body)
-                            .bold()
-                            .padding()
-                    }
-                    .frame(maxWidth: .infinity)
                 }
                 .frame(maxWidth: .infinity)
-                .background(AppColors.lightGray6)
-                .clipShape(Capsule())
+                ZStack {
+                    if viewModel.type == .organizer {
+                        Color.green
+                            .frame(maxWidth: .infinity, maxHeight: 50)
+                            .clipShape(Capsule())
+                            .matchedGeometryEffect(id: "type", in: namespace)
+                    }
+                    Button {
+                        focusedField = nil
+                        if viewModel.type == .location {
+                            withAnimation {
+                                viewModel.type = .organizer
+                            }
+                        } else {
+                            withAnimation {
+                                viewModel.type = .location
+                            }
+                        }
+                    } label: {
+                        Text("Event Organizer")
+                            .foregroundStyle(viewModel.type == .organizer ? .primary : .secondary)
+                            .font(.body)
+                            .bold()
+                            .padding()
+                    }
+                }
+                .frame(maxWidth: .infinity)
             }
+            .frame(maxWidth: .infinity)
+            .background(AppColors.lightGray6)
+            .clipShape(Capsule())
+            
             ZStack(alignment: .topLeading) {
                 Text("Create your unique page for your location. Provide the address, hours of operation, and other essential details. You will also have the option to add events hosted at your location.")
                     .font(.callout)
@@ -236,21 +246,21 @@ struct PartnerRegistrationView: View {
                     Text("At least 8 characters")
                 }
                 .foregroundColor(viewModel.isPasswordCountValid ? .green : .secondary)
-
+                
                 HStack(alignment: .firstTextBaseline) {
                     AppImages.iconCheckmark
                         .opacity(viewModel.isPasswordNumberValid ? 1 : 0)
                     Text("At least one number")
                 }
                 .foregroundColor(viewModel.isPasswordNumberValid ? .green : .secondary)
-
+                
                 HStack(alignment: .firstTextBaseline) {
                     AppImages.iconCheckmark
                         .opacity(viewModel.isPasswordLetterValid ? 1 : 0)
                     Text("At least one letter")
                 }
                 .foregroundColor(viewModel.isPasswordLetterValid ? .green : .secondary)
-
+                
             }
             .font(.footnote)
             .multilineTextAlignment(.leading)
@@ -258,7 +268,7 @@ struct PartnerRegistrationView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
-        
+    
     private var registrationButtonView: some View {
         Button {
             registrationButtonTapped()
@@ -289,9 +299,9 @@ struct PartnerRegistrationView: View {
         .frame(maxWidth: .infinity)
         .disabled(!viewModel.isFormValid)
     }
-        
+    
     // MARK: - Private Functions
-        
+    
     @MainActor
     private func registrationButtonTapped() {
         focusedField = nil
